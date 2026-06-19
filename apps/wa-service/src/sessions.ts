@@ -162,7 +162,7 @@ export async function startSession(companyId: string) {
     syncFullHistory: false,
     markOnlineOnConnect: false,
     generateHighQualityLinkPreview: true,
-    emitOwnEvents: false,
+    emitOwnEvents: true, // Cambiado a true para que los mensajes enviados se vean en el celular
     retryRequestDelayMs: 1000, 
     connectTimeoutMs: 60_000,
     keepAliveIntervalMs: 10_000,
