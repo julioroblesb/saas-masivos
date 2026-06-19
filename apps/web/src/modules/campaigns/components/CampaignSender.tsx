@@ -24,6 +24,28 @@ export function CampaignSender() {
   const [minDelaySec, setMinDelaySec] = useState(45);
   const [maxDelaySec, setMaxDelaySec] = useState(90);
   const [queued, setQueued] = useState(false);
+  const [companySettings, setCompanySettings] = useState<{ greetings?: string[], farewells?: string[] }>({});
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const { supabase } = await import('../../../shared/utils/supabase');
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+        if (profile?.company_id) {
+          const { data: company } = await supabase.from('companies').select('settings').eq('id', profile.company_id).single();
+          if (company?.settings) {
+            setCompanySettings(company.settings);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading settings', err);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const availableTags = useMemo(() => {
     const tags = new Set<string>();
@@ -92,7 +114,7 @@ export function CampaignSender() {
           phone: c.phone,
           name: c.name,
           // Para cada paso de la secuencia, generamos su versión resuelta única (Spintax + Huella Invisible + Variables)
-          messages: sequence.map(s => s.type === 'text' ? resolveSpintax(s.content, c.name) : '')
+          messages: sequence.map(s => s.type === 'text' ? resolveSpintax(s.content, companySettings) : '')
         }))
       };
 

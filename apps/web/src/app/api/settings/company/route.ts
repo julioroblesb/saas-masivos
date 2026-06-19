@@ -10,16 +10,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { companyName, companyId } = await req.json();
+    const { companyName, companyId, settings } = await req.json();
 
     if (!companyName || !companyName.trim()) {
       return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 });
     }
 
     // 1. Actualizar en la base de datos local
+    const updateData: any = { name: companyName.trim() };
+    
+    // Si se enviaron configuraciones, las guardamos en el campo JSONB
+    if (settings) {
+      updateData.settings = settings;
+    }
+
     const { error: updateError } = await supabase
       .from('companies')
-      .update({ name: companyName.trim() })
+      .update(updateData)
       .eq('id', companyId);
 
     if (updateError) {
