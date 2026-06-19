@@ -46,20 +46,25 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       setStatus('conectando'); // Asumimos que si hay QR, estamos intentando conectar
     }).subscribe();
 
-    // 3. Polling simple para revisar si ya se conectó (como no tenemos realtime tables activo por defecto)
+    // 3. Polling simple para revisar el estado en BuilderBot Cloud
     const interval = setInterval(async () => {
-      const { data } = await supabase
-        .from('wa_sessions')
-        .select('status')
-        .eq('company_id', companyId)
-        .maybeSingle();
-      
-      if (data && data.status !== status) {
-        setStatus(data.status);
-        if (data.status === 'conectado') {
-          setQrCode(null);
-          toast.success('¡WhatsApp conectado exitosamente!');
+      try {
+        const res = await fetch('/api/wa/status');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status && data.status !== status) {
+            setStatus(data.status);
+            if (data.status === 'conectado') {
+              setQrCode(null);
+              toast.success('¡WhatsApp conectado exitosamente!');
+            }
+          }
+          if (data.qr && data.qr !== qrCode) {
+            setQrCode(data.qr);
+          }
         }
+      } catch (err) {
+        console.error('Error polling status:', err);
       }
     }, 5000);
 
@@ -72,13 +77,17 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const handleStartSession = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/wa/start', { method: 'POST' });
+      const res = await fetch('/api/wa/instance', { method: 'POST' });
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || errorData.details || 'Error al iniciar');
       }
+      const data = await res.json();
       setStatus('esperando_qr');
-      toast.success('Iniciando motor, por favor espera el QR...');
+      if (data.qr) {
+        setQrCode(data.qr);
+      }
+      toast.success('Instancia creada, por favor escanea el QR...');
     } catch (err: any) {
       toast.error(err.message || 'Ocurrió un error al conectar con el servidor.');
       setStatus('desconectado');
