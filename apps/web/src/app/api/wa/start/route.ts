@@ -33,15 +33,16 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      console.error('Error del motor WA:', await response.text());
-      return NextResponse.json({ error: 'Error al comunicarse con el motor de WhatsApp' }, { status: 500 });
+      const errText = await response.text();
+      console.error('Error del motor WA:', errText);
+      return NextResponse.json({ error: `Error de Render: ${errText}` }, { status: 500 });
     }
 
     const data = await response.json();
     return NextResponse.json(data);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en /api/wa/start:', error);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Error interno del servidor', details: error.toString() }, { status: 500 });
   }
 }

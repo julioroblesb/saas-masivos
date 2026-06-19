@@ -73,11 +73,14 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     setLoading(true);
     try {
       const res = await fetch('/api/wa/start', { method: 'POST' });
-      if (!res.ok) throw new Error('Error al iniciar');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || errorData.details || 'Error al iniciar');
+      }
       setStatus('esperando_qr');
       toast.success('Iniciando motor, por favor espera el QR...');
-    } catch (err) {
-      toast.error('Ocurrió un error al conectar con el servidor.');
+    } catch (err: any) {
+      toast.error(err.message || 'Ocurrió un error al conectar con el servidor.');
       setStatus('desconectado');
     } finally {
       setLoading(false);
