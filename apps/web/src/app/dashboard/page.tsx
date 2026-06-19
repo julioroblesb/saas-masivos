@@ -1,6 +1,8 @@
 import CampaignsView from '@/modules/campaigns/CampaignsView';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { Header } from '@/components/Header';
+import { WhatsappConnection } from '@/modules/whatsapp/WhatsappConnection';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -22,15 +24,18 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Panel de Campañas</h1>
-          {/* Aquí iría el componente para la vinculación QR del WhatsApp (wa-sessions) */}
-        </header>
-        <main>
-          <CampaignsView />
-        </main>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <Header title="Panel de Campañas" />
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <header className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight">Tus Campañas</h1>
+            <WhatsappConnection companyId={profile?.company_id} />
+          </header>
+          <main>
+            <CampaignsView />
+          </main>
+        </div>
       </div>
     </div>
   );

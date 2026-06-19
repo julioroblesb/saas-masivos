@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 import { redirect } from 'next/navigation';
 import { CreateTenantForm } from './CreateTenantForm';
+import { Header } from '@/components/Header';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,20 +26,26 @@ export default async function AdminPage() {
   }
 
   // Obtener la lista de empresas clientes
-  const { data: companies } = await supabaseAdmin
+  const { data: companies, error } = await supabaseAdmin
     .from('companies')
-    .select('*, profiles(email, full_name)')
+    .select('*, profiles(full_name)')
     .order('created_at', { ascending: false });
 
+  if (error) {
+    console.error('Error fetching companies:', error);
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="flex justify-between items-end">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Panel Súper Admin</h1>
-            <p className="text-zinc-500 dark:text-zinc-400">Gestión central de clientes (Tenants)</p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <Header title="Panel Súper Admin" />
+      <div className="p-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <header className="flex justify-between items-end">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Gestión de Clientes</h1>
+              <p className="text-zinc-500 dark:text-zinc-400">Control central de Tenants</p>
+            </div>
+          </header>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
