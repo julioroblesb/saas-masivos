@@ -5,13 +5,29 @@ import { Search, Plus, Trash2, Tag, Upload, Users, X } from 'lucide-react';
 import Card from '@/components/legacy/Card';
 
 export function MarketingContactsManager() {
-  const { data: contacts = [], isLoading } = useMarketingContacts();
+  const PAGE_SIZE = 100;
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset page on new search
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const { data: contactsData = { data: [], count: 0 }, isLoading } = useMarketingContacts(page, PAGE_SIZE, debouncedSearch);
+  const contacts = contactsData.data;
+  const totalCount = contactsData.count;
+
   const upsertContact = useUpsertMarketingContact();
   const batchInsert = useBatchInsertMarketingContacts();
   const deleteContact = useDeleteMarketingContact();
   const deleteByTag = useDeleteMarketingContactsByTag();
 
-  const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [isDeleteTagOpen, setIsDeleteTagOpen] = useState(false);
@@ -20,26 +36,10 @@ export function MarketingContactsManager() {
   const [newName, setNewName] = useState('');
   const [newTags, setNewTags] = useState('');
   const [batchText, setBatchText] = useState('');
-  const [page, setPage] = useState(1);
-  const PAGE_SIZE = 100;
 
   const mouseDownOnBackdropAdd   = useRef(false);
   const mouseDownOnBackdropBatch = useRef(false);
   const mouseDownOnBackdropDeleteTag = useRef(false);
-
-  const filtered = useMemo(() => contacts.filter(c =>
-    c.phone.includes(search) ||
-    (c.name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (c.tags || []).some(t => t.toLowerCase().includes(search.toLowerCase()))
-  ), [contacts, search]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  const paginatedContacts = useMemo(() => {
-    return filtered.slice(0, page * PAGE_SIZE);
-  }, [filtered, page]);
 
   const handleDeleteByTag = () => {
     if (!deleteTagText.trim()) return;
@@ -133,12 +133,12 @@ export function MarketingContactsManager() {
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
             {isLoading && <tr><td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500">Cargando contactos...</td></tr>}
-            {!isLoading && filtered.length === 0 && (
+            {!isLoading && contacts.length === 0 && (
               <tr><td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500">
                 {search ? 'No se encontraron contactos con esa búsqueda.' : 'Aún no hay contactos. Agrega el primero.'}
               </td></tr>
             )}
-            {paginatedContacts.map((c) => (
+            {contacts.map((c) => (
               <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-5 py-3 font-mono text-[0.88rem] font-semibold text-slate-900 dark:text-slate-200">{c.phone}</td>
                 <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-sm">{c.name || <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
@@ -166,11 +166,20 @@ export function MarketingContactsManager() {
                 </td>
               </tr>
             ))}
-            {filtered.length > paginatedContacts.length && (
+            {totalCount > page * PAGE_SIZE && (
               <tr>
                 <td colSpan={5} className="p-4 text-center">
                   <button onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors">
-                    Cargar más contactos ({filtered.length - paginatedContacts.length} restantes)
+                    Siguiente Página ({Math.min(PAGE_SIZE, totalCount - page * PAGE_SIZE)} restantes)
+                  </button>
+                </td>
+              </tr>
+            )}
+            {page > 1 && (
+              <tr>
+                <td colSpan={5} className="p-4 text-center">
+                  <button onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors">
+                    Página Anterior
                   </button>
                 </td>
               </tr>

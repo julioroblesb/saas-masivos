@@ -5,19 +5,28 @@ import { mapMarketingContactFromDB } from '../../services/crmMappers';
 import { RpcUpsertMarketingContactSchema, RpcBatchInsertMarketingContactsSchema } from '../../shared/validators/crm.schema';
 import { crmToast } from '../useToast';
 
-export function useMarketingContacts() {
+export function useMarketingContacts(page: number = 1, pageSize: number = 100, search: string = '') {
   return useQuery({
-    queryKey: ['marketing-contacts'],
-    queryFn: async (): Promise<CRMMarketingContact[]> => {
-      const { data, error } = await supabase
-        .from('crm_marketing_contacts')
-        .select('*')
+    queryKey: ['marketing-contacts', page, pageSize, search],
+    queryFn: async (): Promise<{ data: CRMMarketingContact[]; count: number }> => {
+      let query;
+
+      if (search.trim()) {
+        query = supabase.rpc('search_contacts', { search_term: search.trim() }, { count: 'exact' });
+      } else {
+        query = supabase.from('crm_marketing_contacts').select('*', { count: 'exact' });
+      }
+
+      const { data, error, count } = await query
         .order('created_at', { ascending: false })
-        .limit(10000);
+        .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (error) throw error;
 
-      return (data || []).map(mapMarketingContactFromDB);
+      return {
+        data: (data || []).map(mapMarketingContactFromDB),
+        count: count || 0
+      };
     },
     staleTime: 1000 * 60 * 2
   });
