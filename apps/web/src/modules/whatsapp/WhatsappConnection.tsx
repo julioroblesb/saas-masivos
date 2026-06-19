@@ -46,22 +46,35 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       setStatus('conectando'); // Asumimos que si hay QR, estamos intentando conectar
     }).subscribe();
 
-    // 3. Suscripción a cambios de estado en tiempo real (eliminando el polling completamente)
-    const sessionChannel = supabase.channel(`wa_status_${companyId}`);
-    sessionChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wa_sessions', filter: `company_id=eq.${companyId}` }, (payload) => {
-      const newStatus = payload.new.status;
-      if (newStatus && newStatus !== status) {
-        setStatus(newStatus);
-        if (newStatus === 'conectado') {
-          setQrCode(null);
-          toast.success('¡WhatsApp conectado exitosamente!');
+    // 3. Polling inteligente: SOLO revisar el estado si estamos conectando o esperando QR
+    // Necesitamos consultar a BuilderBot Cloud para obtener el QR y el status real
+    let interval: NodeJS.Timeout;
+    if (status === 'conectando' || status === 'esperando_qr') {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/wa/status');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status && data.status !== status) {
+              setStatus(data.status);
+              if (data.status === 'conectado') {
+                setQrCode(null);
+                toast.success('¡WhatsApp conectado exitosamente!');
+              }
+            }
+            if (data.qr && data.qr !== qrCode) {
+              setQrCode(data.qr);
+            }
+          }
+        } catch (err) {
+          console.error('Error polling status:', err);
         }
-      }
-    }).subscribe();
+      }, 5000);
+    }
 
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(sessionChannel);
+      if (interval) clearInterval(interval);
     };
   }, [companyId, status, supabase]);
 

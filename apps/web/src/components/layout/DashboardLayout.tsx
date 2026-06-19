@@ -11,9 +11,9 @@ import { LayoutDashboard, Users, Megaphone, Settings } from 'lucide-react';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Clientes', href: '/clientes', icon: Users },
-  { label: 'Campañas', href: '/campanas', icon: Megaphone },
-  { label: 'Configuración', href: '/configuracion', icon: Settings },
+  { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
+  { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
+  { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
