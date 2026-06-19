@@ -64,7 +64,7 @@ export function useCampaignQueue(campaignId: string) {
         .from('crm_wa_queue')
         .select('*')
         .eq('campaign_id', campaignId)
-        .order('scheduled_for', { ascending: true });
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       return (data || []).map(mapWaQueueItemFromDB);
