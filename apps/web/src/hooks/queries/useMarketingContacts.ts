@@ -3,6 +3,7 @@ import { supabase } from '../../shared/utils/supabase';
 import type { CRMMarketingContact } from '../../types/crm';
 import { mapMarketingContactFromDB } from '../../services/crmMappers';
 import { RpcUpsertMarketingContactSchema, RpcBatchInsertMarketingContactsSchema } from '../../shared/validators/crm.schema';
+import { crmToast } from '../useToast';
 
 export function useMarketingContacts() {
   return useQuery({
@@ -37,8 +38,14 @@ export function useUpsertMarketingContact() {
       if (error) throw error;
       return data;
     },
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
+      crmToast.success('Contacto guardado exitosamente');
+    },
+    onError: (error: Error) => {
+      console.error('[useUpsertMarketingContact]', error);
+      crmToast.error(`Error al guardar contacto: ${error.message}`);
     }
   });
 }
@@ -54,8 +61,14 @@ export function useBatchInsertMarketingContacts() {
       if (error) throw error;
       return data;
     },
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
+      crmToast.success('Contactos importados exitosamente');
+    },
+    onError: (error: Error) => {
+      console.error('[useBatchInsertMarketingContacts]', error);
+      crmToast.error(`Error al importar contactos: ${error.message}`);
     }
   });
 }
@@ -71,8 +84,14 @@ export function useDeleteMarketingContact() {
       if (error) throw error;
       return data;
     },
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
+      crmToast.success('Contacto eliminado');
+    },
+    onError: (error: Error) => {
+      console.error('[useDeleteMarketingContact]', error);
+      crmToast.error(`Error al eliminar contacto: ${error.message}`);
     }
   });
 }
@@ -91,8 +110,13 @@ export function useDeleteMarketingContactsByTag() {
       if (error) throw error;
       return data;
     },
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
+    },
+    onError: (error: Error) => {
+      console.error('[useDeleteMarketingContactsByTag]', error);
+      crmToast.error(`Error al eliminar contactos: ${error.message}`);
     }
   });
 }

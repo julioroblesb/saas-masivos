@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 import { startSession, sessions } from './sessions';
 import { startWorker } from './worker';
+import { supabaseAdmin } from './supabaseClient';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -46,8 +47,38 @@ app.get('/internal/sessions/:companyId/status', authMiddleware, (req, res) => {
   res.json({ status: isActive ? 'active' : 'inactive' });
 });
 
-app.listen(PORT, () => {
+async function autoRecoverSessions() {
+  console.log('[Baileys Service] Buscando sesiones activas para recuperar...');
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('wa_sessions')
+      .select('company_id, status')
+      .in('status', ['conectado', 'conectando', 'reconectando']);
+
+    if (error) {
+      console.error('[Baileys Service] Error al buscar sesiones activas:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`[Baileys Service] Se encontraron ${data.length} sesiones. Iniciando auto-recovery...`);
+      for (const session of data) {
+        startSession(session.company_id).catch(err => {
+          console.error(`[Baileys Service] Error recuperando sesión ${session.company_id}:`, err);
+        });
+      }
+    } else {
+      console.log('[Baileys Service] No hay sesiones activas para recuperar.');
+    }
+  } catch (err) {
+    console.error('[Baileys Service] Error crítico en auto-recovery:', err);
+  }
+}
+
+app.listen(PORT, async () => {
   console.log(`[Baileys Service] Listening on port ${PORT}`);
+  // Recuperar sesiones huérfanas por reinicio del servidor
+  await autoRecoverSessions();
   // Iniciar el worker de envíos en segundo plano
   startWorker();
 });
