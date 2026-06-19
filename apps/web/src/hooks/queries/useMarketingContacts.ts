@@ -38,7 +38,6 @@ export function useUpsertMarketingContact() {
       if (error) throw error;
       return data;
     },
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
       crmToast.success('Contacto guardado exitosamente');
@@ -61,7 +60,6 @@ export function useBatchInsertMarketingContacts() {
       if (error) throw error;
       return data;
     },
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
       crmToast.success('Contactos importados exitosamente');
@@ -83,7 +81,6 @@ export function useDeleteMarketingContact() {
       });
       if (error) throw error;
       return data;
-    },
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
@@ -109,7 +106,6 @@ export function useDeleteMarketingContactsByTag() {
       });
       if (error) throw error;
       return data;
-    },
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
