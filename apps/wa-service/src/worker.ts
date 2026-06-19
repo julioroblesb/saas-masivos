@@ -35,7 +35,7 @@ async function processQueue() {
     `)
     .eq('status', 'pendiente')
     .in('company_id', activeCompanyIds)
-    .eq('crm_wa_campaigns.status', 'activa')
+    .eq('crm_wa_campaigns.status', 'running')
     .order('created_at', { ascending: true })
     .limit(50); // Batch de 50 para no ahogar memoria
 

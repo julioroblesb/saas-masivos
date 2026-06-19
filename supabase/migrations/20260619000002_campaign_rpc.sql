@@ -22,7 +22,7 @@ BEGIN
 
     -- Insertar la campaña
     INSERT INTO crm_wa_campaigns (company_id, name, message_template, status, total_contacts)
-    VALUES (v_company_id, p_name, 'Sequence', 'activa', jsonb_array_length(p_contacts))
+    VALUES (v_company_id, p_name, 'Sequence', 'running', 0)
     RETURNING id INTO v_campaign_id;
 
     -- Encolar los mensajes para todos los contactos
@@ -41,6 +41,8 @@ BEGIN
             v_queued_items := v_queued_items + 1;
         END LOOP;
     END LOOP;
+
+    UPDATE crm_wa_campaigns SET total_contacts = v_queued_items WHERE id = v_campaign_id;
 
     RETURN jsonb_build_object(
         'success', true,
@@ -75,7 +77,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION increment_campaign_sent(p_campaign_id uuid) RETURNS void AS $$
 BEGIN
     UPDATE crm_wa_campaigns
-    SET sent_count = sent_count + 1
+    SET sent_count = sent_count + 1,
+        status = CASE WHEN sent_count + 1 + failed_count >= total_contacts THEN 'completed' ELSE status END
     WHERE id = p_campaign_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -83,7 +86,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION increment_campaign_failed(p_campaign_id uuid) RETURNS void AS $$
 BEGIN
     UPDATE crm_wa_campaigns
-    SET failed_count = failed_count + 1
+    SET failed_count = failed_count + 1,
+        status = CASE WHEN sent_count + failed_count + 1 >= total_contacts THEN 'completed' ELSE status END
     WHERE id = p_campaign_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
