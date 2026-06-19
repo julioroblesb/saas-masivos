@@ -26,7 +26,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
         .from('wa_sessions')
         .select('status')
         .eq('company_id', companyId)
-        .single();
+        .maybeSingle();
       
       if (data) {
         setStatus(data.status);
@@ -52,7 +52,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
         .from('wa_sessions')
         .select('status')
         .eq('company_id', companyId)
-        .single();
+        .maybeSingle();
       
       if (data && data.status !== status) {
         setStatus(data.status);
