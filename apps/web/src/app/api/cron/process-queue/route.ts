@@ -67,29 +67,19 @@ export async function GET(req: Request) {
           
         if (!session?.bb_project_id) throw new Error('No hay bb_project_id en sesión');
         
-        // 1. Obtener la IP/Host actual del bot
-        const statusRes = await fetch(`${process.env.BUILDERBOT_API_URL || 'https://app.builderbot.cloud/api/v1'}/manager/deploys/${session.bb_project_id}/status`, {
-          headers: { 'x-api-builderbot': process.env.BUILDERBOT_API_KEY! }
-        });
-        const statusData = await statusRes.json();
-        
-        if (statusData.status !== 'ONLINE' || !statusData.host) {
-            throw new Error('El bot no está online o no tiene host asignado');
-        }
-
-        const hostUrl = statusData.host.startsWith('http') ? statusData.host : `https://${statusData.host}`;
-
-        // 2. Enviar el mensaje al endpoint del bot desplegado (el host público)
-        // Nota: Los deploys de BuilderBot exponen típicamente /v1/messages
-        const bbRes = await fetch(`${hostUrl}/v1/messages`, {
+        // Enviar el mensaje usando el nuevo endpoint v2 de BuilderBot Cloud
+        const bbRes = await fetch(`https://app.builderbot.cloud/api/v2/${session.bb_project_id}/messages`, {
            method: 'POST',
            headers: {
-             'Authorization': `Bearer ${process.env.BUILDERBOT_API_KEY}`,
+             'x-api-builderbot': process.env.BUILDERBOT_API_KEY!,
              'Content-Type': 'application/json'
            },
            body: JSON.stringify({
+             messages: {
+                 content: message
+             },
              number: phone,
-             text: message
+             checkIfExists: false
            })
         });
         
