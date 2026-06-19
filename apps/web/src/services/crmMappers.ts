@@ -20,6 +20,8 @@ export function mapWaCampaignFromDB(row: DBWaCampaignRow): WaCampaign {
     id: row.id,
     name: row.name,
     messageTemplate: row.message_template,
+    targetTag: row.target_tag,
+    sequence: row.sequence,
     status: row.status as any,
     total: row.total_contacts || 0,
     sent: row.sent_count || 0,

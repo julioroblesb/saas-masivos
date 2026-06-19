@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { DashboardHeader } from './DashboardHeader';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Megaphone, Settings } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -20,13 +21,47 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const [companyName, setCompanyName] = useState<string>('');
+
+  useEffect(() => {
+    async function loadCompany() {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_id')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.company_id) {
+          const { data: company } = await supabase
+            .from('companies')
+            .select('name')
+            .eq('id', profile.company_id)
+            .single();
+          if (company?.name) {
+            setCompanyName(company.name);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching company:', e);
+      }
+    }
+    loadCompany();
+  }, []);
+
+  const initial = companyName ? companyName.substring(0, 2).toUpperCase() : 'LR';
+  const displayName = companyName || 'Cargando...';
 
   return (
     <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#111827] text-zinc-900 dark:text-gray-100 font-sans transition-colors duration-300">
       
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
-        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} companyName={companyName} />
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -41,11 +76,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {/* Mobile Drawer */}
           <div className="relative flex flex-col w-[280px] h-full bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300">
             <div className="flex h-20 items-center justify-between px-4 border-b border-zinc-200 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
-                  <span className="text-white font-bold">LR</span>
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold">{initial}</span>
                 </div>
-                <h1 className="text-lg font-bold text-zinc-900 dark:text-white">Servicios Digitales</h1>
+                <h1 className="text-lg font-bold text-zinc-900 dark:text-white truncate" title={displayName}>
+                  {displayName}
+                </h1>
               </div>
               <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white p-2">
                 <X size={24} />

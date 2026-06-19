@@ -14,11 +14,23 @@ const menuItems = [
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ];
 
-export function Sidebar({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed: (c: boolean) => void }) {
+export function Sidebar({ 
+  collapsed, 
+  setCollapsed,
+  companyName 
+}: { 
+  collapsed: boolean, 
+  setCollapsed: (c: boolean) => void,
+  companyName?: string 
+}) {
   const pathname = usePathname();
   const [hovered, setHovered] = useState(false);
 
   const isCollapsed = collapsed && !hovered;
+
+  // Use the first two letters of the company name for the logo, or 'LR' as fallback
+  const initial = companyName ? companyName.substring(0, 2).toUpperCase() : 'LR';
+  const displayName = companyName || 'Cargando...';
 
   return (
     <div 
@@ -30,12 +42,14 @@ export function Sidebar({ collapsed, setCollapsed }: { collapsed: boolean, setCo
       onMouseLeave={() => setHovered(false)}
     >
       <div className="flex h-20 items-center justify-between px-4 border-b border-zinc-200 dark:border-gray-700">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
-             <span className="text-white font-bold">LR</span>
+             <span className="text-white font-bold">{initial}</span>
           </div>
           {!isCollapsed && (
-            <h1 className="text-lg font-bold text-zinc-900 dark:text-white truncate">Servicios Digitales</h1>
+            <h1 className="text-lg font-bold text-zinc-900 dark:text-white truncate" title={displayName}>
+              {displayName}
+            </h1>
           )}
         </div>
       </div>
