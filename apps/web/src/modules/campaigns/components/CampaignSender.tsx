@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useMarketingContacts } from '../../../hooks/queries/useMarketingContacts';
 import { useCreateCampaign } from '../../../hooks/queries/useCampaigns';
 import { useCampaignMediaUpload } from '../../../hooks/media/useCampaignMediaUpload';
