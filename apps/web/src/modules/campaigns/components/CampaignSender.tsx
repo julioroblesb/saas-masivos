@@ -12,7 +12,8 @@ import { SequenceEditor } from './Campaign/SequenceEditor';
 import { ExecutionPanel } from './Campaign/ExecutionPanel';
 
 export function CampaignSender() {
-  const { data: contacts = [] } = useMarketingContacts();
+  const { data: contactsData } = useMarketingContacts(1, 100000, '');
+  const contacts = contactsData?.data || [];
   const { uploadingIds, isUploadingAny, uploadMedia } = useCampaignMediaUpload();
   const { mutateAsync: createCampaign, isPending: isQueuing } = useCreateCampaign();
 
