@@ -75,11 +75,8 @@ export async function GET(req: Request) {
              'Content-Type': 'application/json'
            },
            body: JSON.stringify({
-             messages: {
-                 content: message
-             },
              number: phone,
-             checkIfExists: false
+             message: message
            })
         });
         
