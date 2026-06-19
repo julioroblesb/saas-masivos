@@ -55,6 +55,21 @@ export async function POST(req: Request) {
         updated_at: new Date().toISOString()
       });
 
+      // 2.5 Configurar el proyecto (Motor Baileys y API Key para que el cron pueda enviarle POSTs)
+      await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
+        method: 'PUT',
+        headers: {
+          'x-api-builderbot': BB_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          provider: 'baileys',
+          apiKey: BB_KEY, // Usamos la misma global key para no enredarnos
+          showRecordingEvents: false,
+          showTypingEvents: false
+        })
+      });
+
       // 3. Iniciar el Deploy
       const deployRes = await fetch(`${BB_API}/manager/deploys`, {
         method: 'POST',
