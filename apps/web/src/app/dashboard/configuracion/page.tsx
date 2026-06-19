@@ -55,12 +55,19 @@ export default function ConfiguracionPage() {
     
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('companies')
-        .update({ name: companyName.trim() })
-        .eq('id', companyId);
+      const res = await fetch('/api/settings/company', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ companyName: companyName.trim(), companyId })
+      });
 
-      if (error) throw error;
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error desconocido');
+      }
+
       toast.success('Configuración actualizada');
     } catch (error: any) {
       console.error('Error al guardar:', error);
