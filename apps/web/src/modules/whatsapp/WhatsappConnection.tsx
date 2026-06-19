@@ -46,31 +46,35 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       setStatus('conectando'); // Asumimos que si hay QR, estamos intentando conectar
     }).subscribe();
 
-    // 3. Polling simple para revisar el estado en BuilderBot Cloud
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/wa/status');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.status && data.status !== status) {
-            setStatus(data.status);
-            if (data.status === 'conectado') {
-              setQrCode(null);
-              toast.success('¡WhatsApp conectado exitosamente!');
+    // 3. Polling inteligente: SOLO revisar el estado si estamos conectando o esperando QR
+    // Si ya está conectado, no consumimos recursos del servidor (ahorro masivo de ejecuciones)
+    let interval: NodeJS.Timeout;
+    if (status === 'conectando' || status === 'esperando_qr') {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/wa/status');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status && data.status !== status) {
+              setStatus(data.status);
+              if (data.status === 'conectado') {
+                setQrCode(null);
+                toast.success('¡WhatsApp conectado exitosamente!');
+              }
+            }
+            if (data.qr && data.qr !== qrCode) {
+              setQrCode(data.qr);
             }
           }
-          if (data.qr && data.qr !== qrCode) {
-            setQrCode(data.qr);
-          }
+        } catch (err) {
+          console.error('Error polling status:', err);
         }
-      } catch (err) {
-        console.error('Error polling status:', err);
-      }
-    }, 5000);
+      }, 5000);
+    }
 
     return () => {
       supabase.removeChannel(channel);
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
   }, [companyId, status, supabase]);
 
