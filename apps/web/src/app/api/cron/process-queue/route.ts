@@ -76,7 +76,10 @@ export async function GET(req: Request) {
            },
            body: JSON.stringify({
              number: phone,
-             message: message
+             messages: {
+               content: message
+             },
+             checkIfExists: false
            })
         });
         
