@@ -87,7 +87,17 @@ export async function POST(req: Request) {
         throw new Error('Error iniciando deploy en BuilderBot');
       }
     } else {
-      // Si ya existía, intentar reiniciarlo por si estaba caído
+      // Si ya existía, sincronizamos el nombre del proyecto con el de la empresa
+      await fetch(`${BB_API}/manager/project/${projectId}`, {
+        method: 'PUT',
+        headers: {
+          'x-api-builderbot': BB_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: companyName })
+      });
+
+      // intentar reiniciarlo por si estaba caído
       await fetch(`${BB_API}/manager/deploys/${projectId}/reboot`, {
         method: 'POST',
         headers: { 'x-api-builderbot': BB_KEY }
