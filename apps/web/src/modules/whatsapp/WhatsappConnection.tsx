@@ -109,11 +109,42 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     );
   }
 
+  const handleDisconnect = async () => {
+    if (!confirm('¿Estás seguro de que quieres desvincular este WhatsApp? Se detendrá el envío de campañas y tendrás que volver a escanear el QR si deseas usarlo de nuevo.')) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/wa/disconnect', { method: 'POST' });
+      if (!res.ok) throw new Error('Error al desvincular');
+      
+      setStatus('desconectado');
+      setQrCode(null);
+      toast.success('WhatsApp desvinculado correctamente');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al desconectar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (status === 'conectado') {
     return (
-      <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-full border border-green-200 dark:border-green-900/50">
-        <CheckCircle2 className="w-5 h-5" />
-        <span className="text-sm font-medium">WhatsApp Vinculado</span>
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-full border border-green-200 dark:border-green-900/50">
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="text-sm font-medium">WhatsApp Vinculado</span>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleDisconnect} 
+          disabled={loading}
+          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+        >
+          {loading ? 'Desvinculando...' : 'Desvincular'}
+        </Button>
       </div>
     );
   }
