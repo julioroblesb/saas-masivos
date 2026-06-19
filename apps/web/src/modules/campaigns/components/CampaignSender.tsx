@@ -110,13 +110,7 @@ export function CampaignSender() {
           delayAfterMs: s.delayAfterMs
         })),
         minDelaySec,
-        maxDelaySec,
-        contacts: targetContacts.map(c => ({
-          phone: c.phone,
-          name: c.name,
-          // Para cada paso de la secuencia, generamos su versión resuelta única (Spintax + Huella Invisible + Variables)
-          messages: sequence.map(s => s.type === 'text' ? resolveSpintax(s.content, companySettings) : '')
-        }))
+        maxDelaySec
       };
 
       await createCampaign(payload);

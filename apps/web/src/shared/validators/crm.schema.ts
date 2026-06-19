@@ -35,14 +35,8 @@ export const RpcCreateCampaignSchema = z.object({
     mediaUrl:     z.string().url().optional(),
     delayAfterMs: z.number().int().min(0)
   })).min(1, 'La secuencia debe tener al menos un mensaje'),
-  p_contacts:      z.array(z.object({
-    phone:    z.string().min(5, 'Teléfono inválido'),
-    name:     z.string().optional(),
-    messages: z.array(z.string())  // content resuelto (Spintax aplicado), uno por paso
-  })).min(1, 'Debe haber al menos un contacto'),
-  p_min_delay_sec: z.number().int().min(5, 'El delay mínimo para testing es 5s').max(600),
-  p_max_delay_sec: z.number().int().min(5).max(600),
-  p_created_by:    pgUuid().nullable().optional()
+  p_min_delay_sec: z.number().int().min(10, 'El delay mínimo debe ser de 10s para evitar baneos.').max(600),
+  p_max_delay_sec: z.number().int().min(10).max(600)
 }).strict()
   .refine(d => d.p_max_delay_sec >= d.p_min_delay_sec, {
     message: 'El delay máximo debe ser mayor o igual al mínimo',

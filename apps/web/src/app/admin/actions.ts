@@ -14,6 +14,24 @@ export async function createTenant(formData: FormData) {
   }
 
   try {
+    // 0. Validación estricta de autorización
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { error: 'No autorizado: sesión no encontrada' };
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'super_admin') {
+      return { error: 'No autorizado: permisos insuficientes' };
+    }
     // 1. Crear la empresa
     const { data: company, error: companyError } = await supabaseAdmin
       .from('companies')

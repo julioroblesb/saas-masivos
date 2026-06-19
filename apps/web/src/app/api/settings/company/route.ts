@@ -10,11 +10,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { companyName, companyId, settings } = await req.json();
+    const { companyName, settings } = await req.json();
 
     if (!companyName || !companyName.trim()) {
       return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 });
     }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !profile.company_id) {
+      return NextResponse.json({ error: 'Empresa no encontrada para este usuario' }, { status: 400 });
+    }
+
+    const companyId = profile.company_id;
 
     // 1. Actualizar en la base de datos local
     const updateData: any = { name: companyName.trim() };

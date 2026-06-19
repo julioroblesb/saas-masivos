@@ -21,7 +21,11 @@ export async function POST(request: Request) {
     }
 
     const WA_SERVICE_URL = process.env.WA_SERVICE_URL || 'http://localhost:4000';
-    const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'dev-secret-token';
+    const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN;
+
+    if (!INTERNAL_TOKEN) {
+      throw new Error('INTERNAL_TOKEN no está configurado en el servidor');
+    }
 
     // Llamamos al microservicio en Render
     const response = await fetch(`${WA_SERVICE_URL}/internal/sessions/${profile.company_id}/start`, {

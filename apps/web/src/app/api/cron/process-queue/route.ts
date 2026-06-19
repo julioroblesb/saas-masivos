@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resolveSpintax } from '../../../../shared/utils/spintax';
 
 // Usar Service Role Key para poder leer toda la base de datos sin RLS en el cron
 const supabaseAdmin = createClient(
@@ -29,22 +30,24 @@ export async function GET(req: Request) {
 
     const activeCompanyIds = activeSessions.map(s => s.company_id);
 
-    // 2. Buscar hasta 50 mensajes pendientes de campañas 'running'
+    // 2. Buscar hasta 50 mensajes pendientes de campañas 'running' que ya estén programados (Anti-ban delay)
     const { data: queueItems, error } = await supabaseAdmin
       .from('crm_wa_queue')
       .select(`
         id, company_id, campaign_id, phone, message,
-        crm_wa_campaigns!inner ( status )
+        crm_wa_campaigns!inner ( status ),
+        companies ( settings )
       `)
       .eq('status', 'pendiente')
       .in('company_id', activeCompanyIds)
       .eq('crm_wa_campaigns.status', 'running')
-      .order('created_at', { ascending: true })
+      .lte('scheduled_for', new Date().toISOString()) // DELAY ANTI-BAN: Solo procesar los que ya les toca
+      .order('scheduled_for', { ascending: true })
       .limit(50);
 
     if (error) throw error;
     if (!queueItems || queueItems.length === 0) {
-      return NextResponse.json({ message: 'Cola vacía' });
+      return NextResponse.json({ message: 'Cola vacía o esperando delays anti-baneo' });
     }
 
     let sentCount = 0;
@@ -53,10 +56,14 @@ export async function GET(req: Request) {
     // 3. Procesar cada mensaje enviándolo a BuilderBot Cloud
     for (const item of queueItems) {
       const { id, company_id, phone, message, campaign_id } = item;
+      const companySettings = (item.companies as any)?.settings || {};
 
       try {
         // Marcar como enviando para evitar doble procesamiento si crons se solapan
         await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando' }).eq('id', id);
+
+        // Resolver el Spintax EN EL SERVIDOR (Mejora de Memoria/Rendimiento)
+        const finalMessage = resolveSpintax(message, companySettings);
 
         // Obtener host de la sesión
         const { data: session } = await supabaseAdmin
@@ -77,7 +84,7 @@ export async function GET(req: Request) {
            body: JSON.stringify({
              number: phone,
              messages: {
-               content: message
+               content: finalMessage
              },
              checkIfExists: false
            })

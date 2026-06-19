@@ -43,11 +43,6 @@ export interface CreateCampaignPayload {
     mediaUrl?: string;
     delayAfterMs: number;
   }[];
-  contacts: {
-    phone: string;
-    name?: string;
-    messages: string[]; // sequence content resolved
-  }[];
   minDelaySec: number;
   maxDelaySec: number;
 }

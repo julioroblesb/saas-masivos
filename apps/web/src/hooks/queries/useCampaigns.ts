@@ -88,18 +88,12 @@ export function useCreateCampaign() {
 
   return useMutation({
     mutationFn: async (payload: CreateCampaignPayload) => {
-      // Obtener el UUID del usuario actual para auditoría
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id ?? null;
-
       const rpcPayload = {
         p_name:          payload.name,
-        p_target_tag:    payload.targetTag,
+        p_target_tag:    payload.targetTag || '',
         p_sequence:      payload.sequence,
-        p_contacts:      payload.contacts,
         p_min_delay_sec: payload.minDelaySec,
         p_max_delay_sec: payload.maxDelaySec,
-        p_created_by:    userId,
       };
 
       // Validación Zod obligatoria antes de cualquier RPC (AGENTS.md regla #2)
