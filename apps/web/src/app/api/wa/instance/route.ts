@@ -12,13 +12,16 @@ export async function POST(req: Request) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('company_id')
+      .select('company_id, companies(name)')
       .eq('id', user.id)
       .single();
 
     if (!profile?.company_id) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
     }
+
+    // @ts-ignore - Supabase types might not be perfectly inferred here for nested relations
+    const companyName = profile.companies?.name || `Client-${profile.company_id.substring(0,8)}`;
 
     // 1. Obtener la sesión actual para ver si ya tiene un proyecto de BuilderBot
     let { data: session } = await supabase
@@ -41,7 +44,7 @@ export async function POST(req: Request) {
           'x-api-builderbot': BB_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: `Client-${profile.company_id.substring(0,8)}`, shareable: false })
+        body: JSON.stringify({ name: companyName, shareable: false })
       });
       if (!createProjRes.ok) throw new Error('Error creando proyecto en BuilderBot');
       const projData = await createProjRes.json();
