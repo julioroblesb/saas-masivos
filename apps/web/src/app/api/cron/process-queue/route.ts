@@ -1,11 +1,8 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { resolveSpintax } from '../../../../shared/utils/spintax';
+export const dynamic = 'force-dynamic';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { NextResponse } from 'next/server';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { resolveSpintax } from '../../../../shared/utils/spintax';
 
 // Jitter Gaussiano (Box-Muller Transform) para simular pausas humanas reales
 function randomDelayMs(min: number, max: number) {
@@ -19,6 +16,11 @@ function randomDelayMs(min: number, max: number) {
 }
 
 export async function GET(req: Request) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  );
+
   const authHeader = req.headers.get('authorization');
   const CRON_SECRET = process.env.CRON_SECRET;
   
@@ -57,7 +59,7 @@ export async function GET(req: Request) {
 
     // 2. Procesar CADA empresa EN PARALELO. Ninguna espera a otra.
     const results = await Promise.allSettled(
-      sessions.map((session) => processOneCompany(session))
+      sessions.map((session) => processOneCompany(supabaseAdmin, session))
     );
 
     const summary = results.map((r, i) => ({
@@ -73,7 +75,7 @@ export async function GET(req: Request) {
   }
 }
 
-async function processOneCompany(session: {
+async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
   company_id: string;
   bb_project_id: string | null;
   next_allowed_send_at: string | null;
