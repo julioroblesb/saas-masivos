@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
+import ProviderComponent from "@/components/layouts/provider-component";
 import { Providers } from "@/components/providers";
 
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-head",
-  subsets: ["latin"],
+const nunito = Nunito({
+  weight: ['400', '500', '600', '700', '800'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-nunito',
 });
 
 export const metadata: Metadata = {
@@ -24,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
-      <body className={`font-sans antialiased`}>
-        <Providers>
-          {children}
-        </Providers>
+    <html lang="en">
+      <body className={`${nunito.variable} font-nunito antialiased`}>
+        <ProviderComponent>
+          <Providers>
+            {children}
+          </Providers>
+        </ProviderComponent>
       </body>
     </html>
   );

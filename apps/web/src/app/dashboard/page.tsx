@@ -1,7 +1,6 @@
 import CampaignsView from '@/modules/campaigns/CampaignsView';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { Header } from '@/components/Header';
 import { WhatsappConnection } from '@/modules/whatsapp/WhatsappConnection';
 
 export default async function DashboardPage() {
@@ -24,17 +23,14 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Panel de Campañas</h1>
-          <p className="text-zinc-500 dark:text-gray-400 mt-1">Gestiona y monitoriza tus envíos masivos</p>
-        </div>
+    <div>
+      <div className="mb-5 flex items-center justify-between">
+        <h5 className="text-lg font-semibold dark:text-white-light">Panel de Campañas</h5>
         <WhatsappConnection companyId={profile?.company_id} />
-      </header>
-      <main>
+      </div>
+      <div className="panel">
         <CampaignsView />
-      </main>
+      </div>
     </div>
   );
 }
