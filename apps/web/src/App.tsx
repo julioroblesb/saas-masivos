@@ -12,7 +12,7 @@ function App({ children }: PropsWithChildren) {
 
     useEffect(() => {
         dispatch(toggleTheme(localStorage.getItem('theme') || themeConfig.theme));
-        dispatch(toggleMenu(localStorage.getItem('menu') || themeConfig.menu));
+        dispatch(toggleMenu(themeConfig.menu));
         dispatch(toggleLayout(localStorage.getItem('layout') || themeConfig.layout));
         dispatch(toggleRTL(localStorage.getItem('rtlClass') || themeConfig.rtlClass));
         dispatch(toggleAnimation(localStorage.getItem('animation') || themeConfig.animation));

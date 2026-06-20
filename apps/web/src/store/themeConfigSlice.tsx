@@ -3,7 +3,7 @@ import themeConfig from '@/theme.config';
 
 const initialState = {
     isDarkMode: false,
-    sidebar: false,
+    sidebar: true,
     theme: themeConfig.theme,
     menu: themeConfig.menu,
     layout: themeConfig.layout,
