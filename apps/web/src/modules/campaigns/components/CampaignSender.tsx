@@ -82,10 +82,10 @@ export function CampaignSender() {
   }, [companyCreatedAt]);
 
   const accountTier = useMemo(() => {
-    if (daysSinceCreation < 2) return { level: 1, limit: 50, label: 'Fase 1 (0-2 días)', progress: 25 };
-    if (daysSinceCreation < 6) return { level: 2, limit: 150, label: 'Fase 2 (3-6 días)', progress: 50 };
-    if (daysSinceCreation < 13) return { level: 3, limit: 300, label: 'Fase 3 (7-13 días)', progress: 75 };
-    return { level: 4, limit: 500, label: 'Fase 4 (14+ días)', progress: 100 };
+    if (daysSinceCreation < 2) return { level: 1, limit: 50, label: 'Fase 1 (0-2 días)', progress: 25, nextLimit: 150, nextLimitDay: 3 };
+    if (daysSinceCreation < 6) return { level: 2, limit: 150, label: 'Fase 2 (3-6 días)', progress: 50, nextLimit: 300, nextLimitDay: 7 };
+    if (daysSinceCreation < 13) return { level: 3, limit: 300, label: 'Fase 3 (7-13 días)', progress: 75, nextLimit: 500, nextLimitDay: 14 };
+    return { level: 4, limit: 500, label: 'Fase 4 (14+ días)', progress: 100, nextLimit: null, nextLimitDay: null };
   }, [daysSinceCreation]);
 
   const addMessage = () => setSequence(prev => [
@@ -238,10 +238,18 @@ export function CampaignSender() {
                 ></div>
               </div>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Límite actual: <strong className="text-primary">{accountTier.limit} mensajes/día</strong>.
-              El límite aumentará conforme tu cuenta acumule antigüedad.
-            </p>
+              <br className="mb-1" />
+              {accountTier.nextLimit && accountTier.nextLimitDay ? (
+                <span>
+                  Desbloquea enviar hasta <strong>{accountTier.nextLimit} mensajes al día</strong> en el día {accountTier.nextLimitDay} en adelante. 
+                  Vas en el día <strong>{daysSinceCreation}</strong>.
+                </span>
+              ) : (
+                <span>Has alcanzado la capacidad máxima de envíos diarios recomendada.</span>
+              )}
+            </div>
           </div>
 
           <div className="panel">

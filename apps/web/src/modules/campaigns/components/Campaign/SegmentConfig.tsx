@@ -52,14 +52,14 @@ export function SegmentConfig({
             value={campaignName} 
             onChange={e => setCampaignName(e.target.value)}
             maxLength={100}
-            className="form-input"
+            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
           />
         </div>
         
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Destinatarios</label>
           <select 
-            className="form-select" 
+            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors" 
             value={targetTag} 
             onChange={e => setTargetTag(e.target.value)}
           >
@@ -78,7 +78,7 @@ export function SegmentConfig({
               max={600}
               value={minDelaySec} 
               onChange={e => setMinDelaySec(Number(e.target.value))} 
-              className="form-input text-center"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
             />
           </div>
           <div className="flex-1 flex flex-col gap-1.5">
@@ -89,7 +89,7 @@ export function SegmentConfig({
               max={600}
               value={maxDelaySec} 
               onChange={e => setMaxDelaySec(Number(e.target.value))} 
-              className="form-input text-center"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
             />
           </div>
         </div>

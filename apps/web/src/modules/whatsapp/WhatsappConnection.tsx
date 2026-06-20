@@ -136,15 +136,14 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-sm font-medium">WhatsApp Vinculado</span>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <button 
+          type="button"
           onClick={handleDisconnect} 
           disabled={loading}
-          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          className="btn btn-outline-danger btn-sm"
         >
           {loading ? 'Desvinculando...' : 'Desvincular'}
-        </Button>
+        </button>
       </div>
     );
   }

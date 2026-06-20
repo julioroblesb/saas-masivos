@@ -36,7 +36,7 @@ export function SequenceEditor({
               <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mensaje {idx + 1}</span>
               <div className="flex items-center gap-2">
                 <select
-                  className="form-select text-xs py-1 px-2"
+                  className="w-full px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
                   value={msg.type}
                   onChange={e => handleTypeChange(msg.id, e.target.value as SequenceItem['type'])}
                 >
@@ -56,7 +56,7 @@ export function SequenceEditor({
                     <button type="button" onClick={() => updateMessage(msg.id, { content: msg.content + '{{despedida}} ' })} className="btn btn-sm btn-outline-primary"><span>🤝</span> Despedida</button>
                   </div>
                   <textarea
-                    className="form-textarea min-h-[80px]"
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors min-h-[80px]"
                     value={msg.content}
                     onChange={e => updateMessage(msg.id, { content: e.target.value })}
                     placeholder="Escribe el mensaje aquí... Usa los botones de arriba para inyectar variables."
@@ -80,7 +80,7 @@ export function SequenceEditor({
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">Espera después:</span>
               <input
                 type="number"
-                className="form-input w-[75px] py-1 px-2 text-center text-xs"
+                className="w-[75px] px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
                 min={0}
                 step={500}
                 value={msg.delayAfterMs}

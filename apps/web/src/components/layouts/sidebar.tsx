@@ -22,6 +22,7 @@ const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [role, setRole] = useState<string>('');
     const [companyName, setCompanyName] = useState<string>('SaaS Masivos');
+    const [initials, setInitials] = useState<string>('SM');
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
 
@@ -35,7 +36,12 @@ const Sidebar = () => {
                     setRole(profile.role);
                     if (profile.company_id) {
                         const { data: company } = await supabase.from('companies').select('name').eq('id', profile.company_id).single();
-                        if (company) setCompanyName(company.name);
+                        if (company && company.name) {
+                            setCompanyName(company.name);
+                            const words = company.name.trim().split(' ');
+                            const inits = words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0, 2);
+                            setInitials(inits.toUpperCase());
+                        }
                     }
                 }
             }
@@ -91,7 +97,10 @@ const Sidebar = () => {
                 <div className="h-full bg-white dark:bg-black">
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
-                            <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">{companyName}</span>
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition-all duration-300">
+                                {initials}
+                            </div>
+                            <span className="align-middle text-[1.15rem] font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition-all duration-300 truncate w-[160px]">{companyName}</span>
                         </Link>
 
                         <button
