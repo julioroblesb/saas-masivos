@@ -73,9 +73,9 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
                   </td>
                   <td className="text-center">
                     {completed ? (
-                      <Badge label="Completada" className="badge-outline-success" icon="heroicons-outline:check-circle" />
+                      <span className="badge bg-success/10 text-success rounded-full py-1.5 px-3">Completada</span>
                     ) : (
-                      <Badge label="Cancelada" className="badge-outline-danger" icon="heroicons-outline:x-circle" />
+                      <span className="badge bg-danger/10 text-danger rounded-full py-1.5 px-3">Cancelada</span>
                     )}
                   </td>
                   <td className="text-right">

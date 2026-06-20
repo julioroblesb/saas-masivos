@@ -363,7 +363,7 @@ BEGIN
         c.name::text,
         c.is_archived,
         c.created_at,
-        COUNT(DISTINCT CASE WHEN q.status = 'enviado' THEN q.campaign_id ELSE NULL END)::bigint as campaigns_count,
+        COUNT(DISTINCT CASE WHEN q.sent_at IS NOT NULL THEN q.campaign_id ELSE NULL END)::bigint as campaigns_count,
         MAX(q.sent_at) as last_message_sent_at,
         MAX(CASE WHEN q.replied = true THEN q.sent_at ELSE NULL END) as last_reply_at
     FROM crm_marketing_contacts c
