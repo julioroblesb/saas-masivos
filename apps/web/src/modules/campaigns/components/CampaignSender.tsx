@@ -12,8 +12,6 @@ import { SequenceEditor } from './Campaign/SequenceEditor';
 import { ExecutionPanel } from './Campaign/ExecutionPanel';
 
 export function CampaignSender() {
-  const { data: contactsData } = useMarketingContacts(1, 100000, '');
-  const contacts = contactsData?.data || [];
   const { uploadingIds, isUploadingAny, uploadMedia } = useCampaignMediaUpload();
   const { mutateAsync: createCampaign, isPending: isQueuing } = useCreateCampaign();
 
@@ -27,10 +25,18 @@ export function CampaignSender() {
   const [queued, setQueued] = useState(false);
   const [companySettings, setCompanySettings] = useState<{ greetings?: string[], farewells?: string[] }>({});
 
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [targetContactsCount, setTargetContactsCount] = useState<number>(0);
+
   useEffect(() => {
-    async function loadSettings() {
+    async function loadSettingsAndTags() {
       try {
         const { supabase } = await import('../../../shared/utils/supabase');
+        
+        // Cargar tags únicas
+        const { data: tagsData } = await supabase.rpc('rpc_get_unique_tags');
+        if (tagsData) setAvailableTags(tagsData.sort());
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         
@@ -42,22 +48,24 @@ export function CampaignSender() {
           }
         }
       } catch (err) {
-        console.error('Error loading settings', err);
+        console.error('Error loading settings and tags', err);
       }
     }
-    loadSettings();
+    loadSettingsAndTags();
   }, []);
 
-  const availableTags = useMemo(() => {
-    const tags = new Set<string>();
-    contacts.forEach(c => c.tags?.forEach(t => tags.add(t)));
-    return Array.from(tags).sort();
-  }, [contacts]);
-
-  const targetContacts = useMemo(() =>
-    !targetTag ? contacts : contacts.filter(c => (c.tags || []).includes(targetTag)),
-    [contacts, targetTag]
-  );
+  useEffect(() => {
+    async function loadCount() {
+      try {
+        const { supabase } = await import('../../../shared/utils/supabase');
+        const { data } = await supabase.rpc('rpc_count_contacts_by_tag', { p_target_tag: targetTag || '' });
+        setTargetContactsCount(data || 0);
+      } catch (err) {
+        console.error('Error fetching count', err);
+      }
+    }
+    loadCount();
+  }, [targetTag]);
 
   const addMessage = () => setSequence(prev => [
     ...prev, { id: crypto.randomUUID(), type: 'text', content: '', delayAfterMs: 3000 }
@@ -82,7 +90,7 @@ export function CampaignSender() {
   };
 
   const startCampaign = async () => {
-    if (targetContacts.length === 0 || sequence.length === 0) return;
+    if (targetContactsCount === 0 || sequence.length === 0) return;
     
     const finalCampaignName = campaignName.trim() || `Campaña ${new Date().toLocaleString('es-PE')}`;
     
@@ -93,9 +101,9 @@ export function CampaignSender() {
     if (maxDelaySec < minDelaySec) { crmToast.error('El delay máximo debe ser mayor o igual al mínimo.'); return; }
 
     const avgDelay = (minDelaySec + maxDelaySec) / 2;
-    const estimatedMins = Math.round((targetContacts.length * avgDelay) / 60);
+    const estimatedMins = Math.round((targetContactsCount * avgDelay) / 60);
 
-    if (!window.confirm(`¿Encolar "${finalCampaignName}" para ${targetContacts.length} contactos?\n\nTiempo estimado de envío: ~${estimatedMins} minutos.`)) return;
+    if (!window.confirm(`¿Encolar "${finalCampaignName}" para ${targetContactsCount} contactos?\n\nTiempo estimado de envío: ~${estimatedMins} minutos.`)) return;
 
     try {
       // Preparar Payload resolviendo el Spintax localmente para cada destinatario
@@ -130,11 +138,11 @@ export function CampaignSender() {
         <SegmentConfig
           campaignName={campaignName}
           setCampaignName={setCampaignName}
-          contacts={contacts}
+          contacts={[]}
           availableTags={availableTags}
           targetTag={targetTag}
           setTargetTag={setTargetTag}
-          targetContactsCount={targetContacts.length}
+          targetContactsCount={targetContactsCount}
           minDelaySec={minDelaySec}
           setMinDelaySec={setMinDelaySec}
           maxDelaySec={maxDelaySec}
@@ -157,7 +165,7 @@ export function CampaignSender() {
       <ExecutionPanel
         isQueuing={isQueuing}
         queued={queued}
-        targetContactsCount={targetContacts.length}
+        targetContactsCount={targetContactsCount}
         isUploadingAny={isUploadingAny}
         startCampaign={startCampaign}
         resetForm={resetForm}

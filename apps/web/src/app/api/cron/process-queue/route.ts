@@ -13,7 +13,13 @@ function randomDelayMs(min: number, max: number) {
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const CRON_SECRET = process.env.CRON_SECRET;
+  
+  if (!CRON_SECRET) {
+    return NextResponse.json({ error: 'CRON_SECRET no configurado en servidor' }, { status: 500 });
+  }
+  
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -26,7 +32,7 @@ export async function GET(req: Request) {
       .from('crm_wa_queue')
       .update({ status: 'pendiente' })
       .eq('status', 'enviando')
-      .lte('created_at', fiveMinsAgo);
+      .lte('processing_started_at', fiveMinsAgo);
 
     // 1. Traer TODAS las empresas conectadas en UNA sola query (no dentro de ningún loop)
     const { data: sessions, error: sessionsError } = await supabaseAdmin
@@ -100,7 +106,7 @@ async function processOneCompany(session: {
   const maxDelaySec = campaignData?.max_delay_sec || 90;
 
   try {
-    await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando' }).eq('id', id);
+    await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
 
     // Resolver Spintax
     const finalMessage = resolveSpintax(message, companySettings);

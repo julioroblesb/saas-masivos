@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
   try {
@@ -51,7 +52,12 @@ export async function POST(req: Request) {
       projectId = projData.project.uuid;
 
       // Guardar el bb_project_id en wa_sessions
-      await supabase.from('wa_sessions').upsert({
+      const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false } }
+      );
+      await supabaseAdmin.from('wa_sessions').upsert({
         company_id: profile.company_id,
         bb_project_id: projectId,
         status: 'conectando',

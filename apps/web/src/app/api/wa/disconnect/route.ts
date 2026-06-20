@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +51,12 @@ export async function POST(req: Request) {
     }
 
     // Limpiar sesión local y resetear a desconectado
-    await supabase.from('wa_sessions').update({
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
+    await supabaseAdmin.from('wa_sessions').update({
       bb_project_id: null,
       status: 'desconectado',
       phone_number: null,

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function GET(req: Request) {
   try {
@@ -78,7 +79,12 @@ export async function GET(req: Request) {
 
     // Actualizar BD si cambió
     if (dbStatus !== session.status) {
-      await supabase.from('wa_sessions').update({ 
+      const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false } }
+      );
+      await supabaseAdmin.from('wa_sessions').update({ 
         status: dbStatus,
         updated_at: new Date().toISOString()
       }).eq('company_id', profile.company_id);
