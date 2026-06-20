@@ -10,7 +10,7 @@ export interface WaCampaign {
   id: string;
   name: string;
   messageTemplate: any;
-  status: 'draft' | 'queued' | 'running' | 'paused' | 'completed' | 'cancelled' | 'failed';
+  status: 'draft' | 'queued' | 'running' | 'pausada' | 'completed' | 'cancelled' | 'failed';
   total: number;
   sent: number;
   failed: number;
@@ -27,7 +27,7 @@ export interface WaQueueItem {
   contactId: string;
   phone: string;
   message: string;
-  status: 'pending' | 'processing' | 'sent' | 'failed';
+  status: 'pendiente' | 'processing' | 'enviado' | 'fallido' | 'pending' | 'sent' | 'failed';
   errorMessage?: string;
   scheduledFor: string;
   sentAt?: string;

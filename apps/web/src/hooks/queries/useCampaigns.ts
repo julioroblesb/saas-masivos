@@ -163,3 +163,65 @@ export function useCancelCampaign() {
     }
   });
 }
+
+// ── usePauseCampaign ──────────────────────────────────────────────────────────
+
+/**
+ * Pausa una campaña activa cambiando su estado a 'pausada'.
+ */
+export function usePauseCampaign() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (campaignId: string) => {
+      const { data, error } = await supabase
+        .from('crm_wa_campaigns')
+        .update({ status: 'pausada' })
+        .eq('id', campaignId)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CAMPAIGNS_QUERY_KEY });
+      crmToast.success('Campaña pausada');
+    },
+    onError: (error: Error) => {
+      console.error('[usePauseCampaign]', error.message);
+      crmToast.error(`Error al pausar: ${error.message}`);
+    }
+  });
+}
+
+// ── useResumeCampaign ─────────────────────────────────────────────────────────
+
+/**
+ * Reanuda una campaña pausada cambiando su estado a 'running'.
+ */
+export function useResumeCampaign() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (campaignId: string) => {
+      const { data, error } = await supabase
+        .from('crm_wa_campaigns')
+        .update({ status: 'running' })
+        .eq('id', campaignId)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CAMPAIGNS_QUERY_KEY });
+      crmToast.success('Campaña reanudada');
+    },
+    onError: (error: Error) => {
+      console.error('[useResumeCampaign]', error.message);
+      crmToast.error(`Error al reanudar: ${error.message}`);
+    }
+  });
+}
