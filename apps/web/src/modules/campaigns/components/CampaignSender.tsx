@@ -133,6 +133,23 @@ export function CampaignSender() {
   return (
     <div className="campaign-layout">
 
+      <div className="md:col-span-12 xl:col-span-12 w-full mb-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-4 rounded-xl flex flex-col gap-2">
+        <h4 className="m-0 text-[0.9rem] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          Información Importante sobre Envíos Masivos (Anti-Ban)
+        </h4>
+        <p className="m-0 text-[0.8rem] text-amber-800 dark:text-amber-200/80 leading-relaxed">
+          El método utilizado para envíos masivos simula un dispositivo real y <strong>no es una API oficial</strong>, por lo que existen riesgos de baneo o suspensión de tu cuenta de WhatsApp si incumples las políticas de SPAM.
+        </p>
+        <p className="m-0 text-[0.8rem] text-amber-800 dark:text-amber-200/80 leading-relaxed mt-1">
+          <strong>Protección de Cuenta Nueva:</strong> Para proteger tu número de bloqueos, el sistema limita automáticamente tus envíos:
+          <br/>• Días 1 y 2: Máx. <strong>50 mensajes diarios</strong>
+          <br/>• Días 3 a 6: Máx. <strong>150 mensajes diarios</strong>
+          <br/>• Días 7 a 13: Máx. <strong>300 mensajes diarios</strong>
+          <br/>• Día 14 en adelante: Máx. <strong>500 mensajes diarios</strong>
+        </p>
+      </div>
+
       {/* LEFT: Config */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <SegmentConfig

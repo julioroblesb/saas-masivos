@@ -235,11 +235,12 @@ export function MarketingContactsManager() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuente de Origen (Opt-In)</label>
+                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">¿De dónde obtuviste este número?</label>
                 <input 
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Feria, Formulario Web, Evento" 
+                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribió por Facebook, Cliente antiguo, Formulario web" 
                 />
+                <small className="text-slate-400 dark:text-slate-500 text-[0.70rem] leading-tight">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Etiquetas (separadas por coma)</label>
@@ -250,8 +251,9 @@ export function MarketingContactsManager() {
               </div>
               <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
                 <input type="checkbox" id="consent-add" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
-                <label htmlFor="consent-add" className="text-[0.8rem] text-amber-800 dark:text-amber-300 leading-tight">
-                  Confirmo que este contacto ha dado su <strong>consentimiento previo y explícito (Opt-In)</strong> para recibir mensajes, cumpliendo con las políticas anti-spam.
+                <label htmlFor="consent-add" className="text-[0.75rem] text-amber-900 dark:text-amber-300 leading-snug">
+                  <strong>Confirmo que este cliente me ha escrito o contactado a mí primero.</strong><br/>
+                  Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                 </label>
               </div>
             </div>
@@ -300,16 +302,18 @@ export function MarketingContactsManager() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuente de Origen (Opt-In)</label>
+                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">¿De dónde obtuviste estos números?</label>
                 <input 
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Importación Manual, Base de Datos Anterior" 
+                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribieron por Facebook, Clientes de la tienda" 
                 />
+                <small className="text-slate-400 dark:text-slate-500 text-[0.70rem] leading-tight">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
               </div>
               <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
                 <input type="checkbox" id="consent-batch" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
-                <label htmlFor="consent-batch" className="text-[0.8rem] text-amber-800 dark:text-amber-300 leading-tight">
-                  Confirmo que todos estos contactos han dado su <strong>consentimiento previo y explícito (Opt-In)</strong> para recibir mensajes, cumpliendo con las políticas anti-spam.
+                <label htmlFor="consent-batch" className="text-[0.75rem] text-amber-900 dark:text-amber-300 leading-snug">
+                  <strong>Confirmo que todos estos clientes me han escrito o contactado a mí primero.</strong><br/>
+                  Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                 </label>
               </div>
             </div>
