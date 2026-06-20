@@ -10,6 +10,9 @@ ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS sequence jsonb;
 ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS min_delay_sec int DEFAULT 45;
 ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS max_delay_sec int DEFAULT 90;
 
+ALTER TABLE crm_wa_queue ADD COLUMN IF NOT EXISTS scheduled_for timestamptz DEFAULT now();
+CREATE INDEX IF NOT EXISTS idx_crm_wa_queue_scheduled ON crm_wa_queue (scheduled_for) WHERE status = 'pendiente';
+
 ALTER TABLE crm_marketing_contacts 
 ADD COLUMN IF NOT EXISTS opt_in_source VARCHAR(255);
 
