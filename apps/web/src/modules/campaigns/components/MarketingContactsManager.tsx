@@ -36,6 +36,9 @@ export function MarketingContactsManager() {
   const [newName, setNewName] = useState('');
   const [newTags, setNewTags] = useState('');
   const [batchText, setBatchText] = useState('');
+  
+  const [optInSource, setOptInSource] = useState('importación manual');
+  const [hasOptInConsent, setHasOptInConsent] = useState(false);
 
   const mouseDownOnBackdropAdd   = useRef(false);
   const mouseDownOnBackdropBatch = useRef(false);
@@ -60,6 +63,10 @@ export function MarketingContactsManager() {
 
   const handleAdd = () => {
     if (!newPhone.trim()) return;
+    if (!hasOptInConsent) {
+      crmToast.error('Debes confirmar el consentimiento previo (Opt-In).');
+      return;
+    }
     const phone = newPhone.trim();
 
     if (contacts.some(c => c.phone === phone)) {
@@ -68,18 +75,22 @@ export function MarketingContactsManager() {
     }
 
     const tags = newTags.split(',').map(t => t.trim()).filter(Boolean);
-    upsertContact.mutate({ phone, name: newName.trim() || undefined, tags }, {
-      onSuccess: () => { setIsAddOpen(false); setNewPhone(''); setNewName(''); setNewTags(''); }
+    upsertContact.mutate({ phone, name: newName.trim() || undefined, tags, opt_in_source: optInSource }, {
+      onSuccess: () => { setIsAddOpen(false); setNewPhone(''); setNewName(''); setNewTags(''); setHasOptInConsent(false); setOptInSource('importación manual'); }
     });
   };
 
   const handleBatch = () => {
+    if (!hasOptInConsent) {
+      crmToast.error('Debes confirmar el consentimiento previo (Opt-In).');
+      return;
+    }
     const rows = batchText.split('\n').filter(l => l.trim()).map(line => {
       const parts = line.split(',').map(p => p.trim());
-      return { phone: parts[0], name: parts[1] || undefined, tags: parts.slice(2).filter(Boolean) };
+      return { phone: parts[0], name: parts[1] || undefined, tags: parts.slice(2).filter(Boolean), opt_in_source: optInSource };
     }).filter(r => r.phone);
     if (!rows.length) return;
-    batchInsert.mutate(rows, { onSuccess: () => { setIsBatchOpen(false); setBatchText(''); } });
+    batchInsert.mutate(rows, { onSuccess: () => { setIsBatchOpen(false); setBatchText(''); setHasOptInConsent(false); setOptInSource('importación manual'); } });
   };
 
   return (
@@ -224,11 +235,24 @@ export function MarketingContactsManager() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
+                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuente de Origen (Opt-In)</label>
+                <input 
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Feria, Formulario Web, Evento" 
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
                 <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Etiquetas (separadas por coma)</label>
                 <input 
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="cliente, vip, surco" 
                 />
+              </div>
+              <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
+                <input type="checkbox" id="consent-add" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
+                <label htmlFor="consent-add" className="text-[0.8rem] text-amber-800 dark:text-amber-300 leading-tight">
+                  Confirmo que este contacto ha dado su <strong>consentimiento previo y explícito (Opt-In)</strong> para recibir mensajes, cumpliendo con las políticas anti-spam.
+                </label>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
@@ -274,6 +298,19 @@ export function MarketingContactsManager() {
                   placeholder={"51999111222, Juan Perez, cliente, vip\n51999333444, Maria Lopez, lead"}
                   style={{ resize: 'vertical' }}
                 />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuente de Origen (Opt-In)</label>
+                <input 
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Importación Manual, Base de Datos Anterior" 
+                />
+              </div>
+              <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
+                <input type="checkbox" id="consent-batch" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
+                <label htmlFor="consent-batch" className="text-[0.8rem] text-amber-800 dark:text-amber-300 leading-tight">
+                  Confirmo que todos estos contactos han dado su <strong>consentimiento previo y explícito (Opt-In)</strong> para recibir mensajes, cumpliendo con las políticas anti-spam.
+                </label>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">

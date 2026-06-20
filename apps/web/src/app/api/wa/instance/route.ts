@@ -74,8 +74,8 @@ export async function POST(req: Request) {
         body: JSON.stringify({ 
           provider: 'baileys',
           apiKey: BB_KEY, // Usamos la misma global key para no enredarnos
-          showRecordingEvents: false,
-          showTypingEvents: false
+          showRecordingEvents: true,
+          showTypingEvents: true
         })
       });
 

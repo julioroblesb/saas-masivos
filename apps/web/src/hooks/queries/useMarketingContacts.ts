@@ -36,11 +36,12 @@ export function useUpsertMarketingContact() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (contact: { phone: string; name?: string; tags?: string[] }) => {
+    mutationFn: async (contact: { phone: string; name?: string; tags?: string[]; opt_in_source?: string }) => {
       const payload = {
         p_phone: contact.phone,
         p_name: contact.name || null,
-        p_tags: contact.tags || []
+        p_tags: contact.tags || [],
+        p_opt_in_source: contact.opt_in_source
       };
       RpcUpsertMarketingContactSchema.parse(payload);
       const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload);
@@ -62,7 +63,7 @@ export function useBatchInsertMarketingContacts() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (contacts: { phone: string; name?: string; tags?: string[] }[]) => {
+    mutationFn: async (contacts: { phone: string; name?: string; tags?: string[]; opt_in_source?: string }[]) => {
       const payload = { p_contacts: contacts };
       RpcBatchInsertMarketingContactsSchema.parse(payload);
       const { data, error } = await supabase.rpc('rpc_batch_insert_marketing_contacts', payload);
