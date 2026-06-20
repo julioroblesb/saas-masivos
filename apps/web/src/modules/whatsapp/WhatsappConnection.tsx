@@ -193,6 +193,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }
