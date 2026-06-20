@@ -182,7 +182,7 @@ export function CampaignSender() {
   return (
     <div className="flex flex-col gap-6">
       {/* HEADER WITH ANTI BAN INFO AND TITLE */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-2">
         <h2 className="text-xl font-semibold dark:text-white-light">Creador de Campañas</h2>
         <button type="button" onClick={showAntiBanInfo} className="btn btn-outline-warning flex items-center gap-2">
           <Info size={18} />

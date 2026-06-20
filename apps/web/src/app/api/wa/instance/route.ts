@@ -74,6 +74,10 @@ export async function POST(req: Request) {
       });
 
       // 2.5 Configurar el proyecto (Motor Baileys y API Key para que el cron pueda enviarle POSTs)
+      const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
+      const host = req.headers.get('host');
+      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}`;
+
       await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
         method: 'PUT',
         headers: {
@@ -84,7 +88,9 @@ export async function POST(req: Request) {
           provider: 'baileys',
           apiKey: BB_KEY, // Usamos la misma global key para no enredarnos
           showRecordingEvents: true,
-          showTypingEvents: true
+          showTypingEvents: true,
+          webhookUrl: webhookUrl,
+          webhook: webhookUrl
         })
       });
 
@@ -110,6 +116,26 @@ export async function POST(req: Request) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ name: companyName })
+      });
+
+      const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
+      const host = req.headers.get('host');
+      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}`;
+
+      await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
+        method: 'PUT',
+        headers: {
+          'x-api-builderbot': BB_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          provider: 'baileys',
+          apiKey: BB_KEY,
+          showRecordingEvents: true,
+          showTypingEvents: true,
+          webhookUrl: webhookUrl,
+          webhook: webhookUrl
+        })
       });
 
       // intentar reiniciarlo por si estaba caído
