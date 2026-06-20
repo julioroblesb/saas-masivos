@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { redirect } from 'next/navigation';
 import { CreateTenantForm } from './CreateTenantForm';
 import { TenantTable } from './TenantTable';
@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
   const supabase = await createClient();
+  const supabaseAdmin = getSupabaseAdmin();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
