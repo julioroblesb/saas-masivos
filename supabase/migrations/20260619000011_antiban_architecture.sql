@@ -5,8 +5,12 @@ ADD COLUMN IF NOT EXISTS daily_sent_count INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS daily_reset_at TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS consecutive_errors INTEGER DEFAULT 0;
 
--- 2. Actualizar crm_marketing_contacts para Trazabilidad Legal
-ALTER TABLE crm_marketing_contacts
+-- 2. Asegurar campos en crm_wa_campaigns y crm_marketing_contacts
+ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS sequence jsonb;
+ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS min_delay_sec int DEFAULT 45;
+ALTER TABLE crm_wa_campaigns ADD COLUMN IF NOT EXISTS max_delay_sec int DEFAULT 90;
+
+ALTER TABLE crm_marketing_contacts 
 ADD COLUMN IF NOT EXISTS opt_in_source VARCHAR(255);
 
 -- 3. Actualizar RPC rpc_upsert_marketing_contact
