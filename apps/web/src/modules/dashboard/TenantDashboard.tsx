@@ -17,9 +17,11 @@ interface TenantDashboardProps {
     fallidos: number[];
     categorias: string[];
   };
+  conversionRate?: number;
+  totalReplies?: number;
 }
 
-export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, chartData }: TenantDashboardProps) {
+export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, chartData, conversionRate = 0, totalReplies = 0 }: TenantDashboardProps) {
   const isDark = useSelector((state: IRootState) => state.themeConfig.isDarkMode);
 
   const chartOptions: any = {
@@ -64,7 +66,7 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Sent Today */}
         <div className="panel flex items-center justify-between">
@@ -93,7 +95,22 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
             <XCircle size={24} />
           </div>
         </div>
+
+        {/* Conversion Rate */}
+        <div className="panel flex items-center justify-between">
+          <div>
+            <h6 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Conversión Respuestas</h6>
+            <span className="text-2xl font-bold">{conversionRate}%</span>
+            <div className="mt-3 text-sm text-gray-500 flex items-center gap-1">
+              <span className="text-info flex items-center gap-0.5"><MessageSquare size={12}/> {totalReplies} respuestas</span>
+            </div>
+          </div>
+          <div className="p-3 bg-info/10 rounded-full text-info">
+            <MessageSquare size={24} />
+          </div>
+        </div>
       </div>
+
 
       <div className="panel h-full">
         <div className="flex items-center justify-between mb-5">

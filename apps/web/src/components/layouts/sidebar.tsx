@@ -128,20 +128,6 @@ const Sidebar = () => {
                             {role === 'tenant' && (
                                 <>
                                     <li className="nav-item">
-                                        <Link href="/dashboard/clientes" className="group">
-                                            <div className="flex items-center">
-                                                <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Clientes</span>
-                                            </div>
-                                        </Link>
-                                    </li>
-
-                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                        <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>General</span>
-                                    </h2>
-
-                                    <li className="nav-item">
                                         <Link href="/dashboard" className="group">
                                             <div className="flex items-center">
                                                 <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
@@ -152,8 +138,17 @@ const Sidebar = () => {
 
                                     <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>CRM</span>
+                                        <span>General</span>
                                     </h2>
+
+                                    <li className="nav-item">
+                                        <Link href="/dashboard/clientes" className="group">
+                                            <div className="flex items-center">
+                                                <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Clientes</span>
+                                            </div>
+                                        </Link>
+                                    </li>
 
                                     <li className="nav-item">
                                         <Link href="/dashboard/campanas" className="group">
@@ -164,12 +159,21 @@ const Sidebar = () => {
                                         </Link>
                                     </li>
 
-                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>Ajustes</span>
+                                        <span>Automatización</span>
                                     </h2>
 
                                     <li className="nav-item">
+                                        <Link href="/dashboard/bot" className="group">
+                                            <div className="flex items-center">
+                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Bot de IA</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item mt-4">
                                         <Link href="/dashboard/configuracion" className="group">
                                             <div className="flex items-center">
                                                 <IconSettings className="shrink-0 group-hover:!text-primary" />

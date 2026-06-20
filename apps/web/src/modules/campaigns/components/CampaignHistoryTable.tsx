@@ -28,6 +28,7 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
             <th>Segmento</th>
             <th className="text-center">Progreso</th>
             <th className="text-center">Éxito</th>
+            <th className="text-center">Conversión</th>
             <th className="text-center">Estado</th>
             <th className="text-right">Detalles</th>
           </tr>
@@ -35,6 +36,7 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
         <tbody>
           {campaigns.map(c => {
             const successRate = c.total > 0 ? Math.round((c.sent / c.total) * 100) : 0;
+            const conversionRate = c.sent > 0 ? Math.round(((c.repliedCount || 0) / c.sent) * 100) : 0;
             const completed = c.status === 'completed';
             const isExpanded = expandedId === c.id;
             
@@ -62,6 +64,11 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
                   <td className="text-center">
                     <span className={`font-bold ${successRate > 80 ? 'text-success' : 'text-warning'}`}>
                       {successRate}%
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    <span className={`font-bold text-primary`} title={`${c.repliedCount || 0} respuestas`}>
+                      {conversionRate}%
                     </span>
                   </td>
                   <td className="text-center">

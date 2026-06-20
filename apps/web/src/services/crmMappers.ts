@@ -26,6 +26,7 @@ export function mapWaCampaignFromDB(row: DBWaCampaignRow): WaCampaign {
     total: row.total_contacts || 0,
     sent: row.sent_count || 0,
     failed: row.failed_count || 0,
+    repliedCount: row.replied_count || 0,
     createdAt: row.created_at,
     startedAt: row.started_at,
     completedAt: row.completed_at

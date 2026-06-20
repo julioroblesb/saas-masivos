@@ -19,6 +19,7 @@ export interface WaCampaign {
   startedAt?: string;
   completedAt?: string;
   targetTag?: string; // used in UI
+  repliedCount?: number;
 }
 
 export interface WaQueueItem {

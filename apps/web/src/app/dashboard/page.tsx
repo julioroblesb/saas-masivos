@@ -42,6 +42,22 @@ export default async function DashboardPage() {
     .eq('company_id', profile?.company_id)
     .gte('sent_at', sevenDaysAgo.toISOString());
 
+  // Obtener sumatoria de campañas para tasa de conversión global
+  const { data: campaigns } = await supabase
+    .from('crm_wa_campaigns')
+    .select('sent_count, replied_count')
+    .eq('company_id', profile?.company_id);
+
+  let totalSent = 0;
+  let totalReplies = 0;
+  if (campaigns) {
+    campaigns.forEach(c => {
+      totalSent += c.sent_count || 0;
+      totalReplies += c.replied_count || 0;
+    });
+  }
+  const conversionRate = totalSent > 0 ? Math.round((totalReplies / totalSent) * 100) : 0;
+
   // Procesar stats de hoy
   let sentToday = 0;
   let failedToday = 0;
@@ -96,6 +112,8 @@ export default async function DashboardPage() {
           sentToday={sentToday}
           failedToday={failedToday}
           chartData={chartData}
+          conversionRate={conversionRate}
+          totalReplies={totalReplies}
         />
       </div>
     </div>
