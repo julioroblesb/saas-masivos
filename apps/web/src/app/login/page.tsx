@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { Lock, Mail, Loader2, LogIn } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -94,8 +95,11 @@ export default function LoginPage() {
           </button>
         </form>
         
-        <div className="mt-8 text-center text-xs text-zinc-400 dark:text-gray-500 font-medium uppercase tracking-wider">
-          Protegido por cifrado SSL/TLS
+        <div className="mt-8 text-center text-xs text-zinc-400 dark:text-gray-500 font-medium tracking-wider flex flex-col gap-2">
+          <span className="uppercase">Protegido por cifrado SSL/TLS</span>
+          <Link href="/terminos" className="text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
+            Términos y Condiciones
+          </Link>
         </div>
       </div>
     </div>

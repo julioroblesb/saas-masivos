@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { LayoutDashboard, Users, Megaphone, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import Image from 'next/image';
 
 const menuItems = [
@@ -12,6 +12,7 @@ const menuItems = [
   { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
   { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
+  { label: 'Políticas', href: '/terminos', icon: FileText },
 ];
 
 export function Sidebar({ 
