@@ -150,15 +150,26 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   }
 
   return (
-    <div className="flex items-center space-x-4">
-      {status === 'desconectado' || status === 'error' ? (
-        <Button onClick={handleStartSession} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white">
-          <Smartphone className="w-4 h-4 mr-2" />
-          {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
-        </Button>
-      ) : null}
+    <div className="flex flex-col space-y-4">
+      {status === 'error_desconexion' && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 p-4 rounded-xl flex flex-col gap-2 max-w-xl">
+          <h4 className="m-0 text-[0.9rem] font-bold text-red-900 dark:text-red-300 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            Envíos Pausados por Errores
+          </h4>
+          <p className="m-0 text-[0.8rem] text-red-800 dark:text-red-200/80 leading-relaxed">
+            Tu conexión de WhatsApp presentó múltiples errores consecutivos. Por tu seguridad y para evitar bloqueos, el sistema ha frenado automáticamente tus campañas. Por favor, <strong>vuelve a vincular tu WhatsApp</strong> para reanudar los envíos pendientes.
+          </p>
+        </div>
+      )}
 
-      {(status === 'conectando' || status === 'esperando_qr') && (
+      <div className="flex items-center space-x-4">
+        {status === 'desconectado' || status === 'error' || status === 'error_desconexion' ? (
+          <Button onClick={handleStartSession} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white w-fit">
+            <Smartphone className="w-4 h-4 mr-2" />
+            {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
+          </Button>
+        ) : null}
         <div className="flex items-center space-x-3 bg-zinc-100 dark:bg-zinc-800 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
           {qrCode ? (
             <div className="flex items-center space-x-4">

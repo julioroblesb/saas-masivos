@@ -93,11 +93,14 @@ async function processOneCompany(session: {
 
   if (!bb_project_id) return { skipped: 'sin bb_project_id' };
 
-  // 1. Horario de Envíos: 08:00 a 20:00 (Ventana Segura)
+  // 1. Horario de Envíos: 08:00 a 20:00 (Ventana Segura, Hora de Lima)
   const now = new Date();
-  const currentHour = now.getHours();
+  const limaTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Lima' });
+  const limaTime = new Date(limaTimeStr);
+  const currentHour = limaTime.getHours();
+
   if (currentHour < 8 || currentHour >= 20) {
-    return { skipped: 'fuera de horario comercial (08:00-20:00)' };
+    return { skipped: 'fuera de horario comercial (08:00-20:00 PET)' };
   }
 
   // 2. Warm-up & Límites Diarios
