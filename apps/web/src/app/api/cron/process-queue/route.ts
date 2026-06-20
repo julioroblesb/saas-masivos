@@ -110,17 +110,15 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
   let currentDailyCount = daily_sent_count || 0;
   let currentResetAt = daily_reset_at ? new Date(daily_reset_at) : new Date(0);
 
-  // Si pasaron 24 horas desde el último reset, reiniciar contador
   if (now.getTime() - currentResetAt.getTime() >= 24 * 60 * 60 * 1000) {
     currentDailyCount = 0;
     currentResetAt = now;
   }
 
-  // Curva de calentamiento basada en la edad de la conexión
   const startedAt = connection_started_at ? new Date(connection_started_at) : now;
   const daysActive = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60 * 60 * 24));
   
-  let maxDailyLimit = 500; // Máximo general
+  let maxDailyLimit = 500;
   if (daysActive <= 2) maxDailyLimit = 50;
   else if (daysActive <= 6) maxDailyLimit = 150;
   else if (daysActive <= 13) maxDailyLimit = 300;
@@ -129,107 +127,130 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
     return { skipped: `limite diario alcanzado (warmup: ${currentDailyCount}/${maxDailyLimit})` };
   }
 
-  // 3. Delay Antibaneo: ¿Ya le toca a ESTA empresa enviar?
-  if (next_allowed_send_at && new Date(next_allowed_send_at) > now) {
-    return { skipped: 'esperando su propio delay anti-baneo' };
-  }
+  let localNextAllowedSendAt = next_allowed_send_at ? new Date(next_allowed_send_at) : new Date(0);
+  const runStartTime = Date.now();
+  let processedCount = 0;
 
-  // Tomar SOLO el siguiente mensaje pendiente de ESTA empresa.
-  // Realizamos JOIN a crm_wa_campaigns para obtener los delays parametrizados y a companies para settings de Spintax
-  const { data: nextItem } = await supabaseAdmin
-    .from('crm_wa_queue')
-    .select(`
-      id, campaign_id, phone, message, delay_after_ms,
-      crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
-      companies(settings)
-    `)
-    .eq('company_id', company_id)
-    .eq('status', 'pendiente')
-    .eq('crm_wa_campaigns.status', 'running')
-    .lte('scheduled_for', now.toISOString())
-    .order('scheduled_for', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  // Lazo para procesar la cola. Máximo 45 segundos para evitar el timeout de Vercel.
+  while (Date.now() - runStartTime < 45000) {
+    const loopNow = new Date();
 
-  if (!nextItem) return { skipped: 'sin mensajes pendientes' };
-
-  const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
-  
-  // Extraer configuraciones y delays
-  const companySettings = (nextItem.companies as any)?.settings || {};
-  const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
-  const minDelaySec = campaignData?.min_delay_sec || 45;
-  const maxDelaySec = campaignData?.max_delay_sec || 90;
-
-  // Determinar el delay hasta el SIGUIENTE envío
-  let nextLockDelayMs = 0;
-  if (delay_after_ms !== null && delay_after_ms !== undefined) {
-    nextLockDelayMs = delay_after_ms; // Mensaje de secuencia a la MISMA persona
-  } else {
-    nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000); // Cambio de contacto (Global lock)
-  }
-
-  try {
-    await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
-
-    // Resolver Spintax
-    const finalMessage = resolveSpintax(message, companySettings);
-
-    const bbRes = await fetch(`https://app.builderbot.cloud/api/v2/${bb_project_id}/messages`, {
-      method: 'POST',
-      headers: {
-        'x-api-builderbot': process.env.BUILDERBOT_API_KEY!,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ number: phone, messages: { content: finalMessage }, checkIfExists: true }),
-    });
-
-    if (!bbRes.ok) throw new Error(`BuilderBot: ${bbRes.statusText}`);
-
-    await supabaseAdmin
-      .from('crm_wa_queue')
-      .update({ status: 'enviado', sent_at: new Date().toISOString() })
-      .eq('id', id);
-    await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
-
-    // Reservar el PRÓXIMO turno de ESTA empresa usando su delay parametrizado y actualizar límites/errores
-    await supabaseAdmin
-      .from('wa_sessions')
-      .update({
-        last_message_sent_at: new Date().toISOString(),
-        next_allowed_send_at: new Date(Date.now() + nextLockDelayMs).toISOString(),
-        daily_sent_count: currentDailyCount + 1,
-        daily_reset_at: currentResetAt.toISOString(),
-        consecutive_errors: 0
-      })
-      .eq('company_id', company_id);
-
-    return { sent: phone };
-  } catch (err: any) {
-    await supabaseAdmin
-      .from('crm_wa_queue')
-      .update({ status: 'fallido', error_message: err.message || String(err) })
-      .eq('id', id);
-    await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
-
-    // Lógica de Freno Automático (Failsafe)
-    const newErrorsCount = consecutive_errors + 1;
-    let newSessionStatus = 'conectado';
-    
-    if (newErrorsCount >= 3) {
-      newSessionStatus = 'error_desconexion';
-      console.warn(`[Anti-Ban] Empresa ${company_id} pausada por exceso de errores.`);
+    if (localNextAllowedSendAt > loopNow) {
+      const waitMs = localNextAllowedSendAt.getTime() - loopNow.getTime();
+      if (waitMs > 8000) {
+        // Si el delay es mayor a 8 segundos, mejor dejamos que el próximo cron (en 1 min) lo procese
+        break;
+      } else {
+        // Si es un delay corto (ej. secuencia de 3s), esperamos aquí mismo
+        await new Promise(r => setTimeout(r, waitMs));
+      }
     }
 
-    await supabaseAdmin
-      .from('wa_sessions')
-      .update({ 
-        consecutive_errors: newSessionStatus === 'error_desconexion' ? 0 : newErrorsCount,
-        status: newSessionStatus,
-        next_allowed_send_at: new Date(Date.now() + nextLockDelayMs).toISOString() 
-      })
-      .eq('company_id', company_id);
+    const { data: nextItem } = await supabaseAdmin
+      .from('crm_wa_queue')
+      .select(`
+        id, campaign_id, phone, message, delay_after_ms,
+        crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
+        companies(settings)
+      `)
+      .eq('company_id', company_id)
+      .eq('status', 'pendiente')
+      .eq('crm_wa_campaigns.status', 'running')
+      .order('scheduled_for', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    return { failed: phone, error: err.message, consecutive_errors: newErrorsCount };
+    if (!nextItem) break;
+
+    const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
+    
+    const companySettings = (nextItem.companies as any)?.settings || {};
+    const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
+    const minDelaySec = campaignData?.min_delay_sec || 45;
+    const maxDelaySec = campaignData?.max_delay_sec || 90;
+
+    let nextLockDelayMs = 0;
+    let isSequence = false;
+    if (delay_after_ms !== null && delay_after_ms !== undefined) {
+      nextLockDelayMs = delay_after_ms; 
+      isSequence = true;
+    } else {
+      nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000); 
+    }
+
+    try {
+      await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
+
+      const finalMessage = resolveSpintax(message, companySettings);
+
+      // Usar options de BuilderBot para mostrar "Escribiendo..." y delay nativo
+      const bbRes = await fetch(`https://app.builderbot.cloud/api/v2/${bb_project_id}/messages`, {
+        method: 'POST',
+        headers: {
+          'x-api-builderbot': process.env.BUILDERBOT_API_KEY!,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          number: phone, 
+          options: { presence: 'composing', delay: 2000 }, // BuilderBot mostrará "escribiendo..." 2 segundos
+          messages: { content: finalMessage }, 
+          checkIfExists: true 
+        }),
+      });
+
+      if (!bbRes.ok) throw new Error(`BuilderBot: ${bbRes.statusText}`);
+
+      await supabaseAdmin
+        .from('crm_wa_queue')
+        .update({ status: 'enviado', sent_at: new Date().toISOString() })
+        .eq('id', id);
+      await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
+
+      processedCount++;
+      currentDailyCount++;
+
+      // Configurar el tiempo para el siguiente mensaje
+      localNextAllowedSendAt = new Date(Date.now() + nextLockDelayMs);
+      
+      await supabaseAdmin
+        .from('wa_sessions')
+        .update({
+          last_message_sent_at: new Date().toISOString(),
+          next_allowed_send_at: localNextAllowedSendAt.toISOString(),
+          daily_sent_count: currentDailyCount,
+          daily_reset_at: currentResetAt.toISOString(),
+          consecutive_errors: 0
+        })
+        .eq('company_id', company_id);
+
+    } catch (err: any) {
+      await supabaseAdmin
+        .from('crm_wa_queue')
+        .update({ status: 'fallido', error_message: err.message || String(err) })
+        .eq('id', id);
+      await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
+
+      const newErrorsCount = consecutive_errors + 1;
+      let newSessionStatus = 'conectado';
+      
+      if (newErrorsCount >= 3) {
+        newSessionStatus = 'error_desconexion';
+      }
+
+      localNextAllowedSendAt = new Date(Date.now() + nextLockDelayMs);
+
+      await supabaseAdmin
+        .from('wa_sessions')
+        .update({ 
+          consecutive_errors: newSessionStatus === 'error_desconexion' ? 0 : newErrorsCount,
+          status: newSessionStatus,
+          next_allowed_send_at: localNextAllowedSendAt.toISOString() 
+        })
+        .eq('company_id', company_id);
+
+      break; // Detener el loop si hay error
+    }
   }
+
+  return { processed: processedCount };
 }
