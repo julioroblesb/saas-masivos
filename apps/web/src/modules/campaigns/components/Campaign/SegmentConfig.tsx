@@ -1,4 +1,5 @@
 import { Zap } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export function SegmentConfig({
   campaignName,
@@ -58,14 +59,19 @@ export function SegmentConfig({
         
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Destinatarios</label>
-          <select 
-            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors" 
-            value={targetTag} 
-            onChange={e => setTargetTag(e.target.value)}
-          >
-            <option value="">Todos los contactos de marketing ({contacts.length})</option>
-            {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <CustomSelect 
+            className="w-full"
+            isSearchable={false}
+            value={{ 
+              value: targetTag, 
+              label: targetTag ? targetTag : `Todos los contactos de marketing (${contacts.length})` 
+            }}
+            options={[
+              { value: '', label: `Todos los contactos de marketing (${contacts.length})` },
+              ...availableTags.map(t => ({ value: t, label: t }))
+            ]}
+            onChange={(option: any) => setTargetTag(option.value)}
+          />
           <p className="m-0 text-xs font-semibold text-success mt-1">✓ {targetContactsCount} destinatarios seleccionados</p>
         </div>
         

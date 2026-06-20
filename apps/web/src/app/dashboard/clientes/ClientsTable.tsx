@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Search, Filter, Archive, CheckCircle, XCircle, Inbox, Mail, AlertTriangle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { archiveContactsAction } from './actions';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface ClientMetric {
   id: string;
@@ -149,25 +150,35 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             </div>
             
             <div className="flex gap-2">
-              <select 
-                className="form-select w-auto rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
-                value={filterArchived}
-                onChange={e => setFilterArchived(e.target.value as any)}
-              >
-                <option value="active">Mostrar Activos</option>
-                <option value="archived">Mostrar Archivados</option>
-                <option value="all">Mostrar Todos</option>
-              </select>
+              <CustomSelect 
+                className="w-[180px]"
+                isSearchable={false}
+                value={{ 
+                  value: filterArchived, 
+                  label: filterArchived === 'active' ? 'Mostrar Activos' : filterArchived === 'archived' ? 'Mostrar Archivados' : 'Mostrar Todos' 
+                }}
+                options={[
+                  { value: 'active', label: 'Mostrar Activos' },
+                  { value: 'archived', label: 'Mostrar Archivados' },
+                  { value: 'all', label: 'Mostrar Todos' }
+                ]}
+                onChange={(option: any) => setFilterArchived(option.value)}
+              />
 
-              <select 
-                className="form-select w-auto rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
-                value={filterResponded}
-                onChange={e => setFilterResponded(e.target.value as any)}
-              >
-                <option value="all">Cualquier respuesta</option>
-                <option value="yes">Han respondido</option>
-                <option value="no">Nunca respondieron</option>
-              </select>
+              <CustomSelect 
+                className="w-[200px]"
+                isSearchable={false}
+                value={{ 
+                  value: filterResponded, 
+                  label: filterResponded === 'all' ? 'Cualquier respuesta' : filterResponded === 'yes' ? 'Han respondido' : 'Nunca respondieron' 
+                }}
+                options={[
+                  { value: 'all', label: 'Cualquier respuesta' },
+                  { value: 'yes', label: 'Han respondido' },
+                  { value: 'no', label: 'Nunca respondieron' }
+                ]}
+                onChange={(option: any) => setFilterResponded(option.value)}
+              />
             </div>
           </div>
 

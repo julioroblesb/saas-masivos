@@ -367,7 +367,7 @@ BEGIN
         MAX(q.sent_at) as last_message_sent_at,
         MAX(CASE WHEN q.replied = true THEN q.sent_at ELSE NULL END) as last_reply_at
     FROM crm_marketing_contacts c
-    LEFT JOIN crm_wa_queue q ON c.id = q.contact_id
+    LEFT JOIN crm_wa_queue q ON (c.id = q.contact_id) OR (c.company_id = q.company_id AND c.phone = q.phone)
     WHERE c.company_id = v_company_id
     GROUP BY c.id, c.phone, c.name, c.is_archived, c.created_at
     ORDER BY c.created_at DESC;

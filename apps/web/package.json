@@ -30,6 +30,7 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-popper": "^2.3.0",
     "react-redux": "^9.3.0",
+    "react-select": "^5.10.2",
     "shadcn": "^4.11.0",
     "sweetalert2": "^11.26.25",
     "sweetalert2-react-content": "^5.1.2",

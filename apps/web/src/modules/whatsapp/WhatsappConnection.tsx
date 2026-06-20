@@ -169,30 +169,53 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
             {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
           </Button>
         ) : null}
-        
-        {(status === 'conectando' || status === 'esperando_qr') && (
-          <div className="flex items-center space-x-3 bg-zinc-100 dark:bg-zinc-800 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
-          {qrCode ? (
-            <div className="flex items-center space-x-4">
-              <div className="bg-white p-1 rounded-md border border-zinc-200 shadow-sm">
-                <Image src={qrCode} alt="WhatsApp QR Code" width={80} height={80} className="rounded-sm" />
-              </div>
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                <p className="font-medium text-zinc-900 dark:text-zinc-100 mb-1">Escanea el código QR</p>
-                <p>1. Abre WhatsApp en tu celular</p>
-                <p>2. Toca Menú o Configuración y selecciona Dispositivos Vinculados</p>
-                <p>3. Toca Vincular un Dispositivo</p>
-              </div>
+      </div>
+
+      {/* QR Modal Overlay */}
+      {(status === 'conectando' || status === 'esperando_qr') && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0e1726] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-zinc-100 dark:border-zinc-800">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <Smartphone className="w-5 h-5 text-green-600" />
+                Vincular Dispositivo
+              </h3>
+              <button 
+                onClick={() => setStatus('desconectado')}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+              >
+                <AlertCircle className="w-5 h-5" />
+              </button>
             </div>
-          ) : (
-            <div className="flex items-center space-x-2 px-4 py-2 text-zinc-600 dark:text-zinc-400">
-              <QrCode className="w-5 h-5 animate-pulse" />
-              <span className="text-sm">Generando código QR...</span>
+            
+            <div className="p-8 flex flex-col items-center justify-center min-h-[300px]">
+              {qrCode ? (
+                <div className="flex flex-col items-center animate-in slide-in-from-bottom-4 duration-300">
+                  <div className="bg-white p-3 rounded-xl border border-zinc-200 shadow-lg mb-6">
+                    <Image src={qrCode} alt="WhatsApp QR Code" width={220} height={220} className="rounded-md" />
+                  </div>
+                  <div className="text-center text-zinc-600 dark:text-zinc-400 max-w-[260px]">
+                    <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Abre WhatsApp y escanea</p>
+                    <ol className="text-sm space-y-2 text-left list-decimal list-inside">
+                      <li>Toca <strong>Menú</strong> o <strong>Configuración</strong></li>
+                      <li>Selecciona <strong>Dispositivos Vinculados</strong></li>
+                      <li>Toca en <strong>Vincular un Dispositivo</strong></li>
+                    </ol>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center text-zinc-500 dark:text-zinc-400 animate-pulse">
+                  <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
+                    <QrCode className="w-10 h-10 text-zinc-400" />
+                  </div>
+                  <Loader2 className="w-6 h-6 animate-spin mb-3 text-green-600" />
+                  <span className="text-base font-medium">Generando código seguro...</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
-      </div>
     </div>
   );
 }

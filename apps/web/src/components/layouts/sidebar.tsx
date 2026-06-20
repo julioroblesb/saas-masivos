@@ -22,8 +22,8 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [role, setRole] = useState<string>('');
-    const [companyName, setCompanyName] = useState<string>('SaaS Masivos');
-    const [initials, setInitials] = useState<string>('SM');
+    const [companyName, setCompanyName] = useState<string>('NAVIER');
+    const [initials, setInitials] = useState<string>('NV');
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
 
@@ -116,7 +116,7 @@ const Sidebar = () => {
                         <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
                             {role === 'super_admin' && (
                                 <li className="nav-item">
-                                    <Link href="/admin" className="group">
+                                    <Link href="/admin" className="nav-link group">
                                         <div className="flex items-center">
                                             <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
                                             <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Panel Admin</span>
@@ -128,7 +128,7 @@ const Sidebar = () => {
                             {role === 'tenant' && (
                                 <>
                                     <li className="nav-item">
-                                        <Link href="/dashboard" className="group">
+                                        <Link href="/dashboard" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Dashboard</span>
@@ -142,7 +142,7 @@ const Sidebar = () => {
                                     </h2>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/clientes" className="group">
+                                        <Link href="/dashboard/clientes" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Clientes</span>
@@ -151,7 +151,7 @@ const Sidebar = () => {
                                     </li>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/campanas" className="group">
+                                        <Link href="/dashboard/campanas" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Campañas</span>
@@ -165,7 +165,7 @@ const Sidebar = () => {
                                     </h2>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/bot" className="group">
+                                        <Link href="/dashboard/bot" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Bot de IA</span>
@@ -174,7 +174,7 @@ const Sidebar = () => {
                                     </li>
 
                                     <li className="nav-item mt-4">
-                                        <Link href="/dashboard/configuracion" className="group">
+                                        <Link href="/dashboard/configuracion" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconSettings className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Configuración</span>
@@ -183,7 +183,7 @@ const Sidebar = () => {
                                     </li>
 
                                     <li className="nav-item">
-                                        <Link href="/terminos" className="group" target="_blank">
+                                        <Link href="/terminos" className="nav-link group" target="_blank">
                                             <div className="flex items-center">
                                                 <IconInfoCircle className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Términos y Políticas</span>
