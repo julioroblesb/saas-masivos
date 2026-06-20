@@ -142,7 +142,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               <input 
                 type="text" 
                 placeholder="Buscar por teléfono o nombre..." 
-                className="form-input pl-9"
+                className="form-input pl-9 rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
@@ -150,7 +150,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             
             <div className="flex gap-2">
               <select 
-                className="form-select w-auto"
+                className="form-select w-auto rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
                 value={filterArchived}
                 onChange={e => setFilterArchived(e.target.value as any)}
               >
@@ -160,7 +160,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               </select>
 
               <select 
-                className="form-select w-auto"
+                className="form-select w-auto rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
                 value={filterResponded}
                 onChange={e => setFilterResponded(e.target.value as any)}
               >
@@ -213,8 +213,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                 />
               </th>
               <th>Contacto</th>
+              <th className="text-center">Fecha de Ingreso</th>
               <th className="text-center">Estado</th>
-              <th className="text-center">Campañas Enviadas</th>
+              <th className="text-center">Campañas Exitosas</th>
               <th>Último Mensaje Enviado</th>
               <th>Última Respuesta Recibida</th>
             </tr>
@@ -222,7 +223,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           <tbody>
             {filteredClients.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8">
+                <td colSpan={7} className="text-center py-8">
                   <div className="flex flex-col items-center justify-center text-slate-400">
                     <Inbox className="w-12 h-12 mb-3 opacity-20" />
                     <p>No se encontraron clientes con esos filtros.</p>
@@ -247,6 +248,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     {client.name && (
                       <div className="text-xs text-slate-500">{client.name}</div>
                     )}
+                  </td>
+                  <td className="text-center text-sm text-slate-600 dark:text-white-dark">
+                    {formatDate(client.created_at)}
                   </td>
                   <td className="text-center">
                     {client.is_archived ? (

@@ -75,17 +75,17 @@ export function CampaignSender() {
   }, [targetTag]);
 
   const daysSinceCreation = useMemo(() => {
-    if (!companyCreatedAt) return 0;
+    if (!companyCreatedAt) return 1;
     const created = new Date(companyCreatedAt);
     const now = new Date();
-    return Math.max(0, Math.floor((now.getTime() - created.getTime()) / (1000 * 3600 * 24)));
+    return Math.max(1, Math.floor((now.getTime() - created.getTime()) / (1000 * 3600 * 24)) + 1);
   }, [companyCreatedAt]);
 
   const accountTier = useMemo(() => {
-    if (daysSinceCreation < 2) return { level: 1, limit: 50, label: 'Fase 1 (0-2 días)', progress: 25, nextLimit: 150, nextLimitDay: 3 };
-    if (daysSinceCreation < 6) return { level: 2, limit: 150, label: 'Fase 2 (3-6 días)', progress: 50, nextLimit: 300, nextLimitDay: 7 };
-    if (daysSinceCreation < 13) return { level: 3, limit: 300, label: 'Fase 3 (7-13 días)', progress: 75, nextLimit: 500, nextLimitDay: 14 };
-    return { level: 4, limit: 500, label: 'Fase 4 (14+ días)', progress: 100, nextLimit: null, nextLimitDay: null };
+    if (daysSinceCreation < 3) return { level: 1, limit: 50, label: 'Fase 1 (Días 1-2)', progress: 25, nextLimit: 150, nextLimitDay: 3 };
+    if (daysSinceCreation < 7) return { level: 2, limit: 150, label: 'Fase 2 (Días 3-6)', progress: 50, nextLimit: 300, nextLimitDay: 7 };
+    if (daysSinceCreation < 14) return { level: 3, limit: 300, label: 'Fase 3 (Días 7-13)', progress: 75, nextLimit: 500, nextLimitDay: 14 };
+    return { level: 4, limit: 500, label: 'Fase 4 (Día 14+)', progress: 100, nextLimit: null, nextLimitDay: null };
   }, [daysSinceCreation]);
 
   const addMessage = () => setSequence(prev => [
