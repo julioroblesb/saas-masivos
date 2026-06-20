@@ -363,9 +363,9 @@ BEGIN
         c.name::text,
         c.is_archived,
         c.created_at,
-        COUNT(DISTINCT CASE WHEN q.sent_at IS NOT NULL THEN q.campaign_id ELSE NULL END)::bigint as campaigns_count,
-        MAX(q.sent_at) as last_message_sent_at,
-        MAX(CASE WHEN q.replied = true THEN q.sent_at ELSE NULL END) as last_reply_at
+        COUNT(DISTINCT CASE WHEN q.status = 'enviado' THEN q.campaign_id ELSE NULL END)::bigint as campaigns_count,
+        MAX(CASE WHEN q.status = 'enviado' THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END) as last_message_sent_at,
+        MAX(CASE WHEN q.replied = true THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END) as last_reply_at
     FROM crm_marketing_contacts c
     LEFT JOIN crm_wa_queue q ON (c.id = q.contact_id) OR (c.company_id = q.company_id AND c.phone = q.phone)
     WHERE c.company_id = v_company_id

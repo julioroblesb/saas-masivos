@@ -39,7 +39,7 @@ export default async function AdminPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-          <h5 className="text-2xl font-bold text-dark dark:text-white-light">Gestión de Clientes (Súper Admin)</h5>
+          <h5 className="text-2xl font-bold text-dark dark:text-white-light">Gestión de Clientes</h5>
       </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

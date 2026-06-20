@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { updateTenantSubscription } from './actions';
 import { toast } from 'react-hot-toast';
 import { X, Calendar, Settings, AlertTriangle } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Company {
   id: string;
@@ -100,31 +101,33 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-white-dark mb-2 block">Tipo de Plan</label>
-              <select 
-                value={planType} 
-                onChange={(e) => handlePlanChange(e.target.value)}
-                className="form-select"
-              >
-                <option value="prueba">Periodo de Prueba</option>
-                <option value="mensual">Mensual</option>
-                <option value="bimestral">Bimestral</option>
-                <option value="trimestral">Trimestral</option>
-                <option value="semestral">Semestral</option>
-                <option value="anual">Anual</option>
-              </select>
+              <CustomSelect 
+                value={{ value: planType, label: planType === 'prueba' ? 'Periodo de Prueba' : planType.charAt(0).toUpperCase() + planType.slice(1) }}
+                onChange={(option: any) => handlePlanChange(option.value)}
+                options={[
+                  { value: 'prueba', label: 'Periodo de Prueba' },
+                  { value: 'mensual', label: 'Mensual' },
+                  { value: 'bimestral', label: 'Bimestral' },
+                  { value: 'trimestral', label: 'Trimestral' },
+                  { value: 'semestral', label: 'Semestral' },
+                  { value: 'anual', label: 'Anual' }
+                ]}
+                isSearchable={false}
+              />
             </div>
             
             <div>
               <label className="text-white-dark mb-2 block">Estado del Servicio</label>
-              <select 
-                value={status} 
-                onChange={(e) => setStatus(e.target.value)}
-                className="form-select"
-              >
-                <option value="activa">Activa (Conectado)</option>
-                <option value="suspendida">Suspendida (Bloqueado)</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
+              <CustomSelect 
+                value={{ value: status, label: status === 'activa' ? 'Activa (Conectado)' : status === 'suspendida' ? 'Suspendida (Bloqueado)' : 'Cancelada' }}
+                onChange={(option: any) => setStatus(option.value)}
+                options={[
+                  { value: 'activa', label: 'Activa (Conectado)' },
+                  { value: 'suspendida', label: 'Suspendida (Bloqueado)' },
+                  { value: 'cancelada', label: 'Cancelada' }
+                ]}
+                isSearchable={false}
+              />
             </div>
           </div>
 
