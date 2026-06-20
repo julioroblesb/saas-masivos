@@ -7,7 +7,6 @@ import { MarketingContactsManager } from './components/MarketingContactsManager'
 import { CampaignProgressCard } from './components/CampaignProgressCard';
 import { CampaignHistoryTable } from './components/CampaignHistoryTable';
 import { useCampaigns } from '../../hooks/queries/useCampaigns';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import './Campaigns.css';
 
 export default function CampaignsView() {
@@ -20,32 +19,57 @@ export default function CampaignsView() {
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 flex-wrap h-auto gap-2 p-1 justify-start">
-          <TabsTrigger value="new" className="flex items-center gap-2">
-            <Megaphone size={16} /> Nueva Campaña
-          </TabsTrigger>
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            <Activity size={16} /> Activas 
-            {activeCampaigns.length > 0 && (
-              <span className="bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">
-                {activeCampaigns.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History size={16} /> Historial
-          </TabsTrigger>
-          <TabsTrigger value="contacts" className="flex items-center gap-2">
-            <Users size={16} /> Base de Contactos
-          </TabsTrigger>
-        </TabsList>
+      {/* Vristo style tabs */}
+      <div className="mb-5 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
+        <button
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+            activeTab === 'new' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+          }`}
+          onClick={() => setActiveTab('new')}
+        >
+          <Megaphone size={18} /> Nueva Campaña
+        </button>
 
-        <TabsContent value="new" className="mt-0 outline-none">
+        <button
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+            activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+          }`}
+          onClick={() => setActiveTab('active')}
+        >
+          <Activity size={18} /> Activas 
+          {activeCampaigns.length > 0 && (
+            <span className="badge bg-indigo-500 rounded-full ml-1 px-2 py-0.5 text-white">
+              {activeCampaigns.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+            activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+          }`}
+          onClick={() => setActiveTab('history')}
+        >
+          <History size={18} /> Historial
+        </button>
+
+        <button
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+            activeTab === 'contacts' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+          }`}
+          onClick={() => setActiveTab('contacts')}
+        >
+          <Users size={18} /> Base de Contactos
+        </button>
+      </div>
+
+      {/* Tab Contents */}
+      <div className="mt-0">
+        {activeTab === 'new' && (
           <CampaignSender />
-        </TabsContent>
+        )}
         
-        <TabsContent value="active" className="mt-0 outline-none">
+        {activeTab === 'active' && (
           <div className="flex flex-col gap-6">
             {activeCampaigns.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 panel">
@@ -65,18 +89,18 @@ export default function CampaignsView() {
               ))
             )}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="history" className="mt-0 outline-none">
+        {activeTab === 'history' && (
           <div className="panel p-0 overflow-hidden">
             <CampaignHistoryTable campaigns={historyCampaigns} />
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="contacts" className="mt-0 outline-none">
+        {activeTab === 'contacts' && (
           <MarketingContactsManager />
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }
