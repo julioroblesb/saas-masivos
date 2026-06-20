@@ -353,7 +353,7 @@ SET search_path = public, pg_temp AS $$
 DECLARE
     v_company_id uuid;
 BEGIN
-    SELECT company_id INTO v_company_id FROM profiles WHERE id = auth.uid();
+    SELECT company_id INTO v_company_id FROM profiles WHERE profiles.id = auth.uid();
     IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
 
     RETURN QUERY
