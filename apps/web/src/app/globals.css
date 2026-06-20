@@ -2,6 +2,8 @@
 @plugin "@tailwindcss/forms" { strategy: "class"; }
 @plugin "@tailwindcss/typography";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-primary: #4361ee;
   --color-primary-light: #eaf1ff;

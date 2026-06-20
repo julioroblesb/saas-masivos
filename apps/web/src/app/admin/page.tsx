@@ -39,7 +39,7 @@ export default async function AdminPage() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-          <h5 className="text-lg font-semibold dark:text-white-light">Gestión de Clientes (Súper Admin)</h5>
+          <h5 className="text-lg font-semibold text-dark dark:text-white-light">Gestión de Clientes (Súper Admin)</h5>
       </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -47,7 +47,7 @@ export default async function AdminPage() {
         <div className="xl:col-span-2 space-y-4">
           <div className="panel">
             <div className="mb-5 flex items-center justify-between">
-              <h5 className="text-lg font-semibold dark:text-white-light">Empresas Registradas</h5>
+              <h5 className="text-lg font-semibold text-dark dark:text-white-light">Empresas Registradas</h5>
             </div>
             <TenantTable companies={companies || []} />
           </div>
@@ -56,7 +56,7 @@ export default async function AdminPage() {
         <div className="space-y-4">
           <div className="panel">
             <div className="mb-5 flex items-center justify-between">
-              <h5 className="text-lg font-semibold dark:text-white-light">Añadir Nuevo Cliente</h5>
+              <h5 className="text-lg font-semibold text-dark dark:text-white-light">Añadir Nuevo Cliente</h5>
             </div>
             <CreateTenantForm />
           </div>

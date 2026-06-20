@@ -24,22 +24,22 @@ export function CreateTenantForm() {
     <form action={onSubmit} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label htmlFor="companyName" className="text-white-dark">Nombre de Empresa</label>
+          <label htmlFor="companyName" className="text-dark dark:text-white-dark">Nombre de Empresa</label>
           <input type="text" id="companyName" name="companyName" placeholder="Ej. Zapatería López" required className="form-input" />
         </div>
         <div className="space-y-2">
-          <label htmlFor="fullName" className="text-white-dark">Nombre del Dueño (Opcional)</label>
+          <label htmlFor="fullName" className="text-dark dark:text-white-dark">Nombre del Dueño (Opcional)</label>
           <input type="text" id="fullName" name="fullName" placeholder="Ej. Juan Pérez" className="form-input" />
         </div>
       </div>
       
       <div className="space-y-2">
-        <label htmlFor="email" className="text-white-dark">Correo de Acceso (Usuario)</label>
+        <label htmlFor="email" className="text-dark dark:text-white-dark">Correo de Acceso (Usuario)</label>
         <input id="email" name="email" type="email" placeholder="juan@zapateria.com" required className="form-input" />
       </div>
       
       <div className="space-y-2">
-        <label htmlFor="password" className="text-white-dark">Contraseña Inicial</label>
+        <label htmlFor="password" className="text-dark dark:text-white-dark">Contraseña Inicial</label>
         <input id="password" name="password" type="password" placeholder="Mínimo 6 caracteres" required minLength={6} className="form-input" />
       </div>
 
