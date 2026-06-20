@@ -1,136 +1,104 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Bot, Save, AlertTriangle, PhoneCall } from 'lucide-react';
-import { crmToast } from '../../hooks/useToast';
+import React from 'react';
+import { Bot, MessageSquare, FileText, Image as ImageIcon, Mic, ArrowRight } from 'lucide-react';
 
 export function BotConfig() {
-  const [prompt, setPrompt] = useState('Eres el asistente virtual de nuestra empresa. Responde de manera amable y corta.');
-  const [enabled, setEnabled] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    // Cargar configuración al iniciar
-    async function loadData() {
-      try {
-        const res = await fetch('/api/settings/company');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.settings) {
-            if (data.settings.bot_prompt !== undefined) setPrompt(data.settings.bot_prompt);
-            if (data.settings.bot_enabled !== undefined) setEnabled(data.settings.bot_enabled);
-          }
-        }
-      } catch (e) {
-        console.error('Error cargando configuración del bot:', e);
-      }
-    }
-    loadData();
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch('/api/settings/company', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          settings: { 
-            bot_prompt: prompt.trim(), 
-            bot_enabled: enabled 
-          }
-        })
-      });
-
-      if (!res.ok) throw new Error('Error al guardar');
-      crmToast.success('¡Configuración Guardada!');
-    } catch (e) {
-      console.error(e);
-      crmToast.error('No se pudo guardar la configuración');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Disclaimer / Aviso */}
-      <div className="panel border-l-4 border-info">
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-info/10 text-info rounded-full shrink-0">
-            <Bot size={24} />
-          </div>
-          <div>
-            <h5 className="font-semibold text-lg dark:text-white-light mb-1">Configuración Básica del Bot de IA</h5>
-            <p className="text-white-dark text-sm mb-3">
-              Aquí puedes establecer el comportamiento base de la Inteligencia Artificial que responderá tus mensajes cuando no estés disponible, impulsado por BuilderBot.
-            </p>
-            <div className="bg-warning/10 border border-warning/20 rounded-md p-3 text-sm text-warning flex items-center gap-2">
-              <AlertTriangle size={18} className="shrink-0" />
-              <span>
-                <strong>¿Necesitas un bot avanzado?</strong> Si deseas crear un flujo conversacional complejo (con menús, botones, captura de datos estructurados, o integraciones personalizadas con tu sistema), contamos con desarrollo a medida.
-              </span>
-              <button className="btn btn-warning btn-sm ml-auto shrink-0 whitespace-nowrap">
-                Solicitar a Medida
-              </button>
-            </div>
-          </div>
+    <div className="panel animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-white dark:from-[#1a2941] dark:to-[#0e1726]">
+      <div className="text-center p-8 pb-4">
+        <div className="mx-auto bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-sm">
+          <Bot className="w-10 h-10 text-primary" />
         </div>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white-light mb-4">
+          Potencia tu WhatsApp con Inteligencia Artificial
+        </h1>
+        <p className="text-slate-500 dark:text-white-dark text-lg max-w-2xl mx-auto">
+          Descubre todas las capacidades que puedes integrar en tu línea gracias a nuestra infraestructura soportada por BuilderBot. Atiende a tus clientes 24/7 como un humano real.
+        </p>
       </div>
 
-      <div className="panel">
-        <h5 className="font-semibold text-lg dark:text-white-light mb-5 flex items-center gap-2">
-          Ajustes Principales
-        </h5>
-
-        <div className="space-y-5">
-          {/* Toggle Activar/Desactivar */}
-          <div className="flex items-center justify-between border-b border-[#e0e6ed] dark:border-[#1b2e4b] pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
+        
+        <div className="bg-white dark:bg-[#1b2e4b] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-[#191e3a] hover:-translate-y-1 transition-transform">
+          <div className="flex items-start space-x-4">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
+              <MessageSquare className="w-6 h-6" />
+            </div>
             <div>
-              <h6 className="font-semibold text-base dark:text-white-light">Activar Auto-Respuestas IA</h6>
-              <p className="text-sm text-white-dark">Si lo apagas, ningún mensaje entrante será respondido automáticamente por la IA.</p>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white-light mb-2">Conversa como un Humano</h3>
+              <p className="text-slate-500 dark:text-white-dark text-sm leading-relaxed">
+                El bot analiza el contexto y responde de manera natural, persuasiva y empática. Olvídate de los menús rígidos; tus clientes sentirán que hablan con un asesor real.
+              </p>
             </div>
-            <label className="w-12 h-6 relative">
-              <input 
-                type="checkbox" 
-                className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" 
-                checked={enabled}
-                onChange={(e) => setEnabled(e.target.checked)}
-              />
-              <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary peer-checked:border-primary peer-checked:before:bg-white transition-all duration-300"></span>
-            </label>
-          </div>
-
-          {/* Prompt de IA */}
-          <div className={!enabled ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
-            <label className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-dark dark:text-white-light">Prompt / Personalidad del Bot</span>
-              <span className="text-xs text-white-dark">Max 500 caracteres</span>
-            </label>
-            <textarea
-              className="form-textarea w-full h-32"
-              placeholder="Ej: Eres el asistente virtual de la clínica dental Sonrisas. Tu objetivo es agendar citas..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              maxLength={500}
-            ></textarea>
-            <p className="text-xs text-white-dark mt-2">
-              Esta instrucción será la base del conocimiento de la IA. Sé claro y directo con lo que esperas que responda.
-            </p>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <button 
-              type="button" 
-              className="btn btn-primary gap-2" 
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? <span className="animate-spin inline-block border-2 border-white border-l-transparent rounded-full w-4 h-4 mr-2"></span> : <Save size={18} />}
-              Guardar Configuración
-            </button>
           </div>
         </div>
+
+        <div className="bg-white dark:bg-[#1b2e4b] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-[#191e3a] hover:-translate-y-1 transition-transform">
+          <div className="flex items-start space-x-4">
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white-light mb-2">Envío de Archivos y Multimedia</h3>
+              <p className="text-slate-500 dark:text-white-dark text-sm leading-relaxed">
+                Capacidad nativa para enviar catálogos en PDF, videos demostrativos, cotizaciones y fotografías de tus productos directamente en la conversación de WhatsApp.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#1b2e4b] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-[#191e3a] hover:-translate-y-1 transition-transform">
+          <div className="flex items-start space-x-4">
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+              <Mic className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white-light mb-2">Entiende Audios (Voice-to-Text)</h3>
+              <p className="text-slate-500 dark:text-white-dark text-sm leading-relaxed">
+                ¿Tus clientes envían notas de voz? El bot transcribe y comprende automáticamente el audio para darles una respuesta precisa sin intervención humana.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#1b2e4b] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-[#191e3a] hover:-translate-y-1 transition-transform">
+          <div className="flex items-start space-x-4">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+              <ImageIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white-light mb-2">Análisis de Imágenes</h3>
+              <p className="text-slate-500 dark:text-white-dark text-sm leading-relaxed">
+                Los clientes pueden enviar fotos (ej. un recibo de pago o un producto dañado) y la Inteligencia Artificial interpretará el contenido visual al instante.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <div className="p-8 pt-0">
+        <div className="bg-gradient-to-r from-primary to-indigo-600 rounded-2xl p-8 text-center text-white shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white opacity-10 blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-black opacity-10 blur-2xl"></div>
+          
+          <h2 className="text-2xl font-bold mb-4 relative z-10">¿Listo para construir el bot de tus sueños?</h2>
+          <p className="text-indigo-100 mb-8 max-w-xl mx-auto relative z-10">
+            Nuestros ingenieros expertos pueden desarrollar un flujo conversacional hecho a medida para tu modelo de negocio, integrando tu CRM, base de datos e inteligencia artificial.
+          </p>
+          
+          <a 
+            href="https://wa.me/tunumerodeasesoria" 
+            target="_blank" 
+            rel="noreferrer"
+            className="inline-flex items-center space-x-2 bg-white text-indigo-600 hover:bg-slate-50 px-8 py-3 rounded-full font-bold transition-colors relative z-10 shadow-sm"
+          >
+            <span>Solicitar Asesoría Personalizada</span>
+            <ArrowRight className="w-5 h-5" />
+          </a>
+        </div>
+      </div>
+
     </div>
   );
 }
