@@ -13,12 +13,22 @@ export async function GET(req: Request) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('company_id')
+      .select('company_id, companies(status, subscription_end_at)')
       .eq('id', user.id)
       .single();
 
     if (!profile?.company_id) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
+    }
+
+    // @ts-ignore
+    const company = Array.isArray(profile.companies) ? profile.companies[0] : profile.companies;
+    
+    if (company?.status !== 'activa') {
+      return NextResponse.json({ error: 'Cuenta suspendida o inactiva.' }, { status: 403 });
+    }
+    if (company?.subscription_end_at && new Date(company.subscription_end_at) < new Date()) {
+      return NextResponse.json({ error: 'Suscripción vencida.' }, { status: 403 });
     }
 
     const { data: session } = await supabase

@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('company_id, companies(name)')
+      .select('company_id, companies(name, status, subscription_end_at)')
       .eq('id', user.id)
       .single();
 
@@ -21,8 +21,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
     }
 
-    // @ts-ignore - Supabase types might not be perfectly inferred here for nested relations
-    const companyName = profile.companies?.name || `Client-${profile.company_id.substring(0,8)}`;
+    // @ts-ignore
+    const company = Array.isArray(profile.companies) ? profile.companies[0] : profile.companies;
+    const companyName = company?.name || `Client-${profile.company_id.substring(0,8)}`;
+
+    // VERIFICACIÓN DE SUSCRIPCIÓN
+    if (company?.status !== 'activa') {
+      return NextResponse.json({ error: 'Cuenta suspendida o inactiva. Contacte a soporte.' }, { status: 403 });
+    }
+    if (company?.subscription_end_at && new Date(company.subscription_end_at) < new Date()) {
+      return NextResponse.json({ error: 'Suscripción vencida. Renueve su plan para continuar usando el servicio.' }, { status: 403 });
+    }
 
     // 1. Obtener la sesión actual para ver si ya tiene un proyecto de BuilderBot
     let { data: session } = await supabase

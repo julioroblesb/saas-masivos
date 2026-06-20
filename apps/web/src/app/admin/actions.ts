@@ -86,3 +86,77 @@ export async function createTenant(formData: FormData) {
     return { error: 'Error del servidor al crear cliente' };
   }
 }
+
+export async function updateTenantSubscription(companyId: string, data: any) {
+  try {
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return { error: 'No autorizado' };
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'super_admin') return { error: 'Permisos insuficientes' };
+
+    const { error } = await supabaseAdmin
+      .from('companies')
+      .update({
+        plan_type: data.plan_type,
+        status: data.status,
+        subscription_start_at: data.subscription_start_at,
+        subscription_end_at: data.subscription_end_at
+      })
+      .eq('id', companyId);
+
+    if (error) {
+      console.error('Error updating company:', error);
+      return { error: 'No se pudo actualizar el cliente' };
+    }
+
+    // Si el estado no es activa, desconectar bailey y wa_sessions
+    if (data.status !== 'activa') {
+      await supabaseAdmin.from('wa_sessions').update({ status: 'desconectado' }).eq('company_id', companyId);
+      // Opcionalmente podemos llamar a la API de disconnect aquí, pero cambiar a desconectado en base de datos al menos rompe el flujo
+    }
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteTenant(companyId: string) {
+  try {
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return { error: 'No autorizado' };
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'super_admin') return { error: 'Permisos insuficientes' };
+
+    // Delete users associated with this company
+    const { data: profiles } = await supabaseAdmin.from('profiles').select('id').eq('company_id', companyId);
+    
+    if (profiles) {
+      for (const p of profiles) {
+        await supabaseAdmin.auth.admin.deleteUser(p.id);
+      }
+    }
+
+    // Delete company (cascades to everything else)
+    const { error } = await supabaseAdmin.from('companies').delete().eq('id', companyId);
+
+    if (error) {
+      console.error('Error deleting company:', error);
+      return { error: 'No se pudo eliminar el cliente' };
+    }
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}

@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 import { redirect } from 'next/navigation';
 import { CreateTenantForm } from './CreateTenantForm';
+import { TenantTable } from './TenantTable';
 import { Header } from '@/components/Header';
 
 export const dynamic = 'force-dynamic';
@@ -52,36 +53,7 @@ export default async function AdminPage() {
           <div className="md:col-span-2 space-y-4">
             <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Empresas Registradas</h2>
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-              {companies && companies.length > 0 ? (
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">Empresa</th>
-                      <th className="px-6 py-3 font-medium">Estado</th>
-                      <th className="px-6 py-3 font-medium">Registro</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                    {companies.map((company) => (
-                      <tr key={company.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                        <td className="px-6 py-4 font-medium text-zinc-900 dark:text-zinc-100">{company.name}</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${company.status === 'activa' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700'}`}>
-                            {company.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-zinc-500">
-                          {new Date(company.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="p-8 text-center text-zinc-500">
-                  Aún no tienes ningún cliente registrado.
-                </div>
-              )}
+              <TenantTable companies={companies || []} />
             </div>
           </div>
 
