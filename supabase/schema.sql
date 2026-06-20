@@ -359,11 +359,11 @@ BEGIN
     RETURN QUERY
     SELECT 
         c.id,
-        c.phone,
-        c.name,
+        c.phone::text,
+        c.name::text,
         c.is_archived,
         c.created_at,
-        COUNT(DISTINCT q.campaign_id) as campaigns_count,
+        COUNT(DISTINCT q.campaign_id)::bigint as campaigns_count,
         MAX(q.sent_at) as last_message_sent_at,
         MAX(CASE WHEN q.replied = true THEN q.sent_at ELSE NULL END) as last_reply_at
     FROM crm_marketing_contacts c

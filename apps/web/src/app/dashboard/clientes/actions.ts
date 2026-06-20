@@ -8,7 +8,7 @@ export async function getClientsMetrics() {
   
   if (error) {
     console.error('Error fetching client metrics:', error);
-    return { error: 'No se pudieron obtener las métricas de los clientes' };
+    return { error: `Error DB: ${error.message || JSON.stringify(error)}` };
   }
   
   return { data };
