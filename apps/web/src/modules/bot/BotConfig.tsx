@@ -1,29 +1,54 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bot, Save, AlertTriangle, PhoneCall } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { crmToast } from '../../hooks/useToast';
 
 export function BotConfig() {
   const [prompt, setPrompt] = useState('Eres el asistente virtual de nuestra empresa. Responde de manera amable y corta.');
   const [enabled, setEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    // Cargar configuración al iniciar
+    async function loadData() {
+      try {
+        const res = await fetch('/api/settings/company');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings) {
+            if (data.settings.bot_prompt !== undefined) setPrompt(data.settings.bot_prompt);
+            if (data.settings.bot_enabled !== undefined) setEnabled(data.settings.bot_enabled);
+          }
+        }
+      } catch (e) {
+        console.error('Error cargando configuración del bot:', e);
+      }
+    }
+    loadData();
+  }, []);
+
   const handleSave = async () => {
     setSaving(true);
-    // Simular guardado de configuración
-    setTimeout(() => {
-      setSaving(false);
-      Swal.fire({
-        icon: 'success',
-        title: '¡Configuración Guardada!',
-        text: 'El Bot de IA se ha actualizado correctamente en tu instancia.',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        customClass: { popup: 'color-success' },
+    try {
+      const res = await fetch('/api/settings/company', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          settings: { 
+            bot_prompt: prompt.trim(), 
+            bot_enabled: enabled 
+          }
+        })
       });
-    }, 1000);
+
+      if (!res.ok) throw new Error('Error al guardar');
+      crmToast.success('¡Configuración Guardada!');
+    } catch (e) {
+      console.error(e);
+      crmToast.error('No se pudo guardar la configuración');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

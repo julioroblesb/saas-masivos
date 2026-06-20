@@ -108,77 +108,81 @@ export default function ConfiguracionPage() {
         <p className="text-zinc-500 mt-2">Gestiona la información y ajustes de tu organización.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden mb-6">
-        <div className="p-6 border-b border-zinc-100 flex items-center space-x-3">
-          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+      <div className="panel mb-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-zinc-900">Perfil de la Empresa</h2>
-            <p className="text-sm text-zinc-500">Este nombre será usado para identificar a tu asistente en la plataforma (ej. BuilderBot).</p>
+            <h2 className="text-lg font-semibold dark:text-white-light">Perfil de la Empresa</h2>
+            <p className="text-sm text-white-dark">Este nombre será usado para identificar a tu asistente en la plataforma (ej. BuilderBot).</p>
           </div>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
           <div className="space-y-2 max-w-md">
-            <label className="text-sm font-medium text-zinc-700">Nombre de la Empresa</label>
+            <label className="text-sm font-medium dark:text-white-light">Nombre de la Empresa</label>
             <Input 
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="Ej. Mi Agencia LLC"
-              className="w-full"
+              className="w-full form-input"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-zinc-100 flex items-center space-x-3">
-          <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+      <div className="panel">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="p-2 bg-secondary/10 text-secondary rounded-lg shrink-0">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-zinc-900">Variables Aleatorias (Spintax)</h2>
-            <p className="text-sm text-zinc-500">Define una lista de opciones para usar en tus campañas masivas. Ingresa una opción por línea.</p>
+            <h2 className="text-lg font-semibold dark:text-white-light">Variables Aleatorias (Spintax)</h2>
+            <p className="text-sm text-white-dark">Define una lista de opciones para usar en tus campañas masivas. Ingresa una opción por línea.</p>
           </div>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">Opciones para Saludo Aleatorio <code className="bg-slate-100 px-1 rounded text-xs ml-1 text-purple-600">{'{{saludo}}'}</code></label>
+              <label className="text-sm font-medium dark:text-white-light">Opciones para Saludo Aleatorio <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{saludo}}'}</code></label>
               <textarea 
                 value={settings.greetings}
                 onChange={(e) => setSettings({ ...settings, greetings: e.target.value })}
                 placeholder="Hola&#10;Buen día&#10;Qué tal"
-                className="w-full min-h-[120px] p-3 border border-zinc-200 rounded-lg text-sm resize-y outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                className="form-textarea w-full min-h-[120px]"
               />
-              <p className="text-xs text-zinc-500">Ejemplo: Escribe "Hola", dale a Enter, escribe "Buen día".</p>
+              <p className="text-xs text-white-dark mt-2">Ejemplo: Escribe "Hola", dale a Enter, escribe "Buen día".</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">Opciones para Despedida <code className="bg-slate-100 px-1 rounded text-xs ml-1 text-purple-600">{'{{despedida}}'}</code></label>
+              <label className="text-sm font-medium dark:text-white-light">Opciones para Despedida <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{despedida}}'}</code></label>
               <textarea 
                 value={settings.farewells}
                 onChange={(e) => setSettings({ ...settings, farewells: e.target.value })}
                 placeholder="Saludos&#10;Gracias&#10;Hasta luego"
-                className="w-full min-h-[120px] p-3 border border-zinc-200 rounded-lg text-sm resize-y outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                className="form-textarea w-full min-h-[120px]"
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-4 flex items-center">
-        <Button onClick={handleSave} disabled={isSaving || !companyName.trim()} className="bg-indigo-600 hover:bg-indigo-700 px-8">
+      <div className="pt-4 flex items-center justify-end">
+        <button 
+          onClick={handleSave} 
+          disabled={isSaving || !companyName.trim()} 
+          className="btn btn-primary gap-2"
+        >
           {isSaving ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Guardando...
             </>
           ) : (
-            'Guardar Configuración Completa'
+            'Guardar Cambios'
           )}
-        </Button>
+        </button>
       </div>
     </div>
   );
