@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EditTenantModal } from './EditTenantModal';
 import { deleteTenant } from './actions';
 import { toast } from 'react-hot-toast';
@@ -8,6 +8,11 @@ import { Edit2, Trash2 } from 'lucide-react';
 
 export function TenantTable({ companies }: { companies: any[] }) {
   const [editingCompany, setEditingCompany] = useState<any | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const formatDate = (isoStr: string) => {
     if (!isoStr) return '-';
@@ -40,6 +45,8 @@ export function TenantTable({ companies }: { companies: any[] }) {
       </div>
     );
   }
+
+  if (!isMounted) return null;
 
   return (
     <>
