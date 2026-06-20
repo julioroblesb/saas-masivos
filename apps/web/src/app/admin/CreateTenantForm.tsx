@@ -2,9 +2,6 @@
 
 import { useState } from 'react';
 import { createTenant } from './actions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from 'react-hot-toast';
 
 export function CreateTenantForm() {
@@ -25,30 +22,30 @@ export function CreateTenantForm() {
 
   return (
     <form action={onSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="companyName">Nombre de Empresa</Label>
-          <Input id="companyName" name="companyName" placeholder="Ej. Zapatería López" required />
+          <label htmlFor="companyName" className="text-white-dark">Nombre de Empresa</label>
+          <input type="text" id="companyName" name="companyName" placeholder="Ej. Zapatería López" required className="form-input" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="fullName">Nombre del Dueño (Opcional)</Label>
-          <Input id="fullName" name="fullName" placeholder="Ej. Juan Pérez" />
+          <label htmlFor="fullName" className="text-white-dark">Nombre del Dueño (Opcional)</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Ej. Juan Pérez" className="form-input" />
         </div>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="email">Correo de Acceso (Usuario)</Label>
-        <Input id="email" name="email" type="email" placeholder="juan@zapateria.com" required />
+        <label htmlFor="email" className="text-white-dark">Correo de Acceso (Usuario)</label>
+        <input id="email" name="email" type="email" placeholder="juan@zapateria.com" required className="form-input" />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="password">Contraseña Inicial</Label>
-        <Input id="password" name="password" type="password" placeholder="Mínimo 6 caracteres" required minLength={6} />
+        <label htmlFor="password" className="text-white-dark">Contraseña Inicial</label>
+        <input id="password" name="password" type="password" placeholder="Mínimo 6 caracteres" required minLength={6} className="form-input" />
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <button type="submit" disabled={loading} className="btn btn-primary w-full">
         {loading ? 'Creando Cliente...' : 'Crear Cuenta de Cliente'}
-      </Button>
+      </button>
     </form>
   );
 }

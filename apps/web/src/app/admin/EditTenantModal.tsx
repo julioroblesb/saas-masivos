@@ -84,26 +84,26 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-800 w-full max-w-lg overflow-hidden">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="panel w-full max-w-lg overflow-hidden border-0 p-0">
         
-        <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Gestionar Cliente: {company.name}</h2>
-          <button onClick={onClose} className="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white rounded-md transition-colors">
+        <div className="flex items-center justify-between p-5 dark:border-[#191e3a]">
+          <h2 className="text-lg font-bold">Gestionar Cliente: {company.name}</h2>
+          <button onClick={onClose} className="p-2 text-white-dark hover:text-dark rounded-md transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
           
           {/* Plan y Estado */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Tipo de Plan</label>
+              <label className="text-white-dark mb-2 block">Tipo de Plan</label>
               <select 
                 value={planType} 
                 onChange={(e) => handlePlanChange(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="form-select"
               >
                 <option value="prueba">Periodo de Prueba</option>
                 <option value="mensual">Mensual</option>
@@ -115,11 +115,11 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Estado del Servicio</label>
+              <label className="text-white-dark mb-2 block">Estado del Servicio</label>
               <select 
                 value={status} 
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="form-select"
               >
                 <option value="activa">Activa (Conectado)</option>
                 <option value="suspendida">Suspendida (Bloqueado)</option>
@@ -130,42 +130,42 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
 
           {/* Fechas */}
           <div>
-            <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Fecha de Vencimiento</label>
+            <label className="text-white-dark mb-2 block">Fecha de Vencimiento</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-dark" size={18} />
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 required
-                className="w-full pl-10 pr-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="form-input pl-10"
               />
             </div>
-            <p className="mt-1 text-xs text-zinc-500">Al vencer esta fecha, el cliente será desconectado de WhatsApp automáticamente.</p>
+            <p className="mt-1 text-xs text-white-dark">Al vencer esta fecha, el cliente será desconectado de WhatsApp automáticamente.</p>
           </div>
 
           {status !== 'activa' && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
-              <AlertTriangle className="text-red-500 mt-0.5" size={20} />
-              <p className="text-sm text-red-800 dark:text-red-300">
+            <div className="p-3 bg-danger/10 border border-danger/20 rounded-lg flex items-start gap-3">
+              <AlertTriangle className="text-danger mt-0.5" size={20} />
+              <p className="text-sm text-danger">
                 Al guardar con estado <strong>{status}</strong>, el bot de WhatsApp del cliente se detendrá inmediatamente y no podrá reconectarlo.
               </p>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <div className="flex justify-end gap-3 pt-5 mt-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors"
+              className="btn btn-outline-danger"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+              className="btn btn-primary flex items-center gap-2"
             >
               <Settings size={18} />
               {loading ? 'Guardando...' : 'Guardar Cambios'}

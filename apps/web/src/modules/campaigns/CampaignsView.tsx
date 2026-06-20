@@ -48,12 +48,12 @@ export default function CampaignsView() {
         <TabsContent value="active" className="mt-0 outline-none">
           <div className="flex flex-col gap-6">
             {activeCampaigns.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <Activity size={48} className="text-slate-400 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No hay campañas activas</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-6 text-center">Las campañas en proceso de envío aparecerán aquí.</p>
+              <div className="flex flex-col items-center justify-center p-12 panel">
+                <Activity size={48} className="text-white-dark mb-4" />
+                <h3 className="text-lg font-semibold text-dark dark:text-white-light mb-2">No hay campañas activas</h3>
+                <p className="text-white-dark mb-6 text-center">Las campañas en proceso de envío aparecerán aquí.</p>
                 <button 
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  className="btn btn-primary"
                   onClick={() => setActiveTab('new')}
                 >
                   Crear nueva campaña
@@ -68,7 +68,7 @@ export default function CampaignsView() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-0 outline-none">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="panel p-0 overflow-hidden">
             <CampaignHistoryTable campaigns={historyCampaigns} />
           </div>
         </TabsContent>

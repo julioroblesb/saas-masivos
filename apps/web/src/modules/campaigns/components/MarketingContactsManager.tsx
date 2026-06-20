@@ -2,7 +2,6 @@ import { crmToast } from '../../../hooks/useToast';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMarketingContacts, useUpsertMarketingContact, useBatchInsertMarketingContacts, useDeleteMarketingContact, useDeleteMarketingContactsByTag } from '../../../hooks/queries/useMarketingContacts';
 import { Search, Plus, Trash2, Tag, Upload, Users, X } from 'lucide-react';
-import Card from '@/components/legacy/Card';
 
 export function MarketingContactsManager() {
   const PAGE_SIZE = 100;
@@ -94,35 +93,35 @@ export function MarketingContactsManager() {
   };
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden border-slate-200 dark:border-slate-800">
+    <div className="panel p-0 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
         <div className="flex items-center gap-2">
-          <Users size={18} className="text-blue-600 dark:text-blue-400" />
-          <h3 className="m-0 text-[1.05rem] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Users size={18} className="text-primary" />
+          <h3 className="m-0 text-[1.05rem] font-bold text-dark dark:text-white-light flex items-center gap-2">
             Base de Contactos
-            <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[0.75rem] px-2 py-0.5 rounded-full font-bold">{contacts.length}</span>
+            <span className="badge badge-outline-primary rounded-full">{contacts.length}</span>
           </h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-400 rounded-lg text-sm font-bold transition-colors border border-slate-200 dark:border-slate-700 shadow-sm" onClick={() => setIsDeleteTagOpen(true)}>
-            <Trash2 size={14} /> Eliminar Lote
+          <button className="btn btn-outline-danger btn-sm" onClick={() => setIsDeleteTagOpen(true)}>
+            <Trash2 size={14} className="mr-1" /> Eliminar Lote
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors border border-slate-200 dark:border-slate-700 shadow-sm" onClick={() => setIsBatchOpen(true)}>
-            <Upload size={14} /> Importar Lote
+          <button className="btn btn-outline-primary btn-sm" onClick={() => setIsBatchOpen(true)}>
+            <Upload size={14} className="mr-1" /> Importar Lote
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-bold transition-colors shadow-sm shadow-emerald-500/20" onClick={() => setIsAddOpen(true)}>
-            <Plus size={14} /> Nuevo Contacto
+          <button className="btn btn-primary btn-sm" onClick={() => setIsAddOpen(true)}>
+            <Plus size={14} className="mr-1" /> Nuevo Contacto
           </button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-          <Search size={16} className="text-slate-400" />
+      <div className="p-4 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white-dark" />
           <input
-            className="bg-transparent border-none outline-none text-sm w-full text-slate-900 dark:text-white placeholder:text-slate-400"
+            className="form-input pl-10"
             placeholder="Buscar por teléfono, nombre o etiqueta..."
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -131,45 +130,45 @@ export function MarketingContactsManager() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-auto bg-white dark:bg-slate-900">
-        <table className="w-full text-left border-collapse min-w-[600px]">
-          <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10 shadow-sm dark:shadow-slate-900/50">
+      <div className="table-responsive flex-1 overflow-auto">
+        <table className="table-hover w-full min-w-[600px]">
+          <thead>
             <tr>
-              <th className="px-5 py-3 text-[0.75rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">Teléfono</th>
-              <th className="px-5 py-3 text-[0.75rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">Nombre</th>
-              <th className="px-5 py-3 text-[0.75rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">Etiquetas</th>
-              <th className="px-5 py-3 text-[0.75rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">Agregado</th>
-              <th className="px-5 py-3 text-[0.75rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 w-[60px]"></th>
+              <th>Teléfono</th>
+              <th>Nombre</th>
+              <th>Etiquetas</th>
+              <th>Agregado</th>
+              <th className="w-[60px]"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-            {isLoading && <tr><td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500">Cargando contactos...</td></tr>}
+          <tbody>
+            {isLoading && <tr><td colSpan={5} className="p-8 text-center text-white-dark">Cargando contactos...</td></tr>}
             {!isLoading && contacts.length === 0 && (
-              <tr><td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500">
+              <tr><td colSpan={5} className="p-8 text-center text-white-dark">
                 {search ? 'No se encontraron contactos con esa búsqueda.' : 'Aún no hay contactos. Agrega el primero.'}
               </td></tr>
             )}
             {contacts.map((c) => (
-              <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-5 py-3 font-mono text-[0.88rem] font-semibold text-slate-900 dark:text-slate-200">{c.phone}</td>
-                <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-sm">{c.name || <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
-                <td className="px-5 py-3">
+              <tr key={c.id}>
+                <td className="font-mono font-semibold text-dark dark:text-white-light">{c.phone}</td>
+                <td className="text-white-dark">{c.name || <span className="text-white-dark opacity-50">—</span>}</td>
+                <td>
                   <div className="flex gap-1.5 flex-wrap">
                     {(c.tags || []).length === 0
-                      ? <span className="text-slate-300 dark:text-slate-600 text-sm">—</span>
+                      ? <span className="text-white-dark opacity-50">—</span>
                       : (c.tags || []).map(tag => (
-                        <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.7rem] font-bold uppercase tracking-wide bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50">
+                        <span key={tag} className="badge badge-outline-info flex items-center gap-1 uppercase">
                           <Tag size={9} /> {tag}
                         </span>
                       ))}
                   </div>
                 </td>
-                <td className="px-5 py-3 text-[0.8rem] text-slate-500 dark:text-slate-400">
+                <td className="text-white-dark text-xs">
                   {new Date(c.createdAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                 </td>
-                <td className="px-5 py-3 text-right">
+                <td className="text-right">
                   <button
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors"
+                    className="p-1.5 rounded-lg text-danger hover:bg-danger/10 transition-colors"
                     onClick={() => { if (window.confirm('¿Eliminar este contacto?')) deleteContact.mutate(c.id); }}
                   >
                     <Trash2 size={14} />
@@ -180,7 +179,7 @@ export function MarketingContactsManager() {
             {totalCount > page * PAGE_SIZE && (
               <tr>
                 <td colSpan={5} className="p-4 text-center">
-                  <button onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors">
+                  <button onClick={() => setPage(p => p + 1)} className="btn btn-outline-primary btn-sm">
                     Siguiente Página ({Math.min(PAGE_SIZE, totalCount - page * PAGE_SIZE)} restantes)
                   </button>
                 </td>
@@ -189,7 +188,7 @@ export function MarketingContactsManager() {
             {page > 1 && (
               <tr>
                 <td colSpan={5} className="p-4 text-center">
-                  <button onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors">
+                  <button onClick={() => setPage(p => p - 1)} className="btn btn-outline-primary btn-sm">
                     Página Anterior
                   </button>
                 </td>
@@ -202,64 +201,64 @@ export function MarketingContactsManager() {
       {/* Modal — Nuevo Contacto */}
       {isAddOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onMouseDown={e  => { mouseDownOnBackdropAdd.current = e.target === e.currentTarget; }}
           onMouseUp={e    => { if (mouseDownOnBackdropAdd.current && e.target === e.currentTarget) setIsAddOpen(false); mouseDownOnBackdropAdd.current = false; }}
         >
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <h3 className="m-0 text-[1.05rem] font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Plus size={18} className="text-emerald-500" /> Nuevo Contacto
+          <div className="panel border-0 p-0 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <h3 className="m-0 text-lg font-bold text-dark dark:text-white-light flex items-center gap-2">
+                <Plus size={18} className="text-success" /> Nuevo Contacto
               </h3>
-              <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:text-slate-300 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsAddOpen(false)}>
+              <button className="text-white-dark hover:text-dark dark:hover:text-white-light" onClick={() => setIsAddOpen(false)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Teléfono *</label>
+            <div className="p-5 flex flex-col gap-4">
+              <div>
+                <label className="text-white-dark">Teléfono *</label>
                 <input
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="form-input"
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
                   placeholder="51999999999"
                   autoFocus
                 />
-                <small className="text-slate-400 dark:text-slate-500 text-[0.75rem]">Incluye el código de país sin "+" (ej: 51 para Perú)</small>
+                <small className="text-white-dark mt-1 block">Incluye el código de país sin "+" (ej: 51 para Perú)</small>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Nombre (opcional)</label>
+              <div>
+                <label className="text-white-dark">Nombre (opcional)</label>
                 <input 
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="form-input"
                   value={newName} onChange={e => setNewName(e.target.value)} placeholder="Juan Pérez" 
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">¿De dónde obtuviste este número?</label>
+              <div>
+                <label className="text-white-dark">¿De dónde obtuviste este número?</label>
                 <input 
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="form-input"
                   value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribió por Facebook, Cliente antiguo, Formulario web" 
                 />
-                <small className="text-slate-400 dark:text-slate-500 text-[0.70rem] leading-tight">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
+                <small className="text-white-dark mt-1 block">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Etiquetas (separadas por coma)</label>
+              <div>
+                <label className="text-white-dark">Etiquetas (separadas por coma)</label>
                 <input 
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="form-input"
                   value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="cliente, vip, surco" 
                 />
               </div>
-              <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
-                <input type="checkbox" id="consent-add" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
-                <label htmlFor="consent-add" className="text-[0.75rem] text-amber-900 dark:text-amber-300 leading-snug">
+              <div className="flex items-start gap-2 bg-warning-light dark:bg-warning-dark-light p-3 rounded-lg border border-warning/20 mt-2">
+                <input type="checkbox" id="consent-add" className="form-checkbox text-warning" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
+                <label htmlFor="consent-add" className="text-xs text-warning-800 dark:text-warning leading-snug m-0">
                   <strong>Confirmo que este cliente me ha escrito o contactado a mí primero.</strong><br/>
                   Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                 </label>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
-              <button className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsAddOpen(false)}>Cancelar</button>
-              <button className="px-5 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 rounded-lg shadow-sm transition-all" onClick={handleAdd} disabled={!newPhone.trim() || upsertContact.isPending}>
+            <div className="flex items-center justify-end gap-2 p-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <button className="btn btn-outline-danger" onClick={() => setIsAddOpen(false)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleAdd} disabled={!newPhone.trim() || upsertContact.isPending}>
                 {upsertContact.isPending ? 'Guardando...' : 'Guardar Contacto'}
               </button>
             </div>
@@ -270,30 +269,30 @@ export function MarketingContactsManager() {
       {/* Modal — Importar Lote */}
       {isBatchOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onMouseDown={e  => { mouseDownOnBackdropBatch.current = e.target === e.currentTarget; }}
           onMouseUp={e    => { if (mouseDownOnBackdropBatch.current && e.target === e.currentTarget) setIsBatchOpen(false); mouseDownOnBackdropBatch.current = false; }}
         >
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <h3 className="m-0 text-[1.05rem] font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Upload size={18} className="text-blue-500" /> Importar Lote
+          <div className="panel border-0 p-0 w-full max-w-lg animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <h3 className="m-0 text-lg font-bold text-dark dark:text-white-light flex items-center gap-2">
+                <Upload size={18} className="text-info" /> Importar Lote
               </h3>
-              <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:text-slate-300 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsBatchOpen(false)}>
+              <button className="text-white-dark hover:text-dark dark:hover:text-white-light" onClick={() => setIsBatchOpen(false)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6 flex flex-col gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                <p className="m-0 text-[0.83rem] text-blue-800 dark:text-blue-300 leading-relaxed">
+            <div className="p-5 flex flex-col gap-4">
+              <div className="bg-info-light dark:bg-info-dark-light p-3 rounded-lg border border-info/20">
+                <p className="m-0 text-sm text-info-800 dark:text-info leading-relaxed">
                   Ingresa <strong>un contacto por línea</strong>.<br />
-                  Formato: <code className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-700 font-mono text-[0.75rem]">Teléfono, Nombre, Etiqueta1, Etiqueta2</code>
+                  Formato: <code className="bg-white dark:bg-dark px-1.5 py-0.5 rounded border border-info/30 font-mono text-xs">Teléfono, Nombre, Etiqueta1, Etiqueta2</code>
                 </p>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Lista de contactos</label>
+              <div>
+                <label className="text-white-dark">Lista de contactos</label>
                 <textarea
-                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono leading-relaxed"
+                  className="form-textarea font-mono text-sm leading-relaxed"
                   value={batchText}
                   onChange={e => setBatchText(e.target.value)}
                   rows={8}
@@ -301,25 +300,25 @@ export function MarketingContactsManager() {
                   style={{ resize: 'vertical' }}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">¿De dónde obtuviste estos números?</label>
+              <div>
+                <label className="text-white-dark">¿De dónde obtuviste estos números?</label>
                 <input 
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="form-input"
                   value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribieron por Facebook, Clientes de la tienda" 
                 />
-                <small className="text-slate-400 dark:text-slate-500 text-[0.70rem] leading-tight">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
+                <small className="text-white-dark mt-1 block">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
               </div>
-              <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50 mt-2">
-                <input type="checkbox" id="consent-batch" className="mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
-                <label htmlFor="consent-batch" className="text-[0.75rem] text-amber-900 dark:text-amber-300 leading-snug">
+              <div className="flex items-start gap-2 bg-warning-light dark:bg-warning-dark-light p-3 rounded-lg border border-warning/20 mt-2">
+                <input type="checkbox" id="consent-batch" className="form-checkbox text-warning mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
+                <label htmlFor="consent-batch" className="text-xs text-warning-800 dark:text-warning leading-snug m-0">
                   <strong>Confirmo que todos estos clientes me han escrito o contactado a mí primero.</strong><br/>
                   Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                 </label>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
-              <button className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsBatchOpen(false)}>Cancelar</button>
-              <button className="px-5 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 rounded-lg shadow-sm transition-all" onClick={handleBatch} disabled={!batchText.trim() || batchInsert.isPending}>
+            <div className="flex items-center justify-end gap-2 p-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <button className="btn btn-outline-danger" onClick={() => setIsBatchOpen(false)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleBatch} disabled={!batchText.trim() || batchInsert.isPending}>
                 {batchInsert.isPending ? 'Importando...' : 'Importar Contactos'}
               </button>
             </div>
@@ -330,29 +329,29 @@ export function MarketingContactsManager() {
       {/* Modal — Eliminar Lote */}
       {isDeleteTagOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onMouseDown={e  => { mouseDownOnBackdropDeleteTag.current = e.target === e.currentTarget; }}
           onMouseUp={e    => { if (mouseDownOnBackdropDeleteTag.current && e.target === e.currentTarget) setIsDeleteTagOpen(false); mouseDownOnBackdropDeleteTag.current = false; }}
         >
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900/50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-rose-100 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-900/20">
-              <h3 className="m-0 text-[1.05rem] font-bold text-rose-700 dark:text-rose-400 flex items-center gap-2">
+          <div className="panel border-0 p-0 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <h3 className="m-0 text-lg font-bold text-danger flex items-center gap-2">
                 <Trash2 size={18} /> Eliminar Grupo de Contactos
               </h3>
-              <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:text-slate-300 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsDeleteTagOpen(false)}>
+              <button className="text-white-dark hover:text-dark dark:hover:text-white-light" onClick={() => setIsDeleteTagOpen(false)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6 flex flex-col gap-4">
-              <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50">
-                <p className="m-0 text-[0.83rem] text-amber-800 dark:text-amber-300 leading-relaxed">
+            <div className="p-5 flex flex-col gap-4">
+              <div className="bg-warning-light dark:bg-warning-dark-light p-3 rounded-lg border border-warning/20">
+                <p className="m-0 text-sm text-warning-800 dark:text-warning leading-relaxed">
                   Ingresa el nombre de la etiqueta. <strong>Todos los contactos</strong> que tengan esta etiqueta serán eliminados de la base permanentemente.
                 </p>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Nombre de Etiqueta</label>
+              <div>
+                <label className="text-white-dark">Nombre de Etiqueta</label>
                 <input
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                  className="form-input"
                   value={deleteTagText}
                   onChange={e => setDeleteTagText(e.target.value)}
                   placeholder="Ej: promo junio 2"
@@ -360,15 +359,15 @@ export function MarketingContactsManager() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
-              <button className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" onClick={() => setIsDeleteTagOpen(false)}>Cancelar</button>
-              <button className="px-5 py-2 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 rounded-lg shadow-sm transition-all" onClick={handleDeleteByTag} disabled={!deleteTagText.trim() || deleteByTag.isPending}>
+            <div className="flex items-center justify-end gap-2 p-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
+              <button className="btn btn-outline-secondary" onClick={() => setIsDeleteTagOpen(false)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={handleDeleteByTag} disabled={!deleteTagText.trim() || deleteByTag.isPending}>
                 {deleteByTag.isPending ? 'Eliminando...' : 'Sí, Eliminar Todo'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
