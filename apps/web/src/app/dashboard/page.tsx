@@ -1,7 +1,7 @@
-import CampaignsView from '@/modules/campaigns/CampaignsView';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { WhatsappConnection } from '@/modules/whatsapp/WhatsappConnection';
+import { TenantDashboard } from '@/modules/dashboard/TenantDashboard';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -25,11 +25,11 @@ export default async function DashboardPage() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <h5 className="text-lg font-semibold dark:text-white-light">Panel de Campañas</h5>
+        <h5 className="text-lg font-semibold dark:text-white-light">Dashboard General</h5>
         <WhatsappConnection companyId={profile?.company_id} />
       </div>
-      <div className="panel">
-        <CampaignsView />
+      <div>
+        <TenantDashboard />
       </div>
     </div>
   );

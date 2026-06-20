@@ -1,10 +1,35 @@
-import React from 'react';
+import CampaignsView from '@/modules/campaigns/CampaignsView';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
+import { WhatsappConnection } from '@/modules/whatsapp/WhatsappConnection';
 
-export default function CampanasPage() {
+export default async function CampanasPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, company_id')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role === 'super_admin') {
+    redirect('/admin');
+  }
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Campañas</h1>
-      <p className="text-zinc-500 mt-2">Módulo en construcción...</p>
+    <div>
+      <div className="mb-5 flex items-center justify-between">
+        <h5 className="text-lg font-semibold dark:text-white-light">Panel de Campañas</h5>
+        <WhatsappConnection companyId={profile?.company_id} />
+      </div>
+      <div className="panel p-0 border-0">
+        <CampaignsView />
+      </div>
     </div>
   );
 }
