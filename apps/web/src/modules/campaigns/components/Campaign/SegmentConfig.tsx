@@ -84,6 +84,7 @@ export function SegmentConfig({
               max={600}
               value={minDelaySec} 
               onChange={e => setMinDelaySec(Number(e.target.value))} 
+              onBlur={() => setMinDelaySec(Math.max(30, minDelaySec))}
               className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
             />
           </div>
@@ -95,6 +96,7 @@ export function SegmentConfig({
               max={600}
               value={maxDelaySec} 
               onChange={e => setMaxDelaySec(Number(e.target.value))} 
+              onBlur={() => setMaxDelaySec(Math.max(30, Math.max(minDelaySec, maxDelaySec)))}
               className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
             />
           </div>

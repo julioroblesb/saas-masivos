@@ -77,6 +77,10 @@ create index if not exists idx_crm_wa_queue_campaign_status on crm_wa_queue (cam
 create index if not exists idx_crm_wa_queue_company_status on crm_wa_queue (company_id, status);
 
 -- Updates via ALTERS
+ALTER TABLE crm_wa_queue ADD COLUMN IF NOT EXISTS delay_after_ms integer;
+ALTER TABLE crm_wa_queue ADD COLUMN IF NOT EXISTS scheduled_for timestamptz DEFAULT now();
+ALTER TABLE crm_wa_queue ADD COLUMN IF NOT EXISTS processing_started_at timestamptz;
+
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS plan_type text DEFAULT 'prueba'; 
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS subscription_start_at timestamptz DEFAULT now();
@@ -267,16 +271,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION rpc_create_campaign(
-    p_name text, p_target_tag text, p_sequence jsonb, p_min_delay_sec int, p_max_delay_sec int
-) RETURNS jsonb SET search_path = public, pg_temp AS $$
+CREATE OR REPLACE FUNCTION rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_min_delay_sec int, p_max_delay_sec int) RETURNS jsonb 
+SET search_path = public, pg_temp AS $$
 DECLARE
     v_company_id uuid;
-    v_company_status text;
     v_campaign_id uuid;
+    v_company_status text;
     v_queued_items int := 0;
-    seq_step jsonb;
     contact_rec record;
+    seq_step jsonb;
+    v_seq_length int;
+    v_idx int;
 BEGIN
     SELECT company_id INTO v_company_id FROM profiles WHERE id = auth.uid();
     IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
@@ -289,14 +294,18 @@ BEGIN
         RAISE EXCEPTION 'El delay mínimo no puede ser menor a 10 segundos para evitar baneos.';
     END IF;
 
+    v_seq_length := jsonb_array_length(p_sequence);
+
     INSERT INTO crm_wa_campaigns (company_id, name, message_template, sequence, min_delay_sec, max_delay_sec, status, total_contacts)
     VALUES (v_company_id, p_name, 'Sequence (Backend Resolved)', p_sequence, p_min_delay_sec, p_max_delay_sec, 'running', 0)
     RETURNING id INTO v_campaign_id;
 
     FOR contact_rec IN SELECT id, phone, name FROM crm_marketing_contacts WHERE company_id = v_company_id AND (p_target_tag = '' OR p_target_tag = ANY(tags)) LOOP
+        v_idx := 0;
         FOR seq_step IN SELECT * FROM jsonb_array_elements(p_sequence) LOOP
-            INSERT INTO crm_wa_queue (company_id, campaign_id, contact_id, phone, message, status, scheduled_for)
-            VALUES (v_company_id, v_campaign_id, contact_rec.id, contact_rec.phone, seq_step->>'content', 'pendiente', now());
+            v_idx := v_idx + 1;
+            INSERT INTO crm_wa_queue (company_id, campaign_id, contact_id, phone, message, status, scheduled_for, delay_after_ms)
+            VALUES (v_company_id, v_campaign_id, contact_rec.id, contact_rec.phone, seq_step->>'content', 'pendiente', now() + (v_idx * interval '1 millisecond'), CASE WHEN v_idx = v_seq_length THEN NULL ELSE (seq_step->>'delayAfterMs')::int END);
             v_queued_items := v_queued_items + 1;
         END LOOP;
     END LOOP;

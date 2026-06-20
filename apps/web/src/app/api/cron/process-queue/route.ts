@@ -139,26 +139,35 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
   const { data: nextItem } = await supabaseAdmin
     .from('crm_wa_queue')
     .select(`
-      id, campaign_id, phone, message,
+      id, campaign_id, phone, message, delay_after_ms,
       crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
       companies(settings)
     `)
     .eq('company_id', company_id)
     .eq('status', 'pendiente')
     .eq('crm_wa_campaigns.status', 'running')
-    .order('created_at', { ascending: true })
+    .lte('scheduled_for', now.toISOString())
+    .order('scheduled_for', { ascending: true })
     .limit(1)
     .maybeSingle();
 
   if (!nextItem) return { skipped: 'sin mensajes pendientes' };
 
-  const { id, campaign_id, phone, message } = nextItem;
+  const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
   
   // Extraer configuraciones y delays
   const companySettings = (nextItem.companies as any)?.settings || {};
   const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
   const minDelaySec = campaignData?.min_delay_sec || 45;
   const maxDelaySec = campaignData?.max_delay_sec || 90;
+
+  // Determinar el delay hasta el SIGUIENTE envío
+  let nextLockDelayMs = 0;
+  if (delay_after_ms !== null && delay_after_ms !== undefined) {
+    nextLockDelayMs = delay_after_ms; // Mensaje de secuencia a la MISMA persona
+  } else {
+    nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000); // Cambio de contacto (Global lock)
+  }
 
   try {
     await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
@@ -188,7 +197,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       .from('wa_sessions')
       .update({
         last_message_sent_at: new Date().toISOString(),
-        next_allowed_send_at: new Date(Date.now() + randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000)).toISOString(),
+        next_allowed_send_at: new Date(Date.now() + nextLockDelayMs).toISOString(),
         daily_sent_count: currentDailyCount + 1,
         daily_reset_at: currentResetAt.toISOString(),
         consecutive_errors: 0
@@ -217,7 +226,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       .update({ 
         consecutive_errors: newSessionStatus === 'error_desconexion' ? 0 : newErrorsCount,
         status: newSessionStatus,
-        next_allowed_send_at: new Date(Date.now() + randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000)).toISOString() 
+        next_allowed_send_at: new Date(Date.now() + nextLockDelayMs).toISOString() 
       })
       .eq('company_id', company_id);
 

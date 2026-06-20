@@ -34,6 +34,8 @@ export function CampaignSender() {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [targetContactsCount, setTargetContactsCount] = useState<number>(0);
 
+  const [totalLifetimeSent, setTotalLifetimeSent] = useState<number>(0);
+
   useEffect(() => {
     async function loadSettingsAndTags() {
       try {
@@ -53,6 +55,11 @@ export function CampaignSender() {
             if (company.settings) setCompanySettings(company.settings);
             if (company.created_at) setCompanyCreatedAt(company.created_at);
           }
+
+          // Cargar total de mensajes enviados históricamente
+          const { data: campaigns } = await supabase.from('crm_wa_campaigns').select('sent_count').eq('company_id', profile.company_id);
+          const totalSent = (campaigns || []).reduce((acc, curr) => acc + (curr.sent_count || 0), 0);
+          setTotalLifetimeSent(totalSent);
         }
       } catch (err) {
         console.error('Error loading settings and tags', err);
@@ -82,11 +89,11 @@ export function CampaignSender() {
   }, [companyCreatedAt]);
 
   const accountTier = useMemo(() => {
-    if (daysSinceCreation < 3) return { level: 1, limit: 50, label: 'Fase 1 (Días 1-2)', progress: 25, nextLimit: 150, nextLimitDay: 3 };
-    if (daysSinceCreation < 7) return { level: 2, limit: 150, label: 'Fase 2 (Días 3-6)', progress: 50, nextLimit: 300, nextLimitDay: 7 };
-    if (daysSinceCreation < 14) return { level: 3, limit: 300, label: 'Fase 3 (Días 7-13)', progress: 75, nextLimit: 500, nextLimitDay: 14 };
-    return { level: 4, limit: 500, label: 'Fase 4 (Día 14+)', progress: 100, nextLimit: null, nextLimitDay: null };
-  }, [daysSinceCreation]);
+    if (totalLifetimeSent < 100) return { level: 1, limit: 50, label: 'Fase 1 (Inicial)', progress: 25, nextLimit: 150, nextReqMsgs: 100 };
+    if (totalLifetimeSent < 500) return { level: 2, limit: 150, label: 'Fase 2 (Calentamiento)', progress: 50, nextLimit: 300, nextReqMsgs: 500 };
+    if (totalLifetimeSent < 1500) return { level: 3, limit: 300, label: 'Fase 3 (Expansión)', progress: 75, nextLimit: 500, nextReqMsgs: 1500 };
+    return { level: 4, limit: 500, label: 'Fase 4 (Máxima)', progress: 100, nextLimit: null, nextReqMsgs: null };
+  }, [totalLifetimeSent]);
 
   const addMessage = () => setSequence(prev => [
     ...prev, { id: crypto.randomUUID(), type: 'text', content: '', delayAfterMs: 3000 }
@@ -229,7 +236,7 @@ export function CampaignSender() {
             <div className="mb-4">
               <div className="flex justify-between items-end mb-2">
                 <div className="text-sm font-semibold text-primary">{accountTier.label}</div>
-                <div className="text-xs text-white-dark">Día {daysSinceCreation}</div>
+                <div className="text-xs text-white-dark">{totalLifetimeSent} Enviados</div>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
                 <div 
@@ -241,10 +248,10 @@ export function CampaignSender() {
             <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Límite actual: <strong className="text-primary">{accountTier.limit} mensajes/día</strong>.
               <br className="mb-1" />
-              {accountTier.nextLimit && accountTier.nextLimitDay ? (
+              {accountTier.nextLimit && accountTier.nextReqMsgs ? (
                 <span>
-                  Desbloquea enviar hasta <strong>{accountTier.nextLimit} mensajes al día</strong> en el día {accountTier.nextLimitDay} en adelante. 
-                  Vas en el día <strong>{daysSinceCreation}</strong>.
+                  Desbloquea enviar hasta <strong>{accountTier.nextLimit} mensajes al día</strong> al acumular <strong>{accountTier.nextReqMsgs}</strong> mensajes históricos enviados. 
+                  Llevas <strong>{totalLifetimeSent}</strong>.
                 </span>
               ) : (
                 <span>Has alcanzado la capacidad máxima de envíos diarios recomendada.</span>
