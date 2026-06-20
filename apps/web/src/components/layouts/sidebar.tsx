@@ -21,6 +21,7 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [role, setRole] = useState<string>('');
+    const [companyName, setCompanyName] = useState<string>('SaaS Masivos');
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
 
@@ -29,8 +30,14 @@ const Sidebar = () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-                if (data) setRole(data.role);
+                const { data: profile } = await supabase.from('profiles').select('role, company_id').eq('id', user.id).single();
+                if (profile) {
+                    setRole(profile.role);
+                    if (profile.company_id) {
+                        const { data: company } = await supabase.from('companies').select('name').eq('id', profile.company_id).single();
+                        if (company) setCompanyName(company.name);
+                    }
+                }
             }
         };
         fetchRole();
@@ -84,7 +91,7 @@ const Sidebar = () => {
                 <div className="h-full bg-white dark:bg-black">
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
-                            <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">BuilderBot</span>
+                            <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">{companyName}</span>
                         </Link>
 
                         <button

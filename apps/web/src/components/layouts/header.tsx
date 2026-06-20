@@ -21,6 +21,7 @@ const Header = () => {
 
     const [userEmail, setUserEmail] = useState<string>('');
     const [role, setRole] = useState<string>('');
+    const [companyName, setCompanyName] = useState<string>('SaaS Masivos');
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -28,8 +29,14 @@ const Header = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 setUserEmail(user.email || '');
-                const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-                if (data) setRole(data.role);
+                const { data: profile } = await supabase.from('profiles').select('role, company_id').eq('id', user.id).single();
+                if (profile) {
+                    setRole(profile.role);
+                    if (profile.company_id) {
+                        const { data: company } = await supabase.from('companies').select('name').eq('id', profile.company_id).single();
+                        if (company) setCompanyName(company.name);
+                    }
+                }
             }
         };
         fetchUser();
@@ -50,7 +57,7 @@ const Header = () => {
                 <div className="relative flex w-full items-center bg-white px-5 py-2.5 dark:bg-black">
                     <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2 lg:hidden">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
-                            <span className="align-middle text-2xl font-semibold transition-all duration-300 ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">BuilderBot</span>
+                            <span className="align-middle text-2xl font-semibold transition-all duration-300 ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">{companyName}</span>
                         </Link>
                         <button
                             type="button"
@@ -83,20 +90,9 @@ const Header = () => {
                                         themeConfig.theme === 'dark' &&
                                         'flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60'
                                     }`}
-                                    onClick={() => dispatch(toggleTheme('system'))}
-                                >
-                                    <IconMoon />
-                                </button>
-                            )}
-                            {themeConfig.theme === 'system' && (
-                                <button
-                                    className={`${
-                                        themeConfig.theme === 'system' &&
-                                        'flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60'
-                                    }`}
                                     onClick={() => dispatch(toggleTheme('light'))}
                                 >
-                                    <IconLaptop />
+                                    <IconMoon />
                                 </button>
                             )}
                         </div>

@@ -1,5 +1,4 @@
 import { Zap } from 'lucide-react';
-import Card from '@/components/legacy/Card';
 
 export function SegmentConfig({
   campaignName,
@@ -39,67 +38,67 @@ export function SegmentConfig({
   };
 
   return (
-    <Card className="overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-        <Zap size={16} className="text-blue-600 dark:text-blue-400" />
-        <h3 className="m-0 text-[0.95rem] font-bold text-slate-900 dark:text-white">Configuración General</h3>
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        <Zap size={16} className="text-primary" />
+        <h3 className="m-0 text-lg font-semibold dark:text-white-light">Configuración General</h3>
       </div>
-      <div className="p-5 flex flex-col gap-5">
+      <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Nombre de la campaña</label>
+          <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Nombre de la campaña</label>
           <input 
             type="text" 
             placeholder="Ej. Promoción Mayo 2026" 
             value={campaignName} 
             onChange={e => setCampaignName(e.target.value)}
             maxLength={100}
-            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="form-input"
           />
         </div>
         
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.75rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Destinatarios</label>
+          <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Destinatarios</label>
           <select 
-            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+            className="form-select" 
             value={targetTag} 
             onChange={e => setTargetTag(e.target.value)}
           >
             <option value="">Todos los contactos de marketing ({contacts.length})</option>
             {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <p className="m-0 text-[0.78rem] font-semibold text-emerald-500 mt-1">✓ {targetContactsCount} destinatarios seleccionados</p>
+          <p className="m-0 text-xs font-semibold text-success mt-1">✓ {targetContactsCount} destinatarios seleccionados</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-[0.72rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide" title="Delay mínimo entre mensajes a distintos contactos">Delay Mínimo (seg)</label>
+            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase" title="Delay mínimo entre mensajes a distintos contactos">Delay Mínimo (seg)</label>
             <input 
               type="number" 
               min={30} 
               max={600}
               value={minDelaySec} 
               onChange={e => setMinDelaySec(Number(e.target.value))} 
-              className="w-full px-2 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="form-input text-center"
             />
           </div>
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-[0.72rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide" title="Delay máximo entre mensajes a distintos contactos">Delay Máximo (seg)</label>
+            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase" title="Delay máximo entre mensajes a distintos contactos">Delay Máximo (seg)</label>
             <input 
               type="number" 
               min={30} 
               max={600}
               value={maxDelaySec} 
               onChange={e => setMaxDelaySec(Number(e.target.value))} 
-              className="w-full px-2 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="form-input text-center"
             />
           </div>
         </div>
         
-        <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg text-[0.85rem] mt-1 border border-slate-100 dark:border-slate-700/50">
-          <strong className="text-slate-700 dark:text-slate-200">⏱️ Tiempo estimado:</strong> <span className="text-slate-900 dark:text-white font-medium">{formatTime(estimatedSeconds)}</span> <br/>
-          <span className="text-slate-500 dark:text-slate-400 text-[0.8rem]">(El cron enviará 1 mensaje por minuto máximo para evitar baneos)</span>
+        <div className="bg-primary-light dark:bg-primary-dark-light p-3 rounded-lg text-sm mt-1">
+          <strong className="text-primary">⏱️ Tiempo estimado:</strong> <span className="text-primary font-medium">{formatTime(estimatedSeconds)}</span> <br/>
+          <span className="text-gray-500 dark:text-gray-400 text-xs">(El cron enviará 1 mensaje por minuto máximo para evitar baneos)</span>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
