@@ -170,7 +170,9 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
             {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
           </Button>
         ) : null}
-        <div className="flex items-center space-x-3 bg-zinc-100 dark:bg-zinc-800 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        
+        {(status === 'conectando' || status === 'esperando_qr') && (
+          <div className="flex items-center space-x-3 bg-zinc-100 dark:bg-zinc-800 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
           {qrCode ? (
             <div className="flex items-center space-x-4">
               <div className="bg-white p-1 rounded-md border border-zinc-200 shadow-sm">

@@ -10,6 +10,9 @@ ALTER TABLE crm_marketing_contacts
 ADD COLUMN IF NOT EXISTS opt_in_source VARCHAR(255);
 
 -- 3. Actualizar RPC rpc_upsert_marketing_contact
+DROP FUNCTION IF EXISTS rpc_upsert_marketing_contact(text, text, text[]);
+DROP FUNCTION IF EXISTS rpc_upsert_marketing_contact(text, text, text[], text);
+
 CREATE OR REPLACE FUNCTION rpc_upsert_marketing_contact(
     p_phone text, p_name text, p_tags text[], p_opt_in_source text DEFAULT NULL
 ) RETURNS jsonb SET search_path = public, pg_temp AS $$
@@ -34,6 +37,9 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 4. Actualizar RPC rpc_batch_insert_marketing_contacts
+DROP FUNCTION IF EXISTS rpc_batch_insert_marketing_contacts(jsonb);
+DROP FUNCTION IF EXISTS rpc_batch_insert_marketing_contacts(uuid, jsonb);
+
 CREATE OR REPLACE FUNCTION rpc_batch_insert_marketing_contacts(
   p_contacts JSONB
 )
