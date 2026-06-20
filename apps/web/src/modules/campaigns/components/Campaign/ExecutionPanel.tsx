@@ -38,24 +38,13 @@ export function ExecutionPanel({
             >
               {isUploadingAny
                 ? <><Loader2 size={18} className="animate-spin" /> Subiendo...</>
-                : <><Play size={18} /> Encolar Campaña</>}
+                : <><Play size={18} /> Iniciar Campaña</>}
             </button>
             {targetContactsCount === 0 && (
               <p className="text-[0.78rem] text-warning font-bold m-0 mt-2">
                 ⚠️ No hay contactos en el segmento seleccionado
               </p>
             )}
-            
-            <div className="bg-danger/10 border border-danger/20 rounded-xl p-4 mt-4 text-left">
-              <h4 className="text-danger text-sm font-bold mb-2 flex items-center gap-1.5">
-                <span className="text-lg">⚠️</span> Política Anti-Spam y Riesgo de Baneo
-              </h4>
-              <ul className="text-danger/80 dark:text-danger/70 text-xs space-y-1.5 list-disc pl-4">
-                <li>El envío masivo puede ocasionar el <strong>bloqueo permanente</strong> de tu número en WhatsApp.</li>
-                <li>Este sistema utiliza pausas (delays) y variación de mensajes para reducir riesgos, pero <strong>no hay garantía de inmunidad</strong>.</li>
-                <li>Al ejecutar esta campaña, asumes 100% de responsabilidad sobre tu número. No uses números personales.</li>
-              </ul>
-            </div>
           </>
         )}
 

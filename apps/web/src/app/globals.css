@@ -234,13 +234,10 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
 
     /* Collapsible vertical layouts */
     .collapsible-vertical .sidebar {
-        @apply hover:w-[260px] ltr:-left-[260px] rtl:-right-[260px] lg:w-[70px] lg:ltr:left-0 lg:rtl:right-0;
+        @apply hover:!w-[260px] ltr:-left-[260px] rtl:-right-[260px] lg:!w-[70px] lg:ltr:left-0 lg:rtl:right-0;
     }
     .collapsible-vertical.toggle-sidebar .sidebar {
-        @apply ltr:left-0 rtl:right-0;
-    }
-    .collapsible-vertical.toggle-sidebar .sidebar {
-        @apply lg:w-[260px];
+        @apply ltr:left-0 rtl:right-0 lg:!w-[260px];
     }
     .collapsible-vertical.toggle-sidebar .sidebar .nav-item > a {
         @apply w-auto;

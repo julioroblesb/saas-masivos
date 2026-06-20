@@ -13,6 +13,7 @@ import IconMenuChat from '@/components/icon/menu/icon-menu-chat';
 import IconSettings from '@/components/icon/icon-settings';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconMinus from '@/components/icon/icon-minus';
+import IconInfoCircle from '@/components/icon/icon-info-circle';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -168,6 +169,15 @@ const Sidebar = () => {
                                             <div className="flex items-center">
                                                 <IconSettings className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Configuración</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item">
+                                        <Link href="/terminos" className="group" target="_blank">
+                                            <div className="flex items-center">
+                                                <IconInfoCircle className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Términos y Políticas</span>
                                             </div>
                                         </Link>
                                     </li>
