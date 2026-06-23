@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
-import { QrCode, Smartphone, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { QrCode, Smartphone, Loader2, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
@@ -173,18 +173,21 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
 
       {/* QR Modal Overlay */}
       {(status === 'conectando' || status === 'esperando_qr') && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#0e1726] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-5 border-b border-zinc-100 dark:border-zinc-800">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <Smartphone className="w-5 h-5 text-green-600" />
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                </div>
                 Vincular Dispositivo
               </h3>
               <button 
                 onClick={() => setStatus('desconectado')}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full"
+                title="Cancelar y Cerrar"
               >
-                <AlertCircle className="w-5 h-5" />
+                <XCircle className="w-5 h-5" />
               </button>
             </div>
             

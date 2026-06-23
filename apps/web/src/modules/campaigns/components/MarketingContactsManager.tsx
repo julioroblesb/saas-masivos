@@ -1,7 +1,7 @@
 import { crmToast } from '../../../hooks/useToast';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMarketingContacts, useUpsertMarketingContact, useBatchInsertMarketingContacts, useDeleteMarketingContact, useDeleteMarketingContactsByTag } from '../../../hooks/queries/useMarketingContacts';
-import { Search, Plus, Trash2, Tag, Upload, Users, X } from 'lucide-react';
+import { Search, Plus, Trash2, Tag, Upload, Users, X, Phone, User, Mail, Calendar, FileText, Info, CheckSquare, Loader2, XCircle } from 'lucide-react';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 export function MarketingContactsManager() {
@@ -223,90 +223,158 @@ export function MarketingContactsManager() {
       {/* Modal — Nuevo Contacto */}
       {isAddOpen && (
         <div
-          className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto"
           onMouseDown={e  => { mouseDownOnBackdropAdd.current = e.target === e.currentTarget; }}
           onMouseUp={e    => { if (mouseDownOnBackdropAdd.current && e.target === e.currentTarget) setIsAddOpen(false); mouseDownOnBackdropAdd.current = false; }}
         >
-          <div className="panel border-0 p-0 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
-              <h3 className="m-0 text-lg font-bold text-dark dark:text-white-light flex items-center gap-2">
-                <Plus size={18} className="text-success" /> Nuevo Contacto
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Plus className="w-5 h-5 text-primary" />
+                </div>
+                Nuevo Contacto
               </h3>
-              <button className="text-white-dark hover:text-dark dark:hover:text-white-light" onClick={() => setIsAddOpen(false)}>
-                <X size={18} />
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsAddOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-5 flex flex-col gap-4">
-              <div>
-                <label className="text-white-dark">Teléfono *</label>
-                <input
-                  className="form-input"
-                  value={newPhone}
-                  onChange={e => setNewPhone(e.target.value)}
-                  placeholder="51999999999"
-                  autoFocus
-                />
-                <small className="text-white-dark mt-1 block">Incluye el código de país sin "+" (ej: 51 para Perú)</small>
-              </div>
-              <div>
-                <label className="text-white-dark">Nombre (opcional)</label>
-                <input 
-                  className="form-input"
-                  value={newName} onChange={e => setNewName(e.target.value)} placeholder="Juan Pérez" 
-                />
-              </div>
-              <div>
-                <label className="text-white-dark">Email (opcional)</label>
-                <input 
-                  type="email"
-                  className="form-input"
-                  value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="juan@correo.com" 
-                />
-              </div>
-              <div>
-                <label className="text-white-dark">Fecha de Nacimiento (opcional)</label>
-                <CustomDatePicker 
-                  value={newBirthday}
-                  onChangeDate={setNewBirthday}
-                  placeholder="Seleccionar fecha"
-                  className="form-input w-full"
-                />
-              </div>
-              <div>
-                <label className="text-white-dark">Notas (opcional)</label>
-                <textarea 
-                  className="form-textarea"
-                  value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="Preferencias, alergias, etc." 
-                  rows={2}
-                />
-              </div>
-              <div>
-                <label className="text-white-dark">¿De dónde obtuviste este número?</label>
-                <input 
-                  className="form-input"
-                  value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribió por Facebook, Cliente antiguo, Formulario web" 
-                />
-                <small className="text-white-dark mt-1 block">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
-              </div>
-              <div>
-                <label className="text-white-dark">Etiquetas (separadas por coma)</label>
-                <input 
-                  className="form-input"
-                  value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="cliente, vip, surco" 
-                />
-              </div>
-              <div className="flex items-start gap-2 bg-warning-light dark:bg-warning-dark-light p-3 rounded-lg border border-warning/20 mt-2">
-                <input type="checkbox" id="consent-add" className="form-checkbox text-warning" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
-                <label htmlFor="consent-add" className="text-xs text-warning-800 dark:text-warning leading-snug m-0">
-                  <strong>Confirmo que este cliente me ha escrito o contactado a mí primero.</strong><br/>
-                  Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
-                </label>
+            
+            <div className="p-6 max-h-[65vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-primary" /> Teléfono *
+                  </label>
+                  <input
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    value={newPhone}
+                    onChange={e => setNewPhone(e.target.value)}
+                    placeholder="51999999999"
+                    autoFocus
+                  />
+                  <small className="text-xs text-zinc-500 font-medium ml-1">Incluye el código de país sin "+" (ej: 51 para Perú)</small>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" /> Nombre (opcional)
+                  </label>
+                  <input 
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    value={newName} onChange={e => setNewName(e.target.value)} placeholder="Ej: Juan Pérez" 
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-primary" /> Email (opcional)
+                  </label>
+                  <input 
+                    type="email"
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="juan@correo.com" 
+                  />
+                </div>
+                
+                <div className="space-y-3 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-primary" /> Fecha de Nacimiento (opcional)
+                  </label>
+                  <CustomDatePicker 
+                    value={newBirthday}
+                    onChangeDate={setNewBirthday}
+                    placeholder="Seleccionar fecha"
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                  />
+                </div>
+                
+                <div className="space-y-3 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" /> Notas (opcional)
+                  </label>
+                  <textarea 
+                    className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="Preferencias, alergias, etc." 
+                    rows={2}
+                  />
+                </div>
+
+                <div className="col-span-1 md:col-span-2 border-t border-black-light dark:border-dark-light my-2 pt-6">
+                  <h4 className="font-bold text-lg tracking-tight text-black dark:text-white mb-6 flex items-center gap-2">
+                    Procedencia y Cumplimiento
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                        <Info className="w-4 h-4 text-primary" /> ¿De dónde obtuviste este número?
+                      </label>
+                      <input 
+                        className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                        value={optInSource} onChange={e => setOptInSource(e.target.value)} placeholder="Ej: Me escribió por Facebook, Formulario web" 
+                      />
+                      <small className="text-xs text-zinc-500 font-medium ml-1">Te ayuda a recordar el origen para evitar contactar a desconocidos.</small>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-primary" /> Etiquetas (separadas por coma)
+                      </label>
+                      <input 
+                        className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                        value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="cliente, vip, surco" 
+                      />
+                    </div>
+                    
+                    <div className="mt-4">
+                      <label className="flex items-start gap-4 cursor-pointer group bg-warning/10 dark:bg-warning/5 border border-warning/20 p-5 rounded-2xl transition-colors hover:bg-warning/20">
+                        <div className="relative flex items-center mt-0.5">
+                          <input 
+                            type="checkbox" 
+                            className="peer sr-only" 
+                            checked={hasOptInConsent}
+                            onChange={e => setHasOptInConsent(e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-warning/30 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-warning"></div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold text-warning-800 dark:text-warning leading-snug group-hover:text-warning-900 dark:group-hover:text-warning-light transition-colors">
+                            Confirmo que este cliente me ha escrito o contactado a mí primero.
+                          </span>
+                          <span className="text-xs text-warning-700 dark:text-warning/80 leading-relaxed">
+                            Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 p-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
-              <button className="btn btn-outline-danger" onClick={() => setIsAddOpen(false)}>Cancelar</button>
-              <button className="btn btn-primary" onClick={handleAdd} disabled={!newPhone.trim() || upsertContact.isPending}>
-                {upsertContact.isPending ? 'Guardando...' : 'Guardar Contacto'}
+            
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
+              <button 
+                className="btn btn-outline-secondary rounded-xl px-6" 
+                onClick={() => setIsAddOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                onClick={handleAdd} 
+                disabled={!newPhone.trim() || upsertContact.isPending}
+              >
+                {upsertContact.isPending ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
+                  </span>
+                ) : (
+                  'Guardar Contacto'
+                )}
               </button>
             </div>
           </div>
