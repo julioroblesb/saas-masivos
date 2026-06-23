@@ -51,10 +51,10 @@ table tr .mantine-Checkbox-root {
     @apply bg-white-light/20 dark:!bg-[#1a2941]/40;
 }
 .datatables table {
-    @apply font-nunito !text-black dark:!text-white-dark;
+    @apply font-outfit !text-black dark:!text-white-dark;
 }
 .datatables .mantine-Text-root {
-    @apply flex-none !font-nunito text-sm font-medium;
+    @apply flex-none !font-outfit text-sm font-medium;
 }
 
 .datatables thead tr th .mantine-Group-root.mantine-1d34tqu div > svg {
@@ -100,13 +100,13 @@ table tr .mantine-Checkbox-root {
     @apply p-2 text-sm;
 }
 .mantine-Pagination-item {
-    @apply h-9 w-9 rounded-full border-white-light !bg-white-light font-nunito text-sm !text-[#3b3f5c] hover:!bg-primary hover:!text-white dark:border-[#191e3a] dark:!bg-[#191e3a] dark:!text-white rtl:first:rotate-180 rtl:last:rotate-180;
+    @apply h-9 w-9 rounded-full border-white-light !bg-white-light font-outfit text-sm !text-[#3b3f5c] hover:!bg-primary hover:!text-white dark:border-[#191e3a] dark:!bg-[#191e3a] dark:!text-white rtl:first:rotate-180 rtl:last:rotate-180;
 }
 .mantine-Pagination-item[data-active] {
     @apply !bg-primary !text-white;
 }
 .mantine-Menu-item .mantine-Text-root {
-    @apply text-center font-nunito !text-sm;
+    @apply text-center font-outfit !text-sm;
 }
 .mantine-Menu-item {
     @apply hover:bg-primary hover:text-white dark:text-white-dark dark:hover:text-white;
