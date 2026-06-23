@@ -236,11 +236,11 @@ export function AtencionesManager({
 
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white dark:bg-[#191e3a] rounded-2xl w-full max-w-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-[#1b2e4b] bg-slate-50/50 dark:bg-transparent">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white-light flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div className="bg-white dark:bg-[#111] border border-[#E4E4E7] dark:border-[#27272A] rounded-2xl w-full max-w-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-[#E4E4E7] dark:border-[#27272A] bg-zinc-50/50 dark:bg-transparent">
+              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Plus className="w-5 h-5 text-primary" />
                 </div>
                 Registrar Atención
