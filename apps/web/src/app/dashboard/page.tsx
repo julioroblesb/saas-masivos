@@ -47,12 +47,12 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between backdrop-blur-md bg-white/30 dark:bg-black/30 p-4 rounded-xl border border-white/20 shadow-sm">
+      <div className="mb-8 flex items-center justify-between pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">
             Panel de Control
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
             Resumen de tu Spa
           </p>
         </div>

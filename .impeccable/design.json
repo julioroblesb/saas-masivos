@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-23T04:11:30Z",
+  "title": "Design System: Masivos",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Vibrant Rose Pop", "canonical": "oklch(57.65% 0.231 12.92)" },
+      "secondary": { "role": "neutral", "displayName": "Dark Tech Base", "canonical": "oklch(9.9% 0.005 240)" },
+      "dark": { "role": "neutral", "displayName": "Panel Dark", "canonical": "oklch(14.2% 0.005 240)" },
+      "white-light": { "role": "neutral", "displayName": "White Light Text", "canonical": "oklch(98% 0.002 240)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Title", "purpose": "Hero greetings and primary metrics." },
+      "body": { "displayName": "Body Content", "purpose": "General body copy, lists, inputs, and forms." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-out-strong", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Responsive spring-like UI exits and status changes." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Admin Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Standard dashboard content container.",
+      "html": "<div class=\"ds-panel\"><h3 class=\"ds-panel-title\">Servicio Completado</h3><p class=\"ds-panel-body\">Las uñas acrílicas se han registrado y se ha enviado la notificación de cuidados.</p></div>",
+      "css": ".ds-panel { background-color: #111111; color: #FAFAFA; border: 1px solid #27272A; border-radius: 16px; padding: 20px; font-family: 'Nunito', sans-serif; } .ds-panel-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color: #FAFAFA; } .ds-panel-body { font-size: 0.875rem; color: #A1A1AA; line-height: 1.5; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Call to action for key system operations.",
+      "html": "<button class=\"ds-btn-primary\">Completar Servicio</button>",
+      "css": ".ds-btn-primary { background-color: #E11D48; color: #FAFAFA; border: none; border-radius: 8px; padding: 10px 24px; font-family: 'Nunito', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-primary:hover { background-color: #C0113A; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Neon Tech Salon",
+    "overview": "A premium administrative workspace designed to serve busy beauty salons and spas. The system uses a sleek, high-efficiency dark tech theme with vibrant rose pop highlights to reflect cosmetic creativity and operational energy.",
+    "keyCharacteristics": [
+      "Sleek dark tech background (#0A0A0A) with rose pink accent (#E11D48)",
+      "Rounded layout panels (16px border-radius) with border frames (#27272A)",
+      "Nunito-driven modern sans-serif typography",
+      "Flat, high-contrast, state-reactive user interfaces"
+    ],
+    "rules": [
+      { "name": "The Rose Pop Rule", "body": "Use the vibrant rose pop color strictly for interactive highlights, main buttons, and successful completed statuses.", "section": "colors" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Depth is achieved entirely through background color hierarchy.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep text line lengths under 75 characters for prose description block readability.",
+      "Do use text-wrap: balance on display headers to prevent awkward trailing words.",
+      "Do use high-contrast text (#FAFAFA) on all main headings."
+    ],
+    "donts": [
+      "Don't use side-stripe borders (e.g. border-left: 4px solid #E11D48) on panel headers or cards.",
+      "Don't apply gradients to text headers.",
+      "Don't use pure #000000 or generic slate-gray backgrounds."
+    ]
+  }
+}
