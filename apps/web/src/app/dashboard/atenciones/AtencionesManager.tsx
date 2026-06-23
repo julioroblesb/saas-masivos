@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction } from './actions';

@@ -10,10 +10,10 @@ import Image from 'next/image';
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Atenciones', href: '/dashboard/atenciones', icon: CalendarCheck },
-  { label: 'Trabajadoras', href: '/dashboard/trabajadoras', icon: UserPlus },
+  { label: 'Equipo', href: '/dashboard/trabajadoras', icon: Users },
   { label: 'Servicios', href: '/dashboard/servicios', icon: Megaphone },
   { label: 'Productos', href: '/dashboard/productos', icon: Package },
-  { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
+  { label: 'Clientes', href: '/dashboard/clientes', icon: UserPlus },
   { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ];
