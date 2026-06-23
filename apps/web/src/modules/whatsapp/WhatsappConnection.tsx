@@ -50,21 +50,30 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       setStatus('conectando');
     }).subscribe();
 
+    let isMounted = true;
     let interval: NodeJS.Timeout;
     if (status === 'conectando' || status === 'esperando_qr') {
       interval = setInterval(async () => {
         try {
           const res = await fetch('/api/wa/status');
-          if (res.ok) {
+          if (res.ok && isMounted) {
             const data = await res.json();
-            if (data.status && data.status !== status) {
-              setStatus(data.status);
-              if (data.status === 'conectado') {
-                setQrCode(null);
-                toast.success('¡WhatsApp conectado exitosamente!');
+            // Use functional state update to avoid closure stale state issues
+            setStatus(prev => {
+              // If we already aborted/disconnected, don't revert to a connecting state
+              if (prev === 'desconectado' || prev === 'cargando') return prev;
+              
+              if (data.status && data.status !== prev) {
+                if (data.status === 'conectado') {
+                  setQrCode(null);
+                  toast.success('¡WhatsApp conectado exitosamente!');
+                }
+                return data.status;
               }
-            }
-            if (data.qr && data.qr !== qrCode) {
+              return prev;
+            });
+            
+            if (data.qr && data.qr !== qrCode && isMounted) {
               setQrCode(data.qr);
             }
           }
@@ -75,6 +84,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     }
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
       if (interval) clearInterval(interval);
     };
@@ -84,7 +94,10 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     setStatus('desconectado');
     setQrCode(null);
     try {
-      await fetch('/api/wa/disconnect', { method: 'POST' });
+      const res = await fetch('/api/wa/disconnect', { method: 'POST' });
+      if (!res.ok) {
+         console.warn('Error backend al desconectar');
+      }
     } catch (err) {
       console.error('Error abortando conexion:', err);
     }

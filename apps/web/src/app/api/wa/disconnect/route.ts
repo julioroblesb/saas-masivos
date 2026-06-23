@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       .from('wa_sessions')
       .select('bb_project_id')
       .eq('company_id', profile.company_id)
-      .single();
+      .maybeSingle();
 
     const projectId = session?.bb_project_id;
 
