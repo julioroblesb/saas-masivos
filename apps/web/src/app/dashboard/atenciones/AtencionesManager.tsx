@@ -24,10 +24,13 @@ export function AtencionesManager({
     contact_id: '',
     service_id: '',
     visit_date: new Date().toISOString().split('T')[0],
-    status: 'completado' as 'en_curso' | 'completado' | 'cancelado',
+    status: 'en_curso' as 'en_curso' | 'completado' | 'cancelado',
     price_charged: 0,
     notes: ''
   });
+  
+  const [showNewPatient, setShowNewPatient] = useState(false);
+  const [newPatient, setNewPatient] = useState({ name: '', phone: '' });
   
   const [search, setSearch] = useState('');
 
@@ -42,14 +45,15 @@ export function AtencionesManager({
   };
 
   const handleSubmit = async () => {
-    if (!form.contact_id || !form.service_id || !form.visit_date) {
+    if ((!form.contact_id && !showNewPatient) || (showNewPatient && (!newPatient.name || !newPatient.phone)) || !form.service_id || !form.visit_date) {
       toast.error('Por favor completa los campos requeridos (Cliente, Servicio, Fecha).');
       return;
     }
     
     setIsSubmitting(true);
     const res = await createVisitAction({
-      contact_id: form.contact_id,
+      contact_id: !showNewPatient ? form.contact_id : undefined,
+      new_contact: showNewPatient ? newPatient : undefined,
       service_id: form.service_id,
       visit_date: form.visit_date,
       status: form.status,
@@ -258,15 +262,44 @@ export function AtencionesManager({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="space-y-4 col-span-1 md:col-span-2">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" /> Paciente *
-                  </label>
-                  <CustomSelect
-                    placeholder="Selecciona un paciente..."
-                    options={contacts.map(c => ({ value: c.id, label: `${c.name || 'Sin nombre'} (+${c.phone})` }))}
-                    value={form.contact_id ? { value: form.contact_id, label: contacts.find(c => c.id === form.contact_id) ? `${contacts.find(c => c.id === form.contact_id).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contact_id).phone})` : 'Seleccionado' } : null}
-                    onChange={(selected: any) => setForm(prev => ({ ...prev, contact_id: selected ? selected.value : '' }))}
-                  />
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                      <User className="w-4 h-4 text-primary" /> Paciente *
+                    </label>
+                    <button 
+                      type="button"
+                      onClick={() => setShowNewPatient(!showNewPatient)}
+                      className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      {showNewPatient ? 'Seleccionar existente' : '+ Nuevo paciente'}
+                    </button>
+                  </div>
+                  
+                  {showNewPatient ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <input 
+                        type="text" 
+                        placeholder="Nombre completo" 
+                        className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                        value={newPatient.name}
+                        onChange={e => setNewPatient(p => ({ ...p, name: e.target.value }))}
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="Teléfono (ej: 51987654321)" 
+                        className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                        value={newPatient.phone}
+                        onChange={e => setNewPatient(p => ({ ...p, phone: e.target.value }))}
+                      />
+                    </div>
+                  ) : (
+                    <CustomSelect
+                      placeholder="Selecciona un paciente..."
+                      options={contacts.map(c => ({ value: c.id, label: `${c.name || 'Sin nombre'} (+${c.phone})` }))}
+                      value={form.contact_id ? { value: form.contact_id, label: contacts.find(c => c.id === form.contact_id) ? `${contacts.find(c => c.id === form.contact_id).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contact_id).phone})` : 'Seleccionado' } : null}
+                      onChange={(selected: any) => setForm(prev => ({ ...prev, contact_id: selected ? selected.value : '' }))}
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -275,8 +308,8 @@ export function AtencionesManager({
                   </label>
                   <CustomSelect
                     placeholder="Selecciona un servicio..."
-                    options={services.map(s => ({ value: s.id, label: `${s.name} ($${s.promo_price || s.price})` }))}
-                    value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} ($${services.find(s => s.id === form.service_id).promo_price || services.find(s => s.id === form.service_id).price})` : 'Seleccionado' } : null}
+                    options={services.map(s => ({ value: s.id, label: `${s.name} (S/ ${s.promo_price || s.price})` }))}
+                    value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} (S/ ${services.find(s => s.id === form.service_id).promo_price || services.find(s => s.id === form.service_id).price})` : 'Seleccionado' } : null}
                     onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
                   />
                 </div>

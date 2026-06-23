@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Filter, Archive, CheckCircle, XCircle, Inbox, Mail, AlertTriangle } from 'lucide-react';
+import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { archiveContactsAction } from './actions';
-import { CustomSelect } from '@/components/ui/CustomSelect';
+import { archiveContactsAction, upsertContactAction } from './actions';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 interface ClientMetric {
   id: string;
@@ -12,252 +12,154 @@ interface ClientMetric {
   name: string | null;
   is_archived: boolean;
   created_at: string;
-  campaigns_count: number;
-  last_message_sent_at: string | null;
-  last_reply_at: string | null;
   email?: string | null;
   birthday?: string | null;
   notes?: string | null;
   total_visits?: number;
+  last_visit_at?: string | null;
   last_service_name?: string | null;
 }
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
   const [clients, setClients] = useState<ClientMetric[]>(initialClients);
   const [search, setSearch] = useState('');
-  const [filterArchived, setFilterArchived] = useState<'active' | 'archived' | 'all'>('active');
-  const [filterResponded, setFilterResponded] = useState<'all' | 'yes' | 'no'>('all');
   
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isProcessing, setIsProcessing] = useState(false);
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    id: '',
+    phone: '',
+    name: '',
+    email: '',
+    birthday: '',
+    notes: ''
+  });
 
   // Formatting dates
-  const formatDate = (iso: string | null) => {
+  const formatDate = (iso: string | null | undefined, includeTime = false) => {
     if (!iso) return '-';
     return new Date(iso).toLocaleDateString('es-ES', { 
       day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
     });
   };
 
   // Filtered and sorted clients
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
-      // 1. Search text
+      // Hide archived by default
+      if (c.is_archived) return false;
+
+      // Ensure they are actually clients (have a name or >0 visits or an email)
+      // If we want this to be the CRM, maybe we filter those with visits or that were manually added
+      // We will show all active for now, but prioritize matches.
+      
       if (search) {
         const query = search.toLowerCase();
         const matchesName = c.name?.toLowerCase().includes(query) ?? false;
         const matchesPhone = c.phone.toLowerCase().includes(query);
-        if (!matchesName && !matchesPhone) return false;
+        const matchesEmail = c.email?.toLowerCase().includes(query) ?? false;
+        if (!matchesName && !matchesPhone && !matchesEmail) return false;
       }
-      
-      // 2. Archived status
-      if (filterArchived === 'active' && c.is_archived) return false;
-      if (filterArchived === 'archived' && !c.is_archived) return false;
-
-      // 3. Responded status
-      if (filterResponded === 'yes' && !c.last_reply_at) return false;
-      if (filterResponded === 'no' && c.last_reply_at) return false;
-
       return true;
     });
-  }, [clients, search, filterArchived, filterResponded]);
+  }, [clients, search]);
 
-  // Bulk Selection
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(new Set(filteredClients.map(c => c.id)));
+  const handleOpenModal = (client?: ClientMetric) => {
+    if (client) {
+      setForm({
+        id: client.id,
+        phone: client.phone,
+        name: client.name || '',
+        email: client.email || '',
+        birthday: client.birthday || '',
+        notes: client.notes || ''
+      });
     } else {
-      setSelectedIds(new Set());
+      setForm({
+        id: '',
+        phone: '',
+        name: '',
+        email: '',
+        birthday: '',
+        notes: ''
+      });
     }
+    setIsModalOpen(true);
   };
 
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedIds(next);
-  };
-
-  // Bulk Actions
-  const handleBulkArchive = async (archive: boolean) => {
-    if (selectedIds.size === 0) return;
+  const handleSubmit = async () => {
+    if (!form.phone) {
+      toast.error('El número de teléfono es obligatorio.');
+      return;
+    }
     
-    const actionName = archive ? 'archivar' : 'restaurar';
-    if (!confirm(`¿Estás seguro de que deseas ${actionName} ${selectedIds.size} contacto(s)?`)) return;
-
-    setIsProcessing(true);
-    const idArray = Array.from(selectedIds);
-    const res = await archiveContactsAction(idArray, archive);
+    setIsSubmitting(true);
+    const res = await upsertContactAction({
+      phone: form.phone,
+      name: form.name,
+      email: form.email,
+      birthday: form.birthday,
+      notes: form.notes
+    });
     
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success(`Contactos ${archive ? 'archivados' : 'restaurados'} correctamente`);
-      // Update local state to reflect changes
-      setClients(prev => prev.map(c => 
-        idArray.includes(c.id) ? { ...c, is_archived: archive } : c
-      ));
-      setSelectedIds(new Set());
+      toast.success(form.id ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
+      setIsModalOpen(false);
+      // Optimistic update or reload
+      window.location.reload();
     }
-    setIsProcessing(false);
-  };
-
-  // Suggest archiving contacts with >3 campaigns and no replies
-  const suggestedToArchive = useMemo(() => {
-    return filteredClients.filter(c => !c.is_archived && c.campaigns_count >= 3 && !c.last_reply_at);
-  }, [filteredClients]);
-
-  const selectSuggested = () => {
-    const next = new Set(selectedIds);
-    suggestedToArchive.forEach(c => next.add(c.id));
-    setSelectedIds(next);
+    setIsSubmitting(false);
   };
 
   return (
     <div className="flex flex-col h-full">
-      
       {/* Top Bar / Filters */}
-      <div className="p-5 border-b border-black-light dark:border-dark-light space-y-4">
-        {/* Suggestion Banner */}
-        {suggestedToArchive.length > 0 && filterArchived !== 'archived' && (
-          <div className="bg-warning/10 dark:bg-warning/5 border border-warning/20 dark:border-warning/10 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="text-warning shrink-0 mt-0.5" size={20} />
-              <div className="text-sm">
-                <span className="font-semibold text-warning-dark dark:text-warning">Sugerencia de limpieza: </span>
-                <span className="text-warning-dark/80 dark:text-warning/80">
-                  Tienes {suggestedToArchive.length} contacto(s) que han recibido 3 o más campañas y nunca han respondido. 
-                  Archívalos para mejorar tu reputación y evitar bloqueos de spam.
-                </span>
-              </div>
-            </div>
-            <button 
-              onClick={selectSuggested}
-              className="btn btn-warning btn-sm whitespace-nowrap shadow-sm hover:shadow transition-all"
-            >
-              Seleccionar sugeridos
-            </button>
-          </div>
-        )}
-
-        <div className="flex flex-col lg:flex-row justify-between gap-4">
-          <div className="flex-1 flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
-              <input 
-                type="text" 
-                placeholder="Buscar por teléfono o nombre..." 
-                className="form-input pl-9 rounded-xl border border-black-light dark:border-dark-light bg-white dark:bg-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm transition-all duration-300 w-full"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <CustomSelect 
-                className="w-[180px]"
-                isSearchable={false}
-                value={{ 
-                  value: filterArchived, 
-                  label: filterArchived === 'active' ? 'Mostrar Activos' : filterArchived === 'archived' ? 'Mostrar Archivados' : 'Mostrar Todos' 
-                }}
-                options={[
-                  { value: 'active', label: 'Mostrar Activos' },
-                  { value: 'archived', label: 'Mostrar Archivados' },
-                  { value: 'all', label: 'Mostrar Todos' }
-                ]}
-                onChange={(option: any) => setFilterArchived(option.value)}
-              />
-
-              <CustomSelect 
-                className="w-[200px]"
-                isSearchable={false}
-                value={{ 
-                  value: filterResponded, 
-                  label: filterResponded === 'all' ? 'Cualquier respuesta' : filterResponded === 'yes' ? 'Han respondido' : 'Nunca respondieron' 
-                }}
-                options={[
-                  { value: 'all', label: 'Cualquier respuesta' },
-                  { value: 'yes', label: 'Han respondido' },
-                  { value: 'no', label: 'Nunca respondieron' }
-                ]}
-                onChange={(option: any) => setFilterResponded(option.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {selectedIds.size > 0 && (
-              <div className="animate-in fade-in zoom-in-95 duration-200 flex items-center bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg">
-                <span className="text-sm font-semibold text-primary">
-                  {selectedIds.size} {selectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
-                </span>
-              </div>
-            )}
-            
-            {filterArchived !== 'archived' ? (
-              <button 
-                onClick={() => handleBulkArchive(true)}
-                disabled={selectedIds.size === 0 || isProcessing}
-                className={`btn btn-outline-danger gap-2 transition-all duration-300 ${selectedIds.size === 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}`}
-              >
-                <Archive className="w-4 h-4" /> Dar de Baja
-              </button>
-            ) : (
-              <button 
-                onClick={() => handleBulkArchive(false)}
-                disabled={selectedIds.size === 0 || isProcessing}
-                className={`btn btn-outline-success gap-2 transition-all duration-300 ${selectedIds.size === 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}`}
-              >
-                <CheckCircle className="w-4 h-4" /> Restaurar
-              </button>
-            )}
-          </div>
+      <div className="p-6 border-b border-black-light dark:border-dark-light flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+          <input 
+            type="text" 
+            placeholder="Buscar por teléfono, nombre o correo..." 
+            className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
         </div>
+        <button 
+          onClick={() => handleOpenModal()}
+          className="btn btn-primary rounded-xl transition-all gap-2 w-full sm:w-auto px-6"
+        >
+          <Plus className="w-5 h-5" /> Nuevo Cliente
+        </button>
       </div>
 
       {/* Table Area */}
       <div className="table-responsive min-h-[400px]">
-        <table className="table-hover w-full">
+        <table className="table-hover w-full min-w-[1000px]">
           <thead className="bg-zinc-50 dark:bg-zinc-900/50">
             <tr>
-              <th className="w-12 text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
-                <input 
-                  type="checkbox" 
-                  className="form-checkbox"
-                  checked={filteredClients.length > 0 && selectedIds.size === filteredClients.length}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                />
-              </th>
-              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Fecha de Ingreso</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Estado</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Campañas Exitosas</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Visitas</th>
-              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
-              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Mensaje Enviado</th>
-              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Última Respuesta Recibida</th>
+              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest pl-6">Cliente</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cumpleaños</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Atenciones</th>
+              <th className="text-left py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
+              <th className="text-right py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest pr-6">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black-light dark:divide-dark-light">
             {filteredClients.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center py-16">
+                <td colSpan={6} className="text-center py-16">
                   <div className="flex flex-col items-center justify-center animate-in fade-in duration-500">
                     <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-full flex items-center justify-center mb-4 border border-black-light dark:border-dark-light">
                       <Inbox className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
                     </div>
-                    <h3 className="text-lg font-bold tracking-tight text-black dark:text-white mb-1">Sin resultados</h3>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mb-4">No se encontraron clientes que coincidan con la búsqueda y filtros actuales.</p>
-                    {(search || filterArchived !== 'active' || filterResponded !== 'all') && (
-                      <button 
-                        onClick={() => { setSearch(''); setFilterArchived('active'); setFilterResponded('all'); }}
-                        className="text-primary text-sm font-medium hover:underline flex items-center gap-1"
-                      >
-                        <XCircle className="w-4 h-4" /> Limpiar todos los filtros
-                      </button>
-                    )}
+                    <h3 className="text-lg font-bold tracking-tight text-black dark:text-white mb-1">Sin clientes</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mb-4">No se encontraron registros que coincidan con la búsqueda.</p>
                   </div>
                 </td>
               </tr>
@@ -265,64 +167,61 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               filteredClients.map(client => (
                 <tr 
                   key={client.id} 
-                  className={`group transition-colors duration-200 ${selectedIds.has(client.id) ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/30'}`}
+                  className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors"
+                  onDoubleClick={() => handleOpenModal(client)}
                 >
-                  <td className="text-center">
-                    <input 
-                      type="checkbox" 
-                      className="form-checkbox"
-                      checked={selectedIds.has(client.id)}
-                      onChange={() => toggleSelect(client.id)}
-                    />
-                  </td>
-                  <td>
-                    <div className="font-semibold text-black dark:text-white">
-                      +{client.phone}
-                    </div>
-                    {client.name && (
-                      <div className="text-xs text-zinc-500">{client.name}</div>
-                    )}
-                    {client.email && (
-                      <div className="text-xs text-zinc-400">{client.email}</div>
-                    )}
-                  </td>
-                  <td className="text-center text-sm font-medium text-black dark:text-white">
-                    {formatDate(client.created_at)}
-                  </td>
-                  <td className="text-center">
-                    {client.is_archived ? (
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-danger/10 text-danger border border-danger/20">Archivado</span>
-                    ) : (
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-success/10 text-success border border-success/20">Activo</span>
-                    )}
-                  </td>
-                  <td className="text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Mail className="w-3 h-3 text-zinc-400" />
-                      <span className="font-semibold text-black dark:text-white">{client.campaigns_count}</span>
+                  <td className="py-4 pl-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                        {client.name?.charAt(0) || <User className="w-5 h-5" />}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-black dark:text-white">{client.name || 'Sin nombre'}</div>
+                        {client.notes && (
+                          <div className="text-xs text-zinc-500 truncate max-w-[200px]" title={client.notes}>
+                            {client.notes}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="text-center">
-                    <span className="font-semibold text-black dark:text-white">{client.total_visits || 0}</span>
+                    <div className="text-sm font-semibold text-black dark:text-white">+{client.phone}</div>
+                    <div className="text-xs text-zinc-500 flex justify-center items-center gap-1">
+                      {client.email ? (
+                        <>
+                          <Mail className="w-3 h-3" />
+                          {client.email}
+                        </>
+                      ) : '-'}
+                    </div>
                   </td>
-                  <td className="font-medium text-black dark:text-white text-sm">
-                    {client.last_service_name || '-'}
+                  <td className="text-center">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {formatDate(client.birthday)}
+                    </div>
                   </td>
-                  <td className="font-medium text-black dark:text-white text-sm">
-                    {formatDate(client.last_message_sent_at)}
+                  <td className="text-center">
+                    <span className="font-semibold text-black dark:text-white text-lg">{client.total_visits || 0}</span>
                   </td>
                   <td>
-                    {client.last_reply_at ? (
-                      <span className="text-success text-sm font-medium flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        {formatDate(client.last_reply_at)}
-                      </span>
+                    {client.last_service_name ? (
+                      <div>
+                        <div className="font-medium text-black dark:text-white text-sm">{client.last_service_name}</div>
+                        <div className="text-xs text-zinc-500">el {formatDate(client.last_visit_at)}</div>
+                      </div>
                     ) : (
-                      <span className="text-zinc-400 dark:text-zinc-500 text-sm flex items-center gap-1.5 font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
-                        No ha respondido
-                      </span>
+                      <span className="text-zinc-400 text-sm">-</span>
                     )}
+                  </td>
+                  <td className="text-right pr-6">
+                    <button 
+                      onClick={() => handleOpenModal(client)}
+                      className="btn btn-sm btn-outline-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Edit className="w-4 h-4" /> Editar
+                    </button>
                   </td>
                 </tr>
               ))
@@ -330,6 +229,122 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           </tbody>
         </table>
       </div>
+
+      {/* Modal - CRUD Cliente */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  {form.id ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
+                </div>
+                {form.id ? 'Editar Cliente' : 'Nuevo Cliente'}
+              </h3>
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" /> Nombre Completo
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="Ej: María Pérez" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    Teléfono *
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="Ej: 51987654321" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    disabled={!!form.id} // Prevents changing phone if it's the primary key for upsert
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-primary" /> Correo Electrónico
+                  </label>
+                  <input 
+                    type="email" 
+                    placeholder="maria@ejemplo.com" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-primary" /> Fecha de Cumpleaños
+                  </label>
+                  <CustomDatePicker 
+                    value={form.birthday}
+                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, birthday: dateStr }))}
+                    placeholder="Selecciona el cumpleaños"
+                  />
+                </div>
+
+                <div className="space-y-4 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" /> Notas Adicionales
+                  </label>
+                  <textarea 
+                    rows={3}
+                    placeholder="Detalles médicos, preferencias, etc." 
+                    className="form-textarea rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm w-full"
+                    value={form.notes}
+                    onChange={e => setForm({ ...form, notes: e.target.value })}
+                  ></textarea>
+                </div>
+
+              </div>
+            </div>
+            
+            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
+              <button 
+                type="button" 
+                className="btn btn-outline-danger rounded-xl px-6" 
+                onClick={() => setIsModalOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    Guardando...
+                  </span>
+                ) : 'Guardar Cliente'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

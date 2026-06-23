@@ -57,22 +57,60 @@ export function SegmentConfig({
           />
         </div>
         
+        <div className="flex flex-col gap-3 p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 rounded-xl">
+          <label className="text-sm font-semibold text-gray-800 dark:text-gray-200">¿A quién quieres enviar esta campaña?</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setTargetTag('cliente')}
+              className={`p-4 rounded-xl border text-left transition-all ${
+                targetTag === 'cliente' 
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
+                  : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-semibold text-sm text-black dark:text-white mb-1">A mis Clientes</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Personas que ya se han atendido contigo.</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTargetTag('')}
+              className={`p-4 rounded-xl border text-left transition-all ${
+                targetTag !== 'cliente' 
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
+                  : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-semibold text-sm text-black dark:text-white mb-1">A una Base Nueva</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Prospectos o contactos importados.</div>
+            </button>
+          </div>
+        </div>
+        
+        {targetTag !== 'cliente' && (
+          <div className="flex flex-col gap-1.5 animate-in slide-in-from-top-2 duration-300">
+            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Filtrar Base Nueva (Opcional)</label>
+            <CustomSelect 
+              className="w-full"
+              isSearchable={false}
+              value={{ 
+                value: targetTag, 
+                label: targetTag ? targetTag : `Todos los contactos (${contacts.length})` 
+              }}
+              options={[
+                { value: '', label: `Todos los contactos (${contacts.length})` },
+                ...availableTags.filter(t => t !== 'cliente').map(t => ({ value: t, label: t }))
+              ]}
+              onChange={(option: any) => setTargetTag(option.value)}
+            />
+          </div>
+        )}
+        
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Destinatarios</label>
-          <CustomSelect 
-            className="w-full"
-            isSearchable={false}
-            value={{ 
-              value: targetTag, 
-              label: targetTag ? targetTag : `Todos los contactos de marketing (${contacts.length})` 
-            }}
-            options={[
-              { value: '', label: `Todos los contactos de marketing (${contacts.length})` },
-              ...availableTags.map(t => ({ value: t, label: t }))
-            ]}
-            onChange={(option: any) => setTargetTag(option.value)}
-          />
-          <p className="m-0 text-xs font-semibold text-success mt-1">✓ {targetContactsCount} destinatarios seleccionados</p>
+          <p className="m-0 text-sm font-semibold text-success bg-success/10 border border-success/20 p-3 rounded-xl flex items-center gap-2">
+            <Zap size={16} /> 
+            {targetContactsCount} destinatarios seleccionados
+          </p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3">

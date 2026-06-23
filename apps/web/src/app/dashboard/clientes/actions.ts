@@ -28,3 +28,28 @@ export async function archiveContactsAction(ids: string[], archive: boolean) {
   
   return { success: true };
 }
+
+export async function upsertContactAction(payload: {
+  phone: string;
+  name?: string;
+  email?: string;
+  birthday?: string;
+  notes?: string;
+}) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', {
+    p_phone: payload.phone,
+    p_name: payload.name || null,
+    p_tags: ['cliente'],
+    p_email: payload.email || null,
+    p_birthday: payload.birthday || null,
+    p_notes: payload.notes || null
+  });
+  
+  if (error) {
+    console.error('Error upserting contact:', error);
+    return { error: `Error al guardar contacto: ${error.message}` };
+  }
+  
+  return { success: true, data };
+}
