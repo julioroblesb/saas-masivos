@@ -3,7 +3,8 @@
 -- Fecha: 2026-06-23
 -- Descripción: 
 --  1. Actualiza rpc_complete_visit para que el agradecimiento sea inmediato (now()).
---  2. Corrige rpc_get_spa_dashboard para usar un único AT TIME ZONE v_timezone.
+--  2. Corrige rpc_get_spa_dashboard para usar un único AT TIME ZONE v_timezone y COALESCE de fechas.
+--  3. Redefine rpc_get_clients_metrics para resolver el type mismatch en la columna de cumpleaños (birthday text).
 -- =====================================================
 
 -- -----------------------------------------------------
@@ -26,6 +27,12 @@ BEGIN
     -- Obtener datos de la visita
     SELECT * INTO v_visit FROM spa_visits WHERE id = p_visit_id AND company_id = v_company_id;
     IF NOT FOUND THEN RAISE EXCEPTION 'Visita no encontrada'; END IF;
+
+    -- Actualizar estado de la visita a completado y registrar fecha de completado
+    UPDATE spa_visits SET 
+        status = 'completado', 
+        completed_at = COALESCE(completed_at, now())
+    WHERE id = p_visit_id;
 
     -- Obtener datos del cliente
     SELECT * INTO v_contact FROM crm_marketing_contacts WHERE id = v_visit.contact_id;
@@ -84,7 +91,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- -----------------------------------------------------
--- 2. Corregir rpc_get_spa_dashboard (Timezone único)
+-- 2. Corregir rpc_get_spa_dashboard (Timezone único y COALESCE de fechas)
 -- -----------------------------------------------------
 DROP FUNCTION IF EXISTS rpc_get_spa_dashboard();
 
@@ -119,10 +126,11 @@ BEGIN
       AND (visit_date AT TIME ZONE v_timezone)::date = (now() AT TIME ZONE v_timezone)::date;
 
     -- Ingresos de hoy (según zona horaria local de la empresa)
+    -- Se usa COALESCE para soportar registros que no tengan completed_at definido aún
     SELECT COALESCE(SUM(price_charged), 0) INTO v_revenue_today FROM spa_visits
     WHERE company_id = v_company_id 
       AND status = 'completado' 
-      AND (completed_at AT TIME ZONE v_timezone)::date = (now() AT TIME ZONE v_timezone)::date;
+      AND (COALESCE(completed_at, visit_date) AT TIME ZONE v_timezone)::date = (now() AT TIME ZONE v_timezone)::date;
 
     -- Mensajes automáticos enviados en los últimos 7 días (usa crm_wa_queue)
     SELECT COUNT(*) INTO v_auto_messages_7d FROM crm_wa_queue
@@ -178,7 +186,7 @@ BEGIN
         LIMIT 5
     ) t;
 
-    -- 5. Datos de Gráfico (Últimos 7 días)
+    -- 5. Datos de Gráfico (Últimos 7 días con soporte a COALESCE de fecha)
     SELECT COALESCE(jsonb_agg(t), '[]'::jsonb) INTO v_chart_data
     FROM (
         SELECT 
@@ -191,7 +199,7 @@ BEGIN
         ) d
         LEFT JOIN spa_visits v ON v.company_id = v_company_id 
           AND v.status = 'completado'
-          AND (v.completed_at AT TIME ZONE v_timezone)::date = d.date_val
+          AND (COALESCE(v.completed_at, v.visit_date) AT TIME ZONE v_timezone)::date = d.date_val
         GROUP BY d.date_val
         ORDER BY d.date_val ASC
     ) t;
@@ -201,5 +209,57 @@ BEGIN
         'recent_activity', v_recent_activity,
         'chart_data', v_chart_data
     );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- -----------------------------------------------------
+-- 3. Corregir rpc_get_clients_metrics (birthday text para evitar type mismatch)
+-- -----------------------------------------------------
+DROP FUNCTION IF EXISTS rpc_get_clients_metrics();
+
+CREATE OR REPLACE FUNCTION rpc_get_clients_metrics()
+RETURNS TABLE (
+    id uuid, 
+    phone text, 
+    name text, 
+    email text, 
+    birthday text, 
+    notes text,
+    is_archived boolean, 
+    created_at timestamptz,
+    campaigns_count bigint, 
+    last_message_sent_at timestamptz, 
+    last_reply_at timestamptz,
+    total_visits bigint, 
+    last_visit_at timestamptz, 
+    last_service_name text
+) SET search_path = public, pg_temp AS $$
+DECLARE v_company_id uuid;
+BEGIN
+    SELECT company_id INTO v_company_id FROM profiles WHERE profiles.id = auth.uid();
+    IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
+    
+    RETURN QUERY
+    SELECT 
+        c.id, 
+        c.phone::text, 
+        c.name::text, 
+        c.email::text, 
+        c.birthday::text, 
+        c.notes::text,
+        c.is_archived, 
+        c.created_at,
+        COUNT(DISTINCT CASE WHEN q.status = 'enviado' THEN q.campaign_id ELSE NULL END)::bigint,
+        MAX(CASE WHEN q.status = 'enviado' THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END),
+        MAX(CASE WHEN q.replied = true THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END),
+        (SELECT COUNT(*)::bigint FROM spa_visits sv WHERE sv.contact_id = c.id AND sv.status = 'completado'),
+        (SELECT MAX(sv.visit_date) FROM spa_visits sv WHERE sv.contact_id = c.id),
+        (SELECT ss.name FROM spa_visits sv JOIN spa_services ss ON ss.id = sv.service_id WHERE sv.contact_id = c.id ORDER BY sv.visit_date DESC LIMIT 1)::text
+    FROM crm_marketing_contacts c
+    LEFT JOIN crm_wa_queue q ON (c.id = q.contact_id) OR (c.company_id = q.company_id AND c.phone = q.phone)
+    WHERE c.company_id = v_company_id
+    GROUP BY c.id, c.phone, c.name, c.email, c.birthday, c.notes, c.is_archived, c.created_at
+    ORDER BY c.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

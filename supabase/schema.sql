@@ -405,7 +405,7 @@ NOTIFY pgrst, 'reload schema';
 
 -- Nuevos campos en contactos
 ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS email TEXT;
-ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS birthday DATE;
+ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS birthday VARCHAR(5);
 ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS notes TEXT;
 
 -- Catálogo de servicios
@@ -618,7 +618,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP FUNCTION IF EXISTS rpc_upsert_marketing_contact(text, text, text[], text);
 CREATE OR REPLACE FUNCTION rpc_upsert_marketing_contact(
     p_phone text, p_name text, p_tags text[], p_opt_in_source text DEFAULT NULL,
-    p_email text DEFAULT NULL, p_birthday date DEFAULT NULL, p_notes text DEFAULT NULL
+    p_email text DEFAULT NULL, p_birthday text DEFAULT NULL, p_notes text DEFAULT NULL
 ) RETURNS jsonb SET search_path = public, pg_temp AS $$
 DECLARE v_company_id uuid; v_contact_id uuid;
 BEGIN
@@ -641,7 +641,7 @@ END; $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP FUNCTION IF EXISTS rpc_get_clients_metrics();
 CREATE OR REPLACE FUNCTION rpc_get_clients_metrics()
 RETURNS TABLE (
-    id uuid, phone text, name text, email text, birthday date, notes text,
+    id uuid, phone text, name text, email text, birthday text, notes text,
     is_archived boolean, created_at timestamptz,
     campaigns_count bigint, last_message_sent_at timestamptz, last_reply_at timestamptz,
     total_visits bigint, last_visit_at timestamptz, last_service_name text
@@ -651,7 +651,7 @@ BEGIN
     SELECT company_id INTO v_company_id FROM profiles WHERE profiles.id = auth.uid();
     IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
     RETURN QUERY
-    SELECT c.id, c.phone::text, c.name::text, c.email::text, c.birthday, c.notes::text,
+    SELECT c.id, c.phone::text, c.name::text, c.email::text, c.birthday::text, c.notes::text,
         c.is_archived, c.created_at,
         COUNT(DISTINCT CASE WHEN q.status = 'enviado' THEN q.campaign_id ELSE NULL END)::bigint,
         MAX(CASE WHEN q.status = 'enviado' THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END),
