@@ -121,12 +121,12 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       <div className="p-5 border-b border-black-light dark:border-dark-light space-y-4">
         {/* Suggestion Banner */}
         {suggestedToArchive.length > 0 && filterArchived !== 'archived' && (
-          <div className="bg-warning/10 border border-warning/20 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="text-warning shrink-0" size={20} />
+          <div className="bg-warning/10 dark:bg-warning/5 border border-warning/20 dark:border-warning/10 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="text-warning shrink-0 mt-0.5" size={20} />
               <div className="text-sm">
-                <span className="font-semibold text-warning-dark">Sugerencia de limpieza: </span>
-                <span className="text-warning-dark/80">
+                <span className="font-semibold text-warning-dark dark:text-warning">Sugerencia de limpieza: </span>
+                <span className="text-warning-dark/80 dark:text-warning/80">
                   Tienes {suggestedToArchive.length} contacto(s) que han recibido 3 o más campañas y nunca han respondido. 
                   Archívalos para mejorar tu reputación y evitar bloqueos de spam.
                 </span>
@@ -134,9 +134,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             </div>
             <button 
               onClick={selectSuggested}
-              className="btn btn-warning btn-sm whitespace-nowrap"
+              className="btn btn-warning btn-sm whitespace-nowrap shadow-sm hover:shadow transition-all"
             >
-              Seleccionarlos
+              Seleccionar sugeridos
             </button>
           </div>
         )}
@@ -148,7 +148,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               <input 
                 type="text" 
                 placeholder="Buscar por teléfono o nombre..." 
-                className="form-input pl-9 rounded-xl border border-black-light dark:border-dark-light bg-white dark:bg-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
+                className="form-input pl-9 rounded-xl border border-black-light dark:border-dark-light bg-white dark:bg-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm transition-all duration-300 w-full"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
@@ -187,28 +187,30 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {selectedIds.size > 0 && (
-              <span className="text-sm font-semibold text-primary mr-2">
-                {selectedIds.size} seleccionados
-              </span>
+              <div className="animate-in fade-in zoom-in-95 duration-200 flex items-center bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg">
+                <span className="text-sm font-semibold text-primary">
+                  {selectedIds.size} {selectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
+                </span>
+              </div>
             )}
             
             {filterArchived !== 'archived' ? (
               <button 
                 onClick={() => handleBulkArchive(true)}
                 disabled={selectedIds.size === 0 || isProcessing}
-                className="btn btn-outline-danger gap-2"
+                className={`btn btn-outline-danger gap-2 transition-all duration-300 ${selectedIds.size === 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}`}
               >
-                <Archive className="w-4 h-4" /> Dar de Baja (Archivar)
+                <Archive className="w-4 h-4" /> Dar de Baja
               </button>
             ) : (
               <button 
                 onClick={() => handleBulkArchive(false)}
                 disabled={selectedIds.size === 0 || isProcessing}
-                className="btn btn-outline-success gap-2"
+                className={`btn btn-outline-success gap-2 transition-all duration-300 ${selectedIds.size === 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}`}
               >
-                <CheckCircle className="w-4 h-4" /> Restaurar Activos
+                <CheckCircle className="w-4 h-4" /> Restaurar
               </button>
             )}
           </div>
@@ -241,16 +243,30 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           <tbody className="divide-y divide-black-light dark:divide-dark-light">
             {filteredClients.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-8">
-                  <div className="flex flex-col items-center justify-center text-zinc-400">
-                    <Inbox className="w-12 h-12 mb-3 opacity-20" />
-                    <p className="text-zinc-500">No se encontraron clientes con esos filtros.</p>
+                <td colSpan={9} className="text-center py-16">
+                  <div className="flex flex-col items-center justify-center animate-in fade-in duration-500">
+                    <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-full flex items-center justify-center mb-4 border border-black-light dark:border-dark-light">
+                      <Inbox className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                    </div>
+                    <h3 className="text-lg font-bold tracking-tight text-black dark:text-white mb-1">Sin resultados</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mb-4">No se encontraron clientes que coincidan con la búsqueda y filtros actuales.</p>
+                    {(search || filterArchived !== 'active' || filterResponded !== 'all') && (
+                      <button 
+                        onClick={() => { setSearch(''); setFilterArchived('active'); setFilterResponded('all'); }}
+                        className="text-primary text-sm font-medium hover:underline flex items-center gap-1"
+                      >
+                        <XCircle className="w-4 h-4" /> Limpiar todos los filtros
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
             ) : (
               filteredClients.map(client => (
-                <tr key={client.id} className={selectedIds.has(client.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}>
+                <tr 
+                  key={client.id} 
+                  className={`group transition-colors duration-200 ${selectedIds.has(client.id) ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/30'}`}
+                >
                   <td className="text-center">
                     <input 
                       type="checkbox" 
@@ -275,9 +291,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   </td>
                   <td className="text-center">
                     {client.is_archived ? (
-                      <span className="badge bg-danger/10 text-danger">Archivado</span>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-danger/10 text-danger border border-danger/20">Archivado</span>
                     ) : (
-                      <span className="badge bg-success/10 text-success">Activo</span>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-success/10 text-success border border-success/20">Activo</span>
                     )}
                   </td>
                   <td className="text-center">
@@ -302,8 +318,8 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                         {formatDate(client.last_reply_at)}
                       </span>
                     ) : (
-                      <span className="text-zinc-400 text-sm italic flex items-center gap-1.5">
-                        <XCircle className="w-3.5 h-3.5" />
+                      <span className="text-zinc-400 dark:text-zinc-500 text-sm flex items-center gap-1.5 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
                         No ha respondido
                       </span>
                     )}
