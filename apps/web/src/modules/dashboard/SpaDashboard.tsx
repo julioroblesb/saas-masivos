@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
 import IconUsers from '@/components/icon/icon-users';
 import IconDollarSignCircle from '@/components/icon/icon-dollar-sign-circle';
 import IconMessage2 from '@/components/icon/icon-message2';
@@ -21,7 +21,7 @@ export function SpaDashboard({ metrics }: SpaDashboardProps) {
     return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value);
   };
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -31,7 +31,7 @@ export function SpaDashboard({ metrics }: SpaDashboardProps) {
     }
   };
 
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, y: 24, scale: 0.98 },
     show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } }
   };
