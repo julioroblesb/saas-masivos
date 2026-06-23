@@ -217,7 +217,7 @@ export default function TrabajadorasView() {
                 <label className="text-sm font-semibold mb-1 block">Nombre *</label>
                 <input 
                   type="text" 
-                  className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
+                  className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition" 
                   value={form.name}
                   onChange={e => setForm({...form, name: e.target.value})}
                   placeholder="Ej: María Pérez"
@@ -236,7 +236,7 @@ export default function TrabajadorasView() {
                   <label className="text-sm font-semibold mb-1 block">Especialidad / Rol</label>
                   <input 
                     type="text" 
-                    className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
+                    className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition" 
                     value={form.role}
                     onChange={e => setForm({...form, role: e.target.value})}
                     placeholder="Ej: Cosmiatra"

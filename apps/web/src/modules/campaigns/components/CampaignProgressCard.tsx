@@ -163,7 +163,7 @@ export function CampaignProgressCard({ campaign }: { campaign: WaCampaign }) {
         </div>
         <div className="w-full bg-[#ebebeb] dark:bg-dark-light rounded-full h-2 mb-2 overflow-hidden">
           <div 
-            className="bg-primary h-2 rounded-full transition-all duration-500" 
+            className="bg-primary h-2 rounded-full transition-[width] duration-500 ease-linear" 
             style={{ width: `${percentage}%` }} 
           />
         </div>

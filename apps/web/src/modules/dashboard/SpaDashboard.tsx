@@ -26,14 +26,14 @@ export function SpaDashboard({ metrics }: SpaDashboardProps) {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05
       }
     }
   };
 
   const item: Variants = {
     hidden: { opacity: 0, y: 24, scale: 0.98 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } }
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", duration: 0.5, bounce: 0.2 } }
   };
 
   return (

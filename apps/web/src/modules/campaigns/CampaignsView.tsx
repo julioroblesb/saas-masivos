@@ -21,7 +21,7 @@ export default function CampaignsView() {
       {/* Vristo style tabs */}
       <div className="mb-5 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
             activeTab === 'new' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
           }`}
           onClick={() => setActiveTab('new')}
@@ -30,7 +30,7 @@ export default function CampaignsView() {
         </button>
 
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
             activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
           }`}
           onClick={() => setActiveTab('active')}
@@ -44,7 +44,7 @@ export default function CampaignsView() {
         </button>
 
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
+          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
             activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
           }`}
           onClick={() => setActiveTab('history')}

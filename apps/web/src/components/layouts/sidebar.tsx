@@ -96,15 +96,15 @@ const Sidebar = () => {
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
-                className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${semidark ? 'text-white-dark' : ''}`}
+                className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-transform duration-300 ease-out ${semidark ? 'text-white-dark' : ''}`}
             >
                 <div className="h-full bg-white dark:bg-black">
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition-all duration-300">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition duration-300 ease-out">
                                 {initials}
                             </div>
-                            <span className="align-middle text-[1.15rem] font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition-all duration-300 truncate w-[160px]">{companyName}</span>
+                            <span className="align-middle text-[1.15rem] font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition duration-300 ease-out truncate w-[160px]">{companyName}</span>
                         </Link>
 
                         <button

@@ -18,7 +18,7 @@ export function ExecutionPanel({
   const activeStyle = isQueuing || queued ? "ring-2 ring-emerald-400 dark:ring-emerald-500 shadow-emerald-500/20 rounded-xl" : "";
 
   return (
-    <div className={`transition-all duration-300 ${activeStyle}`}>
+    <div className={`transition-opacity duration-300 ${activeStyle}`}>
       <div className="flex items-center gap-2 mb-4">
         <Play size={16} className="text-primary" />
         <h3 className="m-0 text-lg font-semibold dark:text-white-light">Ejecución de Campaña</h3>

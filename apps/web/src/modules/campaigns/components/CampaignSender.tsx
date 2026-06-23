@@ -231,7 +231,7 @@ export function CampaignSender() {
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
                 <div 
-                  className="bg-success h-full rounded-full transition-all duration-500 ease-in-out" 
+                  className="bg-success h-full rounded-full transition-[width] duration-500 ease-linear" 
                   style={{ width: `${accountTier.progress}%` }}
                 ></div>
               </div>

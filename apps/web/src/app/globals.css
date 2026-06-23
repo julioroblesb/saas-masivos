@@ -162,7 +162,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
 
     .main-container .main-content {
-        @apply transition-all duration-300 lg:ltr:ml-[260px] lg:rtl:mr-[260px];
+        @apply transition-[margin] duration-300 lg:ltr:ml-[260px] lg:rtl:mr-[260px];
     }
 
     /* Horizontal layouts */
@@ -308,7 +308,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
 
     /* Buttons */
     .btn {
-        @apply relative flex items-center justify-center rounded-xl border px-5 py-2 text-sm font-semibold shadow-sm outline-none transition-all duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:shadow-none active:scale-[0.98];
+        @apply relative flex items-center justify-center rounded-xl border px-5 py-2 text-sm font-semibold shadow-sm outline-none transition-[transform,box-shadow,color,background-color,border-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:shadow-none active:scale-[0.97];
     }
     .btn-lg {
         @apply px-7 py-2.5 text-base;

@@ -163,7 +163,7 @@ export function SegmentConfig({
             <button
               type="button"
               onClick={() => setAudienceMode('clientes')}
-              className={`p-4 rounded-xl border text-left transition-all ${
+              className={`p-4 rounded-xl border text-left transition-[border-color,background-color] ${
                 audienceMode === 'clientes' 
                   ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
                   : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
@@ -178,7 +178,7 @@ export function SegmentConfig({
             <button
               type="button"
               onClick={() => setAudienceMode('base')}
-              className={`p-4 rounded-xl border text-left transition-all ${
+              className={`p-4 rounded-xl border text-left transition-[border-color,background-color] ${
                 audienceMode === 'base' 
                   ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
                   : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
@@ -274,7 +274,7 @@ export function SegmentConfig({
               <textarea 
                 rows={6}
                 placeholder="Pega aquí los números separados por comas o saltos de línea...&#10;Ej: 51987654321, 51999888777"
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm resize-y"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-[border-color,box-shadow] shadow-sm resize-y"
                 value={rawText}
                 onChange={handleRawTextChange}
               />

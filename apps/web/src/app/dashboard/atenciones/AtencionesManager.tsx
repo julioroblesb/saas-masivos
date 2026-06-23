@@ -184,7 +184,7 @@ export function AtencionesManager({
             />
           </div>
           <button 
-            className="btn btn-primary rounded-xl transition-all gap-2 w-full sm:w-auto px-6"
+            className="btn btn-primary rounded-xl gap-2 w-full sm:w-auto px-6"
             onClick={() => setIsModalOpen(true)}
           >
             <Plus className="w-5 h-5" /> Nueva Atención

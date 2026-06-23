@@ -339,7 +339,7 @@ export function MarketingContactsManager() {
                             checked={hasOptInConsent}
                             onChange={e => setHasOptInConsent(e.target.checked)}
                           />
-                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-warning/30 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-warning"></div>
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-warning/30 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform dark:border-zinc-600 peer-checked:bg-warning"></div>
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-bold text-warning-800 dark:text-warning leading-snug group-hover:text-warning-900 dark:group-hover:text-warning-light transition-colors">
@@ -364,7 +364,7 @@ export function MarketingContactsManager() {
                 Cancelar
               </button>
               <button 
-                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition" 
                 onClick={handleAdd} 
                 disabled={!newPhone.trim() || upsertContact.isPending}
               >

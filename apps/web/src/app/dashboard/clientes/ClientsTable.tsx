@@ -160,7 +160,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="btn btn-primary rounded-xl transition-all gap-2 w-full sm:w-auto px-6"
+          className="btn btn-primary rounded-xl gap-2 w-full sm:w-auto px-6"
         >
           <Plus className="w-5 h-5" /> Nuevo Cliente
         </button>
@@ -358,7 +358,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               </button>
               <button 
                 type="button" 
-                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition" 
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >

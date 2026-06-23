@@ -178,7 +178,7 @@ export default function SpaProductsPage() {
           </div>
         ) : (
           products.map(product => (
-            <div key={product.id} className="rounded-3xl bg-white dark:bg-dark p-0 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-black-light dark:border-dark-light flex flex-col">
+            <div key={product.id} className="rounded-3xl bg-white dark:bg-dark p-0 relative overflow-hidden group hover:shadow-lg transition-[transform,box-shadow,background-color] duration-300 border border-black-light dark:border-dark-light flex flex-col">
               <div className="h-48 w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center relative overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -331,7 +331,7 @@ export default function SpaProductsPage() {
                         checked={editingProduct?.is_active ?? true}
                         onChange={e => setEditingProduct({...editingProduct, is_active: e.target.checked})}
                       />
-                      <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform dark:border-zinc-600 peer-checked:bg-primary"></div>
                     </div>
                     <span className="text-sm font-semibold text-black dark:text-white group-hover:text-primary transition-colors">Producto Activo (Visible)</span>
                   </label>
@@ -349,7 +349,7 @@ export default function SpaProductsPage() {
               </button>
               <button 
                 onClick={handleSave} 
-                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition" 
                 disabled={isSaving}
               >
                 {isSaving ? (

@@ -182,7 +182,7 @@ export default function SpaServicesPage() {
           </div>
         ) : (
           services.map(service => (
-            <div key={service.id} className="rounded-3xl bg-white dark:bg-dark p-5 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-black-light dark:border-dark-light">
+            <div key={service.id} className="rounded-3xl bg-white dark:bg-dark p-5 relative overflow-hidden group hover:shadow-lg transition-[transform,box-shadow,background-color] duration-300 border border-black-light dark:border-dark-light">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">{service.name}</h3>
@@ -370,7 +370,7 @@ export default function SpaServicesPage() {
                         checked={editingService?.is_active ?? true}
                         onChange={e => setEditingService({...editingService, is_active: e.target.checked})}
                       />
-                      <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform dark:border-zinc-600 peer-checked:bg-primary"></div>
                     </div>
                     <span className="text-sm font-semibold text-black dark:text-white group-hover:text-primary transition-colors">Servicio Activo (Visible)</span>
                   </label>
@@ -388,7 +388,7 @@ export default function SpaServicesPage() {
               </button>
               <button 
                 onClick={handleSave} 
-                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition" 
                 disabled={isSaving}
               >
                 {isSaving ? (

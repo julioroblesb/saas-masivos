@@ -32,7 +32,7 @@ export function SequenceEditor({
       </div>
       <div className="flex flex-col gap-5">
         {sequence.map((msg, idx) => (
-          <div key={msg.id} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+          <div key={msg.id} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-[border-color,box-shadow,background-color] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mensaje {idx + 1}</span>
               <div className="flex items-center gap-2">
