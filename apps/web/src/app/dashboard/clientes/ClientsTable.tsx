@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { archiveContactsAction, upsertContactAction } from './actions';
@@ -25,8 +26,14 @@ interface ClientMetric {
 }
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
+  const router = useRouter();
   const [clients, setClients] = useState<ClientMetric[]>(initialClients);
   const [search, setSearch] = useState('');
+  
+  // Mantener sincronizado con servidor
+  useEffect(() => {
+    setClients(initialClients);
+  }, [initialClients]);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -138,8 +145,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     } else {
       toast.success(idToUse ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
       setIsModalOpen(false);
-      // Optimistic update or reload
-      window.location.reload();
+      router.refresh();
     }
     setIsSubmitting(false);
   };

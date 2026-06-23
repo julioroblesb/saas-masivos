@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -21,6 +22,13 @@ export function AtencionesManager({
 }) {
   const [activeTab, setActiveTab] = useState<'activas' | 'historial'>('activas');
   const [visits, setVisits] = useState(initialVisits);
+  const router = useRouter();
+
+  // Mantener el estado sincronizado con los datos del servidor (router.refresh)
+  useEffect(() => {
+    setVisits(initialVisits);
+  }, [initialVisits]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -72,8 +80,7 @@ export function AtencionesManager({
     } else {
       toast.success('Atención registrada exitosamente');
       setIsModalOpen(false);
-      // We could ideally re-fetch or optimistically update
-      window.location.reload(); 
+      router.refresh(); 
     }
     setIsSubmitting(false);
   };
@@ -81,12 +88,16 @@ export function AtencionesManager({
   const handleUpdateStatus = async (visitId: string, status: 'completado' | 'cancelado') => {
     if (!confirm(`¿Marcar esta atención como ${status}?`)) return;
     
+    // Optimistic UI update
+    setVisits(prev => prev.map(v => v.id === visitId ? { ...v, status } : v));
+    
     const res = await updateVisitStatusAction(visitId, status);
     if (res.error) {
       toast.error(res.error);
+      router.refresh(); // revert if error
     } else {
       toast.success(`Atención ${status}.`);
-      window.location.reload();
+      router.refresh();
     }
   };
 
