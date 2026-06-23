@@ -45,7 +45,6 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     const channel = supabase.channel(`wa_qr_${companyId}`);
     
     channel.on('broadcast', { event: 'qr_update' }, (payload) => {
-      console.log('Recibido QR:', payload);
       setQrCode(payload.payload.qr);
       setStatus('conectando');
     }).subscribe();

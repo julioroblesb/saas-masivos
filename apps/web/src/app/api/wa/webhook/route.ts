@@ -6,9 +6,16 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url);
     const companyId = url.searchParams.get('company_id');
+    const token = url.searchParams.get('token');
 
     if (!companyId) {
       return NextResponse.json({ error: 'company_id missing in query params' }, { status: 400 });
+    }
+
+    // Usar INTERNAL_TOKEN como secreto para webhooks
+    const internalToken = process.env.INTERNAL_TOKEN;
+    if (internalToken && token !== internalToken) {
+      return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
     const body = await req.json();

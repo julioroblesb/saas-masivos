@@ -5,7 +5,22 @@ import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { createClient } from '@/utils/supabase/server';
 
 export async function createTenant(formData: FormData) {
-  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return { error: 'No autorizado' };
+
+    // Verificar si el usuario que llama es super_admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'super_admin') {
+      return { error: 'No autorizado' };
+    }
+
     const supabaseAdmin = getSupabaseAdmin();
     const companyName = formData.get('companyName') as string;
     const fullName = formData.get('fullName') as string;
