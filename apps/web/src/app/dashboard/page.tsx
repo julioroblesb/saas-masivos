@@ -31,18 +31,30 @@ export default async function DashboardPage() {
 
   // Llamar a RPC function para stats del spa
   const { data: spaStats, error: rpcError } = await supabase
-    .rpc('rpc_get_spa_dashboard', { p_company_id: profile?.company_id });
+    .rpc('rpc_get_spa_dashboard');
 
   let metrics = {
     clients_today: 0,
     revenue_today: 0,
     auto_messages_7d: 0,
-    recovered_clients: 0
+    recovered_clients: 0,
+    total_clients: 0,
+    pending_messages: 0
   };
+  let recentActivity = [];
+  let chartData = [];
 
   if (!rpcError && spaStats) {
     const data = Array.isArray(spaStats) ? spaStats[0] : spaStats;
-    metrics = { ...metrics, ...data };
+    if (data.metrics) {
+      metrics = { ...metrics, ...data.metrics };
+    }
+    if (data.recent_activity) {
+      recentActivity = data.recent_activity;
+    }
+    if (data.chart_data) {
+      chartData = data.chart_data;
+    }
   }
 
   return (
@@ -59,7 +71,11 @@ export default async function DashboardPage() {
         <WhatsappConnection companyId={profile?.company_id} />
       </div>
       
-      <SpaDashboard metrics={metrics} />
+      <SpaDashboard 
+        metrics={metrics} 
+        recentActivity={recentActivity} 
+        chartData={chartData} 
+      />
     </div>
   );
 }
