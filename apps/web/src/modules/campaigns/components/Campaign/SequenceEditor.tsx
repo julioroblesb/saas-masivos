@@ -1,6 +1,7 @@
 import { Settings2, Trash2, Plus } from 'lucide-react';
 import type { SequenceItem } from './types';
 import { MediaField } from './MediaField';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 const typeLabel: Record<string, string> = { text: '💬 Texto', image: '🖼 Imagen', video: '🎬 Video', audio: '🎤 Audio', document: '📄 Documento (PDF)' };
 
@@ -35,13 +36,14 @@ export function SequenceEditor({
             <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mensaje {idx + 1}</span>
               <div className="flex items-center gap-2">
-                <select
-                  className="w-full px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-                  value={msg.type}
-                  onChange={e => handleTypeChange(msg.id, e.target.value as SequenceItem['type'])}
-                >
-                  {Object.entries(typeLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
+                <div className="w-48">
+                  <CustomSelect
+                    isSearchable={false}
+                    options={Object.entries(typeLabel).map(([v, l]) => ({ value: v, label: l }))}
+                    value={{ value: msg.type, label: typeLabel[msg.type] }}
+                    onChange={(option: any) => handleTypeChange(msg.id, option.value as SequenceItem['type'])}
+                  />
+                </div>
                 <button type="button" className="w-7 h-7 rounded-md border-none bg-danger/10 text-danger flex items-center justify-center cursor-pointer transition-colors hover:bg-danger/20" onClick={() => removeMessage(msg.id)}>
                   <Trash2 size={13} />
                 </button>
