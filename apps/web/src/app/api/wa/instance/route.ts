@@ -76,7 +76,8 @@ export async function POST(req: Request) {
       // 2.5 Configurar el proyecto (Motor Baileys y API Key para que el cron pueda enviarle POSTs)
       const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
       const host = req.headers.get('host');
-      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}`;
+      const tokenParam = process.env.INTERNAL_TOKEN ? `&token=${process.env.INTERNAL_TOKEN}` : '';
+      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}${tokenParam}`;
 
       await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
         method: 'PUT',
@@ -120,7 +121,8 @@ export async function POST(req: Request) {
 
       const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
       const host = req.headers.get('host');
-      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}`;
+      const tokenParam = process.env.INTERNAL_TOKEN ? `&token=${process.env.INTERNAL_TOKEN}` : '';
+      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}${tokenParam}`;
 
       await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
         method: 'PUT',

@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { createClient } from '@/utils/supabase/server';
 
 export async function createTenant(formData: FormData) {
+  try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
