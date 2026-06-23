@@ -5,6 +5,7 @@ import { updateTenantSubscription } from './actions';
 import { toast } from 'react-hot-toast';
 import { X, Calendar, Settings, AlertTriangle } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 interface Company {
   id: string;
@@ -135,13 +136,12 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
           <div>
             <label className="text-white-dark mb-2 block">Fecha de Vencimiento</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-dark" size={18} />
-              <input
-                type="date"
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-dark z-10" size={18} />
+              <CustomDatePicker
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                required
-                className="form-input pl-10"
+                onChangeDate={setEndDate}
+                placeholder="Seleccionar fecha"
+                className="form-input pl-10 w-full"
               />
             </div>
             <p className="mt-1 text-xs text-white-dark">Al vencer esta fecha, el cliente será desconectado de WhatsApp automáticamente.</p>

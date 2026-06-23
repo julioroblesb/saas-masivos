@@ -2,6 +2,7 @@ import { crmToast } from '../../../hooks/useToast';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMarketingContacts, useUpsertMarketingContact, useBatchInsertMarketingContacts, useDeleteMarketingContact, useDeleteMarketingContactsByTag } from '../../../hooks/queries/useMarketingContacts';
 import { Search, Plus, Trash2, Tag, Upload, Users, X } from 'lucide-react';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 export function MarketingContactsManager() {
   const PAGE_SIZE = 100;
@@ -264,10 +265,11 @@ export function MarketingContactsManager() {
               </div>
               <div>
                 <label className="text-white-dark">Fecha de Nacimiento (opcional)</label>
-                <input 
-                  type="date"
-                  className="form-input"
-                  value={newBirthday} onChange={e => setNewBirthday(e.target.value)} 
+                <CustomDatePicker 
+                  value={newBirthday}
+                  onChangeDate={setNewBirthday}
+                  placeholder="Seleccionar fecha"
+                  className="form-input w-full"
                 />
               </div>
               <div>

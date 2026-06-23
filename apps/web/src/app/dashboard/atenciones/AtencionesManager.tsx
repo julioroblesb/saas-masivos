@@ -5,6 +5,7 @@ import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Dollar
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 export function AtencionesManager({ 
   initialVisits, 
@@ -284,11 +285,10 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" /> Fecha de Visita *
                   </label>
-                  <input 
-                    type="date"
-                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                  <CustomDatePicker 
                     value={form.visitDate}
-                    onChange={e => setForm(prev => ({ ...prev, visitDate: e.target.value }))}
+                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, visitDate: dateStr }))}
+                    placeholder="Seleccione la fecha"
                   />
                 </div>
 
