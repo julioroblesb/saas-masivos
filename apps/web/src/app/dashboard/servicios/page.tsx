@@ -34,9 +34,25 @@ export default function SpaServicesPage() {
         const { data: srvs } = await supabase
           .from('spa_services')
           .select('*')
-          .eq('companyId', profile.company_id)
+          .eq('company_id', profile.company_id)
           .order('name');
-        if (srvs) setServices(srvs);
+        if (srvs) {
+          setServices(srvs.map((s: any) => ({
+            id: s.id,
+            companyId: s.company_id,
+            name: s.name,
+            description: s.description,
+            price: s.price,
+            minPrice: s.min_price,
+            promoPrice: s.promo_price,
+            durationDays: s.duration_days,
+            careInstructions: s.care_instructions,
+            careImageUrl: s.care_image_url,
+            isActive: s.is_active,
+            createdAt: s.created_at,
+            updatedAt: s.updated_at
+          })));
+        }
       }
     } catch (error) {
       console.error('Error cargando servicios:', error);
@@ -90,12 +106,12 @@ export default function SpaServicesPage() {
             name: editingService.name,
             description: editingService.description,
             price: editingService.price,
-            promoPrice: editingService.promoPrice,
-            durationDays: editingService.durationDays || 0,
-            careInstructions: editingService.careInstructions,
-            careImageUrl: editingService.careImageUrl,
-            isActive: editingService.isActive ?? true,
-            updatedAt: new Date().toISOString()
+            promo_price: editingService.promoPrice,
+            duration_days: editingService.durationDays || 0,
+            care_instructions: editingService.careInstructions,
+            care_image_url: editingService.careImageUrl,
+            is_active: editingService.isActive ?? true,
+            updated_at: new Date().toISOString()
           })
           .eq('id', editingService.id);
         
@@ -106,15 +122,15 @@ export default function SpaServicesPage() {
         const { error } = await supabase
           .from('spa_services')
           .insert([{
-            companyId,
+            company_id: companyId,
             name: editingService.name,
             description: editingService.description,
             price: editingService.price,
-            promoPrice: editingService.promoPrice,
-            durationDays: editingService.durationDays || 0,
-            careInstructions: editingService.careInstructions,
-            careImageUrl: editingService.careImageUrl,
-            isActive: true
+            promo_price: editingService.promoPrice,
+            duration_days: editingService.durationDays || 0,
+            care_instructions: editingService.careInstructions,
+            care_image_url: editingService.careImageUrl,
+            is_active: true
           }]);
           
         if (error) throw error;

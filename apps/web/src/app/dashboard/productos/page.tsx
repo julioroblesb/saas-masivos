@@ -34,9 +34,22 @@ export default function SpaProductsPage() {
         const { data: prods } = await supabase
           .from('spa_products')
           .select('*')
-          .eq('companyId', profile.company_id)
+          .eq('company_id', profile.company_id)
           .order('name');
-        if (prods) setProducts(prods);
+        if (prods) {
+          setProducts(prods.map((p: any) => ({
+            id: p.id,
+            companyId: p.company_id,
+            name: p.name,
+            description: p.description,
+            price: p.price,
+            stock: p.stock,
+            imageUrl: p.image_url,
+            isActive: p.is_active,
+            createdAt: p.created_at,
+            updatedAt: p.updated_at
+          })));
+        }
       }
     } catch (error) {
       console.error('Error cargando productos:', error);
@@ -91,9 +104,9 @@ export default function SpaProductsPage() {
             description: editingProduct.description,
             price: editingProduct.price,
             stock: editingProduct.stock,
-            imageUrl: editingProduct.imageUrl,
-            isActive: editingProduct.isActive ?? true,
-            updatedAt: new Date().toISOString()
+            image_url: editingProduct.imageUrl,
+            is_active: editingProduct.isActive ?? true,
+            updated_at: new Date().toISOString()
           })
           .eq('id', editingProduct.id);
         
@@ -104,13 +117,13 @@ export default function SpaProductsPage() {
         const { error } = await supabase
           .from('spa_products')
           .insert([{
-            companyId,
+            company_id: companyId,
             name: editingProduct.name,
             description: editingProduct.description,
             price: editingProduct.price,
             stock: editingProduct.stock,
-            imageUrl: editingProduct.imageUrl,
-            isActive: true
+            image_url: editingProduct.imageUrl,
+            is_active: true
           }]);
           
         if (error) throw error;
