@@ -147,31 +147,26 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
     }
 
     let nextItem: any = null;
-    let isFollowUp = false;
 
-    // Primero intentamos sacar un mensaje automático pendiente
-    const { data: followUpItem } = await supabaseAdmin
-      .from('spa_follow_ups')
-      .select('id, phone, message, media_url, companies(settings)')
+    // Primero intentamos sacar un mensaje automático pendiente (campaign_id IS NULL)
+    const { data: automatedItem } = await supabaseAdmin
+      .from('crm_wa_queue')
+      .select('id, phone, message, delay_after_ms, companies(settings)')
       .eq('company_id', company_id)
       .eq('status', 'pendiente')
+      .is('campaign_id', null)
       .lte('scheduled_for', new Date().toISOString())
       .order('scheduled_for', { ascending: true })
       .limit(1)
       .maybeSingle();
 
-    if (followUpItem) {
+    if (automatedItem) {
       nextItem = {
-        id: followUpItem.id,
+        ...automatedItem,
         campaign_id: null,
-        phone: followUpItem.phone,
-        message: followUpItem.message,
-        media_url: followUpItem.media_url,
-        delay_after_ms: null,
-        companies: followUpItem.companies,
+        media_url: null,
         crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 } // Delays predeterminados para automáticos
       };
-      isFollowUp = true;
     } else {
       // Si no hay automáticos, sacamos de la cola de campañas masivas
       const { data: queueItem } = await supabaseAdmin
@@ -184,6 +179,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         .eq('company_id', company_id)
         .eq('status', 'pendiente')
         .eq('crm_wa_campaigns.status', 'running')
+        .lte('scheduled_for', new Date().toISOString())
         .order('scheduled_for', { ascending: true })
         .limit(1)
         .maybeSingle();
@@ -210,11 +206,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
     }
 
     try {
-      if (isFollowUp) {
-        await supabaseAdmin.from('spa_follow_ups').update({ status: 'enviando' }).eq('id', id);
-      } else {
-        await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
-      }
+      await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
 
       const finalMessage = resolveSpintax(message, companySettings);
 
@@ -241,16 +233,12 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
       if (!bbRes.ok) throw new Error(`BuilderBot: ${bbRes.statusText}`);
 
-      if (isFollowUp) {
-        await supabaseAdmin
-          .from('spa_follow_ups')
-          .update({ status: 'enviado', sent_at: new Date().toISOString() })
-          .eq('id', id);
-      } else {
-        await supabaseAdmin
-          .from('crm_wa_queue')
-          .update({ status: 'enviado', sent_at: new Date().toISOString() })
-          .eq('id', id);
+      await supabaseAdmin
+        .from('crm_wa_queue')
+        .update({ status: 'enviado', sent_at: new Date().toISOString() })
+        .eq('id', id);
+        
+      if (campaign_id) {
         await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
       }
 
@@ -272,16 +260,12 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         .eq('company_id', company_id);
 
     } catch (err: any) {
-      if (isFollowUp) {
-        await supabaseAdmin
-          .from('spa_follow_ups')
-          .update({ status: 'fallido' })
-          .eq('id', id);
-      } else {
-        await supabaseAdmin
-          .from('crm_wa_queue')
-          .update({ status: 'fallido', error_message: err.message || String(err) })
-          .eq('id', id);
+      await supabaseAdmin
+        .from('crm_wa_queue')
+        .update({ status: 'fallido', error_message: err.message || String(err) })
+        .eq('id', id);
+        
+      if (campaign_id) {
         await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
       }
 
