@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Zap, Search, Users, PhoneForwarded } from 'lucide-react';
 import { supabase } from '../../../../shared/utils/supabase';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface ClientMetric {
   id: string;
@@ -206,14 +207,17 @@ export function SegmentConfig({
                   onChange={e => setSearch(e.target.value)}
                 />
               </div>
-              <select 
-                className="w-full sm:w-auto px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary"
-                value={serviceFilter}
-                onChange={e => setServiceFilter(e.target.value)}
-              >
-                <option value="">Todos los servicios</option>
-                {availableServices.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <div className="w-full sm:w-56">
+                <CustomSelect 
+                  isSearchable={false}
+                  value={{ value: serviceFilter, label: serviceFilter || 'Todos los servicios' }}
+                  options={[
+                    { value: '', label: 'Todos los servicios' },
+                    ...availableServices.map(s => ({ value: s, label: s }))
+                  ]}
+                  onChange={(option: any) => setServiceFilter(option.value)}
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 text-xs">
@@ -238,9 +242,9 @@ export function SegmentConfig({
                   </thead>
                   <tbody>
                     {filteredClients.map(client => (
-                      <tr key={client.id} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer" onClick={() => toggleClient(client.id)}>
-                        <td className="p-2 text-center">
-                          <input type="checkbox" checked={targetContactIds.includes(client.id)} readOnly className="rounded text-primary focus:ring-primary" />
+                      <tr key={client.id} className="border-t border-slate-100 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors cursor-pointer" onClick={() => toggleClient(client.id)}>
+                        <td className="p-3 text-center">
+                          <input type="checkbox" checked={targetContactIds.includes(client.id)} readOnly className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer" />
                         </td>
                         <td className="p-2">
                           <div className="font-medium text-black dark:text-white">{client.name || 'Sin nombre'}</div>
@@ -270,7 +274,7 @@ export function SegmentConfig({
               <textarea 
                 rows={6}
                 placeholder="Pega aquí los números separados por comas o saltos de línea...&#10;Ej: 51987654321, 51999888777"
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors resize-y"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm resize-y"
                 value={rawText}
                 onChange={handleRawTextChange}
               />

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Megaphone, Users, Activity, History } from 'lucide-react';
 import { CampaignSender } from './components/CampaignSender';
-import { MarketingContactsManager } from './components/MarketingContactsManager';
 import { CampaignProgressCard } from './components/CampaignProgressCard';
 import { CampaignHistoryTable } from './components/CampaignHistoryTable';
 import { useCampaigns } from '../../hooks/queries/useCampaigns';
@@ -53,14 +52,6 @@ export default function CampaignsView() {
           <History size={18} /> Historial
         </button>
 
-        <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-all border-b-2 ${
-            activeTab === 'contacts' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
-          }`}
-          onClick={() => setActiveTab('contacts')}
-        >
-          <Users size={18} /> Base de Contactos
-        </button>
       </div>
 
       {/* Tab Contents */}
@@ -95,10 +86,6 @@ export default function CampaignsView() {
           <div className="panel p-0 overflow-hidden">
             <CampaignHistoryTable campaigns={historyCampaigns} />
           </div>
-        )}
-
-        {activeTab === 'contacts' && (
-          <MarketingContactsManager />
         )}
       </div>
     </div>
