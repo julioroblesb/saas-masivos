@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { SpaService } from '@/types/spa';
-import { Plus, Edit2, Trash2, Loader2, Scissors, Image as ImageIcon, CheckCircle, XCircle, Tag, FileText, DollarSign, Percent, Clock, HeartPulse } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, Scissors, Image as ImageIcon, CheckCircle, XCircle, Tag, FileText, Coins, Percent, Clock, HeartPulse } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
@@ -209,8 +209,8 @@ export default function SpaServicesPage() {
               <div className="flex items-end justify-between border-t border-black-light dark:border-dark-light pt-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
-                  <p className="text-xl font-bold tracking-tight text-primary">${service.price}</p>
-                  {service.promoPrice && <p className="text-xs text-success font-semibold tracking-wide">Promo: ${service.promoPrice}</p>}
+                  <p className="text-xl font-bold tracking-tight text-primary">S/ {service.price}</p>
+                  {service.promoPrice && <p className="text-xs text-success font-semibold tracking-wide">Promo: S/ {service.promoPrice}</p>}
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Duración Cuidados</p>
@@ -271,10 +271,10 @@ export default function SpaServicesPage() {
                 
                 <div className="space-y-3">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-primary" /> Precio Regular *
+                    <Coins className="w-4 h-4 text-primary" /> Precio Regular *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
                     <input 
                       type="number" 
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
@@ -289,7 +289,7 @@ export default function SpaServicesPage() {
                     <Percent className="w-4 h-4 text-primary" /> Precio Promo
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
                     <input 
                       type="number" 
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, DollarSign, FileText, Clock, AlertTriangle, Activity } from 'lucide-react';
+import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
@@ -294,10 +294,10 @@ export function AtencionesManager({
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-primary" /> Precio Cobrado
+                    <Coins className="w-4 h-4 text-primary" /> Precio Cobrado
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
                     <input 
                       type="number"
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
