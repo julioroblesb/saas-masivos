@@ -60,12 +60,21 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    const date = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+    const isDateOnly = !dateStr.includes('T') || dateStr.includes('T00:00:00');
+    if (isDateOnly) {
+      const cleanDateStr = dateStr.split('T')[0];
+      const date = new Date(cleanDateStr + 'T00:00:00');
+      return date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+      });
+    }
+    const date = new Date(dateStr);
     return date.toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'short',
-      hour: dateStr.includes('T') ? '2-digit' : undefined,
-      minute: dateStr.includes('T') ? '2-digit' : undefined,
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 

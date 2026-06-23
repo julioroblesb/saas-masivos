@@ -113,7 +113,7 @@ export function AtencionesManager({
   const groupedVisits = filteredVisits
     .filter(v => v.status === 'en_curso')
     .reduce((acc: any, visit: any) => {
-      const date = new Date(visit.visit_date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+      const date = new Date((visit.visit_date || '').split('T')[0] + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
       if (!acc[date]) acc[date] = [];
       acc[date].push(visit);
       return acc;
@@ -292,7 +292,7 @@ export function AtencionesManager({
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                   {historyVisits.map((visit: any) => (
                     <tr key={visit.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                      <td className="p-4 text-black dark:text-white font-medium">{new Date(visit.visit_date).toLocaleDateString()}</td>
+                      <td className="p-4 text-black dark:text-white font-medium">{new Date((visit.visit_date || '').split('T')[0] + 'T00:00:00').toLocaleDateString()}</td>
                       <td className="p-4">
                         <div className="font-semibold text-black dark:text-white">{visit.contact_name}</div>
                         <div className="text-xs text-zinc-500">+{visit.contact_phone}</div>

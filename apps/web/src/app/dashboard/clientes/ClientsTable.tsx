@@ -50,9 +50,11 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
   // Formatting dates
   const formatDate = (iso: string | null | undefined, includeTime = false) => {
     if (!iso) return '-';
-    return new Date(iso).toLocaleDateString('es-ES', { 
+    const isDateOnly = !iso.includes('T') || iso.includes('T00:00:00');
+    const date = isDateOnly ? new Date(iso.split('T')[0] + 'T00:00:00') : new Date(iso);
+    return date.toLocaleDateString('es-ES', { 
       day: '2-digit', month: 'short', year: 'numeric',
-      ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
+      ...(includeTime && !isDateOnly ? { hour: '2-digit', minute: '2-digit' } : {})
     });
   };
 
