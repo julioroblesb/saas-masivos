@@ -66,7 +66,6 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    // Evitar desfase de zona horaria al instanciar fechas solo con año-mes-día
     const date = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('es-ES', {
       day: 'numeric',
@@ -91,7 +90,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       toolbar: { show: false },
       background: 'transparent',
     },
-    colors: ['#4f46e5'], // Indigo-600
+    colors: ['#E11D48'], // Vibrant Rose Pop
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 3 },
     fill: {
@@ -108,17 +107,17 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '12px' },
+        style: { colors: isDark ? '#A1A1AA' : '#3b3f5c', fontSize: '12px' },
       },
     },
     yaxis: {
       labels: {
         formatter: (val: number) => `S/ ${val.toFixed(0)}`,
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '12px' },
+        style: { colors: isDark ? '#A1A1AA' : '#3b3f5c', fontSize: '12px' },
       },
     },
     grid: {
-      borderColor: isDark ? '#374151' : '#e5e7eb',
+      borderColor: isDark ? '#27272A' : '#E4E4E7',
       strokeDashArray: 4,
     },
     tooltip: {
@@ -161,10 +160,10 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Tarjeta Principal (Ingresos) */}
-        <motion.div variants={item} className="md:col-span-2 relative flex flex-col justify-between rounded-3xl p-8 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 overflow-hidden group">
+        <motion.div variants={item} className="panel md:col-span-2 relative flex flex-col justify-between rounded-3xl p-8 overflow-hidden group">
           <div className="relative z-10 flex justify-between items-start">
             <div className="flex flex-col space-y-1">
-              <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Ingresos de Hoy</span>
+              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Ingresos de Hoy</span>
               <span className="text-black dark:text-white text-5xl md:text-6xl font-black tracking-tight mt-2">
                 {formatCurrency(metrics.revenue_today || 0)}
               </span>
@@ -174,7 +173,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
             </div>
           </div>
           
-          <div className="relative z-10 mt-12 pt-6 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="relative z-10 mt-12 pt-6 border-t border-black-light dark:border-dark-light flex items-center justify-between text-sm text-white-dark">
             <span>Suma de servicios completados hoy</span>
             <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
               <Sparkles className="h-4 w-4" /> En tiempo real
@@ -185,9 +184,9 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
         {/* Bloque Apilado Derecho (Métricas Secundarias) */}
         <div className="flex flex-col gap-6">
           {/* Atenciones de hoy */}
-          <motion.div variants={item} className="relative flex items-center justify-between rounded-3xl p-6 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 group">
+          <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
             <div className="flex flex-col space-y-1">
-              <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Atenciones de Hoy</span>
+              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Atenciones de Hoy</span>
               <span className="text-black dark:text-white text-4xl font-extrabold tracking-tight mt-1">{metrics.clients_today || 0}</span>
             </div>
             <div className="p-3.5 bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl text-indigo-600 dark:text-indigo-400">
@@ -196,9 +195,9 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
           </motion.div>
 
           {/* Clientes Registrados */}
-          <motion.div variants={item} className="relative flex items-center justify-between rounded-3xl p-6 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 group">
+          <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
             <div className="flex flex-col space-y-1">
-              <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Clientes (CRM)</span>
+              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes (CRM)</span>
               <span className="text-black dark:text-white text-4xl font-extrabold tracking-tight mt-1">{metrics.total_clients || 0}</span>
             </div>
             <div className="p-3.5 bg-blue-50 dark:bg-blue-950/20 rounded-2xl text-blue-600 dark:text-blue-400">
@@ -212,11 +211,11 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Mensajes Automáticos (7d) */}
-        <motion.div variants={item} className="relative flex items-center justify-between rounded-3xl p-6 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 group">
+        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
           <div>
-            <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Autocomunicaciones (7d)</span>
+            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Autocomunicaciones (7d)</span>
             <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.auto_messages_7d || 0}</h4>
-            <p className="text-xs text-zinc-400 mt-2">Mensajes enviados por el sistema</p>
+            <p className="text-xs text-white-dark mt-2">Mensajes enviados por el sistema</p>
           </div>
           <div className="p-3.5 bg-purple-50 dark:bg-purple-950/20 rounded-2xl text-purple-600 dark:text-purple-400">
             <MessageSquare className="h-6 w-6" />
@@ -224,11 +223,11 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
         </motion.div>
 
         {/* Mensajes en Cola */}
-        <motion.div variants={item} className="relative flex items-center justify-between rounded-3xl p-6 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 group">
+        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
           <div>
-            <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Mensajes en Cola</span>
+            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Mensajes en Cola</span>
             <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.pending_messages || 0}</h4>
-            <p className="text-xs text-zinc-400 mt-2">Programados por enviar</p>
+            <p className="text-xs text-white-dark mt-2">Programados por enviar</p>
           </div>
           <div className="p-3.5 bg-amber-50 dark:bg-amber-950/20 rounded-2xl text-amber-600 dark:text-amber-400">
             <Clock className="h-6 w-6" />
@@ -236,11 +235,11 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
         </motion.div>
 
         {/* Clientes Recuperados */}
-        <motion.div variants={item} className="relative flex items-center justify-between rounded-3xl p-6 bg-white border border-zinc-200 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800 group">
+        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
           <div>
-            <span className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider">Clientes Recuperados</span>
+            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes Recuperados</span>
             <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.recovered_clients || 0}</h4>
-            <p className="text-xs text-zinc-400 mt-2">Volvieron gracias a campañas/recordatorios</p>
+            <p className="text-xs text-white-dark mt-2">Volvieron gracias a seguimiento</p>
           </div>
           <div className="p-3.5 bg-rose-50 dark:bg-rose-950/20 rounded-2xl text-rose-600 dark:text-rose-400">
             <Heart className="h-6 w-6" />
@@ -252,16 +251,16 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         
         {/* Gráfico de Ventas */}
-        <motion.div variants={item} className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
+        <motion.div variants={item} className="panel rounded-3xl p-6">
           <div className="mb-6">
             <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">Rendimiento de Ventas (7 días)</h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Ingresos brutos diarios en PEN (sólo servicios completados).</p>
+            <p className="text-xs text-white-dark mt-1">Ingresos brutos diarios en PEN (sólo servicios completados).</p>
           </div>
           <div className="min-h-[320px]">
             {chartData.length > 0 ? (
               <ReactApexChart options={chartOptions} series={chartSeries} type="area" height={320} />
             ) : (
-              <div className="flex h-[320px] items-center justify-center text-zinc-400 dark:text-zinc-600 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm">
+              <div className="flex h-[320px] items-center justify-center text-white-dark border border-dashed border-black-light dark:border-dark-light rounded-2xl text-sm">
                 Sin datos suficientes para mostrar el gráfico
               </div>
             )}
@@ -269,14 +268,14 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
         </motion.div>
 
         {/* Actividad Reciente */}
-        <motion.div variants={item} className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 flex flex-col justify-between">
+        <motion.div variants={item} className="panel rounded-3xl p-6 flex flex-col justify-between">
           <div>
             <div className="mb-6 flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">Atenciones Recientes</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Últimas 5 atenciones registradas en el sistema.</p>
+                <p className="text-xs text-white-dark mt-1">Últimas 5 atenciones registradas en el sistema.</p>
               </div>
-              <Link href="/dashboard/atenciones" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline">
+              <Link href="/dashboard/atenciones" className="text-xs font-semibold text-primary flex items-center gap-1 hover:underline">
                 Ver todas <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -285,7 +284,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
               {recentActivity.length > 0 ? (
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 font-semibold text-xs uppercase tracking-wider">
+                    <tr className="border-b border-black-light dark:border-dark-light text-white-dark font-semibold text-xs uppercase tracking-wider">
                       <th className="pb-3">Paciente</th>
                       <th className="pb-3">Servicio</th>
                       <th className="pb-3">Fecha</th>
@@ -293,13 +292,13 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
                       <th className="pb-3 text-center">Estado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-100 dark:divide-zinc-850">
+                  <tbody className="divide-y divide-black-light/40 dark:divide-dark-light">
                     {recentActivity.map((visit) => (
                       <tr key={visit.id} className="text-zinc-700 dark:text-zinc-300">
                         <td className="py-3 font-medium text-black dark:text-white">
                           <div className="flex flex-col">
                             <span>{visit.contact_name || 'Sin nombre'}</span>
-                            <span className="text-[10px] text-zinc-400">{visit.contact_phone}</span>
+                            <span className="text-[10px] text-white-dark">{visit.contact_phone}</span>
                           </div>
                         </td>
                         <td className="py-3 text-xs">{visit.service_name}</td>
@@ -311,7 +310,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
                   </tbody>
                 </table>
               ) : (
-                <div className="flex h-64 items-center justify-center text-zinc-400 dark:text-zinc-600 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm">
+                <div className="flex h-64 items-center justify-center text-white-dark border border-dashed border-black-light dark:border-dark-light rounded-2xl text-sm">
                   Aún no has registrado ninguna atención
                 </div>
               )}

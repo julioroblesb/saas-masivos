@@ -248,12 +248,20 @@ export function AtencionesManager({
                             Creado: {new Date(visit.created_at).toLocaleDateString()}
                           </div>
                           {visit.status === 'en_curso' && (
-                            <button 
-                              className="btn btn-sm btn-outline-success"
-                              onClick={() => handleUpdateStatus(visit.id, 'completado')}
-                            >
-                              Completar
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button 
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
+                              >
+                                Cancelar
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-outline-success"
+                                onClick={() => handleUpdateStatus(visit.id, 'completado')}
+                              >
+                                Completar
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
