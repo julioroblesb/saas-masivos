@@ -8,10 +8,10 @@ export default async function AtencionesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white-light">Registro de Atenciones</h1>
-          <p className="text-slate-500 dark:text-white-dark text-sm mt-1">
+          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">Registro de Atenciones</h1>
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
             Gestiona las visitas de tus pacientes, asocia servicios y programa seguimientos automáticamente.
           </p>
         </div>
