@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { SpaProduct } from '@/types/spa';
-import { Plus, Edit2, Trash2, Loader2, Package, Image as ImageIcon, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, Package, Image as ImageIcon, CheckCircle, XCircle, Tag, FileText, DollarSign, Box } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
@@ -222,99 +222,146 @@ export default function SpaProductsPage() {
         )}
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingProduct?.id ? 'Editar Producto' : 'Nuevo Producto'}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="flex justify-center mb-2">
-              <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-dashed border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center group cursor-pointer hover:border-primary transition-colors">
-                {editingProduct?.imageUrl ? (
-                  <>
-                    <img src={editingProduct.imageUrl} alt="Product" className="w-full h-full object-cover" />
-                    <button 
-                      className="absolute top-1 right-1 bg-danger text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => { e.preventDefault(); setEditingProduct({...editingProduct, imageUrl: ''}) }}
-                    >
-                      <XCircle className="w-3 h-3" />
-                    </button>
-                  </>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer">
-                    {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin text-zinc-400" /> : <ImageIcon className="w-6 h-6 text-zinc-400" />}
-                    <span className="text-xs text-zinc-500 mt-2 font-medium">Subir Foto</span>
-                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  {editingProduct?.id ? <Edit2 className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
+                </div>
+                {editingProduct?.id ? 'Editar Producto' : 'Nuevo Producto'}
+              </h3>
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 max-h-[65vh] overflow-y-auto">
+              <div className="flex flex-col items-center mb-8">
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 overflow-hidden flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group-hover:border-primary/50">
+                    {editingProduct?.imageUrl ? (
+                      <>
+                        <img src={editingProduct.imageUrl} alt="Producto" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                          <label className="cursor-pointer text-white flex flex-col items-center gap-1">
+                            {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
+                            <span className="text-[10px] font-medium uppercase tracking-wider">Cambiar</span>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                          </label>
+                        </div>
+                      </>
+                    ) : (
+                      <label className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-zinc-400 hover:text-primary transition-colors">
+                        {uploadingImage ? <Loader2 className="w-6 h-6 mb-2 animate-spin" /> : <ImageIcon className="w-8 h-8 mb-2" />}
+                        <span className="text-[11px] font-medium uppercase tracking-wider">Subir Foto</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-primary" /> Nombre del Producto *
                   </label>
+                  <input 
+                    type="text" 
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
+                    value={editingProduct?.name || ''} 
+                    onChange={e => setEditingProduct({...editingProduct, name: e.target.value})}
+                    placeholder="Ej: Crema Hidratante"
+                  />
+                </div>
+                
+                <div className="space-y-3 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" /> Descripción
+                  </label>
+                  <textarea 
+                    className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
+                    value={editingProduct?.description || ''} 
+                    onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
+                    placeholder="Detalles del producto..."
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-primary" /> Precio *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">$</span>
+                    <input 
+                      type="number" 
+                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
+                      value={editingProduct?.price || ''} 
+                      onChange={e => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Box className="w-4 h-4 text-primary" /> Stock (Unidades) *
+                  </label>
+                  <input 
+                    type="number" 
+                    className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
+                    value={editingProduct?.stock || 0} 
+                    onChange={e => setEditingProduct({...editingProduct, stock: parseInt(e.target.value)})}
+                  />
+                </div>
+
+                <div className="col-span-1 md:col-span-2 pt-4 border-t border-black-light dark:border-dark-light my-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="peer sr-only" 
+                        checked={editingProduct?.isActive ?? true}
+                        onChange={e => setEditingProduct({...editingProduct, isActive: e.target.checked})}
+                      />
+                      <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-primary"></div>
+                    </div>
+                    <span className="text-sm font-semibold text-black dark:text-white group-hover:text-primary transition-colors">Producto Activo (Visible)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="btn btn-outline-secondary rounded-xl px-6" 
+                disabled={isSaving}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleSave} 
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all" 
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
+                  </span>
+                ) : (
+                  'Guardar Producto'
                 )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nombre del Producto *</label>
-              <input 
-                type="text" 
-                className="form-input w-full" 
-                value={editingProduct?.name || ''} 
-                onChange={e => setEditingProduct({...editingProduct, name: e.target.value})}
-                placeholder="Ej: Crema Hidratante"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Descripción</label>
-              <textarea 
-                className="form-textarea w-full" 
-                value={editingProduct?.description || ''} 
-                onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
-                placeholder="Detalles del producto..."
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Precio *</label>
-                <input 
-                  type="number" 
-                  className="form-input w-full" 
-                  value={editingProduct?.price || ''} 
-                  onChange={e => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Stock (Unidades) *</label>
-                <input 
-                  type="number" 
-                  className="form-input w-full" 
-                  value={editingProduct?.stock || 0} 
-                  onChange={e => setEditingProduct({...editingProduct, stock: parseInt(e.target.value)})}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 mt-2">
-              <input 
-                type="checkbox" 
-                id="isActiveProd" 
-                className="form-checkbox" 
-                checked={editingProduct?.isActive ?? true}
-                onChange={e => setEditingProduct({...editingProduct, isActive: e.target.checked})}
-              />
-              <label htmlFor="isActiveProd" className="text-sm font-medium mb-0">Producto Activo</label>
+              </button>
             </div>
           </div>
-
-          <DialogFooter>
-            <button onClick={() => setIsModalOpen(false)} className="btn btn-outline-danger" disabled={isSaving}>
-              Cancelar
-            </button>
-            <button onClick={handleSave} className="btn btn-primary" disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar'}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }
