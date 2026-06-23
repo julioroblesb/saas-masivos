@@ -6,60 +6,72 @@ const customStyles: StylesConfig<any, boolean> = {
   control: (base, state) => ({
     ...base,
     backgroundColor: 'var(--bg-select, #fff)',
-    borderColor: state.isFocused ? '#4361ee' : 'var(--border-color, #e0e6ed)',
-    borderRadius: '0.75rem', // rounded-xl
+    borderColor: state.isFocused ? 'var(--primary-color, #E11D48)' : 'var(--border-color, #E4E4E7)',
+    borderRadius: '0.5rem', // rounded-lg
     padding: '2px',
-    boxShadow: state.isFocused ? '0 0 0 1px #4361ee' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    boxShadow: state.isFocused ? '0 0 0 1px var(--primary-color, #E11D48)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     '&:hover': {
-      borderColor: '#4361ee'
+      borderColor: 'var(--primary-color, #E11D48)'
     }
   }),
   menu: (base) => ({
     ...base,
     backgroundColor: 'var(--bg-select, #fff)',
-    borderRadius: '0.75rem',
+    borderRadius: '0.5rem', // rounded-lg
     overflow: 'hidden',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    border: '1px solid var(--border-color, #e0e6ed)',
+    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+    border: '1px solid var(--border-color, #E4E4E7)',
     zIndex: 9999
   }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected 
-      ? '#4361ee' 
+      ? 'var(--primary-color, #E11D48)' 
       : state.isFocused 
-        ? 'var(--hover-bg, #f8fafc)' 
+        ? 'var(--hover-bg, #FAFAFA)' 
         : 'transparent',
     color: state.isSelected 
       ? '#fff' 
-      : 'var(--text-color, #0e1726)',
+      : 'var(--text-color, #0A0A0A)',
     cursor: 'pointer',
     '&:active': {
-      backgroundColor: '#4361ee',
+      backgroundColor: 'var(--primary-color, #E11D48)',
       color: '#fff'
     }
   }),
   singleValue: (base) => ({
     ...base,
-    color: 'var(--text-color, #0e1726)'
+    color: 'var(--text-color, #0A0A0A)'
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: 'var(--muted-color, #71717A)'
   })
 };
 
 export function CustomSelect(props: SelectProps<any, boolean>) {
   return (
-    <div className="custom-select-wrapper">
+    <div className="custom-select-wrapper w-full">
       <style jsx global>{`
         .custom-select-wrapper {
-          --bg-select: #fff;
-          --border-color: #e0e6ed;
-          --text-color: #0e1726;
-          --hover-bg: #f8fafc;
+          --bg-select: #ffffff;
+          --border-color: #E4E4E7; /* zinc-200 */
+          --text-color: #0A0A0A; /* zinc-950 */
+          --muted-color: #71717A; /* zinc-500 */
+          --hover-bg: #FAFAFA; /* zinc-50 */
+          --primary-color: #E11D48; /* rose-600 */
         }
         .dark .custom-select-wrapper {
-          --bg-select: #191e3a;
-          --border-color: #1b2e4b;
-          --text-color: #888ea8;
-          --hover-bg: #0e1726;
+          --bg-select: #0A0A0A; /* zinc-950 */
+          --border-color: #27272A; /* zinc-800 */
+          --text-color: #FAFAFA; /* zinc-50 */
+          --muted-color: #A1A1AA; /* zinc-400 */
+          --hover-bg: #18181B; /* zinc-900 */
+          --primary-color: #E11D48; /* rose-600 */
+        }
+        
+        .custom-select-wrapper .css-13cymwt-control {
+           border-radius: 0.5rem;
         }
       `}</style>
       <Select styles={customStyles} {...props} />

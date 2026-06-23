@@ -118,7 +118,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     <div className="flex flex-col h-full">
       
       {/* Top Bar / Filters */}
-      <div className="p-5 border-b border-zinc-100 dark:border-[#191e3a] space-y-4">
+      <div className="p-5 border-b border-black-light dark:border-dark-light space-y-4">
         {/* Suggestion Banner */}
         {suggestedToArchive.length > 0 && filterArchived !== 'archived' && (
           <div className="bg-warning/10 border border-warning/20 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -144,11 +144,11 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         <div className="flex flex-col lg:flex-row justify-between gap-4">
           <div className="flex-1 flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input 
                 type="text" 
                 placeholder="Buscar por teléfono o nombre..." 
-                className="form-input pl-9 rounded-xl border border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
+                className="form-input pl-9 rounded-xl border border-black-light dark:border-dark-light bg-white dark:bg-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
@@ -218,9 +218,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       {/* Table Area */}
       <div className="table-responsive min-h-[400px]">
         <table className="table-hover w-full">
-          <thead>
+          <thead className="bg-zinc-50 dark:bg-zinc-900/50">
             <tr>
-              <th className="w-12 text-center">
+              <th className="w-12 text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
                 <input 
                   type="checkbox" 
                   className="form-checkbox"
@@ -228,23 +228,23 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />
               </th>
-              <th>Contacto</th>
-              <th className="text-center">Fecha de Ingreso</th>
-              <th className="text-center">Estado</th>
-              <th className="text-center">Campañas Exitosas</th>
-              <th className="text-center">Visitas</th>
-              <th>Último Servicio</th>
-              <th>Último Mensaje Enviado</th>
-              <th>Última Respuesta Recibida</th>
+              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Fecha de Ingreso</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Estado</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Campañas Exitosas</th>
+              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Visitas</th>
+              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
+              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Mensaje Enviado</th>
+              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Última Respuesta Recibida</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-black-light dark:divide-dark-light">
             {filteredClients.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-8">
-                  <div className="flex flex-col items-center justify-center text-slate-400">
+                  <div className="flex flex-col items-center justify-center text-zinc-400">
                     <Inbox className="w-12 h-12 mb-3 opacity-20" />
-                    <p>No se encontraron clientes con esos filtros.</p>
+                    <p className="text-zinc-500">No se encontraron clientes con esos filtros.</p>
                   </div>
                 </td>
               </tr>
@@ -260,17 +260,17 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     />
                   </td>
                   <td>
-                    <div className="font-semibold text-slate-800 dark:text-white-light">
+                    <div className="font-semibold text-black dark:text-white">
                       +{client.phone}
                     </div>
                     {client.name && (
-                      <div className="text-xs text-slate-500">{client.name}</div>
+                      <div className="text-xs text-zinc-500">{client.name}</div>
                     )}
                     {client.email && (
-                      <div className="text-xs text-slate-400">{client.email}</div>
+                      <div className="text-xs text-zinc-400">{client.email}</div>
                     )}
                   </td>
-                  <td className="text-center text-sm text-slate-600 dark:text-white-dark">
+                  <td className="text-center text-sm font-medium text-black dark:text-white">
                     {formatDate(client.created_at)}
                   </td>
                   <td className="text-center">
@@ -282,17 +282,17 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   </td>
                   <td className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Mail className="w-3 h-3 text-slate-400" />
-                      <span className="font-semibold">{client.campaigns_count}</span>
+                      <Mail className="w-3 h-3 text-zinc-400" />
+                      <span className="font-semibold text-black dark:text-white">{client.campaigns_count}</span>
                     </div>
                   </td>
                   <td className="text-center">
-                    <span className="font-semibold">{client.total_visits || 0}</span>
+                    <span className="font-semibold text-black dark:text-white">{client.total_visits || 0}</span>
                   </td>
-                  <td className="text-slate-600 dark:text-white-dark text-sm">
+                  <td className="font-medium text-black dark:text-white text-sm">
                     {client.last_service_name || '-'}
                   </td>
-                  <td className="text-slate-600 dark:text-white-dark text-sm">
+                  <td className="font-medium text-black dark:text-white text-sm">
                     {formatDate(client.last_message_sent_at)}
                   </td>
                   <td>
@@ -302,7 +302,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                         {formatDate(client.last_reply_at)}
                       </span>
                     ) : (
-                      <span className="text-slate-400 text-sm italic flex items-center gap-1.5">
+                      <span className="text-zinc-400 text-sm italic flex items-center gap-1.5">
                         <XCircle className="w-3.5 h-3.5" />
                         No ha respondido
                       </span>

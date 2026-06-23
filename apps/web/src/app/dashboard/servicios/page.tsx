@@ -160,10 +160,10 @@ export default function SpaServicesPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white-light flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
             <Scissors className="w-6 h-6 text-primary" /> Servicios del Spa
           </h1>
-          <p className="text-slate-500 dark:text-white-dark text-sm mt-1">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
             Administra tu catálogo de servicios, precios e instrucciones de cuidado post-servicio.
           </p>
         </div>
@@ -174,16 +174,16 @@ export default function SpaServicesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.length === 0 ? (
-          <div className="col-span-full panel text-center py-12">
-            <Scissors className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500">No tienes servicios registrados.</p>
+          <div className="col-span-full rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light text-center py-12">
+            <Scissors className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
+            <p className="text-zinc-500 dark:text-zinc-400">No tienes servicios registrados.</p>
           </div>
         ) : (
           services.map(service => (
-            <div key={service.id} className="panel p-5 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-white-light dark:border-[#1b2e4b]">
+            <div key={service.id} className="rounded-3xl bg-white dark:bg-dark p-5 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-black-light dark:border-dark-light">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white-light">{service.name}</h3>
+                  <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">{service.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     {service.isActive ? (
                       <span className="badge bg-success/10 text-success text-xs flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Activo</span>
@@ -202,19 +202,19 @@ export default function SpaServicesPage() {
                 </div>
               </div>
               
-              <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 h-10">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 h-10">
                 {service.description || 'Sin descripción'}
               </p>
               
-              <div className="flex items-end justify-between border-t border-zinc-100 dark:border-zinc-800 pt-4">
+              <div className="flex items-end justify-between border-t border-black-light dark:border-dark-light pt-4">
                 <div>
-                  <p className="text-xs text-slate-400">Precio</p>
-                  <p className="text-xl font-bold text-primary">${service.price}</p>
-                  {service.promoPrice && <p className="text-xs text-success font-semibold">Promo: ${service.promoPrice}</p>}
+                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
+                  <p className="text-xl font-bold tracking-tight text-primary">${service.price}</p>
+                  {service.promoPrice && <p className="text-xs text-success font-semibold tracking-wide">Promo: ${service.promoPrice}</p>}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-slate-400">Duración Cuidados</p>
-                  <p className="text-sm font-semibold">{service.durationDays} días</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Duración Cuidados</p>
+                  <p className="text-sm font-semibold text-black dark:text-white">{service.durationDays} días</p>
                 </div>
               </div>
             </div>
@@ -269,8 +269,8 @@ export default function SpaServicesPage() {
               </div>
             </div>
 
-            <div className="border-t border-zinc-100 dark:border-zinc-800 my-2 pt-4">
-              <h4 className="font-semibold text-sm text-slate-700 dark:text-white-light mb-3">Post-Servicio & Seguimiento</h4>
+            <div className="border-t border-black-light dark:border-dark-light my-2 pt-4">
+              <h4 className="font-semibold text-sm tracking-tight text-black dark:text-white mb-3">Post-Servicio & Seguimiento</h4>
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Días para seguimiento (Para Whatsapp automático)</label>
@@ -307,12 +307,12 @@ export default function SpaServicesPage() {
                         </button>
                       </div>
                     ) : (
-                      <label className="flex items-center justify-center w-24 h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                        <ImageIcon className="w-6 h-6 text-slate-400" />
+                      <label className="flex items-center justify-center w-24 h-24 border-2 border-dashed border-black-light dark:border-dark-light rounded-xl cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                        <ImageIcon className="w-6 h-6 text-zinc-400" />
                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                       </label>
                     )}
-                    <span className="text-xs text-slate-500">Sube una imagen o flyer con las instrucciones de cuidado para enviar por WhatsApp.</span>
+                    <span className="text-xs text-zinc-500">Sube una imagen o flyer con las instrucciones de cuidado para enviar por WhatsApp.</span>
                   </div>
                 </div>
               </div>

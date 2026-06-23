@@ -156,10 +156,10 @@ export default function SpaProductsPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white-light flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
             <Package className="w-6 h-6 text-primary" /> Inventario de Productos
           </h1>
-          <p className="text-slate-500 dark:text-white-dark text-sm mt-1">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
             Administra tu inventario, precios y existencias de productos de cabina o retail.
           </p>
         </div>
@@ -170,18 +170,18 @@ export default function SpaProductsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.length === 0 ? (
-          <div className="col-span-full panel text-center py-12">
-            <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500">No tienes productos registrados.</p>
+          <div className="col-span-full rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light text-center py-12">
+            <Package className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
+            <p className="text-zinc-500 dark:text-zinc-400">No tienes productos registrados.</p>
           </div>
         ) : (
           products.map(product => (
-            <div key={product.id} className="panel p-0 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-white-light dark:border-[#1b2e4b] flex flex-col">
-              <div className="h-48 w-full bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center relative overflow-hidden">
+            <div key={product.id} className="rounded-3xl bg-white dark:bg-dark p-0 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-black-light dark:border-dark-light flex flex-col">
+              <div className="h-48 w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center relative overflow-hidden">
                 {product.imageUrl ? (
                   <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                 ) : (
-                  <Package className="w-12 h-12 text-slate-300" />
+                  <Package className="w-12 h-12 text-zinc-300 dark:text-zinc-600" />
                 )}
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => openEdit(product)} className="p-1.5 bg-white text-primary rounded-md shadow hover:bg-zinc-50">
@@ -199,19 +199,19 @@ export default function SpaProductsPage() {
               </div>
               
               <div className="p-5 flex-1 flex flex-col">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white-light mb-2">{product.name}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-1">
+                <h3 className="text-lg font-bold tracking-tight text-black dark:text-white mb-2">{product.name}</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">
                   {product.description || 'Sin descripción'}
                 </p>
                 
-                <div className="flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 pt-4">
+                <div className="flex items-center justify-between border-t border-black-light dark:border-dark-light pt-4">
                   <div>
-                    <p className="text-xs text-slate-400">Precio</p>
-                    <p className="text-xl font-bold text-primary">${product.price}</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
+                    <p className="text-xl font-bold tracking-tight text-primary">${product.price}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-slate-400">Stock</p>
-                    <p className={`text-sm font-bold ${product.stock <= 5 ? 'text-danger' : 'text-success'}`}>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Stock</p>
+                    <p className={`text-sm font-bold tracking-tight ${product.stock <= 5 ? 'text-danger' : 'text-success'}`}>
                       {product.stock} un.
                     </p>
                   </div>
@@ -230,7 +230,7 @@ export default function SpaProductsPage() {
           
           <div className="grid gap-4 py-4">
             <div className="flex justify-center mb-2">
-              <div className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center group cursor-pointer hover:border-primary transition-colors">
+              <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-dashed border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center group cursor-pointer hover:border-primary transition-colors">
                 {editingProduct?.imageUrl ? (
                   <>
                     <img src={editingProduct.imageUrl} alt="Product" className="w-full h-full object-cover" />
@@ -243,8 +243,8 @@ export default function SpaProductsPage() {
                   </>
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer">
-                    {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin text-slate-400" /> : <ImageIcon className="w-6 h-6 text-slate-400" />}
-                    <span className="text-xs text-slate-500 mt-2 font-medium">Subir Foto</span>
+                    {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin text-zinc-400" /> : <ImageIcon className="w-6 h-6 text-zinc-400" />}
+                    <span className="text-xs text-zinc-500 mt-2 font-medium">Subir Foto</span>
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                   </label>
                 )}

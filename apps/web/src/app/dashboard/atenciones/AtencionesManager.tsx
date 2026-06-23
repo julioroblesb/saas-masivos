@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, DollarSign, FileText, Clock, AlertTriangle, Activity } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction } from './actions';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export function AtencionesManager({ 
   initialVisits, 
@@ -259,32 +260,24 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <User className="w-4 h-4 text-primary" /> Paciente *
                   </label>
-                  <select 
-                    className="form-select w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={form.contactId}
-                    onChange={e => setForm(prev => ({ ...prev, contactId: e.target.value }))}
-                  >
-                    <option value="">Selecciona un paciente...</option>
-                    {contacts.map(c => (
-                      <option key={c.id} value={c.id}>{c.name || 'Sin nombre'} (+{c.phone})</option>
-                    ))}
-                  </select>
+                  <CustomSelect
+                    placeholder="Selecciona un paciente..."
+                    options={contacts.map(c => ({ value: c.id, label: `${c.name || 'Sin nombre'} (+${c.phone})` }))}
+                    value={form.contactId ? { value: form.contactId, label: contacts.find(c => c.id === form.contactId) ? `${contacts.find(c => c.id === form.contactId).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contactId).phone})` : 'Seleccionado' } : null}
+                    onChange={(selected: any) => setForm(prev => ({ ...prev, contactId: selected ? selected.value : '' }))}
+                  />
                 </div>
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
                   </label>
-                  <select 
-                    className="form-select w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={form.serviceId}
-                    onChange={e => handleServiceChange(e.target.value)}
-                  >
-                    <option value="">Selecciona un servicio...</option>
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} (${s.promo_price || s.price})</option>
-                    ))}
-                  </select>
+                  <CustomSelect
+                    placeholder="Selecciona un servicio..."
+                    options={services.map(s => ({ value: s.id, label: `${s.name} ($${s.promo_price || s.price})` }))}
+                    value={form.serviceId ? { value: form.serviceId, label: services.find(s => s.id === form.serviceId) ? `${services.find(s => s.id === form.serviceId).name} ($${services.find(s => s.id === form.serviceId).promo_price || services.find(s => s.id === form.serviceId).price})` : 'Seleccionado' } : null}
+                    onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
+                  />
                 </div>
 
                 <div className="space-y-4">
@@ -318,14 +311,14 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Activity className="w-4 h-4 text-primary" /> Estado Inicial
                   </label>
-                  <select 
-                    className="form-select w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={form.status}
-                    onChange={e => setForm(prev => ({ ...prev, status: e.target.value as any }))}
-                  >
-                    <option value="completado">Completado (Programa mensajes aut.)</option>
-                    <option value="en_curso">En Curso (No programa mensajes aut.)</option>
-                  </select>
+                  <CustomSelect
+                    options={[
+                      { value: 'completado', label: 'Completado (Programa mensajes aut.)' },
+                      { value: 'en_curso', label: 'En Curso (No programa mensajes aut.)' }
+                    ]}
+                    value={{ value: form.status, label: form.status === 'completado' ? 'Completado (Programa mensajes aut.)' : 'En Curso (No programa mensajes aut.)' }}
+                    onChange={(selected: any) => setForm(prev => ({ ...prev, status: selected ? selected.value : 'completado' }))}
+                  />
                 </div>
 
                 <div className="space-y-4 col-span-1 md:col-span-2">
