@@ -24,7 +24,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                     {/* BEGIN SIDEBAR */}
                     <Sidebar />
                     {/* END SIDEBAR */}
-                    <div className="main-content flex min-h-screen flex-col">
+                    <div className="main-content flex min-h-[100dvh] flex-col">
                         {/* BEGIN TOP NAVBAR */}
                         <Header />
                         {/* END TOP NAVBAR */}

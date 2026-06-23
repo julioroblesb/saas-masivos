@@ -61,7 +61,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const displayName = companyName || 'Cargando...';
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-secondary text-zinc-900 dark:text-gray-100 font-sans transition-colors duration-300">
+    <div className="min-h-[100dvh] bg-[#FAFAFA] dark:bg-secondary text-zinc-900 dark:text-gray-100 font-sans transition-colors duration-300">
       
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
@@ -124,7 +124,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <div className={clsx(
-        "flex flex-col min-h-screen transition-all duration-300",
+        "flex flex-col min-h-[100dvh] transition-all duration-300",
         collapsed ? "lg:ml-[72px]" : "lg:ml-[280px]"
       )}>
         <DashboardHeader collapsed={collapsed} setMobileMenuOpen={setMobileMenuOpen} />

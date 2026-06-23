@@ -32,10 +32,10 @@
   --color-white-light: #FAFAFA;
   --color-white-dark: #A1A1AA;
   
-  --font-nunito: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-outfit: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   
   --spacing-4_5: 18px;
-  --shadow-3xl: 0 2px 2px rgb(224 230 237 / 46%), 1px 6px 7px rgb(224 230 237 / 46%);
+  --shadow-3xl: 0 2px 2px rgb(0 0 0 / 4%), 1px 6px 7px rgb(0 0 0 / 4%);
   
   /* Custom Animation Curves */
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
@@ -98,7 +98,7 @@
     }
 
     body {
-        @apply bg-[#FAFAFA] font-nunito;
+        @apply bg-[#FAFAFA] font-outfit;
     }
 
     body.dark {
@@ -370,9 +370,6 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply border-dark text-dark shadow-none hover:bg-dark hover:text-white;
     }
 
-    .btn-gradient {
-        @apply bg-gradient-to-r from-[#EF1262] to-[#4361EE] text-white hover:from-[#4361EE] hover:to-[#EF1262];
-    }
 
     /* Badge */
     .badge {
