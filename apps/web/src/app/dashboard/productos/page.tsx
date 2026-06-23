@@ -154,12 +154,12 @@ export default function SpaProductsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-            <Package className="w-6 h-6 text-primary" /> Inventario de Productos
+          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+            <Package className="w-8 h-8 text-primary" /> Inventario de Productos
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
             Administra tu inventario, precios y existencias de productos de cabina o retail.
           </p>
         </div>

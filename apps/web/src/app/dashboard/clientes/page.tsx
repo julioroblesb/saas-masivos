@@ -8,10 +8,10 @@ export default async function ClientesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white">Base de Datos de Clientes</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">Base de Datos de Clientes</h1>
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
             Administra todos los contactos con los que has interactuado, visualiza su nivel de respuesta y filtra aquellos inactivos.
           </p>
         </div>
