@@ -9,10 +9,10 @@ import Image from 'next/image';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
-  { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
+  { label: 'Atenciones', href: '/dashboard/atenciones', icon: Users },
+  { label: 'Servicios', href: '/dashboard/servicios', icon: Megaphone },
+  { label: 'Productos', href: '/dashboard/productos', icon: FileText },
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
-  { label: 'Políticas', href: '/terminos', icon: FileText },
 ];
 
 export function Sidebar({ 
@@ -65,7 +65,7 @@ export function Sidebar({
                 <Link
                   href={item.href}
                   className={clsx(
-                    "flex items-center h-12 rounded-lg px-3 transition-colors",
+                    "flex items-center h-12 rounded-lg px-3 transition-all duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98]",
                     isActive 
                       ? "bg-zinc-100 dark:bg-gray-700 text-zinc-900 dark:text-white font-medium" 
                       : "text-zinc-600 dark:text-gray-300 hover:bg-zinc-50 dark:hover:bg-gray-800"

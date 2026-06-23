@@ -236,8 +236,8 @@ export function AtencionesManager({
 
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#191e3a] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div className="bg-white dark:bg-[#191e3a] rounded-2xl w-full max-w-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-[#1b2e4b] bg-slate-50/50 dark:bg-transparent">
               <h3 className="text-xl font-bold text-slate-800 dark:text-white-light flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">

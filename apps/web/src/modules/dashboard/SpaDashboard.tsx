@@ -20,80 +20,82 @@ export function SpaDashboard({ metrics }: SpaDashboardProps) {
     return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value);
   };
 
-  const cards = [
-    {
-      title: 'Clientes Hoy',
-      value: metrics.clients_today || 0,
-      icon: <IconUsers className="h-8 w-8 text-white" />,
-      bg: 'bg-gradient-to-r from-cyan-500 to-blue-500',
-      shadow: 'shadow-[0_4px_15px_rgba(6,182,212,0.3)]'
-    },
-    {
-      title: 'Ingresos Hoy',
-      value: formatCurrency(metrics.revenue_today || 0),
-      icon: <IconDollarSignCircle className="h-8 w-8 text-white" />,
-      bg: 'bg-gradient-to-r from-emerald-500 to-teal-400',
-      shadow: 'shadow-[0_4px_15px_rgba(16,185,129,0.3)]'
-    },
-    {
-      title: 'Mensajes Auto (7d)',
-      value: metrics.auto_messages_7d || 0,
-      icon: <IconMessage2 className="h-8 w-8 text-white" />,
-      bg: 'bg-gradient-to-r from-purple-500 to-indigo-500',
-      shadow: 'shadow-[0_4px_15px_rgba(168,85,247,0.3)]'
-    },
-    {
-      title: 'Clientes Recuperados',
-      value: metrics.recovered_clients || 0,
-      icon: <IconHeart className="h-8 w-8 text-white" />,
-      bg: 'bg-gradient-to-r from-rose-500 to-pink-500',
-      shadow: 'shadow-[0_4px_15px_rgba(244,63,94,0.3)]'
-    }
-  ];
-
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, idx) => (
-          <div 
-            key={idx} 
-            className={`relative flex items-center justify-between rounded-xl p-6 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.02] ${card.bg} ${card.shadow} overflow-hidden group`}
-          >
-            {/* Glassmorphism subtle overlay */}
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            
-            <div className="relative z-10 flex flex-col space-y-2">
-              <span className="text-white/80 text-sm font-semibold uppercase tracking-wider">{card.title}</span>
-              <span className="text-white text-3xl font-bold tracking-tight">{card.value}</span>
-            </div>
-            
-            <div className="relative z-10 p-3 bg-white/20 rounded-full backdrop-blur-sm">
-              {card.icon}
-            </div>
-
-            {/* Decorative circles */}
-            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl"></div>
-            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-white/10 blur-xl"></div>
-          </div>
-        ))}
+    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
+      
+      {/* Encabezado sin Eyebrows y con tipografía limpia */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-medium tracking-tight text-black dark:text-white">Resumen de Actividad</h1>
+        <p className="text-gray-500 mt-1">Métricas de hoy y rendimiento automatizado.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <div className="rounded-xl border border-white-light bg-white p-6 shadow-[0_4px_15px_rgba(0,0,0,0.02)] dark:border-[#1b2e4b] dark:bg-black/50 backdrop-blur-md">
-          <div className="mb-5 flex items-center justify-between">
-            <h5 className="text-lg font-semibold dark:text-white-light">Actividad Reciente</h5>
+      {/* Bento Grid Asimétrico */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Tarjeta Principal (Ingresos) - Ocupa 2 columnas */}
+        <div className="md:col-span-2 relative flex flex-col justify-between rounded-3xl p-8 transition-all duration-300 hover:scale-[1.01] bg-white border border-[#EBEBEB] shadow-sm dark:bg-[#111111] dark:border-[#2A2A2A] overflow-hidden group">
+          <div className="relative z-10 flex justify-between items-start">
+            <div className="flex flex-col space-y-1">
+              <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">Ingresos de Hoy</span>
+              <span className="text-black dark:text-white text-5xl font-semibold tracking-tighter">
+                {formatCurrency(metrics.revenue_today || 0)}
+              </span>
+            </div>
+            <div className="p-4 bg-[#F5F5F3] dark:bg-[#1A1A1A] rounded-2xl">
+              <IconDollarSignCircle className="h-8 w-8 text-primary" />
+            </div>
           </div>
-          <div className="flex h-48 items-center justify-center text-gray-500 dark:text-gray-400">
-            Gráfico en construcción...
+          
+          <div className="relative z-10 mt-12 pt-6 border-t border-[#EBEBEB] dark:border-[#2A2A2A]">
+            <p className="text-sm text-gray-500">Comparado con el promedio semanal</p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white-light bg-white p-6 shadow-[0_4px_15px_rgba(0,0,0,0.02)] dark:border-[#1b2e4b] dark:bg-black/50 backdrop-blur-md">
-          <div className="mb-5 flex items-center justify-between">
-            <h5 className="text-lg font-semibold dark:text-white-light">Próximas Citas</h5>
+        {/* Tarjetas Secundarias Apiladas */}
+        <div className="flex flex-col gap-6">
+          <div className="relative flex items-center justify-between rounded-3xl p-6 transition-all duration-300 hover:scale-[1.02] bg-white border border-[#EBEBEB] shadow-sm dark:bg-[#111111] dark:border-[#2A2A2A]">
+            <div className="flex flex-col space-y-1">
+              <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">Clientes Atendidos</span>
+              <span className="text-black dark:text-white text-3xl font-semibold tracking-tight">{metrics.clients_today || 0}</span>
+            </div>
+            <div className="p-3 bg-[#F5F5F3] dark:bg-[#1A1A1A] rounded-xl">
+              <IconUsers className="h-6 w-6 text-black dark:text-white" />
+            </div>
           </div>
-          <div className="flex h-48 items-center justify-center text-gray-500 dark:text-gray-400">
-            Lista en construcción...
+
+          <div className="relative flex items-center justify-between rounded-3xl p-6 transition-all duration-300 hover:scale-[1.02] bg-primary text-white shadow-md">
+            <div className="flex flex-col space-y-1">
+              <span className="text-white/80 text-sm font-medium">Mensajes Automáticos</span>
+              <span className="text-white text-3xl font-semibold tracking-tight">{metrics.auto_messages_7d || 0}</span>
+            </div>
+            <div className="p-3 bg-white/20 rounded-xl">
+              <IconMessage2 className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fila Inferior */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <div className="rounded-3xl border border-[#EBEBEB] bg-white p-8 shadow-sm dark:border-[#2A2A2A] dark:bg-[#111111]">
+          <div className="mb-6 flex items-center justify-between">
+            <h5 className="text-xl font-medium text-black dark:text-white">Clientes Recuperados</h5>
+            <span className="flex items-center gap-2 text-sm font-medium text-success bg-success-light px-3 py-1 rounded-full">
+              <IconHeart className="h-4 w-4" />
+              {metrics.recovered_clients || 0}
+            </span>
+          </div>
+          <div className="flex h-32 items-center justify-center text-gray-400 border border-dashed border-[#EBEBEB] dark:border-[#2A2A2A] rounded-xl">
+            Gráfico de recuperación (Próximamente)
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-[#EBEBEB] bg-white p-8 shadow-sm dark:border-[#2A2A2A] dark:bg-[#111111]">
+          <div className="mb-6 flex items-center justify-between">
+            <h5 className="text-xl font-medium text-black dark:text-white">Actividad Reciente</h5>
+          </div>
+          <div className="flex h-32 items-center justify-center text-gray-400 border border-dashed border-[#EBEBEB] dark:border-[#2A2A2A] rounded-xl">
+            Lista de citas (Próximamente)
           </div>
         </div>
       </div>
