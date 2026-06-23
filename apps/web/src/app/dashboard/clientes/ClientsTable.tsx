@@ -4,7 +4,11 @@ import { useState, useMemo } from 'react';
 import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { archiveContactsAction, upsertContactAction } from './actions';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
+
+const MySwal = withReactContent(Swal);
 
 interface ClientMetric {
   id: string;
@@ -90,11 +94,36 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
   };
 
   const handleSubmit = async () => {
-    if (!form.phone) {
+    if (!form.phone.trim()) {
       toast.error('El número de teléfono es obligatorio.');
       return;
     }
     
+    // Validar si es una creación y el número ya existe
+    if (!form.id) {
+      const existing = clients.find(c => c.phone === form.phone);
+      if (existing) {
+        MySwal.fire({
+          title: 'Número Registrado',
+          html: `Este número ya pertenece a <strong>${existing.name || 'un cliente'}</strong>.<br/><br/>¿Deseas actualizar sus datos o registrar otro número?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, actualizar datos',
+          cancelButtonText: 'Cancelar',
+          customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-outline-danger' }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            executeSave(existing.id);
+          }
+        });
+        return;
+      }
+    }
+    
+    executeSave(form.id);
+  };
+
+  const executeSave = async (idToUse: string) => {
     setIsSubmitting(true);
     const res = await upsertContactAction({
       phone: form.phone,
@@ -107,7 +136,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success(form.id ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
+      toast.success(idToUse ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
       setIsModalOpen(false);
       // Optimistic update or reload
       window.location.reload();

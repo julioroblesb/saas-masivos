@@ -67,37 +67,19 @@ export async function createVisitAction(payload: {
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
   
   let final_contact_id = payload.contact_id;
-  
   // Create new contact if requested
   if (payload.new_contact && payload.new_contact.phone) {
-    const { data: newContact, error: contactError } = await supabase
-      .from('crm_marketing_contacts')
-      .insert({
-        company_id: profile.company_id,
-        name: payload.new_contact.name,
-        phone: payload.new_contact.phone,
-        tags: ['cliente']
-      })
-      .select('id')
-      .single();
-      
-    if (contactError) {
-      // If it fails, maybe it already exists?
-      if (contactError.code === '23505') {
-        const { data: existing } = await supabase
-          .from('crm_marketing_contacts')
-          .select('id')
-          .eq('company_id', profile.company_id)
-          .eq('phone', payload.new_contact.phone)
-          .single();
-        if (existing) final_contact_id = existing.id;
-        else return { error: 'Error al registrar nuevo paciente: ' + contactError.message };
-      } else {
-        return { error: 'Error al registrar nuevo paciente: ' + contactError.message };
-      }
-    } else {
-      final_contact_id = newContact.id;
+    const { data: contactData, error: contactError } = await supabase.rpc('rpc_upsert_marketing_contact', {
+      p_phone: payload.new_contact.phone,
+      p_name: payload.new_contact.name || '',
+      p_tags: ['cliente']
+    });
+
+    if (contactError || !contactData) {
+      return { error: 'Error al registrar nuevo paciente: ' + (contactError?.message || 'ID nulo') };
     }
+    
+    final_contact_id = contactData.id;
   }
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };

@@ -36,7 +36,8 @@ export const RpcBatchInsertMarketingContactsSchema = z.object({
  */
 export const RpcCreateCampaignSchema = z.object({
   p_name:          z.string().min(1, 'El nombre no puede estar vacío').max(100),
-  p_target_tag:    z.string().nullable(),
+  p_target_contact_ids: z.array(z.string().uuid()).default([]),
+  p_target_raw_phones:  z.array(z.string()).default([]),
   p_sequence:      z.array(z.object({
     type:         z.enum(['text', 'image', 'video', 'audio', 'document']),
     content:      z.string(),

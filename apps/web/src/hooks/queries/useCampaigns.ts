@@ -90,7 +90,8 @@ export function useCreateCampaign() {
     mutationFn: async (payload: CreateCampaignPayload) => {
       const rpcPayload = {
         p_name:          payload.name,
-        p_target_tag:    payload.targetTag || '',
+        p_target_contact_ids: payload.targetContactIds || [],
+        p_target_raw_phones:  payload.targetRawPhones || [],
         p_sequence:      payload.sequence,
         p_min_delay_sec: payload.minDelaySec,
         p_max_delay_sec: payload.maxDelaySec,

@@ -42,7 +42,8 @@ export interface WaQueueItem {
 
 export interface CreateCampaignPayload {
   name: string;
-  targetTag: string | null;
+  targetContactIds?: string[];
+  targetRawPhones?: string[];
   sequence: {
     type: 'text' | 'image' | 'video' | 'audio' | 'document';
     content: string;

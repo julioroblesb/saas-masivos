@@ -21,7 +21,8 @@ export function CampaignSender() {
   const { mutateAsync: createCampaign, isPending: isQueuing } = useCreateCampaign();
 
   const [campaignName, setCampaignName] = useState('');
-  const [targetTag, setTargetTag] = useState('');
+  const [targetContactIds, setTargetContactIds] = useState<string[]>([]);
+  const [targetRawPhones, setTargetRawPhones] = useState<string[]>([]);
   const [sequence, setSequence] = useState<SequenceItem[]>([
     { id: '1', type: 'text', content: '', delayAfterMs: 3000 }
   ]);
@@ -31,8 +32,11 @@ export function CampaignSender() {
   const [companySettings, setCompanySettings] = useState<{ greetings?: string[], farewells?: string[] }>({});
   const [companyCreatedAt, setCompanyCreatedAt] = useState<string>('');
 
-  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [targetContactsCount, setTargetContactsCount] = useState<number>(0);
+
+  useEffect(() => {
+    setTargetContactsCount(targetContactIds.length + targetRawPhones.length);
+  }, [targetContactIds, targetRawPhones]);
 
   const [totalLifetimeSent, setTotalLifetimeSent] = useState<number>(0);
 
@@ -40,10 +44,6 @@ export function CampaignSender() {
     async function loadSettingsAndTags() {
       try {
         const { supabase } = await import('../../../shared/utils/supabase');
-        
-        // Cargar tags únicas
-        const { data: tagsData } = await supabase.rpc('rpc_get_unique_tags');
-        if (tagsData) setAvailableTags(tagsData.sort());
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -58,8 +58,8 @@ export function CampaignSender() {
 
           // Cargar total de mensajes enviados históricamente
           const { data: campaigns } = await supabase.from('crm_wa_campaigns').select('sent_count').eq('company_id', profile.company_id);
-          const totalSent = (campaigns || []).reduce((acc, curr) => acc + (curr.sent_count || 0), 0);
-          setTotalLifetimeSent(totalSent);
+          const count = campaigns?.reduce((acc: number, curr: any) => acc + (curr.sent_count || 0), 0) || 0;
+          setTotalLifetimeSent(count);
         }
       } catch (err) {
         console.error('Error loading settings and tags', err);
@@ -68,18 +68,7 @@ export function CampaignSender() {
     loadSettingsAndTags();
   }, []);
 
-  useEffect(() => {
-    async function loadCount() {
-      try {
-        const { supabase } = await import('../../../shared/utils/supabase');
-        const { data } = await supabase.rpc('rpc_count_contacts_by_tag', { p_target_tag: targetTag || '' });
-        setTargetContactsCount(data || 0);
-      } catch (err) {
-        console.error('Error fetching count', err);
-      }
-    }
-    loadCount();
-  }, [targetTag]);
+
 
   const daysSinceCreation = useMemo(() => {
     if (!companyCreatedAt) return 1;
@@ -112,7 +101,8 @@ export function CampaignSender() {
 
   const resetForm = () => {
     setCampaignName('');
-    setTargetTag('');
+    setTargetContactIds([]);
+    setTargetRawPhones([]);
     setSequence([{ id: '1', type: 'text', content: '', delayAfterMs: 3000 }]);
     setQueued(false);
   };
@@ -158,7 +148,8 @@ export function CampaignSender() {
       // Preparar Payload resolviendo el Spintax localmente para cada destinatario
       const payload: CreateCampaignPayload = {
         name: finalCampaignName,
-        targetTag: targetTag || null,
+        targetContactIds,
+        targetRawPhones,
         sequence: sequence.map(s => ({
           id: s.id,
           type: s.type,
@@ -197,10 +188,10 @@ export function CampaignSender() {
             <SegmentConfig
               campaignName={campaignName}
               setCampaignName={setCampaignName}
-              contacts={[]}
-              availableTags={availableTags}
-              targetTag={targetTag}
-              setTargetTag={setTargetTag}
+              targetContactIds={targetContactIds}
+              setTargetContactIds={setTargetContactIds}
+              targetRawPhones={targetRawPhones}
+              setTargetRawPhones={setTargetRawPhones}
               targetContactsCount={targetContactsCount}
               minDelaySec={minDelaySec}
               setMinDelaySec={setMinDelaySec}
