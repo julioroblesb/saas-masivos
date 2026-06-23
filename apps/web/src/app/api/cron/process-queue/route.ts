@@ -146,23 +146,54 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       }
     }
 
-    const { data: nextItem } = await supabaseAdmin
-      .from('crm_wa_queue')
-      .select(`
-        id, campaign_id, phone, message, delay_after_ms,
-        crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
-        companies(settings)
-      `)
+    let nextItem: any = null;
+    let isFollowUp = false;
+
+    // Primero intentamos sacar un mensaje automático pendiente
+    const { data: followUpItem } = await supabaseAdmin
+      .from('spa_follow_ups')
+      .select('id, phone, message, media_url, companies(settings)')
       .eq('company_id', company_id)
       .eq('status', 'pendiente')
-      .eq('crm_wa_campaigns.status', 'running')
+      .lte('scheduled_for', new Date().toISOString())
       .order('scheduled_for', { ascending: true })
       .limit(1)
       .maybeSingle();
 
+    if (followUpItem) {
+      nextItem = {
+        id: followUpItem.id,
+        campaign_id: null,
+        phone: followUpItem.phone,
+        message: followUpItem.message,
+        media_url: followUpItem.media_url,
+        delay_after_ms: null,
+        companies: followUpItem.companies,
+        crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 } // Delays predeterminados para automáticos
+      };
+      isFollowUp = true;
+    } else {
+      // Si no hay automáticos, sacamos de la cola de campañas masivas
+      const { data: queueItem } = await supabaseAdmin
+        .from('crm_wa_queue')
+        .select(`
+          id, campaign_id, phone, message, delay_after_ms,
+          crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
+          companies(settings)
+        `)
+        .eq('company_id', company_id)
+        .eq('status', 'pendiente')
+        .eq('crm_wa_campaigns.status', 'running')
+        .order('scheduled_for', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      
+      nextItem = queueItem;
+    }
+
     if (!nextItem) break;
 
-    const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
+    const { id, campaign_id, phone, message, delay_after_ms, media_url } = nextItem;
     
     const companySettings = (nextItem.companies as any)?.settings || {};
     const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
@@ -179,9 +210,24 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
     }
 
     try {
-      await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
+      if (isFollowUp) {
+        await supabaseAdmin.from('spa_follow_ups').update({ status: 'enviando' }).eq('id', id);
+      } else {
+        await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
+      }
 
       const finalMessage = resolveSpintax(message, companySettings);
+
+      const bbPayload: any = {
+        number: phone, 
+        options: { presence: 'composing', delay: 2000 }, // BuilderBot mostrará "escribiendo..." 2 segundos
+        messages: { content: finalMessage }, 
+        checkIfExists: true 
+      };
+
+      if (media_url) {
+        bbPayload.urlMedia = media_url;
+      }
 
       // Usar options de BuilderBot para mostrar "Escribiendo..." y delay nativo
       const bbRes = await fetch(`https://app.builderbot.cloud/api/v2/${bb_project_id}/messages`, {
@@ -190,21 +236,23 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
           'x-api-builderbot': process.env.BUILDERBOT_API_KEY!,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          number: phone, 
-          options: { presence: 'composing', delay: 2000 }, // BuilderBot mostrará "escribiendo..." 2 segundos
-          messages: { content: finalMessage }, 
-          checkIfExists: true 
-        }),
+        body: JSON.stringify(bbPayload),
       });
 
       if (!bbRes.ok) throw new Error(`BuilderBot: ${bbRes.statusText}`);
 
-      await supabaseAdmin
-        .from('crm_wa_queue')
-        .update({ status: 'enviado', sent_at: new Date().toISOString() })
-        .eq('id', id);
-      await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
+      if (isFollowUp) {
+        await supabaseAdmin
+          .from('spa_follow_ups')
+          .update({ status: 'enviado', sent_at: new Date().toISOString() })
+          .eq('id', id);
+      } else {
+        await supabaseAdmin
+          .from('crm_wa_queue')
+          .update({ status: 'enviado', sent_at: new Date().toISOString() })
+          .eq('id', id);
+        await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
+      }
 
       processedCount++;
       currentDailyCount++;
@@ -224,11 +272,18 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         .eq('company_id', company_id);
 
     } catch (err: any) {
-      await supabaseAdmin
-        .from('crm_wa_queue')
-        .update({ status: 'fallido', error_message: err.message || String(err) })
-        .eq('id', id);
-      await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
+      if (isFollowUp) {
+        await supabaseAdmin
+          .from('spa_follow_ups')
+          .update({ status: 'fallido' })
+          .eq('id', id);
+      } else {
+        await supabaseAdmin
+          .from('crm_wa_queue')
+          .update({ status: 'fallido', error_message: err.message || String(err) })
+          .eq('id', id);
+        await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
+      }
 
       const newErrorsCount = consecutive_errors + 1;
       let newSessionStatus = 'conectado';

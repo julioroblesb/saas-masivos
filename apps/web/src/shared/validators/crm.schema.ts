@@ -8,6 +8,9 @@ const pgUuid = (msg?: string) => z.string().regex(pgUuidRegex, msg || 'UUID inv√
 export const RpcUpsertMarketingContactSchema = z.object({
   p_phone: z.string().min(5),
   p_name: z.string().nullable().optional(),
+  p_email: z.string().email().nullable().optional().or(z.literal('')),
+  p_birthday: z.string().nullable().optional(),
+  p_notes: z.string().nullable().optional(),
   p_tags: z.array(z.string()).optional(),
   p_opt_in_source: z.string().optional()
 }).strict();
@@ -16,6 +19,9 @@ export const RpcBatchInsertMarketingContactsSchema = z.object({
   p_contacts: z.array(z.object({
     phone: z.string().min(5),
     name: z.string().optional(),
+    email: z.string().email().optional().or(z.literal('')),
+    birthday: z.string().optional(),
+    notes: z.string().optional(),
     tags: z.array(z.string()).optional(),
     opt_in_source: z.string().optional()
   }))

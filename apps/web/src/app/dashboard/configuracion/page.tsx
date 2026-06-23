@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { Loader2, Building2 } from 'lucide-react';
+import { AutoMessagesConfig } from './AutoMessagesConfig';
 
 export default function ConfiguracionPage() {
   const supabase = createClient();
   const [companyName, setCompanyName] = useState('');
   const [companyId, setCompanyId] = useState('');
   const [settings, setSettings] = useState<{ greetings: string, farewells: string }>({ greetings: '', farewells: '' });
+  const [fullSettingsObj, setFullSettingsObj] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -38,6 +40,7 @@ export default function ConfiguracionPage() {
           if (company) {
             setCompanyName(company.name);
             if (company.settings) {
+              setFullSettingsObj(company.settings);
               setSettings({
                 greetings: company.settings.greetings?.join('\n') || '',
                 farewells: company.settings.farewells?.join('\n') || '',
@@ -184,6 +187,10 @@ export default function ConfiguracionPage() {
           )}
         </button>
       </div>
+
+      {companyId && (
+        <AutoMessagesConfig companyId={companyId} initialSettings={fullSettingsObj} />
+      )}
     </div>
   );
 }

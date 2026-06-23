@@ -398,3 +398,280 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 NOTIFY pgrst, 'reload schema';
+
+-- ============================================================
+-- RENOVA — Spa & Belleza CRM Tables
+-- ============================================================
+
+-- Nuevos campos en contactos
+ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS birthday DATE;
+ALTER TABLE crm_marketing_contacts ADD COLUMN IF NOT EXISTS notes TEXT;
+
+-- Catálogo de servicios
+CREATE TABLE IF NOT EXISTS spa_services (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC(10,2) NOT NULL,
+    min_price NUMERIC(10,2),
+    promo_price NUMERIC(10,2),
+    duration_days INTEGER NOT NULL DEFAULT 30,
+    care_instructions TEXT,
+    care_image_url TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_spa_services_company ON spa_services(company_id);
+
+-- Catálogo de productos
+CREATE TABLE IF NOT EXISTS spa_products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC(10,2) NOT NULL,
+    image_url TEXT,
+    stock INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_spa_products_company ON spa_products(company_id);
+
+-- Registro de atenciones
+CREATE TABLE IF NOT EXISTS spa_visits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    contact_id UUID NOT NULL REFERENCES crm_marketing_contacts(id) ON DELETE CASCADE,
+    service_id UUID NOT NULL REFERENCES spa_services(id) ON DELETE RESTRICT,
+    status TEXT NOT NULL DEFAULT 'en_curso',
+    visit_date TIMESTAMPTZ DEFAULT now(),
+    completed_at TIMESTAMPTZ,
+    notes TEXT,
+    price_charged NUMERIC(10,2),
+    follow_up_date TIMESTAMPTZ,
+    follow_up_sent BOOLEAN DEFAULT false,
+    care_sent BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_spa_visits_company ON spa_visits(company_id);
+CREATE INDEX IF NOT EXISTS idx_spa_visits_contact ON spa_visits(contact_id);
+CREATE INDEX IF NOT EXISTS idx_spa_visits_status ON spa_visits(company_id, status);
+
+-- Cola de follow-ups automáticos
+CREATE TABLE IF NOT EXISTS spa_follow_ups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    visit_id UUID REFERENCES spa_visits(id) ON DELETE CASCADE,
+    contact_id UUID NOT NULL REFERENCES crm_marketing_contacts(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    message TEXT NOT NULL,
+    media_url TEXT,
+    scheduled_for TIMESTAMPTZ NOT NULL,
+    status TEXT DEFAULT 'pendiente',
+    sent_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_spa_follow_ups_pending ON spa_follow_ups(company_id, status, scheduled_for);
+CREATE INDEX IF NOT EXISTS idx_spa_follow_ups_type ON spa_follow_ups(type, status);
+
+-- RLS para nuevas tablas
+ALTER TABLE spa_services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE spa_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE spa_visits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE spa_follow_ups ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "spa_services_tenant_select" ON spa_services;
+DROP POLICY IF EXISTS "spa_services_tenant_insert" ON spa_services;
+DROP POLICY IF EXISTS "spa_services_tenant_update" ON spa_services;
+DROP POLICY IF EXISTS "spa_services_tenant_delete" ON spa_services;
+CREATE POLICY "spa_services_tenant_select" ON spa_services FOR SELECT USING (company_id = auth_company_id());
+CREATE POLICY "spa_services_tenant_insert" ON spa_services FOR INSERT WITH CHECK (company_id = auth_company_id());
+CREATE POLICY "spa_services_tenant_update" ON spa_services FOR UPDATE USING (company_id = auth_company_id());
+CREATE POLICY "spa_services_tenant_delete" ON spa_services FOR DELETE USING (company_id = auth_company_id());
+
+DROP POLICY IF EXISTS "spa_products_tenant_select" ON spa_products;
+DROP POLICY IF EXISTS "spa_products_tenant_insert" ON spa_products;
+DROP POLICY IF EXISTS "spa_products_tenant_update" ON spa_products;
+DROP POLICY IF EXISTS "spa_products_tenant_delete" ON spa_products;
+CREATE POLICY "spa_products_tenant_select" ON spa_products FOR SELECT USING (company_id = auth_company_id());
+CREATE POLICY "spa_products_tenant_insert" ON spa_products FOR INSERT WITH CHECK (company_id = auth_company_id());
+CREATE POLICY "spa_products_tenant_update" ON spa_products FOR UPDATE USING (company_id = auth_company_id());
+CREATE POLICY "spa_products_tenant_delete" ON spa_products FOR DELETE USING (company_id = auth_company_id());
+
+DROP POLICY IF EXISTS "spa_visits_tenant_select" ON spa_visits;
+DROP POLICY IF EXISTS "spa_visits_tenant_insert" ON spa_visits;
+DROP POLICY IF EXISTS "spa_visits_tenant_update" ON spa_visits;
+CREATE POLICY "spa_visits_tenant_select" ON spa_visits FOR SELECT USING (company_id = auth_company_id());
+CREATE POLICY "spa_visits_tenant_insert" ON spa_visits FOR INSERT WITH CHECK (company_id = auth_company_id());
+CREATE POLICY "spa_visits_tenant_update" ON spa_visits FOR UPDATE USING (company_id = auth_company_id());
+
+DROP POLICY IF EXISTS "spa_follow_ups_tenant_select" ON spa_follow_ups;
+CREATE POLICY "spa_follow_ups_tenant_select" ON spa_follow_ups FOR SELECT USING (company_id = auth_company_id());
+
+-- RPC: Completar visita y programar follow-ups
+DROP FUNCTION IF EXISTS rpc_complete_visit(uuid);
+CREATE OR REPLACE FUNCTION rpc_complete_visit(p_visit_id uuid)
+RETURNS jsonb SET search_path = public, pg_temp AS $$
+DECLARE
+    v_company_id uuid;
+    v_visit record;
+    v_service record;
+    v_contact record;
+    v_settings jsonb;
+    v_care_msg text;
+    v_followup_msg text;
+    v_follow_up_date timestamptz;
+BEGIN
+    SELECT company_id INTO v_company_id FROM profiles WHERE id = auth.uid();
+    IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
+
+    SELECT * INTO v_visit FROM spa_visits WHERE id = p_visit_id AND company_id = v_company_id;
+    IF v_visit IS NULL THEN RAISE EXCEPTION 'Visita no encontrada'; END IF;
+    IF v_visit.status = 'completado' THEN RAISE EXCEPTION 'La visita ya fue completada'; END IF;
+
+    SELECT * INTO v_service FROM spa_services WHERE id = v_visit.service_id;
+    SELECT * INTO v_contact FROM crm_marketing_contacts WHERE id = v_visit.contact_id;
+    SELECT settings INTO v_settings FROM companies WHERE id = v_company_id;
+
+    v_follow_up_date := now() + (v_service.duration_days || ' days')::interval;
+
+    UPDATE spa_visits SET 
+        status = 'completado', completed_at = now(), follow_up_date = v_follow_up_date
+    WHERE id = p_visit_id;
+
+    -- Mensaje de cuidados (inmediato)
+    IF COALESCE(v_settings->'auto_messages'->>'care_enabled', 'true') = 'true' 
+       AND (v_service.care_instructions IS NOT NULL OR v_service.care_image_url IS NOT NULL) THEN
+        v_care_msg := COALESCE(v_settings->'auto_messages'->>'care_template',
+            '¡Hola {{nombre}}! 💆‍♀️ Gracias por visitarnos. Te compartimos los cuidados para tu {{servicio}}:');
+        v_care_msg := REPLACE(v_care_msg, '{{nombre}}', COALESCE(v_contact.name, 'cliente'));
+        v_care_msg := REPLACE(v_care_msg, '{{servicio}}', v_service.name);
+        IF v_service.care_instructions IS NOT NULL THEN
+            v_care_msg := v_care_msg || E'\n\n' || v_service.care_instructions;
+        END IF;
+        INSERT INTO spa_follow_ups (company_id, visit_id, contact_id, type, phone, message, media_url, scheduled_for)
+        VALUES (v_company_id, p_visit_id, v_contact.id, 'care', v_contact.phone, v_care_msg, v_service.care_image_url, now());
+        UPDATE spa_visits SET care_sent = true WHERE id = p_visit_id;
+    END IF;
+
+    -- Mensaje de reactivación (en X días)
+    IF COALESCE(v_settings->'auto_messages'->>'follow_up_enabled', 'true') = 'true' THEN
+        v_followup_msg := COALESCE(v_settings->'auto_messages'->>'follow_up_template',
+            '¡Hola {{nombre}}! 💇‍♀️ Han pasado {{dias}} días desde tu {{servicio}}. ¿Qué tal si vienes a darte un mantenimiento?');
+        v_followup_msg := REPLACE(v_followup_msg, '{{nombre}}', COALESCE(v_contact.name, 'cliente'));
+        v_followup_msg := REPLACE(v_followup_msg, '{{servicio}}', v_service.name);
+        v_followup_msg := REPLACE(v_followup_msg, '{{dias}}', v_service.duration_days::text);
+        IF v_service.promo_price IS NOT NULL THEN
+            v_followup_msg := REPLACE(v_followup_msg, '{{precio_normal}}', v_service.price::text);
+            v_followup_msg := REPLACE(v_followup_msg, '{{precio_promo}}', v_service.promo_price::text);
+            IF v_followup_msg NOT LIKE '%precio%' AND v_followup_msg NOT LIKE '%S/%' THEN
+                v_followup_msg := v_followup_msg || E'\n\n✨ Precio normal: S/' || v_service.price::text || E'\n🔥 Precio especial para ti: S/' || v_service.promo_price::text;
+            END IF;
+        END IF;
+        INSERT INTO spa_follow_ups (company_id, visit_id, contact_id, type, phone, message, scheduled_for)
+        VALUES (v_company_id, p_visit_id, v_contact.id, 'follow_up', v_contact.phone, v_followup_msg, v_follow_up_date);
+    END IF;
+
+    RETURN jsonb_build_object('success', true, 'follow_up_date', v_follow_up_date);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RPC: Dashboard spa
+DROP FUNCTION IF EXISTS rpc_get_spa_dashboard();
+CREATE OR REPLACE FUNCTION rpc_get_spa_dashboard()
+RETURNS jsonb SET search_path = public, pg_temp AS $$
+DECLARE
+    v_company_id uuid;
+    v_clients_today int;
+    v_revenue_today numeric;
+    v_auto_messages_7d int;
+    v_recovered_clients int;
+BEGIN
+    SELECT company_id INTO v_company_id FROM profiles WHERE id = auth.uid();
+    IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
+
+    SELECT COUNT(*) INTO v_clients_today FROM spa_visits
+    WHERE company_id = v_company_id AND visit_date::date = CURRENT_DATE;
+
+    SELECT COALESCE(SUM(price_charged), 0) INTO v_revenue_today FROM spa_visits
+    WHERE company_id = v_company_id AND status = 'completado' AND completed_at::date = CURRENT_DATE;
+
+    SELECT COUNT(*) INTO v_auto_messages_7d FROM spa_follow_ups
+    WHERE company_id = v_company_id AND status = 'enviado' AND sent_at >= now() - interval '7 days';
+
+    SELECT COUNT(DISTINCT v2.contact_id) INTO v_recovered_clients
+    FROM spa_follow_ups f
+    JOIN spa_visits v2 ON v2.contact_id = f.contact_id AND v2.company_id = f.company_id AND v2.visit_date > f.sent_at
+    WHERE f.company_id = v_company_id AND f.type = 'follow_up' AND f.status = 'enviado';
+
+    RETURN jsonb_build_object('clients_today', v_clients_today, 'revenue_today', v_revenue_today,
+        'auto_messages_7d', v_auto_messages_7d, 'recovered_clients', v_recovered_clients);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Actualizar rpc_upsert para nuevos campos
+DROP FUNCTION IF EXISTS rpc_upsert_marketing_contact(text, text, text[], text);
+CREATE OR REPLACE FUNCTION rpc_upsert_marketing_contact(
+    p_phone text, p_name text, p_tags text[], p_opt_in_source text DEFAULT NULL,
+    p_email text DEFAULT NULL, p_birthday date DEFAULT NULL, p_notes text DEFAULT NULL
+) RETURNS jsonb SET search_path = public, pg_temp AS $$
+DECLARE v_company_id uuid; v_contact_id uuid;
+BEGIN
+    SELECT company_id INTO v_company_id FROM profiles WHERE id = auth.uid();
+    IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
+    INSERT INTO crm_marketing_contacts (company_id, phone, name, tags, opt_in_source, email, birthday, notes)
+    VALUES (v_company_id, p_phone, p_name, p_tags, p_opt_in_source, p_email, p_birthday, p_notes)
+    ON CONFLICT (company_id, phone) DO UPDATE SET 
+        name = EXCLUDED.name, tags = EXCLUDED.tags, 
+        opt_in_source = COALESCE(EXCLUDED.opt_in_source, crm_marketing_contacts.opt_in_source),
+        email = COALESCE(EXCLUDED.email, crm_marketing_contacts.email),
+        birthday = COALESCE(EXCLUDED.birthday, crm_marketing_contacts.birthday),
+        notes = COALESCE(EXCLUDED.notes, crm_marketing_contacts.notes),
+        updated_at = now()
+    RETURNING id INTO v_contact_id;
+    RETURN jsonb_build_object('success', true, 'id', v_contact_id);
+END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Actualizar rpc_get_clients_metrics para nuevos campos
+DROP FUNCTION IF EXISTS rpc_get_clients_metrics();
+CREATE OR REPLACE FUNCTION rpc_get_clients_metrics()
+RETURNS TABLE (
+    id uuid, phone text, name text, email text, birthday date, notes text,
+    is_archived boolean, created_at timestamptz,
+    campaigns_count bigint, last_message_sent_at timestamptz, last_reply_at timestamptz,
+    total_visits bigint, last_visit_at timestamptz, last_service_name text
+) SET search_path = public, pg_temp AS $$
+DECLARE v_company_id uuid;
+BEGIN
+    SELECT company_id INTO v_company_id FROM profiles WHERE profiles.id = auth.uid();
+    IF v_company_id IS NULL THEN RAISE EXCEPTION 'Not authorized'; END IF;
+    RETURN QUERY
+    SELECT c.id, c.phone::text, c.name::text, c.email::text, c.birthday, c.notes::text,
+        c.is_archived, c.created_at,
+        COUNT(DISTINCT CASE WHEN q.status = 'enviado' THEN q.campaign_id ELSE NULL END)::bigint,
+        MAX(CASE WHEN q.status = 'enviado' THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END),
+        MAX(CASE WHEN q.replied = true THEN COALESCE(q.sent_at, q.created_at) ELSE NULL END),
+        (SELECT COUNT(*)::bigint FROM spa_visits sv WHERE sv.contact_id = c.id AND sv.status = 'completado'),
+        (SELECT MAX(sv.visit_date) FROM spa_visits sv WHERE sv.contact_id = c.id),
+        (SELECT ss.name FROM spa_visits sv JOIN spa_services ss ON ss.id = sv.service_id WHERE sv.contact_id = c.id ORDER BY sv.visit_date DESC LIMIT 1)::text
+    FROM crm_marketing_contacts c
+    LEFT JOIN crm_wa_queue q ON (c.id = q.contact_id) OR (c.company_id = q.company_id AND c.phone = q.phone)
+    WHERE c.company_id = v_company_id
+    GROUP BY c.id, c.phone, c.name, c.email, c.birthday, c.notes, c.is_archived, c.created_at
+    ORDER BY c.created_at DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Storage bucket
+INSERT INTO storage.buckets (id, name, public) VALUES ('spa-media', 'spa-media', true) ON CONFLICT (id) DO NOTHING;
+DROP POLICY IF EXISTS "spa_media_tenant_upload" ON storage.objects;
+DROP POLICY IF EXISTS "spa_media_public_read" ON storage.objects;
+CREATE POLICY "spa_media_tenant_upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'spa-media' AND (storage.foldername(name))[1] = auth_company_id()::text);
+CREATE POLICY "spa_media_public_read" ON storage.objects FOR SELECT USING (bucket_id = 'spa-media');
+
+NOTIFY pgrst, 'reload schema';

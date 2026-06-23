@@ -15,6 +15,11 @@ interface ClientMetric {
   campaigns_count: number;
   last_message_sent_at: string | null;
   last_reply_at: string | null;
+  email?: string | null;
+  birthday?: string | null;
+  notes?: string | null;
+  total_visits?: number;
+  last_service_name?: string | null;
 }
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
@@ -227,6 +232,8 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               <th className="text-center">Fecha de Ingreso</th>
               <th className="text-center">Estado</th>
               <th className="text-center">Campañas Exitosas</th>
+              <th className="text-center">Visitas</th>
+              <th>Último Servicio</th>
               <th>Último Mensaje Enviado</th>
               <th>Última Respuesta Recibida</th>
             </tr>
@@ -259,6 +266,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     {client.name && (
                       <div className="text-xs text-slate-500">{client.name}</div>
                     )}
+                    {client.email && (
+                      <div className="text-xs text-slate-400">{client.email}</div>
+                    )}
                   </td>
                   <td className="text-center text-sm text-slate-600 dark:text-white-dark">
                     {formatDate(client.created_at)}
@@ -275,6 +285,12 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       <Mail className="w-3 h-3 text-slate-400" />
                       <span className="font-semibold">{client.campaigns_count}</span>
                     </div>
+                  </td>
+                  <td className="text-center">
+                    <span className="font-semibold">{client.total_visits || 0}</span>
+                  </td>
+                  <td className="text-slate-600 dark:text-white-dark text-sm">
+                    {client.last_service_name || '-'}
                   </td>
                   <td className="text-slate-600 dark:text-white-dark text-sm">
                     {formatDate(client.last_message_sent_at)}

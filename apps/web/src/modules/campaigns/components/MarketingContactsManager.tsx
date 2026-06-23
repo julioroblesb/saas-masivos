@@ -33,6 +33,9 @@ export function MarketingContactsManager() {
   const [deleteTagText, setDeleteTagText] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newBirthday, setNewBirthday] = useState('');
+  const [newNotes, setNewNotes] = useState('');
   const [newTags, setNewTags] = useState('');
   const [batchText, setBatchText] = useState('');
   
@@ -74,8 +77,26 @@ export function MarketingContactsManager() {
     }
 
     const tags = newTags.split(',').map(t => t.trim()).filter(Boolean);
-    upsertContact.mutate({ phone, name: newName.trim() || undefined, tags, opt_in_source: optInSource }, {
-      onSuccess: () => { setIsAddOpen(false); setNewPhone(''); setNewName(''); setNewTags(''); setHasOptInConsent(false); setOptInSource('importación manual'); }
+    upsertContact.mutate({ 
+      phone, 
+      name: newName.trim() || undefined, 
+      email: newEmail.trim() || undefined,
+      birthday: newBirthday.trim() || undefined,
+      notes: newNotes.trim() || undefined,
+      tags, 
+      opt_in_source: optInSource 
+    }, {
+      onSuccess: () => { 
+        setIsAddOpen(false); 
+        setNewPhone(''); 
+        setNewName(''); 
+        setNewEmail('');
+        setNewBirthday('');
+        setNewNotes('');
+        setNewTags(''); 
+        setHasOptInConsent(false); 
+        setOptInSource('importación manual'); 
+      }
     });
   };
 
@@ -231,6 +252,30 @@ export function MarketingContactsManager() {
                 <input 
                   className="form-input"
                   value={newName} onChange={e => setNewName(e.target.value)} placeholder="Juan Pérez" 
+                />
+              </div>
+              <div>
+                <label className="text-white-dark">Email (opcional)</label>
+                <input 
+                  type="email"
+                  className="form-input"
+                  value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="juan@correo.com" 
+                />
+              </div>
+              <div>
+                <label className="text-white-dark">Fecha de Nacimiento (opcional)</label>
+                <input 
+                  type="date"
+                  className="form-input"
+                  value={newBirthday} onChange={e => setNewBirthday(e.target.value)} 
+                />
+              </div>
+              <div>
+                <label className="text-white-dark">Notas (opcional)</label>
+                <textarea 
+                  className="form-textarea"
+                  value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="Preferencias, alergias, etc." 
+                  rows={2}
                 />
               </div>
               <div>

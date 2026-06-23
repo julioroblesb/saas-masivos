@@ -10,8 +10,13 @@ export function mapMarketingContactFromDB(row: DBMarketingContactRow): CRMMarket
     id: row.id,
     phone: row.phone,
     name: row.name || undefined,
+    email: row.email || undefined,
+    birthday: row.birthday || undefined,
+    notes: row.notes || undefined,
     tags: row.tags || [],
-    createdAt: row.created_at
+    createdAt: row.created_at,
+    totalVisits: row.total_visits || 0,
+    lastServiceName: row.last_service_name || undefined
   };
 }
 

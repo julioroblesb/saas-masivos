@@ -2,8 +2,13 @@ export interface CRMMarketingContact {
   id: string;
   phone: string;
   name?: string;
+  email?: string;
+  birthday?: string;
+  notes?: string;
   tags: string[];
   createdAt: string;
+  totalVisits?: number;
+  lastServiceName?: string;
 }
 
 export interface WaCampaign {
