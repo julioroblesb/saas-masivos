@@ -6,12 +6,6 @@ import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { IRootState } from '@/store';
 import { 
-  Users, 
-  DollarSign, 
-  MessageSquare, 
-  Heart, 
-  Clock, 
-  Calendar,
   Sparkles,
   ArrowRight
 } from 'lucide-react';
@@ -54,13 +48,13 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completado':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">Completado</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-500">Completado</span>;
       case 'en_curso':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">En curso</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-500">En curso</span>;
       case 'cancelado':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400">Cancelado</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-rose-500/10 text-rose-500">Cancelado</span>;
       default:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300">{status}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-zinc-500/10 text-zinc-400">{status}</span>;
     }
   };
 
@@ -92,13 +86,13 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
     },
     colors: ['#E11D48'], // Vibrant Rose Pop
     dataLabels: { enabled: false },
-    stroke: { curve: 'smooth', width: 3 },
+    stroke: { curve: 'smooth', width: 2.5 },
     fill: {
       type: 'gradient',
       gradient: {
         shadeIntensity: 1,
-        opacityFrom: 0.35,
-        opacityTo: 0.02,
+        opacityFrom: 0.25,
+        opacityTo: 0.01,
         stops: [0, 100]
       }
     },
@@ -107,13 +101,13 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
-        style: { colors: isDark ? '#A1A1AA' : '#3b3f5c', fontSize: '12px' },
+        style: { colors: isDark ? '#A1A1AA' : '#506690', fontSize: '11px' },
       },
     },
     yaxis: {
       labels: {
         formatter: (val: number) => `S/ ${val.toFixed(0)}`,
-        style: { colors: isDark ? '#A1A1AA' : '#3b3f5c', fontSize: '12px' },
+        style: { colors: isDark ? '#A1A1AA' : '#506690', fontSize: '11px' },
       },
     },
     grid: {
@@ -144,8 +138,8 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
   };
 
   const item: Variants = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", duration: 0.4 } }
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", duration: 0.35 } }
   };
 
   return (
@@ -153,110 +147,81 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       variants={container} 
       initial="hidden" 
       animate="show" 
-      className="space-y-6"
+      className="space-y-8"
     >
       
-      {/* Bento Grid Principal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Tarjeta Principal (Ingresos) */}
-        <motion.div variants={item} className="panel md:col-span-2 relative flex flex-col justify-between rounded-3xl p-8 overflow-hidden group">
-          <div className="relative z-10 flex justify-between items-start">
-            <div className="flex flex-col space-y-1">
-              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Ingresos de Hoy</span>
-              <span className="text-black dark:text-white text-5xl md:text-6xl font-black tracking-tight mt-2">
-                {formatCurrency(metrics.revenue_today || 0)}
-              </span>
-            </div>
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl text-emerald-600 dark:text-emerald-400">
-              <DollarSign className="h-8 w-8" />
-            </div>
-          </div>
-          
-          <div className="relative z-10 mt-12 pt-6 border-t border-black-light dark:border-dark-light flex items-center justify-between text-sm text-white-dark">
-            <span>Suma de servicios completados hoy</span>
-            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <Sparkles className="h-4 w-4" /> En tiempo real
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Bloque Apilado Derecho (Métricas Secundarias) */}
-        <div className="flex flex-col gap-6">
-          {/* Atenciones de hoy */}
-          <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
-            <div className="flex flex-col space-y-1">
-              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Atenciones de Hoy</span>
-              <span className="text-black dark:text-white text-4xl font-extrabold tracking-tight mt-1">{metrics.clients_today || 0}</span>
-            </div>
-            <div className="p-3.5 bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl text-indigo-600 dark:text-indigo-400">
-              <Calendar className="h-6 w-6" />
-            </div>
-          </motion.div>
-
-          {/* Clientes Registrados */}
-          <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
-            <div className="flex flex-col space-y-1">
-              <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes (CRM)</span>
-              <span className="text-black dark:text-white text-4xl font-extrabold tracking-tight mt-1">{metrics.total_clients || 0}</span>
-            </div>
-            <div className="p-3.5 bg-blue-50 dark:bg-blue-950/20 rounded-2xl text-blue-600 dark:text-blue-400">
-              <Users className="h-6 w-6" />
-            </div>
-          </motion.div>
+      {/* Sección 1: Fila de Métricas Tipográficas (Sin Cards) */}
+      <motion.div 
+        variants={item} 
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 py-8 border-y border-black-light dark:border-dark-light"
+      >
+        {/* Ingresos de Hoy */}
+        <div className="flex flex-col space-y-1.5">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Ingresos de Hoy</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {formatCurrency(metrics.revenue_today || 0)}
+          </span>
+          <span className="text-[10px] text-white-dark flex items-center gap-1 font-medium">
+            <Sparkles className="h-3 w-3 text-emerald-500" /> Tiempo real
+          </span>
         </div>
-      </div>
 
-      {/* Fila de Mensajería */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        {/* Mensajes Automáticos (7d) */}
-        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
-          <div>
-            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Autocomunicaciones (7d)</span>
-            <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.auto_messages_7d || 0}</h4>
-            <p className="text-xs text-white-dark mt-2">Mensajes enviados por el sistema</p>
-          </div>
-          <div className="p-3.5 bg-purple-50 dark:bg-purple-950/20 rounded-2xl text-purple-600 dark:text-purple-400">
-            <MessageSquare className="h-6 w-6" />
-          </div>
-        </motion.div>
+        {/* Atenciones de Hoy */}
+        <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Atenciones de Hoy</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {metrics.clients_today || 0}
+          </span>
+          <span className="text-[10px] text-white-dark font-medium">Citas programadas</span>
+        </div>
+
+        {/* Clientes Registrados */}
+        <div className="flex flex-col space-y-1.5 sm:border-l sm:border-black-light/40 dark:sm:border-dark-light/40 sm:pl-6">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes (CRM)</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {metrics.total_clients || 0}
+          </span>
+          <span className="text-[10px] text-white-dark font-medium">Base de datos activa</span>
+        </div>
+
+        {/* Autocomunicaciones (7d) */}
+        <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Comunicaciones (7d)</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {metrics.auto_messages_7d || 0}
+          </span>
+          <span className="text-[10px] text-white-dark font-medium">Mensajes enviados</span>
+        </div>
 
         {/* Mensajes en Cola */}
-        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
-          <div>
-            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Mensajes en Cola</span>
-            <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.pending_messages || 0}</h4>
-            <p className="text-xs text-white-dark mt-2">Programados por enviar</p>
-          </div>
-          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/20 rounded-2xl text-amber-600 dark:text-amber-400">
-            <Clock className="h-6 w-6" />
-          </div>
-        </motion.div>
+        <div className="flex flex-col space-y-1.5 sm:border-l sm:border-black-light/40 dark:sm:border-dark-light/40 sm:pl-6">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Mensajes en Cola</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {metrics.pending_messages || 0}
+          </span>
+          <span className="text-[10px] text-white-dark font-medium">Pendientes de salida</span>
+        </div>
 
         {/* Clientes Recuperados */}
-        <motion.div variants={item} className="panel relative flex items-center justify-between rounded-3xl p-6 group">
-          <div>
-            <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes Recuperados</span>
-            <h4 className="text-black dark:text-white text-3xl font-extrabold tracking-tight mt-1">{metrics.recovered_clients || 0}</h4>
-            <p className="text-xs text-white-dark mt-2">Volvieron gracias a seguimiento</p>
-          </div>
-          <div className="p-3.5 bg-rose-50 dark:bg-rose-950/20 rounded-2xl text-rose-600 dark:text-rose-400">
-            <Heart className="h-6 w-6" />
-          </div>
-        </motion.div>
-      </div>
+        <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Recuperados</span>
+          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+            {metrics.recovered_clients || 0}
+          </span>
+          <span className="text-[10px] text-white-dark font-medium">Clientes reactivados</span>
+        </div>
+      </motion.div>
 
-      {/* Fila Inferior - Gráficos e Historial */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+      {/* Sección 2: Espacio de Trabajo Unificado (Chart y Tabla) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-4">
         
-        {/* Gráfico de Ventas */}
-        <motion.div variants={item} className="panel rounded-3xl p-6">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">Rendimiento de Ventas (7 días)</h3>
-            <p className="text-xs text-white-dark mt-1">Ingresos brutos diarios en PEN (sólo servicios completados).</p>
+        {/* Columna Izquierda: Gráfico de Ventas */}
+        <motion.div variants={item} className="lg:col-span-7 space-y-4">
+          <div>
+            <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">Rendimiento de Ventas</h3>
+            <p className="text-xs text-white-dark mt-1">Ingresos brutos diarios en PEN (sólo servicios completados en los últimos 7 días).</p>
           </div>
-          <div className="min-h-[320px]">
+          <div className="min-h-[320px] pt-4">
             {chartData.length > 0 ? (
               <ReactApexChart options={chartOptions} series={chartSeries} type="area" height={320} />
             ) : (
@@ -267,20 +232,20 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
           </div>
         </motion.div>
 
-        {/* Actividad Reciente */}
-        <motion.div variants={item} className="panel rounded-3xl p-6 flex flex-col justify-between">
+        {/* Columna Derecha: Atenciones Recientes */}
+        <motion.div variants={item} className="lg:col-span-5 space-y-4 flex flex-col justify-between">
           <div>
-            <div className="mb-6 flex justify-between items-center">
+            <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">Atenciones Recientes</h3>
-                <p className="text-xs text-white-dark mt-1">Últimas 5 atenciones registradas en el sistema.</p>
+                <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">Atenciones Recientes</h3>
+                <p className="text-xs text-white-dark mt-1">Las últimas 5 visitas registradas en la plataforma.</p>
               </div>
               <Link href="/dashboard/atenciones" className="text-xs font-semibold text-primary flex items-center gap-1 hover:underline">
                 Ver todas <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
             
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto mt-6">
               {recentActivity.length > 0 ? (
                 <table className="w-full text-left text-sm">
                   <thead>
@@ -292,19 +257,19 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
                       <th className="pb-3 text-center">Estado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-black-light/40 dark:divide-dark-light">
+                  <tbody className="divide-y divide-black-light/30 dark:divide-dark-light/20">
                     {recentActivity.map((visit) => (
                       <tr key={visit.id} className="text-zinc-700 dark:text-zinc-300">
-                        <td className="py-3 font-medium text-black dark:text-white">
+                        <td className="py-3.5 font-medium text-black dark:text-white">
                           <div className="flex flex-col">
                             <span>{visit.contact_name || 'Sin nombre'}</span>
-                            <span className="text-[10px] text-white-dark">{visit.contact_phone}</span>
+                            <span className="text-[10px] text-white-dark font-normal">{visit.contact_phone}</span>
                           </div>
                         </td>
-                        <td className="py-3 text-xs">{visit.service_name}</td>
-                        <td className="py-3 text-xs">{formatDate(visit.visit_date)}</td>
-                        <td className="py-3 text-right font-semibold text-xs">{formatCurrency(visit.price_charged || 0)}</td>
-                        <td className="py-3 text-center">{getStatusBadge(visit.status)}</td>
+                        <td className="py-3.5 text-xs">{visit.service_name}</td>
+                        <td className="py-3.5 text-xs">{formatDate(visit.visit_date)}</td>
+                        <td className="py-3.5 text-right font-semibold text-xs">{formatCurrency(visit.price_charged || 0)}</td>
+                        <td className="py-3.5 text-center">{getStatusBadge(visit.status)}</td>
                       </tr>
                     ))}
                   </tbody>
