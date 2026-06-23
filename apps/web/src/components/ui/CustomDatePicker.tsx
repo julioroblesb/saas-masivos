@@ -11,7 +11,7 @@ interface CustomDatePickerProps extends Omit<React.ComponentProps<typeof Flatpic
   className?: string;
 }
 
-export const CustomDatePicker = forwardRef<Flatpickr, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, ...props }, ref) => {
+export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, ...props }, ref) => {
   return (
     <div className="custom-datepicker-wrapper w-full relative">
       <style jsx global>{`
