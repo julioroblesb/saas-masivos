@@ -37,18 +37,7 @@ export default function SpaProductsPage() {
           .eq('company_id', profile.company_id)
           .order('name');
         if (prods) {
-          setProducts(prods.map((p: any) => ({
-            id: p.id,
-            companyId: p.company_id,
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            stock: p.stock,
-            imageUrl: p.image_url,
-            isActive: p.is_active,
-            createdAt: p.created_at,
-            updatedAt: p.updated_at
-          })));
+          setProducts(prods);
         }
       }
     } catch (error) {
@@ -77,7 +66,7 @@ export default function SpaProductsPage() {
         .from('spa-media')
         .getPublicUrl(fileName);
 
-      setEditingProduct(prev => prev ? { ...prev, imageUrl: publicUrl } : null);
+      setEditingProduct(prev => prev ? { ...prev, image_url: publicUrl } : null);
       toast.success('Imagen subida correctamente');
     } catch (error: any) {
       console.error('Error subiendo imagen:', error);
@@ -104,8 +93,8 @@ export default function SpaProductsPage() {
             description: editingProduct.description,
             price: editingProduct.price,
             stock: editingProduct.stock,
-            image_url: editingProduct.imageUrl,
-            is_active: editingProduct.isActive ?? true,
+            image_url: editingProduct.image_url,
+            is_active: editingProduct.is_active ?? true,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingProduct.id);
@@ -122,7 +111,7 @@ export default function SpaProductsPage() {
             description: editingProduct.description,
             price: editingProduct.price,
             stock: editingProduct.stock,
-            image_url: editingProduct.imageUrl,
+            image_url: editingProduct.image_url,
             is_active: true
           }]);
           
@@ -152,7 +141,7 @@ export default function SpaProductsPage() {
   };
 
   const openNew = () => {
-    setEditingProduct({ isActive: true, stock: 0, price: 0 });
+    setEditingProduct({ is_active: true, stock: 0, price: 0 });
     setIsModalOpen(true);
   };
 
@@ -191,8 +180,8 @@ export default function SpaProductsPage() {
           products.map(product => (
             <div key={product.id} className="rounded-3xl bg-white dark:bg-dark p-0 relative overflow-hidden group hover:shadow-lg transition-all duration-300 border border-black-light dark:border-dark-light flex flex-col">
               <div className="h-48 w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center relative overflow-hidden">
-                {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                 ) : (
                   <Package className="w-12 h-12 text-zinc-300 dark:text-zinc-600" />
                 )}
@@ -204,7 +193,7 @@ export default function SpaProductsPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-                {!product.isActive && (
+                {!product.is_active && (
                   <div className="absolute top-2 left-2 badge bg-danger/90 text-white text-xs">
                     Inactivo
                   </div>
@@ -257,9 +246,9 @@ export default function SpaProductsPage() {
               <div className="flex flex-col items-center mb-8">
                 <div className="relative group">
                   <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 overflow-hidden flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group-hover:border-primary/50">
-                    {editingProduct?.imageUrl ? (
+                    {editingProduct?.image_url ? (
                       <>
-                        <img src={editingProduct.imageUrl} alt="Producto" className="w-full h-full object-cover" />
+                        <img src={editingProduct.image_url} alt="Producto" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                           <label className="cursor-pointer text-white flex flex-col items-center gap-1">
                             {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
@@ -339,8 +328,8 @@ export default function SpaProductsPage() {
                       <input 
                         type="checkbox" 
                         className="peer sr-only" 
-                        checked={editingProduct?.isActive ?? true}
-                        onChange={e => setEditingProduct({...editingProduct, isActive: e.target.checked})}
+                        checked={editingProduct?.is_active ?? true}
+                        onChange={e => setEditingProduct({...editingProduct, is_active: e.target.checked})}
                       />
                       <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-primary"></div>
                     </div>

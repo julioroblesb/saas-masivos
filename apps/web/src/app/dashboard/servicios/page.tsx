@@ -37,21 +37,7 @@ export default function SpaServicesPage() {
           .eq('company_id', profile.company_id)
           .order('name');
         if (srvs) {
-          setServices(srvs.map((s: any) => ({
-            id: s.id,
-            companyId: s.company_id,
-            name: s.name,
-            description: s.description,
-            price: s.price,
-            minPrice: s.min_price,
-            promoPrice: s.promo_price,
-            durationDays: s.duration_days,
-            careInstructions: s.care_instructions,
-            careImageUrl: s.care_image_url,
-            isActive: s.is_active,
-            createdAt: s.created_at,
-            updatedAt: s.updated_at
-          })));
+          setServices(srvs);
         }
       }
     } catch (error) {
@@ -80,7 +66,7 @@ export default function SpaServicesPage() {
         .from('spa-media')
         .getPublicUrl(fileName);
 
-      setEditingService(prev => prev ? { ...prev, careImageUrl: publicUrl } : null);
+      setEditingService(prev => prev ? { ...prev, care_image_url: publicUrl } : null);
       toast.success('Imagen subida correctamente');
     } catch (error: any) {
       console.error('Error subiendo imagen:', error);
@@ -106,11 +92,11 @@ export default function SpaServicesPage() {
             name: editingService.name,
             description: editingService.description,
             price: editingService.price,
-            promo_price: editingService.promoPrice,
-            duration_days: editingService.durationDays || 0,
-            care_instructions: editingService.careInstructions,
-            care_image_url: editingService.careImageUrl,
-            is_active: editingService.isActive ?? true,
+            promo_price: editingService.promo_price,
+            duration_days: editingService.duration_days || 0,
+            care_instructions: editingService.care_instructions,
+            care_image_url: editingService.care_image_url,
+            is_active: editingService.is_active ?? true,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingService.id);
@@ -126,10 +112,10 @@ export default function SpaServicesPage() {
             name: editingService.name,
             description: editingService.description,
             price: editingService.price,
-            promo_price: editingService.promoPrice,
-            duration_days: editingService.durationDays || 0,
-            care_instructions: editingService.careInstructions,
-            care_image_url: editingService.careImageUrl,
+            promo_price: editingService.promo_price,
+            duration_days: editingService.duration_days || 0,
+            care_instructions: editingService.care_instructions,
+            care_image_url: editingService.care_image_url,
             is_active: true
           }]);
           
@@ -159,7 +145,7 @@ export default function SpaServicesPage() {
   };
 
   const openNew = () => {
-    setEditingService({ isActive: true, durationDays: 0 });
+    setEditingService({ is_active: true, duration_days: 0 });
     setIsModalOpen(true);
   };
 
@@ -201,7 +187,7 @@ export default function SpaServicesPage() {
                 <div>
                   <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">{service.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    {service.isActive ? (
+                    {service.is_active ? (
                       <span className="badge bg-success/10 text-success text-xs flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Activo</span>
                     ) : (
                       <span className="badge bg-danger/10 text-danger text-xs flex items-center gap-1"><XCircle className="w-3 h-3"/> Inactivo</span>
@@ -226,11 +212,11 @@ export default function SpaServicesPage() {
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
                   <p className="text-xl font-bold tracking-tight text-primary">S/ {service.price}</p>
-                  {service.promoPrice && <p className="text-xs text-success font-semibold tracking-wide">Promo: S/ {service.promoPrice}</p>}
+                  {service.promo_price && <p className="text-xs text-success font-semibold tracking-wide">Promo: S/ {service.promo_price}</p>}
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Duración Cuidados</p>
-                  <p className="text-sm font-semibold text-black dark:text-white">{service.durationDays} días</p>
+                  <p className="text-sm font-semibold text-black dark:text-white">{service.duration_days} días</p>
                 </div>
               </div>
             </div>
@@ -309,8 +295,8 @@ export default function SpaServicesPage() {
                     <input 
                       type="number" 
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
-                      value={editingService?.promoPrice || ''} 
-                      onChange={e => setEditingService({...editingService, promoPrice: parseFloat(e.target.value)})}
+                      value={editingService?.promo_price || ''} 
+                      onChange={e => setEditingService({...editingService, promo_price: parseFloat(e.target.value)})}
                     />
                   </div>
                 </div>
@@ -328,8 +314,8 @@ export default function SpaServicesPage() {
                       <input 
                         type="number" 
                         className="form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
-                        value={editingService?.durationDays || 0} 
-                        onChange={e => setEditingService({...editingService, durationDays: parseInt(e.target.value)})}
+                        value={editingService?.duration_days || 0} 
+                        onChange={e => setEditingService({...editingService, duration_days: parseInt(e.target.value)})}
                       />
                     </div>
                     
@@ -339,8 +325,8 @@ export default function SpaServicesPage() {
                       </label>
                       <textarea 
                         className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark" 
-                        value={editingService?.careInstructions || ''} 
-                        onChange={e => setEditingService({...editingService, careInstructions: e.target.value})}
+                        value={editingService?.care_instructions || ''} 
+                        onChange={e => setEditingService({...editingService, care_instructions: e.target.value})}
                         placeholder="Ej: No asolearse por 24 hrs..."
                         rows={2}
                       />
@@ -352,12 +338,12 @@ export default function SpaServicesPage() {
                         {uploadingImage && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
                       </label>
                       <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/30 p-4 rounded-2xl border border-black-light dark:border-dark-light">
-                        {editingService?.careImageUrl ? (
+                        {editingService?.care_image_url ? (
                           <div className="relative w-24 h-24 rounded-xl overflow-hidden shadow-sm border border-zinc-200">
-                            <img src={editingService.careImageUrl} alt="Care" className="w-full h-full object-cover" />
+                            <img src={editingService.care_image_url} alt="Care" className="w-full h-full object-cover" />
                             <button 
                               className="absolute top-1 right-1 bg-black/60 hover:bg-danger text-white rounded-full p-1 transition-colors backdrop-blur-md"
-                              onClick={() => setEditingService({...editingService, careImageUrl: ''})}
+                              onClick={() => setEditingService({...editingService, care_image_url: ''})}
                             >
                               <XCircle className="w-4 h-4" />
                             </button>
@@ -381,8 +367,8 @@ export default function SpaServicesPage() {
                       <input 
                         type="checkbox" 
                         className="peer sr-only" 
-                        checked={editingService?.isActive ?? true}
-                        onChange={e => setEditingService({...editingService, isActive: e.target.checked})}
+                        checked={editingService?.is_active ?? true}
+                        onChange={e => setEditingService({...editingService, is_active: e.target.checked})}
                       />
                       <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-primary"></div>
                     </div>

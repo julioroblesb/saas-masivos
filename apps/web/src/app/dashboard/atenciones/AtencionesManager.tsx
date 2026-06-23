@@ -21,11 +21,11 @@ export function AtencionesManager({
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [form, setForm] = useState({
-    contactId: '',
-    serviceId: '',
-    visitDate: new Date().toISOString().split('T')[0],
+    contact_id: '',
+    service_id: '',
+    visit_date: new Date().toISOString().split('T')[0],
     status: 'completado' as 'en_curso' | 'completado' | 'cancelado',
-    priceCharged: 0,
+    price_charged: 0,
     notes: ''
   });
   
@@ -36,24 +36,24 @@ export function AtencionesManager({
     const s = services.find(x => x.id === serviceId);
     setForm(prev => ({
       ...prev,
-      serviceId,
-      priceCharged: s ? (s.promo_price || s.price) : 0
+      service_id: serviceId,
+      price_charged: s ? (s.promo_price || s.price) : 0
     }));
   };
 
   const handleSubmit = async () => {
-    if (!form.contactId || !form.serviceId || !form.visitDate) {
+    if (!form.contact_id || !form.service_id || !form.visit_date) {
       toast.error('Por favor completa los campos requeridos (Cliente, Servicio, Fecha).');
       return;
     }
     
     setIsSubmitting(true);
     const res = await createVisitAction({
-      contactId: form.contactId,
-      serviceId: form.serviceId,
-      visitDate: form.visitDate,
+      contact_id: form.contact_id,
+      service_id: form.service_id,
+      visit_date: form.visit_date,
       status: form.status,
-      priceCharged: form.priceCharged,
+      price_charged: form.price_charged,
       notes: form.notes
     });
     
@@ -83,8 +83,8 @@ export function AtencionesManager({
   const filteredVisits = useMemo(() => {
     if (!search) return visits;
     return visits.filter(v => 
-      v.contactName?.toLowerCase().includes(search.toLowerCase()) || 
-      v.serviceName?.toLowerCase().includes(search.toLowerCase())
+      v.contact_name?.toLowerCase().includes(search.toLowerCase()) || 
+      v.service_name?.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, visits]);
 
@@ -187,16 +187,16 @@ export function AtencionesManager({
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                          {visit.contactName?.charAt(0) || <User className="w-5 h-5" />}
+                          {visit.contact_name?.charAt(0) || <User className="w-5 h-5" />}
                         </div>
                         <div>
-                          <div className="font-semibold text-black dark:text-white">{visit.contactName || 'Sin nombre'}</div>
-                          <div className="text-sm text-zinc-500 dark:text-zinc-400">+{visit.contactPhone}</div>
+                          <div className="font-semibold text-black dark:text-white">{visit.contact_name || 'Sin nombre'}</div>
+                          <div className="text-sm text-zinc-500 dark:text-zinc-400">+{visit.contact_phone}</div>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 font-medium text-black dark:text-white">
-                      {visit.serviceName}
+                      {visit.service_name}
                     </td>
                     <td className="py-4 text-center">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
@@ -264,8 +264,8 @@ export function AtencionesManager({
                   <CustomSelect
                     placeholder="Selecciona un paciente..."
                     options={contacts.map(c => ({ value: c.id, label: `${c.name || 'Sin nombre'} (+${c.phone})` }))}
-                    value={form.contactId ? { value: form.contactId, label: contacts.find(c => c.id === form.contactId) ? `${contacts.find(c => c.id === form.contactId).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contactId).phone})` : 'Seleccionado' } : null}
-                    onChange={(selected: any) => setForm(prev => ({ ...prev, contactId: selected ? selected.value : '' }))}
+                    value={form.contact_id ? { value: form.contact_id, label: contacts.find(c => c.id === form.contact_id) ? `${contacts.find(c => c.id === form.contact_id).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contact_id).phone})` : 'Seleccionado' } : null}
+                    onChange={(selected: any) => setForm(prev => ({ ...prev, contact_id: selected ? selected.value : '' }))}
                   />
                 </div>
 
@@ -276,7 +276,7 @@ export function AtencionesManager({
                   <CustomSelect
                     placeholder="Selecciona un servicio..."
                     options={services.map(s => ({ value: s.id, label: `${s.name} ($${s.promo_price || s.price})` }))}
-                    value={form.serviceId ? { value: form.serviceId, label: services.find(s => s.id === form.serviceId) ? `${services.find(s => s.id === form.serviceId).name} ($${services.find(s => s.id === form.serviceId).promo_price || services.find(s => s.id === form.serviceId).price})` : 'Seleccionado' } : null}
+                    value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} ($${services.find(s => s.id === form.service_id).promo_price || services.find(s => s.id === form.service_id).price})` : 'Seleccionado' } : null}
                     onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
                   />
                 </div>
@@ -286,8 +286,8 @@ export function AtencionesManager({
                     <Calendar className="w-4 h-4 text-primary" /> Fecha de Visita *
                   </label>
                   <CustomDatePicker 
-                    value={form.visitDate}
-                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, visitDate: dateStr }))}
+                    value={form.visit_date}
+                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, visit_date: dateStr }))}
                     placeholder="Seleccione la fecha"
                   />
                 </div>
@@ -301,8 +301,8 @@ export function AtencionesManager({
                     <input 
                       type="number"
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                      value={form.priceCharged}
-                      onChange={e => setForm(prev => ({ ...prev, priceCharged: parseFloat(e.target.value) || 0 }))}
+                      value={form.price_charged}
+                      onChange={e => setForm(prev => ({ ...prev, price_charged: parseFloat(e.target.value) || 0 }))}
                     />
                   </div>
                 </div>

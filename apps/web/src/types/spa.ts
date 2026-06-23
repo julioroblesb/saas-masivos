@@ -1,76 +1,92 @@
 // Spa Service (catálogo)
 export interface SpaService {
   id: string;
-  companyId: string;
+  company_id: string;
   name: string;
   description?: string;
   price: number;
-  minPrice?: number;
-  promoPrice?: number;
-  durationDays: number;
-  careInstructions?: string;
-  careImageUrl?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  min_price?: number;
+  promo_price?: number;
+  duration_days: number;
+  care_instructions?: string;
+  care_image_url?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // Spa Product (catálogo)
 export interface SpaProduct {
   id: string;
-  companyId: string;
+  company_id: string;
   name: string;
   description?: string;
   price: number;
-  imageUrl?: string;
+  image_url?: string;
   stock: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // Spa Visit (atención)
 export interface SpaVisit {
   id: string;
-  companyId: string;
-  contactId: string;
-  serviceId: string;
+  company_id: string;
+  contact_id: string;
+  service_id: string;
   status: 'en_curso' | 'completado' | 'cancelado';
-  visitDate: string;
-  completedAt?: string;
+  visit_date: string;
+  completed_at?: string;
   notes?: string;
-  priceCharged?: number;
-  followUpDate?: string;
-  followUpSent: boolean;
-  careSent: boolean;
-  createdAt: string;
+  price_charged?: number;
+  follow_up_date?: string;
+  follow_up_sent: boolean;
+  care_sent: boolean;
+  created_at: string;
   // Joined fields
-  contactName?: string;
-  contactPhone?: string;
-  serviceName?: string;
-  servicePrice?: number;
+  contact_name?: string;
+  contact_phone?: string;
+  service_name?: string;
+  service_price?: number;
 }
 
 // Spa Follow-up (mensaje automático programado)
 export interface SpaFollowUp {
   id: string;
-  companyId: string;
-  visitId?: string;
-  contactId: string;
+  company_id: string;
+  visit_id?: string;
+  contact_id: string;
   type: 'care' | 'follow_up' | 'birthday';
   phone: string;
   message: string;
-  mediaUrl?: string;
-  scheduledFor: string;
+  media_url?: string;
+  scheduled_for: string;
   status: 'pendiente' | 'encolado' | 'enviado' | 'fallido';
-  sentAt?: string;
-  createdAt: string;
+  sent_at?: string;
+  created_at: string;
+}
+
+// Spa Client Metrics
+export interface SpaClientMetrics {
+  id: string;
+  phone: string;
+  name: string;
+  email?: string;
+  birthday?: string;
+  notes?: string;
+  is_archived: boolean;
+  created_at: string;
+  campaigns_count: number;
+  last_message_sent_at?: string;
+  last_reply_at?: string;
+  total_visits: number;
+  last_visit_at?: string;
+  last_service_name?: string;
 }
 
 // Dashboard metrics
 export interface SpaDashboardMetrics {
-  clientsToday: number;
-  revenueToday: number;
   autoMessages7d: number;
   recoveredClients: number;
 }

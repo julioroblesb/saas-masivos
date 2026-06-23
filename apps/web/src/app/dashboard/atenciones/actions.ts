@@ -34,9 +34,9 @@ export async function getAtencionesData() {
     services: services || [], 
     visits: visits?.map((v: any) => ({
       ...v,
-      contactName: v.crm_marketing_contacts?.name,
-      contactPhone: v.crm_marketing_contacts?.phone,
-      serviceName: v.spa_services?.name,
+      contact_name: v.crm_marketing_contacts?.name,
+      contact_phone: v.crm_marketing_contacts?.phone,
+      service_name: v.spa_services?.name,
     })) || [],
     contacts: contacts || [],
     error: sErr?.message || vErr?.message || cErr?.message 
@@ -44,11 +44,11 @@ export async function getAtencionesData() {
 }
 
 export async function createVisitAction(payload: {
-  contactId: string;
-  serviceId: string;
-  visitDate: string;
+  contact_id: string;
+  service_id: string;
+  visit_date: string;
   status: 'en_curso' | 'completado' | 'cancelado';
-  priceCharged: number;
+  price_charged: number;
   notes?: string;
 }) {
   const supabase = await createClient();
@@ -57,11 +57,11 @@ export async function createVisitAction(payload: {
   const { data, error } = await supabase
     .from('spa_visits')
     .insert({
-      contact_id: payload.contactId,
-      service_id: payload.serviceId,
-      visit_date: payload.visitDate,
+      contact_id: payload.contact_id,
+      service_id: payload.service_id,
+      visit_date: payload.visit_date,
       status: payload.status,
-      price_charged: payload.priceCharged,
+      price_charged: payload.price_charged,
       notes: payload.notes
     })
     .select()
