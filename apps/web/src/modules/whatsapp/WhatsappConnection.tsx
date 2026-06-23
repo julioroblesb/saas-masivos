@@ -17,10 +17,10 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
+  // 1. Obtener estado inicial solo al montar
   useEffect(() => {
     if (!companyId) return;
 
-    // 1. Obtener estado inicial
     const fetchStatus = async () => {
       const { data } = await supabase
         .from('wa_sessions')
@@ -36,18 +36,20 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     };
 
     fetchStatus();
+  }, [companyId, supabase]);
 
-    // 2. Suscribirse a los canales de Broadcast para el QR
+  // 2. Suscribirse al QR y polling condicional
+  useEffect(() => {
+    if (!companyId) return;
+
     const channel = supabase.channel(`wa_qr_${companyId}`);
     
     channel.on('broadcast', { event: 'qr_update' }, (payload) => {
       console.log('Recibido QR:', payload);
       setQrCode(payload.payload.qr);
-      setStatus('conectando'); // Asumimos que si hay QR, estamos intentando conectar
+      setStatus('conectando');
     }).subscribe();
 
-    // 3. Polling inteligente: SOLO revisar el estado si estamos conectando o esperando QR
-    // Necesitamos consultar a BuilderBot Cloud para obtener el QR y el status real
     let interval: NodeJS.Timeout;
     if (status === 'conectando' || status === 'esperando_qr') {
       interval = setInterval(async () => {
@@ -76,7 +78,17 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       supabase.removeChannel(channel);
       if (interval) clearInterval(interval);
     };
-  }, [companyId, status, supabase]);
+  }, [companyId, status, supabase, qrCode]);
+
+  const handleAbort = async () => {
+    setStatus('desconectado');
+    setQrCode(null);
+    try {
+      await fetch('/api/wa/disconnect', { method: 'POST' });
+    } catch (err) {
+      console.error('Error abortando conexion:', err);
+    }
+  };
 
   const handleStartSession = async () => {
     setLoading(true);
@@ -183,7 +195,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
                 Vincular Dispositivo
               </h3>
               <button 
-                onClick={() => setStatus('desconectado')}
+                onClick={handleAbort}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full"
                 title="Cancelar y Cerrar"
               >
