@@ -35,10 +35,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f4f4f5] dark:bg-[#111827] p-4 font-sans">
-      <div className="w-full max-w-md bg-white dark:bg-[#1f2937] rounded-xl shadow-xl border border-zinc-200 dark:border-gray-700 p-8 sm:p-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#0A0A0A] p-4 font-sans">
+      <div className="w-full max-w-md bg-white dark:bg-[#111111] rounded-2xl shadow-xl border border-zinc-200 dark:border-[#27272A] p-8 sm:p-10">
         <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 mb-4 flex items-center justify-center bg-indigo-500 rounded-full shadow-sm text-white font-bold text-2xl">
+          <div className="mx-auto h-16 w-16 mb-4 flex items-center justify-center bg-primary/10 rounded-[16px] shadow-[0_4px_14px_0_rgba(225,29,72,0.1)] text-primary font-bold text-2xl">
             LR
           </div>
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 tracking-tight" style={{fontFamily: 'var(--font-head)'}}>Acceso al Sistema</h2>
@@ -55,7 +55,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-zinc-300 dark:border-gray-600 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] dark:bg-[#0A0A0A] border border-zinc-300 dark:border-[#27272A] rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                 placeholder="usuario@ejemplo.com"
                 required
                 disabled={loading}
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-zinc-300 dark:border-gray-600 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] dark:bg-[#0A0A0A] border border-zinc-300 dark:border-[#27272A] rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                 placeholder="••••••••"
                 required
                 disabled={loading}
@@ -83,7 +83,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || !email || !password}
-            className={`w-full flex items-center justify-center gap-2 py-3 mt-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-bold transition-all shadow-sm ${
+            className={`w-full flex items-center justify-center gap-2 py-3 mt-2 btn btn-primary ${
               (loading || !email || !password) ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
@@ -97,7 +97,7 @@ export default function LoginPage() {
         
         <div className="mt-8 text-center text-xs text-zinc-400 dark:text-gray-500 font-medium tracking-wider flex flex-col gap-2">
           <span className="uppercase">Protegido por cifrado SSL/TLS</span>
-          <Link href="/terminos" className="text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
+          <Link href="/terminos" className="text-primary hover:text-primary/80 transition-colors">
             Términos y Condiciones
           </Link>
         </div>

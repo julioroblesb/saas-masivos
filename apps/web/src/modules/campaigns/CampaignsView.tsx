@@ -37,7 +37,7 @@ export default function CampaignsView() {
         >
           <Activity size={18} /> Activas 
           {activeCampaigns.length > 0 && (
-            <span className="badge bg-indigo-500 rounded-full ml-1 px-2 py-0.5 text-white">
+            <span className="badge bg-primary rounded-full ml-1 px-2 py-0.5 text-white">
               {activeCampaigns.length}
             </span>
           )}

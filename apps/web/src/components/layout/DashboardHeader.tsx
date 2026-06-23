@@ -37,7 +37,7 @@ export function DashboardHeader({ collapsed, setMobileMenuOpen }: { collapsed: b
 
   return (
     <header className={clsx(
-      "sticky top-0 z-30 transition-all duration-300 bg-white/80 dark:bg-[#1f2937]/80 backdrop-blur-md border-b border-zinc-200 dark:border-gray-700",
+      "sticky top-0 z-30 transition-all duration-300 bg-white/80 dark:bg-secondary/80 backdrop-blur-md border-b border-zinc-200 dark:border-[#27272A]",
       collapsed ? "lg:ml-[72px]" : "lg:ml-[280px]"
     )}>
       <div className="flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -51,7 +51,7 @@ export function DashboardHeader({ collapsed, setMobileMenuOpen }: { collapsed: b
             <Menu size={24} />
           </button>
           
-          <div className="hidden sm:flex items-center gap-2 bg-zinc-100 dark:bg-gray-800 px-3 py-2 rounded-full border border-zinc-200 dark:border-gray-700">
+          <div className="hidden sm:flex items-center gap-2 bg-zinc-100 dark:bg-dark px-3 py-2 rounded-full border border-zinc-200 dark:border-[#27272A]">
              <Search size={18} className="text-zinc-500" />
              <input 
                type="text" 
@@ -63,24 +63,24 @@ export function DashboardHeader({ collapsed, setMobileMenuOpen }: { collapsed: b
 
         {/* Right Side: Tools & Profile */}
         <div className="flex items-center gap-4 sm:gap-6">
-          <button onClick={toggleDark} className="text-zinc-600 dark:text-gray-300 hover:text-indigo-500 transition-colors">
+          <button onClick={toggleDark} className="text-zinc-600 dark:text-gray-300 hover:text-primary transition-colors">
             {isDark ? <Sun size={22} /> : <Moon size={22} />}
           </button>
           
-          <button className="relative text-zinc-600 dark:text-gray-300 hover:text-indigo-500 transition-colors">
+          <button className="relative text-zinc-600 dark:text-gray-300 hover:text-primary transition-colors">
             <Bell size={22} />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-gray-800"></span>
+            <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border border-white dark:border-dark"></span>
           </button>
 
           <div className="relative group cursor-pointer">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border border-zinc-300 dark:border-gray-600">
+              <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-dark flex items-center justify-center overflow-hidden border border-zinc-300 dark:border-[#27272A]">
                 <UserIcon size={20} className="text-zinc-500 dark:text-gray-400" />
               </div>
             </div>
             {/* Dropdown Profile */}
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-zinc-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-               <div className="p-4 border-b border-zinc-100 dark:border-gray-700">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark rounded-xl shadow-xl border border-zinc-200 dark:border-[#27272A] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+               <div className="p-4 border-b border-zinc-100 dark:border-[#27272A]">
                   <p className="text-sm font-semibold text-zinc-900 dark:text-white">Mi Cuenta</p>
                </div>
                <div className="p-2">

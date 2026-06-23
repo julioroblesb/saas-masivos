@@ -61,7 +61,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const displayName = companyName || 'Cargando...';
 
   return (
-    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#111827] text-zinc-900 dark:text-gray-100 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-secondary text-zinc-900 dark:text-gray-100 font-sans transition-colors duration-300">
       
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
@@ -78,11 +78,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           ></div>
           
           {/* Mobile Drawer */}
-          <div className="relative flex flex-col w-[280px] h-full bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300">
+          <div className="relative flex flex-col w-[280px] h-full bg-white dark:bg-dark shadow-2xl transition-transform duration-300">
             <div className="flex h-20 items-center justify-between px-4 border-b border-zinc-200 dark:border-gray-700">
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold">{initial}</span>
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-[0_4px_14px_0_rgba(225,29,72,0.39)]">
+                  <span className="text-white font-black tracking-tight">{initial}</span>
                 </div>
                 <h1 className="text-lg font-bold text-zinc-900 dark:text-white truncate" title={displayName}>
                   {displayName}
@@ -106,11 +106,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         className={clsx(
                           "flex items-center h-12 rounded-lg px-3 transition-colors",
                           isActive 
-                            ? "bg-zinc-100 dark:bg-gray-700 text-zinc-900 dark:text-white font-medium" 
-                            : "text-zinc-600 dark:text-gray-300 hover:bg-zinc-50 dark:hover:bg-gray-800"
+                            ? "bg-primary/10 text-primary font-bold dark:bg-primary/20" 
+                            : "text-zinc-600 dark:text-gray-300 hover:bg-zinc-50 dark:hover:bg-[#1A1A1A]"
                         )}
                       >
-                        <Icon className={clsx(isActive ? "text-indigo-500" : "")} size={20} />
+                        <Icon className={clsx(isActive ? "text-primary" : "")} size={20} />
                         <span className="ml-3">{item.label}</span>
                       </Link>
                     </li>

@@ -4,8 +4,8 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 
 export default function TerminosPage() {
   return (
-    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#060818] text-zinc-900 dark:text-gray-100 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-[#0e1726] p-8 md:p-10 rounded-2xl border border-white-light dark:border-[#1b2e4b]">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0A0A0A] text-zinc-900 dark:text-gray-100 p-6 md:p-12 font-sans">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-dark p-8 md:p-10 rounded-2xl border border-zinc-200 dark:border-[#27272A]">
         
         <Link href="/login" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-primary dark:hover:text-primary transition-colors mb-8">
           <ArrowLeft size={16} className="mr-2" />

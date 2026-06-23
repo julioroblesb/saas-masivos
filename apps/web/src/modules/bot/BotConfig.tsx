@@ -4,7 +4,7 @@ import { Bot, MessageSquare, FileText, Image as ImageIcon, Mic, ArrowRight } fro
 
 export function BotConfig() {
   return (
-    <div className="panel animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-white dark:from-[#1a2941] dark:to-[#0e1726]">
+    <div className="panel animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto border-0 shadow-lg bg-gradient-to-br from-[#1A1A1A] to-dark dark:from-[#1A1A1A] dark:to-dark">
       <div className="text-center p-8 pb-4">
         <div className="mx-auto bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-sm">
           <Bot className="w-10 h-10 text-primary" />
@@ -78,12 +78,12 @@ export function BotConfig() {
       </div>
 
       <div className="p-8 pt-0">
-        <div className="bg-gradient-to-r from-primary to-indigo-600 rounded-2xl p-8 text-center text-white shadow-md relative overflow-hidden">
+        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 text-center text-white shadow-md relative overflow-hidden">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white opacity-10 blur-2xl"></div>
           <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-black opacity-10 blur-2xl"></div>
           
           <h2 className="text-2xl font-bold mb-4 relative z-10">¿Listo para construir el bot de tus sueños?</h2>
-          <p className="text-indigo-100 mb-8 max-w-xl mx-auto relative z-10">
+          <p className="text-white/80 mb-8 max-w-xl mx-auto relative z-10">
             Nuestros ingenieros expertos pueden desarrollar un flujo conversacional hecho a medida para tu modelo de negocio, integrando tu CRM, base de datos e inteligencia artificial.
           </p>
           
@@ -91,7 +91,7 @@ export function BotConfig() {
             href="https://wa.me/tunumerodeasesoria" 
             target="_blank" 
             rel="noreferrer"
-            className="inline-flex items-center space-x-2 bg-white text-indigo-600 hover:bg-slate-50 px-8 py-3 rounded-full font-bold transition-colors relative z-10 shadow-sm"
+            className="inline-flex items-center space-x-2 bg-white text-primary hover:bg-slate-50 px-8 py-3 rounded-full font-bold transition-colors relative z-10 shadow-sm"
           >
             <span>Solicitar Asesoría Personalizada</span>
             <ArrowRight className="w-5 h-5" />
