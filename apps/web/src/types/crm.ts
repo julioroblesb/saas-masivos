@@ -60,3 +60,25 @@ export type CampaignMessageSequence = {
   mediaUrl?: string;
   delayAfterMs: number;
 }[];
+
+export interface SpaStaff {
+  id: string;
+  name: string;
+  birthday?: string;
+  role?: string;
+  isActive: boolean;
+  services?: string[]; // array of service IDs or names
+}
+
+export interface SpaVisit {
+  id: string;
+  companyId: string;
+  contactId: string;
+  serviceId: string;
+  staffId?: string;
+  status: 'en_curso' | 'completado' | 'cancelado';
+  visitDate: string;
+  completedAt?: string;
+  notes?: string;
+  priceCharged?: number;
+}

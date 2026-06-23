@@ -4,14 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { LayoutDashboard, Users, Megaphone, Settings, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, ChevronLeft, ChevronRight, FileText, UserPlus, CalendarCheck, Package } from 'lucide-react';
 import Image from 'next/image';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Atenciones', href: '/dashboard/atenciones', icon: Users },
+  { label: 'Atenciones', href: '/dashboard/atenciones', icon: CalendarCheck },
+  { label: 'Trabajadoras', href: '/dashboard/trabajadoras', icon: UserPlus },
   { label: 'Servicios', href: '/dashboard/servicios', icon: Megaphone },
-  { label: 'Productos', href: '/dashboard/productos', icon: FileText },
+  { label: 'Productos', href: '/dashboard/productos', icon: Package },
+  { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
+  { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ];
 

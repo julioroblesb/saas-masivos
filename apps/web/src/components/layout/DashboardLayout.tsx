@@ -7,15 +7,18 @@ import clsx from 'clsx';
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Megaphone, Settings, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, FileText, UserPlus, CalendarCheck, Package } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Atenciones', href: '/dashboard/atenciones', icon: CalendarCheck },
+  { label: 'Trabajadoras', href: '/dashboard/trabajadoras', icon: UserPlus },
+  { label: 'Servicios', href: '/dashboard/servicios', icon: Megaphone },
+  { label: 'Productos', href: '/dashboard/productos', icon: Package },
   { label: 'Clientes', href: '/dashboard/clientes', icon: Users },
   { label: 'Campañas', href: '/dashboard/campanas', icon: Megaphone },
   { label: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
-  { label: 'Políticas', href: '/terminos', icon: FileText },
 ];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -29,6 +29,13 @@ export async function getAtencionesData() {
     .from('crm_marketing_contacts')
     .select('id, name, phone, email')
     .order('name');
+    
+  // Get active staff
+  const { data: staff, error: staffErr } = await supabase
+    .from('spa_staff')
+    .select('id, name, role')
+    .eq('is_active', true)
+    .order('name');
 
   return { 
     services: services || [], 
@@ -39,7 +46,8 @@ export async function getAtencionesData() {
       service_name: v.spa_services?.name,
     })) || [],
     contacts: contacts || [],
-    error: sErr?.message || vErr?.message || cErr?.message 
+    staff: staff || [],
+    error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message
   };
 }
 
@@ -51,6 +59,7 @@ export async function createVisitAction(payload: {
   status: 'en_curso' | 'completado' | 'cancelado';
   price_charged: number;
   notes?: string;
+  staff_id?: string;
 }) {
   const supabase = await createClient();
   
@@ -94,7 +103,8 @@ export async function createVisitAction(payload: {
       visit_date: payload.visit_date,
       status: payload.status,
       price_charged: payload.price_charged,
-      notes: payload.notes
+      notes: payload.notes,
+      staff_id: payload.staff_id || null
     })
     .select()
     .single();

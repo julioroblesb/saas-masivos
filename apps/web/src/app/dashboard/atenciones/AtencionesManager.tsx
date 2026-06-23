@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity } from 'lucide-react';
+import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
@@ -10,12 +10,15 @@ import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 export function AtencionesManager({ 
   initialVisits, 
   services, 
-  contacts 
+  contacts,
+  staffList 
 }: { 
   initialVisits: any[]; 
   services: any[]; 
   contacts: any[]; 
+  staffList?: any[];
 }) {
+  const [activeTab, setActiveTab] = useState<'activas' | 'historial'>('activas');
   const [visits, setVisits] = useState(initialVisits);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,7 +29,8 @@ export function AtencionesManager({
     visit_date: new Date().toISOString().split('T')[0],
     status: 'en_curso' as 'en_curso' | 'completado' | 'cancelado',
     price_charged: 0,
-    notes: ''
+    notes: '',
+    staff_id: ''
   });
   
   const [showNewPatient, setShowNewPatient] = useState(false);
@@ -58,7 +62,8 @@ export function AtencionesManager({
       visit_date: form.visit_date,
       status: form.status,
       price_charged: form.price_charged,
-      notes: form.notes
+      notes: form.notes,
+      staff_id: form.staff_id || undefined
     });
     
     if (res.error) {
@@ -72,14 +77,14 @@ export function AtencionesManager({
     setIsSubmitting(false);
   };
   
-  const handleComplete = async (visitId: string) => {
-    if (!confirm('¿Marcar esta atención como completada? Esto programará los mensajes automáticos.')) return;
+  const handleUpdateStatus = async (visitId: string, status: 'completado' | 'cancelado') => {
+    if (!confirm(`¿Marcar esta atención como ${status}?`)) return;
     
-    const res = await updateVisitStatusAction(visitId, 'completado');
+    const res = await updateVisitStatusAction(visitId, status);
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success('Atención completada. Mensajes programados.');
+      toast.success(`Atención ${status}.`);
       window.location.reload();
     }
   };
@@ -91,6 +96,18 @@ export function AtencionesManager({
       v.service_name?.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, visits]);
+
+  // Agrupar atenciones por fecha (solo para la pestaña Activas)
+  const groupedVisits = filteredVisits
+    .filter(v => v.status === 'en_curso')
+    .reduce((acc: any, visit: any) => {
+      const date = new Date(visit.visit_date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(visit);
+      return acc;
+    }, {});
+
+  const historyVisits = filteredVisits.filter(v => v.status === 'completado' || v.status === 'cancelado');
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -138,9 +155,23 @@ export function AtencionesManager({
         </div>
       </div>
 
-      <div className="rounded-3xl border border-black-light dark:border-dark-light shadow-sm p-0 overflow-hidden bg-white dark:bg-dark">
-        {/* Top Bar */}
-        <div className="p-6 border-b border-black-light dark:border-dark-light flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+        <div className="flex bg-white dark:bg-zinc-900 border border-black-light dark:border-dark-light rounded-xl overflow-hidden self-start">
+          <button 
+            className={`px-5 py-2.5 text-sm font-semibold transition-colors ${activeTab === 'activas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+            onClick={() => setActiveTab('activas')}
+          >
+            Atenciones Activas
+          </button>
+          <button 
+            className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'historial' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+            onClick={() => setActiveTab('historial')}
+          >
+            Historial
+          </button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
             <input 
@@ -158,86 +189,112 @@ export function AtencionesManager({
             <Plus className="w-5 h-5" /> Nueva Atención
           </button>
         </div>
-
-        {/* Table */}
-        <div className="table-responsive">
-          <table className="table-hover w-full min-w-[800px]">
-            <thead className="bg-zinc-50 dark:bg-zinc-900/50">
-              <tr>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Paciente</th>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Servicio</th>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest text-center">Fecha</th>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest text-center">Precio</th>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest text-center">Estado</th>
-                <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black-light dark:divide-dark-light">
-              {filteredVisits.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-12">
-                    <div className="flex flex-col items-center justify-center text-zinc-400">
-                      <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                        <ShoppingBag className="w-8 h-8 text-zinc-300 dark:text-zinc-500" />
-                      </div>
-                      <p className="text-lg font-medium text-zinc-500 dark:text-zinc-400">No hay atenciones registradas.</p>
-                      <p className="text-sm text-zinc-400 dark:text-zinc-500">Registra una nueva atención para comenzar.</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredVisits.map(visit => (
-                  <tr key={visit.id} className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
-                    <td className="py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                          {visit.contact_name?.charAt(0) || <User className="w-5 h-5" />}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-black dark:text-white">{visit.contact_name || 'Sin nombre'}</div>
-                          <div className="text-sm text-zinc-500 dark:text-zinc-400">+{visit.contact_phone}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 font-medium text-black dark:text-white">
-                      {visit.service_name}
-                    </td>
-                    <td className="py-4 text-center">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {new Date(visit.visit_date).toLocaleDateString('es-ES')}
-                      </span>
-                    </td>
-                    <td className="py-4 text-center font-semibold text-black dark:text-white">
-                      ${visit.price_charged}
-                    </td>
-                    <td className="py-4 text-center">
-                      {visit.status === 'completado' ? (
-                        <span className="badge bg-success/10 text-success border border-success/20 px-3 py-1">Completado</span>
-                      ) : visit.status === 'en_curso' ? (
-                        <span className="badge bg-warning/10 text-warning border border-warning/20 px-3 py-1">En Curso</span>
-                      ) : (
-                        <span className="badge bg-danger/10 text-danger border border-danger/20 px-3 py-1">Cancelado</span>
-                      )}
-                    </td>
-                    <td className="py-4 text-right">
-                      {visit.status === 'en_curso' && (
-                        <button 
-                          onClick={() => handleComplete(visit.id)}
-                          className="btn btn-sm btn-outline-success gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="Marcar como completado"
-                        >
-                          <CheckCircle className="w-4 h-4" /> Completar
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
+
+      {/* Contenido principal basado en la pestaña */}
+      {activeTab === 'activas' ? (
+        Object.keys(groupedVisits).length === 0 ? (
+          <div className="p-12 text-center text-zinc-500 bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl">
+            No se encontraron atenciones activas.
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {Object.keys(groupedVisits).map(date => (
+              <div key={date}>
+                <h3 className="text-lg font-bold text-black dark:text-white mb-4 capitalize">{date}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {groupedVisits[date].map((visit: any) => (
+                    <div key={visit.id} className="panel p-0 hover:-translate-y-1 transition-transform duration-300 overflow-hidden relative group border-2 border-transparent hover:border-primary/20">
+                      <div className="p-5 border-b border-black-light dark:border-dark-light bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900/50">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`badge ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                            {visit.status.replace('_', ' ')}
+                          </span>
+                          <span className="text-xl font-bold text-black dark:text-white">
+                            S/ {visit.price_charged}
+                          </span>
+                        </div>
+                        <h4 className="text-lg font-bold text-black dark:text-white mb-1">{visit.contact_name || 'Paciente Sin Nombre'}</h4>
+                        <div className="flex items-center text-sm text-zinc-500 gap-1 mb-1">
+                          <Phone size={14} /> +{visit.contact_phone}
+                        </div>
+                        <div className="text-sm font-semibold text-primary">{visit.service_name}</div>
+                        {visit.staff_id && staffList && (
+                          <div className="text-xs text-zinc-500 mt-2">
+                            Atendido por: <span className="font-medium text-zinc-700 dark:text-zinc-300">{staffList.find((s: any) => s.id === visit.staff_id)?.name || 'Desconocido'}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 bg-white dark:bg-dark space-y-3">
+                        {visit.notes && (
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-black-light dark:border-dark-light">
+                            {visit.notes}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between pt-2">
+                          <div className="text-xs text-zinc-400">
+                            Creado: {new Date(visit.created_at).toLocaleDateString()}
+                          </div>
+                          {visit.status === 'en_curso' && (
+                            <button 
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() => handleUpdateStatus(visit.id, 'completado')}
+                            >
+                              Completar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        <div className="panel p-0 overflow-hidden">
+          <div className="table-responsive">
+            {historyVisits.length === 0 ? (
+              <div className="p-8 text-center text-zinc-500">No hay atenciones en el historial.</div>
+            ) : (
+              <table className="w-full text-left">
+                <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
+                  <tr>
+                    <th className="p-4">Fecha</th>
+                    <th className="p-4">Paciente</th>
+                    <th className="p-4">Servicio</th>
+                    <th className="p-4">Trabajadora</th>
+                    <th className="p-4">Monto</th>
+                    <th className="p-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {historyVisits.map((visit: any) => (
+                    <tr key={visit.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                      <td className="p-4 text-black dark:text-white font-medium">{new Date(visit.visit_date).toLocaleDateString()}</td>
+                      <td className="p-4">
+                        <div className="font-semibold text-black dark:text-white">{visit.contact_name}</div>
+                        <div className="text-xs text-zinc-500">+{visit.contact_phone}</div>
+                      </td>
+                      <td className="p-4 text-zinc-600 dark:text-zinc-300">{visit.service_name}</td>
+                      <td className="p-4 text-zinc-500">
+                        {visit.staff_id && staffList ? staffList.find((s: any) => s.id === visit.staff_id)?.name || '-' : '-'}
+                      </td>
+                      <td className="p-4 font-semibold text-black dark:text-white">S/ {visit.price_charged}</td>
+                      <td className="p-4">
+                        <span className={`badge ${visit.status === 'completado' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                          {visit.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
@@ -311,6 +368,18 @@ export function AtencionesManager({
                     options={services.map(s => ({ value: s.id, label: `${s.name} (S/ ${s.promo_price || s.price})` }))}
                     value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} (S/ ${services.find(s => s.id === form.service_id).promo_price || services.find(s => s.id === form.service_id).price})` : 'Seleccionado' } : null}
                     onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" /> Trabajadora
+                  </label>
+                  <CustomSelect
+                    placeholder="Selecciona la trabajadora..."
+                    options={staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []}
+                    value={form.staff_id && staffList ? { value: form.staff_id, label: staffList.find((s: any) => s.id === form.staff_id)?.name || 'Seleccionada' } : null}
+                    onChange={(selected: any) => setForm(prev => ({ ...prev, staff_id: selected ? selected.value : '' }))}
                   />
                 </div>
 

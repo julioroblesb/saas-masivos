@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import { archiveContactsAction, upsertContactAction } from './actions';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
+import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
 
 const MySwal = withReactContent(Swal);
 
@@ -228,7 +228,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   <td className="text-center">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
                       <Calendar className="w-3.5 h-3.5" />
-                      {formatDate(client.birthday)}
+                      {client.birthday || '-'}
                     </div>
                   </td>
                   <td className="text-center">
@@ -325,10 +325,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" /> Fecha de Cumpleaños
                   </label>
-                  <CustomDatePicker 
+                  <BirthdayPicker 
                     value={form.birthday}
-                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, birthday: dateStr }))}
-                    placeholder="Selecciona el cumpleaños"
+                    onChange={(dateStr) => setForm(prev => ({ ...prev, birthday: dateStr }))}
                   />
                 </div>
 

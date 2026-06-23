@@ -4,7 +4,7 @@ import { AtencionesManager } from './AtencionesManager';
 export const dynamic = 'force-dynamic';
 
 export default async function AtencionesPage() {
-  const { services, visits, contacts, error } = await getAtencionesData();
+  const { services, visits, contacts, staff, error } = await getAtencionesData();
 
   return (
     <div className="space-y-6">
@@ -27,6 +27,7 @@ export default async function AtencionesPage() {
         initialVisits={visits} 
         services={services} 
         contacts={contacts} 
+        staffList={staff}
       />
     </div>
   );
