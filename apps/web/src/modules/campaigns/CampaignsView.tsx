@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Megaphone, Users, Activity, History } from 'lucide-react';
+import { Megaphone, Activity, History } from 'lucide-react';
 import { CampaignSender } from './components/CampaignSender';
 import { CampaignProgressCard } from './components/CampaignProgressCard';
 import { CampaignHistoryTable } from './components/CampaignHistoryTable';
-import { ScheduledMessagesTab } from './components/ScheduledMessagesTab';
 import { useCampaigns } from '../../hooks/queries/useCampaigns';
 import './Campaigns.css';
 
@@ -53,15 +52,6 @@ export default function CampaignsView() {
           <History size={18} /> Historial
         </button>
 
-        <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
-            activeTab === 'scheduled' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
-          }`}
-          onClick={() => setActiveTab('scheduled')}
-        >
-          <History size={18} /> Mensajes Programados
-        </button>
-
       </div>
 
       {/* Tab Contents */}
@@ -96,10 +86,6 @@ export default function CampaignsView() {
           <div className="panel p-0 overflow-hidden">
             <CampaignHistoryTable campaigns={historyCampaigns} />
           </div>
-        )}
-
-        {activeTab === 'scheduled' && (
-          <ScheduledMessagesTab />
         )}
       </div>
     </div>
