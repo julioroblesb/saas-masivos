@@ -157,45 +157,40 @@ export function SegmentConfig({
           />
         </div>
         
-        <div className="flex flex-col gap-3 p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 rounded-xl">
+        <div className="flex flex-col gap-3">
           <label className="text-sm font-semibold text-black dark:text-white">¿A quién quieres enviar esta campaña?</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg w-max">
             <button
               type="button"
               onClick={() => setAudienceMode('clientes')}
-              className={`p-4 rounded-xl border text-left transition-[border-color,background-color] ${
-                audienceMode === 'clientes' 
-                  ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
-                  : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                audienceMode === 'clientes'
+                  ? 'bg-white dark:bg-slate-700 shadow text-primary'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <Users size={16} className={audienceMode === 'clientes' ? 'text-primary' : 'text-zinc-400'} />
-                <div className="font-semibold text-sm text-black dark:text-white">A mis Clientes</div>
-              </div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">Selecciona personas de tu base de clientes (CRM).</div>
+              <Users size={16} /> A mis Clientes
             </button>
             <button
               type="button"
               onClick={() => setAudienceMode('base')}
-              className={`p-4 rounded-xl border text-left transition-[border-color,background-color] ${
-                audienceMode === 'base' 
-                  ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' 
-                  : 'border-slate-200 dark:border-slate-700 hover:border-primary/50 bg-white dark:bg-slate-900'
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                audienceMode === 'base'
+                  ? 'bg-white dark:bg-slate-700 shadow text-primary'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <PhoneForwarded size={16} className={audienceMode === 'base' ? 'text-primary' : 'text-zinc-400'} />
-                <div className="font-semibold text-sm text-black dark:text-white">A una Base Nueva</div>
-              </div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">Pega números de prospectos o listas frías.</div>
+              <PhoneForwarded size={16} /> A una Base Nueva
             </button>
           </div>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {audienceMode === 'clientes' ? 'Selecciona personas de tu base de clientes (CRM).' : 'Pega números de prospectos o listas frías.'}
+          </p>
         </div>
 
         {/* CONTENIDO DINÁMICO SEGÚN EL MODO */}
         {audienceMode === 'clientes' ? (
-          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
@@ -226,7 +221,7 @@ export function SegmentConfig({
               <button type="button" onClick={clearSelection} className="text-danger hover:underline">Limpiar selección</button>
             </div>
 
-            <div className="max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900">
+            <div className="max-h-60 overflow-y-auto">
               {loadingClients ? (
                 <div className="p-4 text-center text-sm text-zinc-500">Cargando clientes...</div>
               ) : filteredClients.length === 0 ? (
@@ -283,9 +278,9 @@ export function SegmentConfig({
           </div>
         )}
         
-        <div className="flex flex-col gap-1.5">
-          <p className="m-0 text-sm font-semibold text-success bg-success/10 border border-success/20 p-3 rounded-xl flex items-center gap-2">
-            <Zap size={16} /> 
+        <div className="flex flex-col gap-1.5 mt-2">
+          <p className="m-0 text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <Zap size={16} className="text-success" /> 
             {targetContactsCount} destinatarios totales seleccionados
           </p>
         </div>
@@ -317,9 +312,9 @@ export function SegmentConfig({
           </div>
         </div>
         
-        <div className="bg-primary-light dark:bg-primary-dark-light p-3 rounded-lg text-sm mt-1">
-          <strong className="text-primary">⏱️ Tiempo estimado:</strong> <span className="text-primary font-medium">{formatTime(estimatedSeconds)}</span> <br/>
-          <span className="text-zinc-500 dark:text-zinc-400 text-xs">(El cron enviará 1 mensaje por minuto máximo para evitar baneos)</span>
+        <div className="flex items-center gap-2 text-sm mt-1 text-slate-600 dark:text-slate-400">
+          <strong className="text-primary">⏱️ Tiempo estimado:</strong> <span>{formatTime(estimatedSeconds)}</span>
+          <span className="text-xs opacity-70 ml-2">(máx 1 mensaje/min por seguridad)</span>
         </div>
       </div>
     </div>

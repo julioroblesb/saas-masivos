@@ -183,8 +183,8 @@ export function CampaignSender() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* LEFT: Config & Sequence (2/3 width) */}
-        <div className="xl:col-span-2 space-y-6">
-          <div className="panel">
+        <div className="xl:col-span-2 space-y-10">
+          <div>
             <SegmentConfig
               campaignName={campaignName}
               setCampaignName={setCampaignName}
@@ -200,7 +200,7 @@ export function CampaignSender() {
             />
           </div>
 
-          <div className="panel">
+          <div>
             <SequenceEditor
               sequence={sequence}
               handleTypeChange={handleTypeChange}
@@ -216,8 +216,8 @@ export function CampaignSender() {
 
         {/* RIGHT: Progress Bar & Execution Panel (1/3 width) */}
         <div className="space-y-6">
-          {/* Progress Bar Card */}
-          <div className="panel bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900">
+          {/* Sticky Unified Sidebar */}
+          <div className="panel sticky top-24 bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900">
             <div className="flex items-center justify-between mb-4">
               <h5 className="font-semibold text-lg flex items-center gap-2 dark:text-white-light">
                 <ShieldCheck className="text-success" size={20} />
@@ -248,9 +248,10 @@ export function CampaignSender() {
                 <span>Has alcanzado la capacidad máxima de envíos diarios recomendada.</span>
               )}
             </div>
-          </div>
 
-          <div className="panel">
+            <hr className="my-6 border-slate-200 dark:border-slate-800" />
+
+            <div>
             <ExecutionPanel
               isQueuing={isQueuing}
               queued={queued}
@@ -259,6 +260,7 @@ export function CampaignSender() {
               startCampaign={startCampaign}
               resetForm={resetForm}
             />
+          </div>
           </div>
         </div>
       </div>

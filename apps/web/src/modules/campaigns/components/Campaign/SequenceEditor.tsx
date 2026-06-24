@@ -30,26 +30,33 @@ export function SequenceEditor({
         <Settings2 size={16} className="text-primary" />
         <h3 className="m-0 text-lg font-semibold dark:text-white-light">Secuencia de Mensajes ({sequence.length})</h3>
       </div>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-8 pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
         {sequence.map((msg, idx) => (
-          <div key={msg.id} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-[border-color,box-shadow,background-color] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
-            <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-              <span className="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Mensaje {idx + 1}</span>
-              <div className="flex items-center gap-2">
-                <div className="w-48">
-                  <CustomSelect
-                    isSearchable={false}
-                    options={Object.entries(typeLabel).map(([v, l]) => ({ value: v, label: l }))}
-                    value={{ value: msg.type, label: typeLabel[msg.type] }}
-                    onChange={(option: any) => handleTypeChange(msg.id, option.value as SequenceItem['type'])}
-                  />
+          <div key={msg.id} className="relative -ml-[25px] flex gap-5 group">
+            {/* Timeline Dot */}
+            <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 border-4 border-white dark:border-[#0e1726] flex-shrink-0 mt-1"></div>
+            
+            <div className="flex-1 flex flex-col gap-3">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Mensaje {idx + 1}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-48">
+                    <CustomSelect
+                      isSearchable={false}
+                      options={Object.entries(typeLabel).map(([v, l]) => ({ value: v, label: l }))}
+                      value={{ value: msg.type, label: typeLabel[msg.type] }}
+                      onChange={(option: any) => handleTypeChange(msg.id, option.value as SequenceItem['type'])}
+                    />
+                  </div>
+                  <button type="button" className="text-zinc-400 hover:text-danger transition-colors p-1.5" onClick={() => removeMessage(msg.id)}>
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-                <button type="button" className="w-7 h-7 rounded-md border-none bg-danger/10 text-danger flex items-center justify-center cursor-pointer transition-colors hover:bg-danger/20" onClick={() => removeMessage(msg.id)}>
-                  <Trash2 size={13} />
-                </button>
               </div>
-            </div>
-            <div className="p-4">
+              
+              {/* Content body */}
+              <div>
               {msg.type === 'text' ? (
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-wrap gap-1.5 mb-0.5">
@@ -77,24 +84,33 @@ export function SequenceEditor({
                   uploadMedia={uploadMedia}
                 />
               )}
-            </div>
-            <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium whitespace-nowrap">Espera después:</span>
-              <input
-                type="number"
-                className="w-[75px] px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-                min={0}
-                step={500}
-                value={msg.delayAfterMs}
-                onChange={e => updateMessage(msg.id, { delayAfterMs: Number(e.target.value) })}
-              />
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">ms ({(msg.delayAfterMs / 1000).toFixed(1)}s)</span>
+              </div>
+              
+              {/* Footer */}
+              <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                <span>Espera después:</span>
+                <input
+                  type="number"
+                  className="w-[65px] border-b border-slate-300 dark:border-slate-700 bg-transparent text-center focus:outline-none focus:border-primary text-sm pb-0.5"
+                  min={0}
+                  step={500}
+                  value={msg.delayAfterMs}
+                  onChange={e => updateMessage(msg.id, { delayAfterMs: Number(e.target.value) })}
+                />
+                <span>ms <span className="opacity-70 text-xs">({(msg.delayAfterMs / 1000).toFixed(1)}s)</span></span>
+              </div>
             </div>
           </div>
         ))}
-        <button type="button" className="btn btn-outline-primary w-full border-dashed gap-2" onClick={addMessage}>
-          <Plus size={16} /> Agregar Mensaje
-        </button>
+        
+        <div className="relative -ml-[25px] flex gap-5">
+          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-[#0e1726] flex-shrink-0 mt-2 flex items-center justify-center text-zinc-400">
+            <Plus size={12} />
+          </div>
+          <button type="button" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2 flex items-center gap-1" onClick={addMessage}>
+            Agregar Mensaje
+          </button>
+        </div>
       </div>
     </div>
   );
