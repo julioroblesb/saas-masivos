@@ -96,15 +96,11 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
   if (!bb_project_id) return { skipped: 'sin bb_project_id' };
 
-  // 1. Horario de Envíos: 08:00 a 20:00 (Ventana Segura, Hora de Lima)
+  // 1. Obtenemos hora actual (para restringir campañas masivas después)
   const now = new Date();
   const limaTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Lima' });
   const limaTime = new Date(limaTimeStr);
   const currentHour = limaTime.getHours();
-
-  if (currentHour < 8 || currentHour >= 20) {
-    return { skipped: 'fuera de horario comercial (08:00-20:00 PET)' };
-  }
 
   // 2. Warm-up & Límites Diarios
   let currentDailyCount = daily_sent_count || 0;
@@ -168,7 +164,12 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 } // Delays predeterminados para automáticos
       };
     } else {
-      // Si no hay automáticos, sacamos de la cola de campañas masivas
+      // Si no hay automáticos, verificamos horario antes de sacar masivos
+      if (currentHour < 8 || currentHour >= 20) {
+        break; // Fuera de horario comercial para campañas masivas (08:00-20:00 PET)
+      }
+
+      // Si estamos en horario, sacamos de la cola de campañas masivas
       const { data: queueItem } = await supabaseAdmin
         .from('crm_wa_queue')
         .select(`
