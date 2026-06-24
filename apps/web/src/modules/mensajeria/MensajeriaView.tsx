@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Calendar, Clock, Phone, Send, AlertTriangle, CheckCircle, Edit, Save, X } from 'lucide-react';
+import { Calendar, Clock, Phone, Send, AlertTriangle, CheckCircle, Edit, Save, X, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 export default function MensajeriaView() {
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [editDate, setEditDate] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const supabase = createClient();
 
@@ -47,6 +49,7 @@ export default function MensajeriaView() {
   const handleEditClick = (msg: any) => {
     setEditingId(msg.id);
     setEditContent(msg.message);
+    setEditDate(msg.scheduled_for || msg.created_at);
   };
 
   const handleSaveEdit = async () => {
@@ -55,19 +58,32 @@ export default function MensajeriaView() {
     try {
       const { error } = await supabase
         .from('crm_wa_queue')
-        .update({ message: editContent })
+        .update({ message: editContent, scheduled_for: new Date(editDate).toISOString() })
         .eq('id', editingId);
         
       if (error) throw error;
       
       toast.success('Mensaje actualizado exitosamente');
-      setMessages(messages.map(m => m.id === editingId ? { ...m, message: editContent } : m));
+      setMessages(messages.map(m => m.id === editingId ? { ...m, message: editContent, scheduled_for: new Date(editDate).toISOString() } : m));
       setEditingId(null);
     } catch (err: any) {
       console.error('Error updating message:', err);
       toast.error('Error al actualizar el mensaje');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar este mensaje?')) return;
+    try {
+      const { error } = await supabase.from('crm_wa_queue').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Mensaje eliminado');
+      setMessages(messages.filter(m => m.id !== id));
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al eliminar el mensaje');
     }
   };
 
@@ -120,10 +136,20 @@ export default function MensajeriaView() {
               {messages.map((msg: any) => (
                 <tr key={msg.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                   <td className="p-4 align-top">
-                    <div className="flex items-center gap-2 text-black dark:text-white font-medium">
-                      <Calendar size={14} className="text-zinc-400 shrink-0" />
-                      {new Date(msg.scheduled_for || msg.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
-                    </div>
+                    {editingId === msg.id ? (
+                      <div className="min-w-[180px]">
+                        <CustomDatePicker
+                          enableTime={true}
+                          value={editDate}
+                          onChangeDate={(dateStr) => setEditDate(dateStr)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-black dark:text-white font-medium">
+                        <Calendar size={14} className="text-zinc-400 shrink-0" />
+                        {new Date(msg.scheduled_for || msg.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+                      </div>
+                    )}
                   </td>
                   <td className="p-4 align-top">
                     <div className="font-semibold text-black dark:text-white">
@@ -170,12 +196,20 @@ export default function MensajeriaView() {
                       </div>
                     ) : (
                       msg.status === 'pendiente' && (
-                        <button 
-                          className="btn btn-sm btn-outline-primary p-1.5" 
-                          onClick={() => handleEditClick(msg)}
-                        >
-                          <Edit size={14} />
-                        </button>
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            className="btn btn-sm btn-outline-primary p-1.5" 
+                            onClick={() => handleEditClick(msg)}
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button 
+                            className="btn btn-sm btn-outline-danger p-1.5" 
+                            onClick={() => handleDelete(msg.id)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       )
                     )}
                   </td>

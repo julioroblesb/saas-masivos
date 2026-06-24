@@ -132,8 +132,8 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
       {/* Modal - Registrar Abono */}
       {isPaymentModalOpen && paymentVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-visible animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark rounded-t-3xl">
               <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <Coins className="w-5 h-5 text-primary" />
                 Registrar Abono

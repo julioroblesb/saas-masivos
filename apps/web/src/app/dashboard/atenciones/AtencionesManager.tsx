@@ -314,7 +314,7 @@ export function AtencionesManager({
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="flex flex-row items-center gap-4 w-full md:w-auto">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
             <input 
@@ -326,7 +326,7 @@ export function AtencionesManager({
             />
           </div>
           <button 
-            className="btn btn-primary rounded-xl gap-2 w-full sm:w-auto px-6"
+            className="btn btn-primary rounded-xl gap-2 px-6 whitespace-nowrap"
             onClick={() => setIsModalOpen(true)}
           >
             <Plus className="w-5 h-5" /> Nueva Atención
@@ -487,8 +487,8 @@ export function AtencionesManager({
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
               <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Plus className="w-5 h-5 text-primary" />
@@ -503,7 +503,7 @@ export function AtencionesManager({
               </button>
             </div>
             
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="space-y-4 col-span-1 md:col-span-2">
@@ -575,11 +575,10 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" /> Fecha Programada (Cita) *
                   </label>
-                  <input 
-                    type="datetime-local" 
-                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
+                  <CustomDatePicker
+                    enableTime={true}
                     value={form.scheduled_date}
-                    onChange={e => setForm(prev => ({ ...prev, scheduled_date: e.target.value }))}
+                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, scheduled_date: dateStr }))}
                   />
                 </div>
 
@@ -617,7 +616,7 @@ export function AtencionesManager({
               </div>
             </div>
             
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light shrink-0">
               <button 
                 className="btn btn-outline-secondary rounded-xl px-6" 
                 onClick={() => setIsModalOpen(false)}
@@ -639,8 +638,8 @@ export function AtencionesManager({
       {/* Modal - Completar Atención */}
       {isCompleteModalOpen && completeVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-success/5 to-white dark:from-success/10 dark:to-dark">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-success/5 to-white dark:from-success/10 dark:to-dark shrink-0 rounded-t-3xl">
               <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-success" />
                 Completar Atención
@@ -756,8 +755,8 @@ export function AtencionesManager({
       {/* Modal - Registrar Abono */}
       {isPaymentModalOpen && paymentVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark shrink-0 rounded-t-3xl">
               <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <Coins className="w-5 h-5 text-primary" />
                 Registrar Abono
@@ -831,8 +830,8 @@ export function AtencionesManager({
       {/* Modal - Editar Atención */}
       {isEditModalOpen && selectedVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
               <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
                 Editar Atención
@@ -873,11 +872,10 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" /> Fecha
                   </label>
-                  <input 
-                    type="datetime-local" 
-                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
+                  <CustomDatePicker
+                    enableTime={true}
                     value={editForm.scheduled_date}
-                    onChange={e => setEditForm(prev => ({ ...prev, scheduled_date: e.target.value }))}
+                    onChangeDate={(dateStr) => setEditForm(prev => ({ ...prev, scheduled_date: dateStr }))}
                   />
                 </div>
 
@@ -924,22 +922,23 @@ export function AtencionesManager({
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="pt-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3 mt-6">
-                <button 
-                  className="btn btn-outline-secondary rounded-xl px-6"
-                  onClick={() => setIsEditModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button 
-                  className="btn btn-primary rounded-xl px-8"
-                  onClick={handleEditSubmit}
-                  disabled={isSubmitting || !editForm.service_id || !editForm.scheduled_date}
-                >
-                  {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              </div>
+            <div className="p-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3 shrink-0">
+              <button 
+                className="btn btn-outline-secondary rounded-xl px-6"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-primary rounded-xl px-8"
+                onClick={handleEditSubmit}
+                disabled={isSubmitting || !editForm.service_id || !editForm.scheduled_date}
+              >
+                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
             </div>
           </div>
         </div>

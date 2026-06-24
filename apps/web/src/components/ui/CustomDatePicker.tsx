@@ -9,9 +9,10 @@ interface CustomDatePickerProps extends Omit<React.ComponentProps<typeof Flatpic
   onChangeDate: (dateStr: string) => void;
   placeholder?: string;
   className?: string;
+  enableTime?: boolean;
 }
 
-export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, ...props }, ref) => {
+export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, enableTime = false, ...props }, ref) => {
   return (
     <div className="custom-datepicker-wrapper w-full relative">
       <style jsx global>{`
@@ -95,25 +96,38 @@ export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value,
         .dark .custom-datepicker-wrapper .flatpickr-day.flatpickr-disabled {
           color: #52525B;
         }
+        
+        .custom-datepicker-wrapper .flatpickr-time {
+          border-top: 1px solid #E4E4E7;
+          margin-top: 0.5rem;
+        }
+        .dark .custom-datepicker-wrapper .flatpickr-time {
+          border-top: 1px solid #27272A;
+        }
       `}</style>
       <Flatpickr
         ref={ref}
         value={value}
         onChange={([date]) => {
           if (date) {
-            // Adjust for local timezone to get correct YYYY-MM-DD
             const offset = date.getTimezoneOffset();
             const adjustedDate = new Date(date.getTime() - (offset*60*1000));
-            onChangeDate(adjustedDate.toISOString().split('T')[0]);
+            if (enableTime) {
+              onChangeDate(adjustedDate.toISOString().slice(0, 16));
+            } else {
+              onChangeDate(adjustedDate.toISOString().split('T')[0]);
+            }
           } else {
             onChangeDate('');
           }
         }}
         options={{
           locale: Spanish,
-          dateFormat: "Y-m-d",
+          dateFormat: enableTime ? "Y-m-d\\TH:i" : "Y-m-d",
           altInput: true,
-          altFormat: "d M Y",
+          altFormat: enableTime ? "d M Y, h:i K" : "d M Y",
+          enableTime: enableTime,
+          time_24hr: false
         }}
         placeholder={placeholder}
         className={className || "form-input w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"}
