@@ -110,6 +110,7 @@ export interface SpaDashboardMetrics {
 export interface AutoMessageSettings {
   careEnabled: boolean;
   careTemplate: string;
+  careInstructionsTemplate?: string;
   followUpEnabled: boolean;
   followUpTemplate: string;
   birthdayEnabled: boolean;

@@ -77,17 +77,24 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
 
     const autoMsgs = company?.settings?.auto_messages || {
       careEnabled: true,
+      careEnabled: true,
       careTemplate: DEFAULT_CARE_TEMPLATE,
+      careInstructionsTemplate: "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}",
       followUpEnabled: true,
       followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE
     };
 
-    const replaceVars = (text: string) => {
+    const replaceVars = (text: string, extraVars?: any) => {
       if (!text) return '';
-      return text
+      let res = text
         .replace(/\{\{nombre\}\}/gi, visit.crm_marketing_contacts?.name || '')
         .replace(/\{\{servicio\}\}/gi, visit.spa_services?.name || '')
         .replace(/\{\{dias\}\}/gi, visit.spa_services?.duration_days?.toString() || '0');
+        
+      if (extraVars?.cuidados) {
+        res = res.replace(/\{\{cuidados\}\}/gi, extraVars.cuidados);
+      }
+      return res;
     };
 
     const queueInserts = [];
@@ -109,7 +116,7 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
           visit_id: visitId,
           contact_id: visit.crm_marketing_contacts?.id,
           phone: visit.crm_marketing_contacts?.phone,
-          message: visit.spa_services.care_instructions || 'Instrucciones de cuidado',
+          message: visit.spa_services?.care_instructions ? replaceVars(autoMsgs.careInstructionsTemplate || "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}", { cuidados: visit.spa_services.care_instructions }) : 'Instrucciones de cuidado',
           media_url: visit.spa_services.care_image_url || null,
           status: 'pendiente',
           scheduled_for: new Date(Date.now() + 5000).toISOString(), // 5 seconds after to ensure it arrives second
