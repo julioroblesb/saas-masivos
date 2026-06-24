@@ -51,7 +51,7 @@ export default function LoginPage() {
               LR
             </div>
             <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]" style={{ textWrap: 'balance' }}>
-              Transforma la gestión de tu clínica hoy.
+              Transforma la gestión de tu negocio hoy.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
               Centraliza tus citas, mensajes masivos de WhatsApp y pagos en una sola plataforma diseñada para equipos de alto rendimiento.
