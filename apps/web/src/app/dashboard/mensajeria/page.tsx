@@ -21,7 +21,7 @@ export default async function MensajeriaPage() {
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <div className="mb-5 flex items-center justify-between">
         <h5 className="text-lg font-semibold dark:text-white-light">Historial y Mensajes en Cola</h5>
       </div>

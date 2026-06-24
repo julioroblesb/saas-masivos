@@ -22,7 +22,7 @@ export default async function CampanasPage() {
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <div className="mb-5 flex items-center justify-between">
         <h5 className="text-lg font-semibold dark:text-white-light">Panel de Campañas</h5>
         <WhatsappConnection companyId={profile?.company_id} />

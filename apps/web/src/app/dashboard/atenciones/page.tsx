@@ -8,7 +8,7 @@ export default async function AtencionesPage({ searchParams }: { searchParams: {
   const { services, visits, contacts, staff, paymentMethods, error } = await getAtencionesData(startDate, endDate);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">Registro de Atenciones</h1>

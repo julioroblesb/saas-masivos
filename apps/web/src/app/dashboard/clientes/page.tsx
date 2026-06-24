@@ -7,7 +7,7 @@ export default async function ClientesPage() {
   const { data: clients, error } = await getClientsMetrics();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">Base de Datos de Clientes</h1>

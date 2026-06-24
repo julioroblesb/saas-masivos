@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function TrabajadorasPage() {
-  return <TrabajadorasView />;
+  return <div className="animate-in fade-in duration-500"><TrabajadorasView /></div>;
 }

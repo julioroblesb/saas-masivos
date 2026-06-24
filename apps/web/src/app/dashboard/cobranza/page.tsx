@@ -63,7 +63,7 @@ export default async function CobranzaPage() {
   });
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-300">
+    <div className="flex flex-col h-full animate-in fade-in duration-500">
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-black dark:text-white">
