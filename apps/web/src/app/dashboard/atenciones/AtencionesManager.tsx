@@ -20,7 +20,7 @@ export function AtencionesManager({
   contacts: any[]; 
   staffList?: any[];
 }) {
-  const [activeTab, setActiveTab] = useState<'activas' | 'historial'>('activas');
+  const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
   const [visits, setVisits] = useState(initialVisits);
   const router = useRouter();
 
@@ -118,7 +118,7 @@ export function AtencionesManager({
     setForm(prev => ({
       ...prev,
       service_id: serviceId,
-      price_charged: s ? (s.promo_price || s.price) : 0,
+      price_charged: s ? s.price : 0,
     }));
   };
 
@@ -250,6 +250,15 @@ export function AtencionesManager({
       return acc;
     }, {});
 
+  const groupedFutureVisits = filteredVisits
+    .filter(v => v.status === 'agendada')
+    .reduce((acc: any, visit: any) => {
+      const date = new Date((visit.visit_date || '').split('T')[0] + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(visit);
+      return acc;
+    }, {});
+
   const historyVisits = filteredVisits.filter(v => v.status === 'completado' || v.status === 'cancelado');
 
   return (
@@ -305,6 +314,12 @@ export function AtencionesManager({
             onClick={() => setActiveTab('activas')}
           >
             Atenciones Activas
+          </button>
+          <button 
+            className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'proximas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+            onClick={() => setActiveTab('proximas')}
+          >
+            Próximas
           </button>
           <button 
             className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'historial' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
@@ -412,6 +427,60 @@ export function AtencionesManager({
                               </button>
                             </div>
                           )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : activeTab === 'proximas' ? (
+        Object.keys(groupedFutureVisits).length === 0 ? (
+          <div className="p-12 text-center text-zinc-500 bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl">
+            No se encontraron citas futuras.
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {Object.keys(groupedFutureVisits).map(date => (
+              <div key={date}>
+                <h3 className="text-lg font-bold text-black dark:text-white mb-4 capitalize">{date}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {groupedFutureVisits[date].map((visit: any) => (
+                    <div key={visit.id} className="panel p-0 hover:-translate-y-1 transition-transform duration-300 overflow-hidden relative group border-2 border-transparent hover:border-primary/20">
+                      <div className="p-5 border-b border-black-light dark:border-dark-light bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900/50">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className="badge bg-primary/10 text-primary">Agendada</span>
+                          <span className="text-xl font-bold text-black dark:text-white">S/ {visit.price_charged}</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-black dark:text-white mb-1">{visit.contact_name || 'Paciente Sin Nombre'}</h4>
+                        <div className="flex items-center text-sm text-zinc-500 gap-1 mb-1">
+                          <Phone size={14} /> +{visit.contact_phone}
+                        </div>
+                        <div className="text-sm font-semibold text-primary">{visit.service_name}</div>
+                        {visit.staff_id && staffList && (
+                          <div className="text-xs text-zinc-500 mt-2">
+                            Atendido por: <span className="font-medium text-zinc-700 dark:text-zinc-300">{staffList.find((s: any) => s.id === visit.staff_id)?.name || 'Desconocido'}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 bg-white dark:bg-dark space-y-3">
+                        <div className="flex items-center text-sm font-semibold text-zinc-700 dark:text-zinc-300 gap-2 mb-2">
+                          <Calendar size={16} className="text-primary" /> {new Date(visit.visit_date).toLocaleString('es-PE', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </div>
+                        {visit.notes && (
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-black-light dark:border-dark-light">
+                            {visit.notes}
+                          </p>
+                        )}
+                        <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
+                           <button 
+                             className="btn btn-sm btn-outline-danger"
+                             onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
+                           >
+                             Cancelar Cita
+                           </button>
                         </div>
                       </div>
                     </div>
