@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { createVisitAction, updateVisitStatusAction, addPaymentAction } from './actions';
+import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
@@ -31,6 +31,14 @@ export function AtencionesManager({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [completeVisit, setCompleteVisit] = useState<any>(null);
+  const [completeIsCredit, setCompleteIsCredit] = useState(false);
+  const [completePayment, setCompletePayment] = useState(0);
+  const [completeMethod, setCompleteMethod] = useState('efectivo');
+  const [completeDebtDate, setCompleteDebtDate] = useState('');
+  const [completeNotes, setCompleteNotes] = useState('');
+  
   const [paymentVisit, setPaymentVisit] = useState<any>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
@@ -39,14 +47,10 @@ export function AtencionesManager({
   const [form, setForm] = useState({
     contact_id: '',
     service_id: '',
-    visit_date: new Date().toISOString().split('T')[0],
-    scheduled_date: new Date().toISOString().split('T')[0],
-    status: 'en_curso' as 'en_curso' | 'completado' | 'cancelado' | 'agendada',
+    staff_id: '',
+    scheduled_date: new Date().toISOString().slice(0, 16),
     price_charged: 0,
-    initial_payment: 0,
-    payment_method: 'efectivo' as 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta',
     notes: '',
-    staff_id: ''
   });
   
   const [showNewPatient, setShowNewPatient] = useState(false);
@@ -60,28 +64,37 @@ export function AtencionesManager({
     setForm(prev => ({
       ...prev,
       service_id: serviceId,
-      price_charged: s ? (s.promo_price || s.price) : 0,
-      initial_payment: s ? (s.promo_price || s.price) : 0
+      price_charged: s ? s.price : 0,
     }));
   };
 
+  const handlePriceBlur = () => {
+    const s = services.find(x => x.id === form.service_id);
+    if (s && s.promo_price && form.price_charged < s.promo_price) {
+      toast.error(`El precio no puede ser menor al precio promo (S/ ${s.promo_price})`);
+      setForm(prev => ({ ...prev, price_charged: s.promo_price as number }));
+    }
+  };
+
   const handleSubmit = async () => {
-    if ((!form.contact_id && !showNewPatient) || (showNewPatient && (!newPatient.name || !newPatient.phone)) || !form.service_id || !form.visit_date) {
+    if ((!form.contact_id && !showNewPatient) || (showNewPatient && (!newPatient.name || !newPatient.phone)) || !form.service_id || !form.scheduled_date) {
       toast.error('Por favor completa los campos requeridos (Cliente, Servicio, Fecha).');
       return;
     }
+    
+    // Auto-determine status based on date
+    const selectedDateStr = form.scheduled_date.split('T')[0];
+    const todayStr = new Date(new Date().getTime() - 5 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const computedStatus = selectedDateStr === todayStr ? 'en_curso' : 'agendada';
     
     setIsSubmitting(true);
     const res = await createVisitAction({
       contact_id: !showNewPatient ? form.contact_id : undefined,
       new_contact: showNewPatient ? newPatient : undefined,
       service_id: form.service_id,
-      visit_date: form.visit_date,
       scheduled_date: form.scheduled_date,
-      status: form.status,
+      status: computedStatus,
       price_charged: form.price_charged,
-      initial_payment: form.initial_payment,
-      payment_method: form.payment_method,
       notes: form.notes,
       staff_id: form.staff_id || undefined
     });
@@ -97,19 +110,58 @@ export function AtencionesManager({
   };
   
   const handleUpdateStatus = async (visitId: string, status: 'completado' | 'cancelado') => {
+    if (status === 'completado') {
+      const v = visits.find(x => x.id === visitId);
+      if (v) {
+        setCompleteVisit(v);
+        setCompleteIsCredit(false);
+        setCompletePayment(v.price_charged);
+        setCompleteMethod('efectivo');
+        setCompleteNotes(v.notes || '');
+        setCompleteDebtDate('');
+        setIsCompleteModalOpen(true);
+      }
+      return;
+    }
+
     if (!confirm(`¿Marcar esta atención como ${status}?`)) return;
     
-    // Optimistic UI update
     setVisits(prev => prev.map(v => v.id === visitId ? { ...v, status } : v));
     
     const res = await updateVisitStatusAction(visitId, status);
     if (res.error) {
       toast.error(res.error);
-      router.refresh(); // revert if error
+      router.refresh(); 
     } else {
       toast.success(`Atención ${status}.`);
       router.refresh();
     }
+  };
+
+  const handleCompleteSubmit = async () => {
+    if (!completeVisit) return;
+    if (completeIsCredit && (!completeDebtDate || completePayment < 0)) {
+      toast.error('Por favor completa la fecha de próximo pago y el abono válido.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await completeAndPayVisitAction(completeVisit.id, {
+      payment_method: completeMethod,
+      is_credit: completeIsCredit,
+      initial_payment: completePayment,
+      debt_due_date: completeDebtDate,
+      notes: completeNotes
+    });
+
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Atención completada y cobrada exitosamente');
+      setIsCompleteModalOpen(false);
+      router.refresh();
+    }
+    setIsSubmitting(false);
   };
 
   const handleAddPayment = async () => {
@@ -288,7 +340,7 @@ export function AtencionesManager({
                         </div>
                         <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
                           <div className="text-xs text-zinc-400">
-                            Creado: {new Date(visit.created_at).toLocaleDateString()}
+                            Creado: {new Date(visit.created_at).toLocaleString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true, day: '2-digit', month: 'short' })}
                           </div>
                           {visit.status === 'en_curso' && (
                             <div className="flex items-center gap-2">
@@ -335,12 +387,24 @@ export function AtencionesManager({
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                   {historyVisits.map((visit: any) => (
                     <tr key={visit.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                      <td className="p-4 text-black dark:text-white font-medium">{new Date((visit.visit_date || '').split('T')[0] + 'T00:00:00').toLocaleDateString()}</td>
+                      <td className="p-4 text-black dark:text-white font-medium">{new Date(visit.scheduled_date || visit.visit_date).toLocaleString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                       <td className="p-4">
                         <div className="font-semibold text-black dark:text-white">{visit.contact_name}</div>
                         <div className="text-xs text-zinc-500">+{visit.contact_phone}</div>
                       </td>
-                      <td className="p-4 text-zinc-600 dark:text-zinc-300">{visit.service_name}</td>
+                      <td className="p-4 text-zinc-600 dark:text-zinc-300">
+                        <div className="flex items-center gap-2">
+                          {visit.service_name}
+                          {visit.notes && (
+                            <div className="group relative flex items-center">
+                              <FileText className="w-4 h-4 text-primary cursor-help" />
+                              <div className="absolute left-full ml-2 w-48 p-2 bg-black text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
+                                {visit.notes}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-4 text-zinc-500">
                         {visit.staff_id && staffList ? staffList.find((s: any) => s.id === visit.staff_id)?.name || '-' : '-'}
                       </td>
@@ -448,23 +512,13 @@ export function AtencionesManager({
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Fecha de Registro *
-                  </label>
-                  <CustomDatePicker 
-                    value={form.visit_date}
-                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, visit_date: dateStr }))}
-                    placeholder="Seleccione la fecha"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" /> Fecha Programada (Cita) *
                   </label>
-                  <CustomDatePicker 
+                  <input 
+                    type="datetime-local" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
                     value={form.scheduled_date}
-                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, scheduled_date: dateStr }))}
-                    placeholder="Seleccione la fecha"
+                    onChange={e => setForm(prev => ({ ...prev, scheduled_date: e.target.value }))}
                   />
                 </div>
 
@@ -479,55 +533,9 @@ export function AtencionesManager({
                       className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
                       value={form.price_charged}
                       onChange={e => setForm(prev => ({ ...prev, price_charged: parseFloat(e.target.value) || 0 }))}
+                      onBlur={handlePriceBlur}
                     />
                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-primary" /> Abono Inicial
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
-                    <input 
-                      type="number"
-                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                      value={form.initial_payment}
-                      onChange={e => setForm(prev => ({ ...prev, initial_payment: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" /> Método de Pago
-                  </label>
-                  <CustomSelect
-                    options={[
-                      { value: 'efectivo', label: 'Efectivo' },
-                      { value: 'yape', label: 'Yape' },
-                      { value: 'plin', label: 'Plin' },
-                      { value: 'transferencia', label: 'Transferencia' },
-                      { value: 'tarjeta', label: 'Tarjeta' }
-                    ]}
-                    value={{ value: form.payment_method, label: form.payment_method.charAt(0).toUpperCase() + form.payment_method.slice(1) }}
-                    onChange={(selected: any) => setForm(prev => ({ ...prev, payment_method: selected ? selected.value : 'efectivo' }))}
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" /> Estado Inicial
-                  </label>
-                  <CustomSelect
-                    options={[
-                      { value: 'completado', label: 'Completado (Programa mensajes aut.)' },
-                      { value: 'en_curso', label: 'En Curso (No programa mensajes aut.)' },
-                      { value: 'agendada', label: 'Agendada (Cita futura)' }
-                    ]}
-                    value={{ value: form.status, label: form.status === 'completado' ? 'Completado (Programa mensajes aut.)' : form.status === 'agendada' ? 'Agendada (Cita futura)' : 'En Curso (No programa mensajes aut.)' }}
-                    onChange={(selected: any) => setForm(prev => ({ ...prev, status: selected ? selected.value : 'completado' }))}
-                  />
                 </div>
 
                 <div className="space-y-4 col-span-1 md:col-span-2">
@@ -543,17 +551,7 @@ export function AtencionesManager({
                   />
                 </div>
                 
-                {form.status === 'completado' && (
-                  <div className="col-span-1 md:col-span-2 bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-sm text-black dark:text-white font-medium">Programación Automática Activada</p>
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-                        Al guardar como "Completado", el sistema llamará automáticamente a la función de programación de mensajes post-cuidado y seguimiento, de acuerdo a la configuración del servicio seleccionado.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {/* The automatic warning text is removed since status isn't chosen directly here */}
                 
               </div>
             </div>
@@ -572,6 +570,123 @@ export function AtencionesManager({
               >
                 {isSubmitting ? 'Guardando...' : 'Registrar Atención'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Completar Atención */}
+      {isCompleteModalOpen && completeVisit && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-success/5 to-white dark:from-success/10 dark:to-dark">
+              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-success" />
+                Completar Atención
+              </h3>
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsCompleteModalOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+              <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
+                <div className="text-sm text-zinc-500 mb-1">Costo Total del Servicio</div>
+                <div className="text-2xl font-bold text-primary">S/ {completeVisit.price_charged}</div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox text-primary focus:ring-primary h-5 w-5 rounded border-zinc-300"
+                    checked={completeIsCredit}
+                    onChange={(e) => setCompleteIsCredit(e.target.checked)}
+                  />
+                  <span className="text-sm font-semibold text-black dark:text-white">¿Es pago a crédito / parcial?</span>
+                </label>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                  <Coins className="w-4 h-4 text-primary" /> Monto cobrado AHORA
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
+                  <input 
+                    type="number"
+                    className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    value={completePayment}
+                    onChange={e => setCompletePayment(parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+
+              {completePayment > 0 && (
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" /> Método de Pago
+                  </label>
+                  <CustomSelect
+                    options={[
+                      { value: 'efectivo', label: 'Efectivo' },
+                      { value: 'yape', label: 'Yape' },
+                      { value: 'plin', label: 'Plin' },
+                      { value: 'transferencia', label: 'Transferencia' },
+                      { value: 'tarjeta', label: 'Tarjeta' }
+                    ]}
+                    value={{ value: completeMethod, label: completeMethod.charAt(0).toUpperCase() + completeMethod.slice(1) }}
+                    onChange={(selected: any) => setCompleteMethod(selected ? selected.value : 'efectivo')}
+                  />
+                </div>
+              )}
+
+              {completeIsCredit && (
+                <div className="space-y-4 p-4 bg-warning/5 rounded-xl border border-warning/20">
+                  <label className="text-sm font-semibold text-warning-dark flex items-center gap-2">
+                    <Calendar className="w-4 h-4" /> Fecha Promesa de Pago *
+                  </label>
+                  <input 
+                    type="date"
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
+                    value={completeDebtDate}
+                    onChange={e => setCompleteDebtDate(e.target.value)}
+                  />
+                  <p className="text-xs text-zinc-500">Debe seleccionar una fecha para enviar la alerta de cobranza.</p>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" /> Observaciones (Opcional)
+                </label>
+                <textarea 
+                  className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                  placeholder="Detalles sobre cómo quedó el paciente..."
+                  rows={3}
+                  value={completeNotes}
+                  onChange={e => setCompleteNotes(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
+                <button 
+                  className="btn btn-outline-secondary rounded-xl px-6"
+                  onClick={() => setIsCompleteModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="btn btn-success rounded-xl px-8 text-white"
+                  onClick={handleCompleteSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Guardando...' : 'Completar Atención'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

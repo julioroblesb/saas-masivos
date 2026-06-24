@@ -55,11 +55,8 @@ export async function createVisitAction(payload: {
   contact_id?: string;
   new_contact?: { name: string; phone: string };
   service_id: string;
-  visit_date: string;
   status: 'en_curso' | 'completado' | 'cancelado' | 'agendada';
   price_charged: number;
-  initial_payment: number;
-  payment_method: 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta';
   scheduled_date: string;
   notes?: string;
   staff_id?: string;
@@ -96,29 +93,17 @@ export async function createVisitAction(payload: {
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };
   
-  // LOGICAL FIX FOR TIMEZONE ISSUE:
-  // When the frontend sends a date like '2026-06-23', PostgreSQL treats it as midnight UTC (2026-06-23T00:00:00Z).
-  // For users in UTC-5 (America/Lima), midnight UTC is 7 PM of the PREVIOUS DAY.
-  // To fix this logically, we must convert the 'YYYY-MM-DD' input into a proper TIMESTAMPTZ.
-  // If the date is 'today' (locally), we just use the current timestamp (which has the correct time).
-  // If it's a future or past date, we append T12:00:00-05:00 to ensure it falls squarely in the correct local day.
+  // Logica de Status basada en fecha: 
+  // Si scheduled_date es hoy, es en_curso, si es futuro agendada.
+  // Pero lo manejamos en el frontend o respetamos lo enviado.
   
-  const todayLocal = new Date(new Date().getTime() - 5 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const visit_timestamp = payload.visit_date === todayLocal 
-    ? new Date().toISOString() 
-    : `${payload.visit_date}T12:00:00-05:00`;
-    
-  const scheduled_timestamp = payload.scheduled_date === todayLocal 
-    ? new Date().toISOString() 
-    : `${payload.scheduled_date}T12:00:00-05:00`;
+  // scheduled_date viene del datetime-local, así que ya tiene hora, pero asume timezone local.
+  // Es mejor usarlo directo. Si el usuario seleccionó "hoy", el frontend manda status='en_curso'.
+  // Y si es cita futura status='agendada'.
+  const visit_timestamp = new Date(payload.scheduled_date).toISOString();
 
-  // Determine payment status
+  // Determine payment status (siempre pendiente al inicio, no cobramos al crear)
   let payment_status = 'pendiente';
-  if (payload.initial_payment >= payload.price_charged && payload.price_charged > 0) {
-    payment_status = 'pagado';
-  } else if (payload.initial_payment > 0) {
-    payment_status = 'parcial';
-  }
 
   // Insert visit
   const { data, error } = await supabase
@@ -127,8 +112,8 @@ export async function createVisitAction(payload: {
       company_id: profile.company_id,
       contact_id: final_contact_id,
       service_id: payload.service_id,
-      visit_date: visit_timestamp,
-      scheduled_date: scheduled_timestamp,
+      visit_date: visit_timestamp, // Usamos la misma fecha como visit_date y scheduled_date para unificar
+      scheduled_date: visit_timestamp,
       status: payload.status,
       price_charged: payload.price_charged,
       payment_status,
@@ -140,24 +125,6 @@ export async function createVisitAction(payload: {
     
   if (error) {
     return { error: error.message };
-  }
-
-  // Insert initial payment if amount > 0
-  if (payload.initial_payment > 0) {
-    const { error: paymentError } = await supabase
-      .from('spa_payments')
-      .insert({
-        company_id: profile.company_id,
-        visit_id: data.id,
-        amount: payload.initial_payment,
-        payment_method: payload.payment_method,
-        payment_date: visit_timestamp
-      });
-      
-    if (paymentError) {
-      console.error('Error inserting initial payment:', paymentError);
-      // Not returning error here to avoid blocking the visit creation, but ideally should use a transaction
-    }
   }
   
   // If status is 'completado', trigger the complete visit RPC
@@ -233,6 +200,74 @@ export async function addPaymentAction(visitId: string, amount: number, paymentM
     if (totalPaid >= visit.price_charged) payment_status = 'pagado';
     
     await supabase.from('spa_visits').update({ payment_status }).eq('id', visitId);
+  }
+
+  return { success: true };
+}
+
+export async function completeAndPayVisitAction(visitId: string, payload: {
+  payment_method?: string;
+  is_credit: boolean;
+  initial_payment: number;
+  debt_due_date?: string;
+  notes?: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'No autorizado' };
+
+  const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+  if (!profile?.company_id) return { error: 'Empresa no encontrada' };
+
+  const { data: visit } = await supabase.from('spa_visits').select('price_charged').eq('id', visitId).single();
+  if (!visit) return { error: 'Atención no encontrada' };
+
+  // Register payment if amount > 0
+  if (payload.initial_payment > 0 && payload.payment_method) {
+    const { error: paymentError } = await supabase
+      .from('spa_payments')
+      .insert({
+        company_id: profile.company_id,
+        visit_id: visitId,
+        amount: payload.initial_payment,
+        payment_method: payload.payment_method,
+        payment_date: new Date().toISOString()
+      });
+    if (paymentError) return { error: 'Error registrando abono: ' + paymentError.message };
+  }
+
+  // Calculate new total paid
+  const { data: payments } = await supabase.from('spa_payments').select('amount').eq('visit_id', visitId);
+  const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+  
+  let payment_status = 'pendiente';
+  if (totalPaid >= visit.price_charged) payment_status = 'pagado';
+  else if (totalPaid > 0) payment_status = 'parcial';
+
+  // Construct update payload
+  let debtDate = null;
+  if (payload.is_credit && payload.debt_due_date && payment_status !== 'pagado') {
+    debtDate = new Date(payload.debt_due_date).toISOString();
+  }
+
+  const { error: updateError } = await supabase
+    .from('spa_visits')
+    .update({ 
+      status: 'completado',
+      completed_at: new Date().toISOString(),
+      payment_status,
+      debt_due_date: debtDate,
+      notes: payload.notes
+    })
+    .eq('id', visitId);
+
+  if (updateError) return { error: 'Error finalizando atención: ' + updateError.message };
+
+  // Trigger followups logic since it is completado
+  try {
+    await supabase.rpc('rpc_schedule_spa_followups', { p_visit_id: visitId });
+  } catch(e) {
+    console.error('Failed to trigger followups', e);
   }
 
   return { success: true };

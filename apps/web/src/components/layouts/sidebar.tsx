@@ -19,6 +19,7 @@ import IconMinus from '@/components/icon/icon-minus';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { Coins } from 'lucide-react';
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -195,6 +196,15 @@ const Sidebar = () => {
                                             <div className="flex items-center">
                                                 <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Clientes</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item">
+                                        <Link href="/dashboard/cobranza" className="nav-link group">
+                                            <div className="flex items-center">
+                                                <Coins className="shrink-0 group-hover:!text-primary w-5 h-5 text-[#506690]" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Cobranza</span>
                                             </div>
                                         </Link>
                                     </li>

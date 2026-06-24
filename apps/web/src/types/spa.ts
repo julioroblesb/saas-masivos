@@ -43,6 +43,7 @@ export interface SpaVisit {
   payment_status?: 'pagado' | 'parcial' | 'pendiente';
   scheduled_date?: string;
   follow_up_date?: string;
+  debt_due_date?: string;
   follow_up_sent: boolean;
   care_sent: boolean;
   created_at: string;
