@@ -25,6 +25,7 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
   });
 
   const careTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const careInstructionsTextareaRef = useRef<HTMLTextAreaElement>(null);
   const followUpTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
