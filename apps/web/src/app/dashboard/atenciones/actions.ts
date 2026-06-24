@@ -133,8 +133,14 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
     }
 
     if (queueInserts.length > 0) {
-      const { error: insertErr } = await supabase.from('crm_wa_queue').insert(queueInserts);
-      if (insertErr) console.error('Error inserting auto messages:', insertErr);
+      // Use admin client to bypass RLS since the migration for insert policy might not be applied
+      const { getSupabaseAdmin } = await import('@/utils/supabase/admin');
+      const adminClient = getSupabaseAdmin();
+      
+      const { error: insertErr } = await adminClient.from('crm_wa_queue').insert(queueInserts);
+      if (insertErr) {
+        console.error('Error inserting auto messages with admin client:', insertErr);
+      }
     }
 
     return { success: true };
