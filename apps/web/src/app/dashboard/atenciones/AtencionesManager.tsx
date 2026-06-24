@@ -118,7 +118,7 @@ export function AtencionesManager({
     setForm(prev => ({
       ...prev,
       service_id: serviceId,
-      price_charged: s ? s.price : 0,
+      price_charged: s ? (s.promo_price || s.price) : 0,
     }));
   };
 
@@ -553,8 +553,8 @@ export function AtencionesManager({
                   </label>
                   <CustomSelect
                     placeholder="Selecciona un servicio..."
-                    options={services.map(s => ({ value: s.id, label: `${s.name} (S/ ${s.promo_price || s.price})` }))}
-                    value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} (S/ ${services.find(s => s.id === form.service_id).promo_price || services.find(s => s.id === form.service_id).price})` : 'Seleccionado' } : null}
+                    options={services.map(s => ({ value: s.id, label: `${s.name} (Reg: S/ ${s.price}${s.promo_price ? ` - Promo: S/ ${s.promo_price}` : ''})` }))}
+                    value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id) ? `${services.find(s => s.id === form.service_id).name} (Reg: S/ ${services.find(s => s.id === form.service_id).price}${services.find(s => s.id === form.service_id).promo_price ? ` - Promo: S/ ${services.find(s => s.id === form.service_id).promo_price}` : ''})` : 'Seleccionado' } : null}
                     onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
                   />
                 </div>
@@ -851,8 +851,8 @@ export function AtencionesManager({
                     <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
                   </label>
                   <CustomSelect
-                    options={services.map(s => ({ value: s.id, label: s.name }))}
-                    value={editForm.service_id ? { value: editForm.service_id, label: services.find(s => s.id === editForm.service_id)?.name || '' } : null}
+                    options={services.map(s => ({ value: s.id, label: `${s.name} (Reg: S/ ${s.price}${s.promo_price ? ` - Promo: S/ ${s.promo_price}` : ''})` }))}
+                    value={editForm.service_id ? { value: editForm.service_id, label: services.find(s => s.id === editForm.service_id) ? `${services.find(s => s.id === editForm.service_id).name} (Reg: S/ ${services.find(s => s.id === editForm.service_id).price}${services.find(s => s.id === editForm.service_id).promo_price ? ` - Promo: S/ ${services.find(s => s.id === editForm.service_id).promo_price}` : ''})` : '' } : null}
                     onChange={(selected: any) => setEditForm(prev => ({ ...prev, service_id: selected ? selected.value : '' }))}
                   />
                 </div>
