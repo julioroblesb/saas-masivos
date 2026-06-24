@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users, MoreVertical } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction, deleteVisitAction, editVisitAction } from './actions';
+import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction, deleteVisitAction, editVisitAction, rescheduleVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
@@ -13,16 +13,37 @@ export function AtencionesManager({
   initialVisits, 
   services, 
   contacts,
-  staffList 
+  staffList,
+  paymentMethods,
+  currentStartDate,
+  currentEndDate
 }: { 
   initialVisits: any[]; 
   services: any[]; 
   contacts: any[]; 
   staffList?: any[];
+  paymentMethods?: string[];
+  currentStartDate?: string;
+  currentEndDate?: string;
 }) {
+  const defaultMethod = paymentMethods && paymentMethods.length > 0 ? paymentMethods[0].toLowerCase() : 'efectivo';
+  const paymentMethodOptions = paymentMethods && paymentMethods.length > 0 
+    ? paymentMethods.map(m => ({ value: m.toLowerCase(), label: m.charAt(0).toUpperCase() + m.slice(1) }))
+    : [{ value: 'efectivo', label: 'Efectivo' }];
+
   const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
   const [visits, setVisits] = useState(initialVisits);
   const router = useRouter();
+
+  const [dateFilter, setDateFilter] = useState({ start: currentStartDate || '', end: currentEndDate || '' });
+
+  const applyDateFilter = (start: string, end: string) => {
+    setDateFilter({ start, end });
+    const params = new URLSearchParams();
+    if (start) params.set('startDate', start);
+    if (end) params.set('endDate', end);
+    router.push(`?${params.toString()}`);
+  };
 
   // Mantener el estado sincronizado con los datos del servidor (router.refresh)
   useEffect(() => {
@@ -35,13 +56,13 @@ export function AtencionesManager({
   const [completeVisit, setCompleteVisit] = useState<any>(null);
   const [completeIsCredit, setCompleteIsCredit] = useState(false);
   const [completePayment, setCompletePayment] = useState(0);
-  const [completeMethod, setCompleteMethod] = useState('efectivo');
+  const [completeMethod, setCompleteMethod] = useState(defaultMethod);
   const [completeDebtDate, setCompleteDebtDate] = useState('');
   const [completeNotes, setCompleteNotes] = useState('');
   
   const [paymentVisit, setPaymentVisit] = useState<any>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('efectivo');
+  const [paymentMethod, setPaymentMethod] = useState(defaultMethod);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [form, setForm] = useState({
@@ -61,7 +82,10 @@ export function AtencionesManager({
   // Handle service selection to auto-fill price
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isNoAsistioModalOpen, setIsNoAsistioModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<any>(null);
+  const [noAsistioVisit, setNoAsistioVisit] = useState<any>(null);
+  const [rescheduleDate, setRescheduleDate] = useState(new Date().toISOString());
 
   const [editForm, setEditForm] = useState({
     service_id: '',
@@ -108,6 +132,21 @@ export function AtencionesManager({
       toast.success('Atención eliminada');
       setIsDeleteModalOpen(false);
       setVisits(visits.filter(v => v.id !== selectedVisit.id));
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleRescheduleSubmit = async () => {
+    if (!noAsistioVisit || !rescheduleDate) return;
+    setIsSubmitting(true);
+    const res = await rescheduleVisitAction(noAsistioVisit.id, rescheduleDate);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Cita reprogramada exitosamente');
+      setIsNoAsistioModalOpen(false);
+      setNoAsistioVisit(null);
       router.refresh();
     }
     setIsSubmitting(false);
@@ -172,7 +211,7 @@ export function AtencionesManager({
         setCompleteVisit(v);
         setCompleteIsCredit(false);
         setCompletePayment(v.price_charged);
-        setCompleteMethod('efectivo');
+        setCompleteMethod(defaultMethod);
         setCompleteNotes(v.notes || '');
         setCompleteDebtDate('');
         setIsCompleteModalOpen(true);
@@ -331,12 +370,17 @@ export function AtencionesManager({
           </button>
         </div>
 
-        <div className="flex flex-row items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-row flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <input type="date" className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark" value={dateFilter.start} onChange={e => applyDateFilter(e.target.value, dateFilter.end)} title="Fecha de inicio" />
+            <span className="text-zinc-400 font-medium">-</span>
+            <input type="date" className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark" value={dateFilter.end} onChange={e => applyDateFilter(dateFilter.start, e.target.value)} title="Fecha de fin" />
+          </div>
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
             <input 
               type="text" 
-              placeholder="Buscar paciente o servicio..." 
+              placeholder="Buscar cliente o servicio..." 
               className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -374,7 +418,7 @@ export function AtencionesManager({
                          </div>
                          <div>
                            <div className="flex items-center gap-2 mb-0.5">
-                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Paciente'}</h4>
+                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Cliente'}</h4>
                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : visit.status === 'no_asistio' ? 'bg-black-light/50 text-muted' : 'bg-danger/10 text-danger'}`}>
                                {visit.status.replace('_', ' ')}
                              </span>
@@ -407,7 +451,7 @@ export function AtencionesManager({
                          </div>
                          
                          <div className="flex items-center gap-2 mt-2 md:mt-0 justify-end">
-                            {(visit.payment_status === 'pendiente' || visit.payment_status === 'parcial') && (
+                            {visit.status === 'completado' && (visit.payment_status === 'pendiente' || visit.payment_status === 'parcial') && (
                                <button 
                                  onClick={() => {
                                    setPaymentVisit(visit);
@@ -438,8 +482,8 @@ export function AtencionesManager({
                                         });
                                         setIsEditModalOpen(true);
                                      }}>Editar Cita</button>
-                                     <button className="px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'completado')}>Marcar Completada</button>
-                                     <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}>No Asistió</button>
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'completado')}>Completar Servicio</button>
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => { setNoAsistioVisit(visit); setRescheduleDate(visit.visit_date || new Date().toISOString()); setIsNoAsistioModalOpen(true); }}>No Asistió</button>
                                      <button className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'cancelado')}>Cancelar Cita</button>
                                   </div>
                                </div>
@@ -476,7 +520,7 @@ export function AtencionesManager({
                          </div>
                          <div>
                            <div className="flex items-center gap-2 mb-0.5">
-                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Paciente'}</h4>
+                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Cliente'}</h4>
                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary">
                                Agendada
                              </span>
@@ -526,7 +570,7 @@ export function AtencionesManager({
                                      });
                                      setIsEditModalOpen(true);
                                   }}>Editar Cita</button>
-                                  <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}>No Asistió</button>
+                                  <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => { setNoAsistioVisit(visit); setRescheduleDate(visit.visit_date || new Date().toISOString()); setIsNoAsistioModalOpen(true); }}>No Asistió</button>
                                   <button className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'cancelado')}>Cancelar Cita</button>
                                </div>
                             </div>
@@ -550,7 +594,7 @@ export function AtencionesManager({
                 <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
                   <tr>
                     <th className="p-4">Fecha</th>
-                    <th className="p-4">Paciente</th>
+                    <th className="p-4">Cliente</th>
                     <th className="p-4">Servicio</th>
                     <th className="p-4">Trabajadora</th>
                     <th className="p-4">Monto</th>
@@ -628,14 +672,14 @@ export function AtencionesManager({
                 <div className="space-y-4 col-span-1 md:col-span-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                      <User className="w-4 h-4 text-primary" /> Paciente *
+                      <User className="w-4 h-4 text-primary" /> Cliente *
                     </label>
                     <button 
                       type="button"
                       onClick={() => setShowNewPatient(!showNewPatient)}
                       className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
-                      {showNewPatient ? 'Seleccionar existente' : '+ Nuevo paciente'}
+                      {showNewPatient ? 'Seleccionar existente' : '+ Nuevo cliente'}
                     </button>
                   </div>
                   
@@ -658,7 +702,7 @@ export function AtencionesManager({
                     </div>
                   ) : (
                     <CustomSelect
-                      placeholder="Selecciona un paciente..."
+                      placeholder="Selecciona un cliente..."
                       options={contacts.map(c => ({ value: c.id, label: `${c.name || 'Sin nombre'} (+${c.phone})` }))}
                       value={form.contact_id ? { value: form.contact_id, label: contacts.find(c => c.id === form.contact_id) ? `${contacts.find(c => c.id === form.contact_id).name || 'Sin nombre'} (+${contacts.find(c => c.id === form.contact_id).phone})` : 'Seleccionado' } : null}
                       onChange={(selected: any) => setForm(prev => ({ ...prev, contact_id: selected ? selected.value : '' }))}
@@ -728,7 +772,7 @@ export function AtencionesManager({
                   </label>
                   <textarea 
                     className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    placeholder="Detalles sobre el procedimiento, preferencias del paciente, etc."
+                    placeholder="Detalles sobre el procedimiento, preferencias del cliente, etc."
                     rows={3}
                     value={form.notes}
                     onChange={e => setForm(prev => ({ ...prev, notes: e.target.value }))}
@@ -812,18 +856,13 @@ export function AtencionesManager({
               {completePayment > 0 && (
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" /> Método de Pago
+                    <Coins className="w-4 h-4 text-primary" /> Método de Pago
                   </label>
                   <CustomSelect
-                    options={[
-                      { value: 'efectivo', label: 'Efectivo' },
-                      { value: 'yape', label: 'Yape' },
-                      { value: 'plin', label: 'Plin' },
-                      { value: 'transferencia', label: 'Transferencia' },
-                      { value: 'tarjeta', label: 'Tarjeta' }
-                    ]}
-                    value={{ value: completeMethod, label: completeMethod.charAt(0).toUpperCase() + completeMethod.slice(1) }}
-                    onChange={(selected: any) => setCompleteMethod(selected ? selected.value : 'efectivo')}
+                    placeholder="Seleccionar..."
+                    options={paymentMethodOptions}
+                    value={{ value: completeMethod, label: paymentMethodOptions.find(o => o.value === completeMethod)?.label || completeMethod }}
+                    onChange={(selected: any) => setCompleteMethod(selected ? selected.value : defaultMethod)}
                   />
                 </div>
               )}
@@ -849,7 +888,7 @@ export function AtencionesManager({
                 </label>
                 <textarea 
                   className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                  placeholder="Detalles sobre cómo quedó el paciente..."
+                  placeholder="Detalles sobre cómo quedó el cliente..."
                   rows={3}
                   value={completeNotes}
                   onChange={e => setCompleteNotes(e.target.value)}
@@ -916,18 +955,13 @@ export function AtencionesManager({
 
               <div className="space-y-4">
                 <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-primary" /> Método de Pago
+                  <Coins className="w-4 h-4 text-primary" /> Método de Pago
                 </label>
                 <CustomSelect
-                  options={[
-                    { value: 'efectivo', label: 'Efectivo' },
-                    { value: 'yape', label: 'Yape' },
-                    { value: 'plin', label: 'Plin' },
-                    { value: 'transferencia', label: 'Transferencia' },
-                    { value: 'tarjeta', label: 'Tarjeta' }
-                  ]}
-                  value={{ value: paymentMethod, label: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1) }}
-                  onChange={(selected: any) => setPaymentMethod(selected ? selected.value : 'efectivo')}
+                  placeholder="Seleccionar..."
+                  options={paymentMethodOptions}
+                  value={{ value: paymentMethod, label: paymentMethodOptions.find(o => o.value === paymentMethod)?.label || paymentMethod }}
+                  onChange={(selected: any) => setPaymentMethod(selected ? selected.value : defaultMethod)}
                 />
               </div>
 
@@ -1101,6 +1135,62 @@ export function AtencionesManager({
           </div>
         </div>
       )}
+      {/* Modal - No Asistió / Reprogramar */}
+      {isNoAsistioModalOpen && noAsistioVisit && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
+              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-warning" />
+                Opciones de Inasistencia
+              </h3>
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsNoAsistioModalOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6 overflow-y-auto">
+              <div className="bg-warning/5 rounded-xl p-4 border border-warning/20">
+                <p className="text-sm text-warning font-medium">El cliente {noAsistioVisit.contact_name} no asistió a su cita. ¿Qué deseas hacer?</p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-primary" /> Seleccionar nueva fecha para reprogramar
+                </label>
+                <CustomDatePicker
+                  enableTime={true}
+                  value={rescheduleDate}
+                  onChangeDate={(dateStr) => setRescheduleDate(dateStr)}
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light shrink-0">
+              <button 
+                className="btn bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-xl px-6 w-full sm:w-auto" 
+                onClick={async () => {
+                  setIsNoAsistioModalOpen(false);
+                  await handleUpdateStatus(noAsistioVisit.id, 'cancelado');
+                }}
+              >
+                Cancelar Cita Definitivamente
+              </button>
+              <button 
+                className="btn btn-primary rounded-xl px-6 w-full sm:w-auto" 
+                onClick={handleRescheduleSubmit} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Procesando...' : 'Reprogramar Cita'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

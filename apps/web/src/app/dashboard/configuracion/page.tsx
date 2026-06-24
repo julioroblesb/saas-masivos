@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { Loader2, Building2, X } from 'lucide-react';
 import { AutoMessagesConfig } from './AutoMessagesConfig';
+import { PaymentMethodsConfig } from './PaymentMethodsConfig';
 
 export default function ConfiguracionPage() {
   const supabase = createClient();
@@ -271,7 +272,10 @@ export default function ConfiguracionPage() {
       </div>
 
       {companyId && (
-        <AutoMessagesConfig companyId={companyId} initialSettings={fullSettingsObj} />
+        <div className="space-y-8 mt-8 border-t border-black-light dark:border-dark-light pt-8">
+          <PaymentMethodsConfig initialMethods={fullSettingsObj.payment_methods || []} />
+          <AutoMessagesConfig companyId={companyId} initialSettings={fullSettingsObj} />
+        </div>
       )}
     </div>
   );

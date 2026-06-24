@@ -3,7 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { SpaVisit, SpaService } from '@/types/spa';
 
-export async function getAtencionesData() {
+export async function getAtencionesData(startDate?: string, endDate?: string) {
   const supabase = await createClient();
   
   // Get active services
@@ -13,16 +13,25 @@ export async function getAtencionesData() {
     .eq('is_active', true)
     .order('name');
     
-  // Get recent visits
-  const { data: visits, error: vErr } = await supabase
+  let visitsQuery = supabase
     .from('spa_visits')
     .select(`
       *,
       crm_marketing_contacts ( name, phone ),
       spa_services ( name, price )
     `)
-    .order('visit_date', { ascending: false })
-    .limit(50);
+    .order('visit_date', { ascending: false });
+
+  if (startDate) {
+    visitsQuery = visitsQuery.gte('visit_date', startDate);
+  }
+  if (endDate) {
+    visitsQuery = visitsQuery.lte('visit_date', endDate + 'T23:59:59.999Z');
+  } else if (!startDate && !endDate) {
+    visitsQuery = visitsQuery.limit(50);
+  }
+  
+  const { data: visits, error: vErr } = await visitsQuery;
     
   // Get contacts
   const { data: contacts, error: cErr } = await supabase
@@ -37,6 +46,19 @@ export async function getAtencionesData() {
     .eq('is_active', true)
     .order('name');
 
+  // Get payment methods from company settings
+  let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+    if (profile?.company_id) {
+      const { data: company } = await supabase.from('companies').select('settings').eq('id', profile.company_id).single();
+      if (company?.settings?.payment_methods && company.settings.payment_methods.length > 0) {
+        paymentMethods = company.settings.payment_methods;
+      }
+    }
+  }
+
   return { 
     services: services || [], 
     visits: visits?.map((v: any) => ({
@@ -47,6 +69,7 @@ export async function getAtencionesData() {
     })) || [],
     contacts: contacts || [],
     staff: staff || [],
+    paymentMethods,
     error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message
   };
 }
@@ -408,5 +431,59 @@ export async function editVisitAction(visitId: string, payload: {
     .eq('id', visitId);
 
   if (error) return { error: error.message };
+
   return { success: true };
+}
+export async function rescheduleVisitAction(visitId: string, newDate: string) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: 'No autorizado' };
+
+    const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+    if (!profile?.company_id) return { error: 'Empresa no encontrada' };
+
+    // 1. Get original visit
+    const { data: oldVisit, error: fetchErr } = await supabase
+      .from('spa_visits')
+      .select('*')
+      .eq('id', visitId)
+      .single();
+
+    if (fetchErr || !oldVisit) return { error: 'Atención no encontrada' };
+
+    // 2. Mark old visit as cancelled with note
+    const { error: cancelErr } = await supabase
+      .from('spa_visits')
+      .update({ 
+        status: 'cancelado',
+        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${new Date(newDate).toLocaleString('es-PE')}]`
+      })
+      .eq('id', visitId);
+
+    if (cancelErr) return { error: cancelErr.message };
+
+    // 3. Create new visit
+    const newVisitData = {
+      company_id: oldVisit.company_id,
+      contact_id: oldVisit.contact_id,
+      service_id: oldVisit.service_id,
+      staff_id: oldVisit.staff_id,
+      price_charged: oldVisit.price_charged,
+      notes: oldVisit.notes,
+      visit_date: new Date(newDate).toISOString(),
+      scheduled_date: new Date(newDate).toISOString(),
+      status: 'agendada' // Automatically becomes en_curso based on date via trigger or frontend
+    };
+
+    const { error: insertErr } = await supabase
+      .from('spa_visits')
+      .insert([newVisitData]);
+
+    if (insertErr) return { error: insertErr.message };
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
