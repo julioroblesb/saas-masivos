@@ -47,11 +47,16 @@ export default function LoginPage() {
 
         <div className="relative z-10 w-full max-w-lg text-white">
           <div className="mb-8">
-            <div className="h-16 w-16 mb-6 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-bold text-2xl shadow-2xl">
-              LR
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-16 w-16 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-bold text-2xl shadow-2xl">
+                RC
+              </div>
+              <div className="text-white font-extrabold text-2xl tracking-widest uppercase">
+                Renova CRM
+              </div>
             </div>
             <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]" style={{ textWrap: 'balance' }}>
-              Transforma la gestión de tu negocio hoy.
+              Renueva la relación con tus clientes.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
               Centraliza tus citas, mensajes masivos de WhatsApp y pagos en una sola plataforma diseñada para equipos de alto rendimiento.
@@ -77,12 +82,12 @@ export default function LoginPage() {
 
       {/* Form Side */}
       <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-zinc-900">
-        <div className="w-full max-w-sm">
-          <div className="md:hidden mb-8">
-            <div className="h-14 w-14 mb-4 flex items-center justify-center bg-primary/10 rounded-2xl text-primary font-bold text-xl">
-              LR
+        <div className="w-full max-w-[400px]">
+          <div className="mb-10 text-center flex flex-col items-center">
+            <div className="lg:hidden h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
+              RC
             </div>
-            <h2 className="text-3xl font-bold text-black dark:text-white mb-2">Bienvenido</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Iniciar Sesión</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa para continuar a tu panel</p>
           </div>
 
