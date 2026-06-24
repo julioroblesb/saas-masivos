@@ -163,7 +163,7 @@ export function AtencionesManager({
     setIsSubmitting(false);
   };
   
-  const handleUpdateStatus = async (visitId: string, status: 'completado' | 'cancelado') => {
+  const handleUpdateStatus = async (visitId: string, status: 'completado' | 'cancelado' | 'no_asistio') => {
     if (status === 'completado') {
       const v = visits.find(x => x.id === visitId);
       if (v) {
@@ -259,7 +259,7 @@ export function AtencionesManager({
       return acc;
     }, {});
 
-  const historyVisits = filteredVisits.filter(v => v.status === 'completado' || v.status === 'cancelado');
+  const historyVisits = filteredVisits.filter(v => v.status === 'completado' || v.status === 'cancelado' || v.status === 'no_asistio');
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -365,7 +365,7 @@ export function AtencionesManager({
                     <div key={visit.id} className="panel p-0 hover:-translate-y-1 transition-transform duration-300 overflow-hidden relative group border-2 border-transparent hover:border-primary/20">
                       <div className="p-5 border-b border-black-light dark:border-dark-light bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900/50">
                         <div className="flex justify-between items-start mb-3">
-                          <span className={`badge ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                          <span className={`badge ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : visit.status === 'no_asistio' ? 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400' : 'bg-danger/10 text-danger'}`}>
                             {visit.status.replace('_', ' ')}
                           </span>
                           <span className="text-xl font-bold text-black dark:text-white">
@@ -408,11 +408,32 @@ export function AtencionesManager({
                           )}
                         </div>
                         <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
-                          <div className="text-xs text-zinc-400">
+                          <div className="text-xs text-zinc-400 mr-auto flex items-center">
                             Creado: {new Date(visit.created_at).toLocaleString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true, day: '2-digit', month: 'short' })}
                           </div>
                           {visit.status === 'en_curso' && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2 justify-end">
+                              <button 
+                                className="btn btn-sm btn-outline-secondary"
+                                onClick={() => {
+                                  setSelectedVisit(visit);
+                                  setEditForm({
+                                    service_id: visit.service_id || '',
+                                    staff_id: visit.staff_id || '',
+                                    scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                    notes: visit.notes || ''
+                                  });
+                                  setIsEditModalOpen(true);
+                                }}
+                              >
+                                Editar
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-outline-warning"
+                                onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}
+                              >
+                                No Asistió
+                              </button>
                               <button 
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
@@ -475,6 +496,21 @@ export function AtencionesManager({
                           </p>
                         )}
                         <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
+                           <button 
+                             className="btn btn-sm btn-outline-secondary"
+                             onClick={() => {
+                               setSelectedVisit(visit);
+                               setEditForm({
+                                 service_id: visit.service_id || '',
+                                 staff_id: visit.staff_id || '',
+                                 scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                 notes: visit.notes || ''
+                               });
+                               setIsEditModalOpen(true);
+                             }}
+                           >
+                             Editar
+                           </button>
                            <button 
                              className="btn btn-sm btn-outline-danger"
                              onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
