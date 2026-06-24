@@ -18,29 +18,17 @@ interface ClientMetric {
 }
 
 export function SegmentConfig({
-  campaignName,
-  setCampaignName,
   targetContactIds,
   setTargetContactIds,
   targetRawPhones,
   setTargetRawPhones,
   targetContactsCount,
-  minDelaySec,
-  setMinDelaySec,
-  maxDelaySec,
-  setMaxDelaySec
 }: {
-  campaignName: string;
-  setCampaignName: (name: string) => void;
   targetContactIds: string[];
   setTargetContactIds: (ids: string[]) => void;
   targetRawPhones: string[];
   setTargetRawPhones: (phones: string[]) => void;
   targetContactsCount: number;
-  minDelaySec: number;
-  setMinDelaySec: (sec: number) => void;
-  maxDelaySec: number;
-  setMaxDelaySec: (sec: number) => void;
 }) {
   const [audienceMode, setAudienceMode] = useState<'clientes' | 'base'>('clientes');
   
@@ -126,39 +114,19 @@ export function SegmentConfig({
     setTargetRawPhones(Array.from(new Set(phones)));
   };
 
-  const avgDelay = (minDelaySec + maxDelaySec) / 2;
-  const estimatedSeconds = targetContactsCount * avgDelay;
-  
-  const formatTime = (seconds: number) => {
-    if (seconds === 0) return '0 min';
-    if (seconds < 60) return `~${Math.round(seconds)} seg`;
-    const mins = Math.floor(seconds / 60);
-    const hrs = Math.floor(mins / 60);
-    if (hrs > 0) return `~${hrs} hr ${mins % 60} min`;
-    return `~${mins} min`;
-  };
+
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-4">
-        <Zap size={16} className="text-primary" />
-        <h3 className="m-0 text-lg font-semibold dark:text-white-light">Configuración General</h3>
-      </div>
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Nombre de la campaña</label>
-          <input 
-            type="text" 
-            placeholder="Ej. Promoción Mayo 2026" 
-            value={campaignName} 
-            onChange={e => setCampaignName(e.target.value)}
-            maxLength={100}
-            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-          />
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-primary font-bold">
+          1
         </div>
-        
+        <h3 className="m-0 text-xl font-bold dark:text-white-light">Destinatarios</h3>
+      </div>
+      <div className="pl-11 flex flex-col gap-5">
         <div className="flex flex-col gap-3">
-          <label className="text-sm font-semibold text-black dark:text-white">¿A quién quieres enviar esta campaña?</label>
+          <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">¿A quién quieres enviar esta campaña?</label>
           <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg w-max">
             <button
               type="button"
@@ -283,38 +251,6 @@ export function SegmentConfig({
             <Zap size={16} className="text-success" /> 
             {targetContactsCount} destinatarios totales seleccionados
           </p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase" title="Delay mínimo entre mensajes a distintos contactos">Delay Mínimo (seg)</label>
-            <input 
-              type="number" 
-              min={30} 
-              max={600}
-              value={minDelaySec} 
-              onChange={e => setMinDelaySec(Number(e.target.value))} 
-              onBlur={() => setMinDelaySec(Math.max(30, minDelaySec))}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-            />
-          </div>
-          <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase" title="Delay máximo entre mensajes a distintos contactos">Delay Máximo (seg)</label>
-            <input 
-              type="number" 
-              min={30} 
-              max={600}
-              value={maxDelaySec} 
-              onChange={e => setMaxDelaySec(Number(e.target.value))} 
-              onBlur={() => setMaxDelaySec(Math.max(30, Math.max(minDelaySec, maxDelaySec)))}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-            />
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2 text-sm mt-1 text-slate-600 dark:text-slate-400">
-          <strong className="text-primary">⏱️ Tiempo estimado:</strong> <span>{formatTime(estimatedSeconds)}</span>
-          <span className="text-xs opacity-70 ml-2">(máx 1 mensaje/min por seguridad)</span>
         </div>
       </div>
     </div>

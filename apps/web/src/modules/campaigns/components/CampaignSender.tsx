@@ -12,6 +12,7 @@ import { crmToast } from '../../../hooks/useToast';
 
 import { SegmentConfig } from './Campaign/SegmentConfig';
 import { SequenceEditor } from './Campaign/SequenceEditor';
+import { DeliveryRules } from './Campaign/DeliveryRules';
 import { ExecutionPanel } from './Campaign/ExecutionPanel';
 
 const MySwal = withReactContent(Swal);
@@ -171,32 +172,35 @@ export function CampaignSender() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {/* HEADER WITH ANTI BAN INFO AND TITLE */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-2">
-        <h2 className="text-xl font-semibold dark:text-white-light">Creador de Campañas</h2>
-        <button type="button" onClick={showAntiBanInfo} className="btn btn-outline-warning flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-2 mt-4">
+        <div className="flex-1 w-full max-w-3xl">
+          <input 
+            type="text" 
+            placeholder="Nombra tu campaña (Ej. Promoción Mayo 2026)" 
+            value={campaignName} 
+            onChange={e => setCampaignName(e.target.value)}
+            maxLength={100}
+            className="w-full text-3xl font-black bg-transparent text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-700 focus:outline-none focus:border-b-2 border-transparent focus:border-primary transition-colors pb-2"
+          />
+        </div>
+        <button type="button" onClick={showAntiBanInfo} className="btn btn-outline-warning flex items-center gap-2 whitespace-nowrap">
           <Info size={18} />
           Información Anti-Ban
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* LEFT: Config & Sequence (2/3 width) */}
-        <div className="xl:col-span-2 space-y-10">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* LEFT: Config & Sequence & Delays (2/3 width) */}
+        <div className="xl:col-span-2 space-y-16">
           <div>
             <SegmentConfig
-              campaignName={campaignName}
-              setCampaignName={setCampaignName}
               targetContactIds={targetContactIds}
               setTargetContactIds={setTargetContactIds}
               targetRawPhones={targetRawPhones}
               setTargetRawPhones={setTargetRawPhones}
               targetContactsCount={targetContactsCount}
-              minDelaySec={minDelaySec}
-              setMinDelaySec={setMinDelaySec}
-              maxDelaySec={maxDelaySec}
-              setMaxDelaySec={setMaxDelaySec}
             />
           </div>
 
@@ -212,55 +216,66 @@ export function CampaignSender() {
               addMessage={addMessage}
             />
           </div>
+
+          <div>
+            <DeliveryRules
+              minDelaySec={minDelaySec}
+              setMinDelaySec={setMinDelaySec}
+              maxDelaySec={maxDelaySec}
+              setMaxDelaySec={setMaxDelaySec}
+              targetContactsCount={targetContactsCount}
+            />
+          </div>
         </div>
 
         {/* RIGHT: Progress Bar & Execution Panel (1/3 width) */}
-        <div className="space-y-6">
+        <div className="relative">
           {/* Sticky Unified Sidebar */}
-          <div className="panel sticky top-24 bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900">
-            <div className="flex items-center justify-between mb-4">
-              <h5 className="font-semibold text-lg flex items-center gap-2 dark:text-white-light">
-                <ShieldCheck className="text-success" size={20} />
-                Capacidad de Envío
-              </h5>
-            </div>
-            <div className="mb-4">
-              <div className="flex justify-between items-end mb-2">
-                <div className="text-sm font-semibold text-primary">{accountTier.label}</div>
-                <div className="text-xs text-white-dark">{totalLifetimeSent} Enviados</div>
+          <div className="sticky top-24 flex flex-col gap-8 p-6 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h5 className="font-bold text-lg flex items-center gap-2 dark:text-white-light">
+                  <ShieldCheck className="text-success" size={20} />
+                  Salud de Cuenta
+                </h5>
               </div>
-              <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden">
-                <div 
-                  className="bg-success h-full rounded-full transition-[width] duration-500 ease-linear" 
-                  style={{ width: `${accountTier.progress}%` }}
-                ></div>
+              <div className="mb-4">
+                <div className="flex justify-between items-end mb-2">
+                  <div className="text-sm font-semibold text-primary">{accountTier.label}</div>
+                  <div className="text-xs text-white-dark">{totalLifetimeSent} Enviados</div>
+                </div>
+                <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-success h-full rounded-full transition-[width] duration-500 ease-linear" 
+                    style={{ width: `${accountTier.progress}%` }}
+                  ></div>
+                </div>
               </div>
-            </div>
-            <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
-              Límite actual: <strong className="text-primary">{accountTier.limit} mensajes/día</strong>.
-              <br className="mb-1" />
-              {accountTier.nextLimit && accountTier.nextReqMsgs ? (
-                <span>
-                  Desbloquea enviar hasta <strong>{accountTier.nextLimit} mensajes al día</strong> al acumular <strong>{accountTier.nextReqMsgs}</strong> mensajes históricos enviados. 
-                  Llevas <strong>{totalLifetimeSent}</strong>.
-                </span>
-              ) : (
-                <span>Has alcanzado la capacidad máxima de envíos diarios recomendada.</span>
-              )}
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
+                Límite actual: <strong className="text-primary">{accountTier.limit} msgs/día</strong>.
+                <br className="mb-1" />
+                {accountTier.nextLimit && accountTier.nextReqMsgs ? (
+                  <span>
+                    Sube a <strong>{accountTier.nextLimit} msgs/día</strong> al superar <strong>{accountTier.nextReqMsgs}</strong> envíos históricos.
+                  </span>
+                ) : (
+                  <span>Has alcanzado la capacidad máxima recomendada.</span>
+                )}
+              </div>
             </div>
 
-            <hr className="my-6 border-slate-200 dark:border-slate-800" />
+            <hr className="border-slate-200 dark:border-slate-800" />
 
             <div>
-            <ExecutionPanel
-              isQueuing={isQueuing}
-              queued={queued}
-              targetContactsCount={targetContactsCount}
-              isUploadingAny={isUploadingAny}
-              startCampaign={startCampaign}
-              resetForm={resetForm}
-            />
-          </div>
+              <ExecutionPanel
+                isQueuing={isQueuing}
+                queued={queued}
+                targetContactsCount={targetContactsCount}
+                isUploadingAny={isUploadingAny}
+                startCampaign={startCampaign}
+                resetForm={resetForm}
+              />
+            </div>
           </div>
         </div>
       </div>

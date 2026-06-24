@@ -25,10 +25,12 @@ export function SequenceEditor({
   addMessage: () => void;
 }) {
   return (
-    <div className="mt-1">
-      <div className="flex items-center gap-2 mb-4">
-        <Settings2 size={16} className="text-primary" />
-        <h3 className="m-0 text-lg font-semibold dark:text-white-light">Secuencia de Mensajes ({sequence.length})</h3>
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-primary font-bold">
+          2
+        </div>
+        <h3 className="m-0 text-xl font-bold dark:text-white-light">Mensajes</h3>
       </div>
       <div className="flex flex-col gap-8 pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
         {sequence.map((msg, idx) => (
