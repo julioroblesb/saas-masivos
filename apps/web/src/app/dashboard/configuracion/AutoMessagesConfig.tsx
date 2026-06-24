@@ -55,7 +55,7 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const currentText = settings[field];
+    const currentText = settings[field] || '';
     
     const newText = currentText.substring(0, start) + variable + currentText.substring(end);
     
