@@ -69,11 +69,11 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Sent Today */}
-        <div className="panel flex items-center justify-between">
+        <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
-            <h6 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Enviados (Hoy)</h6>
+            <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Enviados (Hoy)</h6>
             <span className="text-2xl font-bold">{sentToday}</span>
-            <div className="mt-3 text-sm text-gray-500 flex items-center gap-1">
+            <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-success flex items-center gap-0.5"><CheckCircle size={12}/> Entregados</span>
             </div>
           </div>
@@ -83,11 +83,11 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
         </div>
 
         {/* Failed Today */}
-        <div className="panel flex items-center justify-between">
+        <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
-            <h6 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Fallidos (Hoy)</h6>
+            <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Fallidos (Hoy)</h6>
             <span className="text-2xl font-bold">{failedToday}</span>
-            <div className="mt-3 text-sm text-gray-500 flex items-center gap-1">
+            <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-danger flex items-center gap-0.5"><XCircle size={12}/> Errores</span>
             </div>
           </div>
@@ -97,11 +97,11 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
         </div>
 
         {/* Conversion Rate */}
-        <div className="panel flex items-center justify-between">
+        <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
-            <h6 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Conversión Respuestas</h6>
+            <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Conversión Respuestas</h6>
             <span className="text-2xl font-bold">{conversionRate}%</span>
-            <div className="mt-3 text-sm text-gray-500 flex items-center gap-1">
+            <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-info flex items-center gap-0.5"><MessageSquare size={12}/> {totalReplies} respuestas</span>
             </div>
           </div>
@@ -112,7 +112,7 @@ export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, cha
       </div>
 
 
-      <div className="panel h-full">
+      <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 h-full">
         <div className="flex items-center justify-between mb-5">
           <h5 className="font-semibold text-lg dark:text-white-light">Volumen de Envío (Últimos 7 Días)</h5>
         </div>

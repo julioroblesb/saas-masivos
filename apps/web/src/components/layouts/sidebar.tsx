@@ -99,7 +99,7 @@ const Sidebar = () => {
             <nav
                 className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-[100dvh] w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-transform duration-300 ease-out ${semidark ? 'text-white-dark' : ''}`}
             >
-                <div className="h-full bg-bg dark:bg-dark">
+                <div className="h-full bg-white dark:bg-dark border-r border-black-light dark:border-dark-light">
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition duration-300 ease-out">

@@ -34,7 +34,7 @@ export function SequenceEditor({
         {sequence.map((msg, idx) => (
           <div key={msg.id} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-[border-color,box-shadow,background-color] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-              <span className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mensaje {idx + 1}</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Mensaje {idx + 1}</span>
               <div className="flex items-center gap-2">
                 <div className="w-48">
                   <CustomSelect
@@ -64,8 +64,8 @@ export function SequenceEditor({
                     placeholder="Escribe el mensaje aquí... Usa los botones de arriba para inyectar variables."
                     rows={4}
                   />
-                  <small className="text-gray-500 dark:text-gray-400 text-xs mt-0.5 leading-relaxed">
-                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">{`{{saludo}}`}</code> y <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">{`{{despedida}}`}</code> para que el sistema rote entre 100 variaciones distintas automáticamente. 
+                  <small className="text-zinc-500 dark:text-zinc-400 text-xs mt-0.5 leading-relaxed">
+                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-zinc-200 dark:bg-zinc-700 px-1 rounded">{`{{saludo}}`}</code> y <code className="bg-zinc-200 dark:bg-zinc-700 px-1 rounded">{`{{despedida}}`}</code> para que el sistema rote entre 100 variaciones distintas automáticamente. 
                     Además, inyectamos una <strong>huella invisible única</strong> en código para cada mensaje.
                   </small>
                 </div>
@@ -79,7 +79,7 @@ export function SequenceEditor({
               )}
             </div>
             <div className="flex items-center flex-wrap gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">Espera después:</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium whitespace-nowrap">Espera después:</span>
               <input
                 type="number"
                 className="w-[75px] px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-center bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
@@ -88,7 +88,7 @@ export function SequenceEditor({
                 value={msg.delayAfterMs}
                 onChange={e => updateMessage(msg.id, { delayAfterMs: Number(e.target.value) })}
               />
-              <span className="text-xs text-gray-400 dark:text-gray-500">ms ({(msg.delayAfterMs / 1000).toFixed(1)}s)</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">ms ({(msg.delayAfterMs / 1000).toFixed(1)}s)</span>
             </div>
           </div>
         ))}

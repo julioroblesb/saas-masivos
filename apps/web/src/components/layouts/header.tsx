@@ -54,7 +54,7 @@ const Header = () => {
     return (
         <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''}`}>
             <div className="shadow-sm">
-                <div className="relative flex w-full items-center bg-bg px-5 py-2.5 dark:bg-dark">
+                <div className="relative flex w-full items-center bg-white dark:bg-dark border-b border-black-light dark:border-dark-light px-5 py-2.5">
                     <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2 lg:hidden">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
                             <span className="align-middle text-2xl font-semibold transition duration-300 ease-out ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">{companyName}</span>
@@ -123,7 +123,7 @@ const Header = () => {
                                             </div>
                                         </div>
                                     </li>
-                                    <li className="border-t border-white-light dark:border-white-light/10">
+                                    <li className="border-t border-black-light dark:border-dark-light">
                                         <button onClick={handleLogout} className="!py-3 text-danger w-full text-left flex items-center px-4 hover:bg-danger/10">
                                             <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Cerrar Sesión

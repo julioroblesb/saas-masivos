@@ -199,16 +199,16 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       </div>
 
       {/* Table Area */}
-      <div className="table-responsive min-h-[400px]">
-        <table className="table-hover w-full min-w-[1000px]">
+      <div className="overflow-x-auto -mx-6 px-6 min-h-[400px]">
+        <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead className="bg-zinc-50 dark:bg-zinc-900/50">
-            <tr>
-              <th className="py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest pl-6">Cliente</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cumpleaños</th>
-              <th className="text-center py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Atenciones</th>
-              <th className="text-left py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
-              <th className="text-right py-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest pr-6">Acciones</th>
+            <tr className="border-b border-black-light dark:border-dark-light">
+              <th className="py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cliente</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cumpleaños</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Atenciones</th>
+              <th className="text-left py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
+              <th className="text-right py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black-light dark:divide-dark-light">
@@ -228,10 +228,10 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               filteredClients.map(client => (
                 <tr 
                   key={client.id} 
-                  className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors"
+                  className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                   onDoubleClick={() => handleOpenModal(client)}
                 >
-                  <td className="py-4 pl-6">
+                  <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
                         {client.name?.charAt(0) || <User className="w-5 h-5" />}
@@ -246,7 +246,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       </div>
                     </div>
                   </td>
-                  <td className="text-center">
+                  <td className="py-4 px-4 text-center">
                     <div className="text-sm font-semibold text-black dark:text-white">+{client.phone}</div>
                     <div className="text-xs text-zinc-500 flex justify-center items-center gap-1">
                       {client.email ? (
@@ -257,16 +257,16 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       ) : '-'}
                     </div>
                   </td>
-                  <td className="text-center">
+                  <td className="py-4 px-4 text-center">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
                       <Calendar className="w-3.5 h-3.5" />
                       {client.birthday || '-'}
                     </div>
                   </td>
-                  <td className="text-center">
+                  <td className="py-4 px-4 text-center">
                     <span className="font-semibold text-black dark:text-white text-lg">{client.total_visits || 0}</span>
                   </td>
-                  <td>
+                  <td className="py-4 px-4">
                     {client.last_service_name ? (
                       <div>
                         <div className="font-medium text-black dark:text-white text-sm">{client.last_service_name}</div>
@@ -276,18 +276,18 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       <span className="text-zinc-400 text-sm">-</span>
                     )}
                   </td>
-                  <td className="text-right pr-6">
+                  <td className="py-4 px-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleOpenModal(client)}
-                        className="btn btn-sm btn-outline-primary"
+                        className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                         title="Editar"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={(e) => handleDelete(client, e)}
-                        className="btn btn-sm btn-outline-danger"
+                        className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
                         title="Eliminar permanentemente"
                       >
                         <Trash className="w-4 h-4" />

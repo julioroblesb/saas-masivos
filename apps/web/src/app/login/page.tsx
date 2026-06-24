@@ -35,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-bg dark:bg-dark font-outfit">
+    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-zinc-50 dark:bg-dark font-outfit">
       
       {/* Brand Side - Hidden on small screens */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary relative items-center justify-center p-12 overflow-hidden">
@@ -76,32 +76,32 @@ export default function LoginPage() {
       </div>
 
       {/* Form Side */}
-      <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 sm:p-12 relative bg-surface dark:bg-dark-light">
+      <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-zinc-900">
         <div className="w-full max-w-sm">
           <div className="md:hidden mb-8">
             <div className="h-14 w-14 mb-4 flex items-center justify-center bg-primary/10 rounded-2xl text-primary font-bold text-xl">
               LR
             </div>
-            <h2 className="text-3xl font-bold text-ink mb-2">Bienvenido</h2>
-            <p className="text-muted text-sm">Ingresa para continuar a tu panel</p>
+            <h2 className="text-3xl font-bold text-black dark:text-white mb-2">Bienvenido</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa para continuar a tu panel</p>
           </div>
 
           <div className="hidden md:block mb-10">
-            <h2 className="text-3xl font-bold text-ink mb-2 tracking-tight">Iniciar Sesión</h2>
-            <p className="text-muted text-sm">Ingresa tus credenciales para acceder</p>
+            <h2 className="text-3xl font-bold text-black dark:text-white mb-2 tracking-tight">Iniciar Sesión</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tus credenciales para acceder</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-ink">Correo Electrónico</label>
+              <label className="block text-sm font-semibold text-black dark:text-white">Correo Electrónico</label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-bg dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 dark:bg-dark border border-black-light dark:border-dark-light rounded-xl text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm"
                   placeholder="usuario@ejemplo.com"
                   required
                   disabled={loading}
@@ -111,16 +111,16 @@ export default function LoginPage() {
             
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-semibold text-ink">Contraseña</label>
+                <label className="block text-sm font-semibold text-black dark:text-white">Contraseña</label>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
                   id="password"
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-bg dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 dark:bg-dark border border-black-light dark:border-dark-light rounded-xl text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm"
                   placeholder="••••••••"
                   required
                   disabled={loading}

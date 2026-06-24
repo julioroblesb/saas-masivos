@@ -111,7 +111,7 @@ export function CampaignSender() {
     MySwal.fire({
       title: 'Políticas Anti-Ban',
       html: `
-        <div class="text-left text-sm text-gray-600 dark:text-gray-300">
+        <div class="text-left text-sm text-zinc-600 dark:text-zinc-300">
           <p class="mb-4">El método utilizado simula un dispositivo real y <strong>no es una API oficial</strong>. Existen riesgos de baneo o suspensión de tu cuenta de WhatsApp si incumples las políticas de SPAM.</p>
           <p><strong>Protección de Cuenta Nueva:</strong> Para proteger tu número de bloqueos, el sistema limita automáticamente tus envíos:</p>
           <ul class="list-disc pl-5 mt-2 space-y-1">
@@ -217,7 +217,7 @@ export function CampaignSender() {
         {/* RIGHT: Progress Bar & Execution Panel (1/3 width) */}
         <div className="space-y-6">
           {/* Progress Bar Card */}
-          <div className="panel bg-gradient-to-br from-white to-gray-50 dark:from-[#0e1726] dark:to-[#191e3a]">
+          <div className="panel bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900">
             <div className="flex items-center justify-between mb-4">
               <h5 className="font-semibold text-lg flex items-center gap-2 dark:text-white-light">
                 <ShieldCheck className="text-success" size={20} />
@@ -229,14 +229,14 @@ export function CampaignSender() {
                 <div className="text-sm font-semibold text-primary">{accountTier.label}</div>
                 <div className="text-xs text-white-dark">{totalLifetimeSent} Enviados</div>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden">
                 <div 
                   className="bg-success h-full rounded-full transition-[width] duration-500 ease-linear" 
                   style={{ width: `${accountTier.progress}%` }}
                 ></div>
               </div>
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
               Límite actual: <strong className="text-primary">{accountTier.limit} mensajes/día</strong>.
               <br className="mb-1" />
               {accountTier.nextLimit && accountTier.nextReqMsgs ? (

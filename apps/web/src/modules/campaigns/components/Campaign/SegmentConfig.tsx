@@ -146,7 +146,7 @@ export function SegmentConfig({
       </div>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">Nombre de la campaña</label>
+          <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Nombre de la campaña</label>
           <input 
             type="text" 
             placeholder="Ej. Promoción Mayo 2026" 
@@ -158,7 +158,7 @@ export function SegmentConfig({
         </div>
         
         <div className="flex flex-col gap-3 p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <label className="text-sm font-semibold text-gray-800 dark:text-gray-200">¿A quién quieres enviar esta campaña?</label>
+          <label className="text-sm font-semibold text-black dark:text-white">¿A quién quieres enviar esta campaña?</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
@@ -173,7 +173,7 @@ export function SegmentConfig({
                 <Users size={16} className={audienceMode === 'clientes' ? 'text-primary' : 'text-zinc-400'} />
                 <div className="font-semibold text-sm text-black dark:text-white">A mis Clientes</div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Selecciona personas de tu base de clientes (CRM).</div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">Selecciona personas de tu base de clientes (CRM).</div>
             </button>
             <button
               type="button"
@@ -188,7 +188,7 @@ export function SegmentConfig({
                 <PhoneForwarded size={16} className={audienceMode === 'base' ? 'text-primary' : 'text-zinc-400'} />
                 <div className="font-semibold text-sm text-black dark:text-white">A una Base Nueva</div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Pega números de prospectos o listas frías.</div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">Pega números de prospectos o listas frías.</div>
             </button>
           </div>
         </div>
@@ -267,7 +267,7 @@ export function SegmentConfig({
               Recuerda que enviar masivos a contactos que no te conocen aumenta el riesgo de que bloqueen tu número de WhatsApp.
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-gray-500 dark:text-gray-400 flex justify-between">
+              <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex justify-between">
                 <span>Ingresa los números de WhatsApp</span>
                 <span className="text-primary">{targetRawPhones.length} números válidos detectados</span>
               </label>
@@ -292,7 +292,7 @@ export function SegmentConfig({
         
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase" title="Delay mínimo entre mensajes a distintos contactos">Delay Mínimo (seg)</label>
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase" title="Delay mínimo entre mensajes a distintos contactos">Delay Mínimo (seg)</label>
             <input 
               type="number" 
               min={30} 
@@ -304,7 +304,7 @@ export function SegmentConfig({
             />
           </div>
           <div className="flex-1 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase" title="Delay máximo entre mensajes a distintos contactos">Delay Máximo (seg)</label>
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase" title="Delay máximo entre mensajes a distintos contactos">Delay Máximo (seg)</label>
             <input 
               type="number" 
               min={30} 
@@ -319,7 +319,7 @@ export function SegmentConfig({
         
         <div className="bg-primary-light dark:bg-primary-dark-light p-3 rounded-lg text-sm mt-1">
           <strong className="text-primary">⏱️ Tiempo estimado:</strong> <span className="text-primary font-medium">{formatTime(estimatedSeconds)}</span> <br/>
-          <span className="text-gray-500 dark:text-gray-400 text-xs">(El cron enviará 1 mensaje por minuto máximo para evitar baneos)</span>
+          <span className="text-zinc-500 dark:text-zinc-400 text-xs">(El cron enviará 1 mensaje por minuto máximo para evitar baneos)</span>
         </div>
       </div>
     </div>

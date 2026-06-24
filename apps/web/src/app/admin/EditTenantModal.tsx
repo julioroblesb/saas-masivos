@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { updateTenantSubscription } from './actions';
 import { toast } from 'react-hot-toast';
-import { X, Calendar, Settings, AlertTriangle } from 'lucide-react';
+import { X, Calendar, Settings, AlertTriangle, Loader2 } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
@@ -86,22 +86,22 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="panel w-full max-w-lg overflow-hidden border-0 p-0">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="panel w-full max-w-lg border border-black-light dark:border-dark-light rounded-2xl bg-white dark:bg-dark p-0 shadow-xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
         
-        <div className="flex items-center justify-between p-5 dark:border-[#191e3a]">
-          <h2 className="text-lg font-bold">Gestionar Cliente: {company.name}</h2>
-          <button onClick={onClose} className="p-2 text-white-dark hover:text-dark rounded-md transition-colors">
+        <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+          <h2 className="text-xl font-bold text-black dark:text-white">Gestionar Cliente: {company.name}</h2>
+          <button onClick={onClose} className="p-2 text-zinc-400 hover:text-black dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           
           {/* Plan y Estado */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="text-white-dark mb-2 block">Tipo de Plan</label>
+              <label className="text-sm font-semibold text-black dark:text-white mb-2 block">Tipo de Plan</label>
               <CustomSelect 
                 value={{ value: planType, label: planType === 'prueba' ? 'Periodo de Prueba' : planType.charAt(0).toUpperCase() + planType.slice(1) }}
                 onChange={(option: any) => handlePlanChange(option.value)}
@@ -118,7 +118,7 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
             </div>
             
             <div>
-              <label className="text-white-dark mb-2 block">Estado del Servicio</label>
+              <label className="text-sm font-semibold text-black dark:text-white mb-2 block">Estado del Servicio</label>
               <CustomSelect 
                 value={{ value: status, label: status === 'activa' ? 'Activa (Conectado)' : status === 'suspendida' ? 'Suspendida (Bloqueado)' : 'Cancelada' }}
                 onChange={(option: any) => setStatus(option.value)}
@@ -134,43 +134,43 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
 
           {/* Fechas */}
           <div>
-            <label className="text-white-dark mb-2 block">Fecha de Vencimiento</label>
+            <label className="text-sm font-semibold text-black dark:text-white mb-2 block">Fecha de Vencimiento</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-dark z-10" size={18} />
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 z-10" size={18} />
               <CustomDatePicker
                 value={endDate}
                 onChangeDate={setEndDate}
                 placeholder="Seleccionar fecha"
-                className="form-input pl-10 w-full"
+                className="form-input pl-11 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-zinc-50 dark:bg-zinc-900/50"
               />
             </div>
-            <p className="mt-1 text-xs text-white-dark">Al vencer esta fecha, el cliente será desconectado de WhatsApp automáticamente.</p>
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Al vencer esta fecha, el cliente será desconectado de WhatsApp automáticamente.</p>
           </div>
 
           {status !== 'activa' && (
-            <div className="p-3 bg-danger/10 border border-danger/20 rounded-lg flex items-start gap-3">
-              <AlertTriangle className="text-danger mt-0.5" size={20} />
-              <p className="text-sm text-danger">
-                Al guardar con estado <strong>{status}</strong>, el bot de WhatsApp del cliente se detendrá inmediatamente y no podrá reconectarlo.
+            <div className="p-4 bg-danger/10 border border-danger/20 rounded-xl flex items-start gap-3">
+              <AlertTriangle className="text-danger mt-0.5 shrink-0" size={20} />
+              <p className="text-sm text-danger leading-relaxed">
+                Al guardar con estado <strong className="font-bold">{status}</strong>, el bot de WhatsApp del cliente se detendrá inmediatamente y no podrá reconectarlo.
               </p>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-5 mt-5 border-t border-[#e0e6ed] dark:border-[#1b2e4b]">
+          <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-black-light dark:border-dark-light">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="btn btn-outline-danger"
+              className="btn btn-outline-danger rounded-xl px-6"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary rounded-xl px-6 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
             >
-              <Settings size={18} />
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Settings size={18} />}
               {loading ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>

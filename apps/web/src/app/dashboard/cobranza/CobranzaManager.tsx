@@ -66,59 +66,61 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
         </div>
       </div>
 
-      <div className="panel p-0 overflow-hidden">
-        <div className="table-responsive">
+      <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm overflow-hidden">
+        <div className="overflow-x-auto -mx-6 px-6">
           {filteredDebts.length === 0 ? (
             <div className="p-8 text-center text-zinc-500">No hay deudas pendientes.</div>
           ) : (
-            <table className="w-full text-left">
-              <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 border-b border-black-light dark:border-dark-light">
                 <tr>
-                  <th className="p-4">Paciente</th>
-                  <th className="p-4">Servicio</th>
-                  <th className="p-4">Deuda</th>
-                  <th className="p-4">Fecha Promesa</th>
-                  <th className="p-4">Acciones</th>
+                  <th className="py-4 px-4 pl-6">Paciente</th>
+                  <th className="py-4 px-4">Servicio</th>
+                  <th className="py-4 px-4">Deuda</th>
+                  <th className="py-4 px-4">Fecha Promesa</th>
+                  <th className="py-4 px-4 text-center pr-6">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-black-light dark:divide-dark-light">
                 {filteredDebts.map((debt: any) => {
                   const pending = debt.price_charged - debt.amount_paid;
                   const isExpired = debt.debt_due_date && new Date(debt.debt_due_date).getTime() < new Date().getTime();
                   return (
-                    <tr key={debt.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                      <td className="p-4">
+                    <tr key={debt.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                      <td className="py-4 px-4 pl-6">
                         <div className="font-semibold text-black dark:text-white">{debt.contact_name || 'Sin Nombre'}</div>
                         <div className="text-xs text-zinc-500 flex items-center gap-1"><Phone size={12}/> +{debt.contact_phone}</div>
                       </td>
-                      <td className="p-4 text-zinc-600 dark:text-zinc-300">
+                      <td className="py-4 px-4 text-zinc-600 dark:text-zinc-300">
                         {debt.service_name}
                         <div className="text-xs text-zinc-400">Atendido el: {new Date(debt.scheduled_date || debt.visit_date).toLocaleDateString()}</div>
                       </td>
-                      <td className="p-4">
+                      <td className="py-4 px-4">
                         <div className="font-bold text-danger">S/ {pending}</div>
                         <div className="text-xs text-zinc-500">Total: S/ {debt.price_charged}</div>
                       </td>
-                      <td className="p-4">
+                      <td className="py-4 px-4">
                         {debt.debt_due_date ? (
-                          <span className={`badge ${isExpired ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${isExpired ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
                             {new Date(debt.debt_due_date).toLocaleDateString()} {isExpired && '(Vencido)'}
                           </span>
                         ) : (
                           <span className="text-zinc-400 text-sm">-</span>
                         )}
                       </td>
-                      <td className="p-4">
-                        <button 
-                          onClick={() => {
-                            setPaymentVisit(debt);
-                            setPaymentAmount(pending);
-                            setIsPaymentModalOpen(true);
-                          }}
-                          className="btn btn-sm btn-outline-primary bg-primary/5 hover:bg-primary hover:text-white"
-                        >
-                          Cobrar
-                        </button>
+                      <td className="py-4 px-4 text-center pr-6">
+                        <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => {
+                              setPaymentVisit(debt);
+                              setPaymentAmount(pending);
+                              setIsPaymentModalOpen(true);
+                            }}
+                            className="btn btn-sm btn-primary rounded-xl px-4"
+                          >
+                            Cobrar
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

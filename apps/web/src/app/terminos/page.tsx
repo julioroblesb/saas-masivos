@@ -4,15 +4,15 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 
 export default function TerminosPage() {
   return (
-    <div className="min-h-[100dvh] bg-[#FAFAFA] dark:bg-[#0A0A0A] text-zinc-900 dark:text-gray-100 p-6 md:p-12 font-sans">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-dark p-8 md:p-10 rounded-2xl border border-zinc-200 dark:border-[#27272A]">
+    <div className="min-h-[100dvh] bg-zinc-50 dark:bg-dark text-black dark:text-white p-6 md:p-12 font-sans">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-zinc-900 p-8 md:p-10 rounded-3xl border border-black-light dark:border-dark-light shadow-sm">
         
         <Link href="/login" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-primary dark:hover:text-primary transition-colors mb-8">
           <ArrowLeft size={16} className="mr-2" />
           Volver
         </Link>
 
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white-light dark:border-[#1b2e4b]">
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-black-light dark:border-dark-light">
           <div className="text-primary">
             <ShieldAlert size={32} />
           </div>
@@ -22,7 +22,7 @@ export default function TerminosPage() {
           </div>
         </div>
 
-        <div className="space-y-8 text-sm text-zinc-700 dark:text-[#888ea8] leading-relaxed">
+        <div className="space-y-8 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
           
           <section>
             <h2 className="text-base font-bold text-dark dark:text-white-light mb-3">1. Definiciones</h2>
@@ -66,7 +66,7 @@ export default function TerminosPage() {
               <li>La pérdida de chats, contactos, clientes o ventas derivadas de una suspensión de su número.</li>
               <li>Cualquier daño económico, lucro cesante o consecuencia legal resultante del bloqueo de su línea de comunicación.</li>
             </ul>
-            <p className="mt-5 font-semibold text-center uppercase tracking-wide text-xs border-t border-white-light dark:border-[#1b2e4b] pt-4">
+            <p className="mt-5 font-semibold text-center uppercase tracking-wide text-xs border-t border-black-light dark:border-dark-light pt-4">
               Si usted no puede permitirse perder el número de teléfono con el que planea hacer envíos masivos, le recomendamos encarecidamente NO utilizar este Servicio con dicho número.
             </p>
           </section>
@@ -90,7 +90,7 @@ export default function TerminosPage() {
             </ul>
           </section>
 
-          <section className="pt-6 border-t border-white-light dark:border-[#1b2e4b]">
+          <section className="pt-6 border-t border-black-light dark:border-dark-light">
             <h2 className="text-base font-bold text-dark dark:text-white-light mb-3">6. Renuncia de Garantías y Aceptación</h2>
             <p className="text-xs uppercase tracking-wider mb-3">
               El servicio se proporciona "tal cual" (as-is) y "según disponibilidad". No ofrecemos garantías de ningún tipo, expresas o implícitas, sobre la estabilidad, continuidad o seguridad contra bloqueos en la plataforma externa.

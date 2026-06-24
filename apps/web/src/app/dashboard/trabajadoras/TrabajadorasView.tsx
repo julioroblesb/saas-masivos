@@ -134,8 +134,8 @@ export default function TrabajadorasView() {
         </button>
       </div>
 
-      <div className="panel p-0 overflow-hidden">
-        <div className="table-responsive">
+      <div className="panel p-0 overflow-hidden border border-black-light dark:border-dark-light shadow-sm rounded-3xl">
+        <div className="overflow-x-auto -mx-6 px-6">
           {loading ? (
             <div className="p-8 text-center text-zinc-500">Cargando trabajadoras...</div>
           ) : staffList.length === 0 ? (
@@ -144,29 +144,29 @@ export default function TrabajadorasView() {
               <p className="text-zinc-600 dark:text-zinc-400 font-medium">No hay trabajadoras registradas.</p>
             </div>
           ) : (
-            <table className="w-full text-left">
-              <thead className="bg-zinc-50 dark:bg-dark text-sm font-semibold text-zinc-600 dark:text-zinc-300 border-b border-zinc-200 dark:border-[#27272A]">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 border-b border-black-light dark:border-dark-light">
                 <tr>
-                  <th className="p-4">Nombre</th>
-                  <th className="p-4">Especialidad</th>
-                  <th className="p-4">Cumpleaños</th>
-                  <th className="p-4">Servicios Asignados</th>
-                  <th className="p-4">Estado</th>
-                  <th className="p-4 text-center">Acciones</th>
+                  <th className="py-4 px-4 pl-6">Nombre</th>
+                  <th className="py-4 px-4">Especialidad</th>
+                  <th className="py-4 px-4">Cumpleaños</th>
+                  <th className="py-4 px-4">Servicios Asignados</th>
+                  <th className="py-4 px-4">Estado</th>
+                  <th className="py-4 px-4 text-center pr-6">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-[#27272A]">
+              <tbody className="divide-y divide-black-light dark:divide-dark-light">
                 {staffList.map((staff) => (
-                  <tr key={staff.id} className="hover:bg-zinc-50 dark:hover:bg-[#1A1A1A] transition-colors">
-                    <td className="p-4 font-medium text-black dark:text-white">{staff.name}</td>
-                    <td className="p-4 text-zinc-500">{staff.role || '-'}</td>
-                    <td className="p-4 text-zinc-500">{staff.birthday || '-'}</td>
-                    <td className="p-4 text-zinc-500">
+                  <tr key={staff.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td className="py-4 px-4 pl-6 font-semibold text-black dark:text-white">{staff.name}</td>
+                    <td className="py-4 px-4 text-zinc-500">{staff.role || '-'}</td>
+                    <td className="py-4 px-4 text-zinc-500">{staff.birthday || '-'}</td>
+                    <td className="py-4 px-4 text-zinc-500">
                       <div className="flex flex-wrap gap-1">
                         {staff.services?.map(sId => {
                           const s = services.find(x => x.id === sId);
                           return s ? (
-                            <span key={s.id} className="px-2 py-0.5 bg-zinc-100 dark:bg-[#111111] rounded-md text-xs border border-zinc-200 dark:border-[#27272A] text-zinc-700 dark:text-zinc-300">
+                            <span key={s.id} className="px-2 py-0.5 bg-white-light dark:bg-zinc-800 rounded-full text-xs border border-black-light dark:border-dark-light text-black dark:text-white font-medium">
                               {s.name}
                             </span>
                           ) : null;
@@ -174,17 +174,17 @@ export default function TrabajadorasView() {
                         {(!staff.services || staff.services.length === 0) && '-'}
                       </div>
                     </td>
-                    <td className="p-4">
-                      <span className={`badge ${staff.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${staff.isActive ? 'bg-success/10 text-success border-success/20' : 'bg-danger/10 text-danger border-danger/20'}`}>
                         {staff.isActive ? 'Activa' : 'Inactiva'}
                       </span>
                     </td>
-                    <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button className="text-primary hover:text-primary/80" onClick={() => handleOpenModal(staff)}>
+                    <td className="py-4 px-4 text-center pr-6">
+                      <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" onClick={() => handleOpenModal(staff)}>
                           <Edit2 size={16} />
                         </button>
-                        <button className="text-danger hover:text-danger/80" onClick={() => handleDelete(staff.id)}>
+                        <button className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" onClick={() => handleDelete(staff.id)}>
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -198,15 +198,18 @@ export default function TrabajadorasView() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 ease-out-expo">
-          <div className="bg-white dark:bg-secondary rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-200 dark:border-[#27272A] animate-in zoom-in-95 duration-300 ease-out-expo">
-            <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-[#27272A] bg-zinc-50 dark:bg-dark">
-              <h3 className="text-lg font-bold text-black dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-dark rounded-3xl shadow-xl w-full max-w-lg overflow-hidden border border-black-light dark:border-dark-light animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-xl font-bold text-black dark:text-white flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  {form.id ? <Edit2 className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+                </div>
                 {form.id ? 'Editar Trabajadora' : 'Nueva Trabajadora'}
               </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+                className="p-2 text-zinc-400 hover:text-black dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 ✕
               </button>
@@ -214,10 +217,10 @@ export default function TrabajadorasView() {
             
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="text-sm font-semibold mb-1 block">Nombre *</label>
+                <label className="text-sm font-semibold mb-2 block text-black dark:text-white">Nombre *</label>
                 <input 
                   type="text" 
-                  className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition" 
+                  className="form-input rounded-xl border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 text-black dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm" 
                   value={form.name}
                   onChange={e => setForm({...form, name: e.target.value})}
                   placeholder="Ej: María Pérez"
@@ -226,17 +229,17 @@ export default function TrabajadorasView() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="text-sm font-semibold mb-1 block">Cumpleaños</label>
+                  <label className="text-sm font-semibold mb-2 block text-black dark:text-white">Cumpleaños</label>
                   <BirthdayPicker 
                     value={form.birthday}
                     onChange={(val) => setForm({...form, birthday: val})}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold mb-1 block">Especialidad / Rol</label>
+                  <label className="text-sm font-semibold mb-2 block text-black dark:text-white">Especialidad / Rol</label>
                   <input 
                     type="text" 
-                    className="form-input rounded-xl border-zinc-300 dark:border-[#27272A] bg-white dark:bg-[#111111] text-zinc-900 dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 text-black dark:text-white w-full focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm" 
                     value={form.role}
                     onChange={e => setForm({...form, role: e.target.value})}
                     placeholder="Ej: Cosmiatra"
@@ -245,44 +248,44 @@ export default function TrabajadorasView() {
               </div>
 
               <div>
-                <label className="text-sm font-semibold mb-2 block">Servicios que ofrece</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-zinc-300 dark:border-[#27272A] p-4 rounded-xl bg-zinc-50 dark:bg-[#111111] max-h-48 overflow-y-auto custom-scrollbar">
+                <label className="text-sm font-semibold mb-2 block text-black dark:text-white">Servicios que ofrece</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-black-light dark:border-dark-light p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
                   {services.map(s => (
-                    <label key={s.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                    <label key={s.id} className="flex items-center gap-3 cursor-pointer text-sm p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded-lg transition-colors">
                       <input 
                         type="checkbox" 
-                        className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                        className="rounded border-black-light dark:border-dark-light text-primary focus:ring-primary w-4 h-4 cursor-pointer"
                         checked={form.services.includes(s.id)}
                         onChange={() => toggleService(s.id)}
                       />
-                      <span className="truncate">{s.name}</span>
+                      <span className="truncate text-black dark:text-white">{s.name}</span>
                     </label>
                   ))}
                   {services.length === 0 && <span className="text-xs text-zinc-500">No hay servicios disponibles</span>}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-zinc-200 dark:border-[#27272A]">
+              <div className="flex items-center gap-3 mt-6 pt-6 border-t border-black-light dark:border-dark-light">
                 <input 
                   type="checkbox" 
                   id="isActive"
-                  className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                  className="rounded border-black-light dark:border-dark-light text-primary focus:ring-primary w-5 h-5 cursor-pointer"
                   checked={form.isActive}
                   onChange={e => setForm({...form, isActive: e.target.checked})}
                 />
-                <label htmlFor="isActive" className="text-sm cursor-pointer select-none">Trabajadora activa en el sistema</label>
+                <label htmlFor="isActive" className="text-sm cursor-pointer select-none font-medium text-black dark:text-white">Trabajadora activa en el sistema</label>
               </div>
             </div>
 
-            <div className="p-6 bg-zinc-50 dark:bg-dark border-t border-zinc-200 dark:border-[#27272A] flex justify-end gap-3">
+            <div className="p-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
               <button 
-                className="px-4 py-2 font-semibold text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors"
+                className="btn btn-outline-danger rounded-xl px-6"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancelar
               </button>
               <button 
-                className="btn btn-primary"
+                className="btn btn-primary rounded-xl px-8 shadow-md hover:shadow-lg transition-all"
                 onClick={handleSave}
               >
                 Guardar Trabajadora
