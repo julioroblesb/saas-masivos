@@ -59,22 +59,22 @@ export default function LoginPage() {
               Renueva la relación con tus clientes.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
-              Centraliza tus citas, mensajes masivos de WhatsApp y pagos en una sola plataforma diseñada para equipos de alto rendimiento.
+              Centraliza la gestión de tus clientes, reservas y operaciones en una sola plataforma diseñada para negocios de alto rendimiento.
             </p>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-white/90">
               <CheckCircle2 className="text-white/60" size={20} />
-              <span>Agenda automatizada e inteligente</span>
+              <span>Gestión integral de clientes y reservas</span>
             </div>
             <div className="flex items-center gap-3 text-white/90">
               <CheckCircle2 className="text-white/60" size={20} />
-              <span>Campañas de marketing por WhatsApp</span>
+              <span>Fidelización y comunicación inteligente</span>
             </div>
             <div className="flex items-center gap-3 text-white/90">
               <CheckCircle2 className="text-white/60" size={20} />
-              <span>Analíticas y flujos de caja en tiempo real</span>
+              <span>Analíticas y control financiero en tiempo real</span>
             </div>
           </div>
         </div>
