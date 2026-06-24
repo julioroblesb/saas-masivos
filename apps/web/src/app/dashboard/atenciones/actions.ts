@@ -96,6 +96,22 @@ export async function createVisitAction(payload: {
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };
   
+  // LOGICAL FIX FOR TIMEZONE ISSUE:
+  // When the frontend sends a date like '2026-06-23', PostgreSQL treats it as midnight UTC (2026-06-23T00:00:00Z).
+  // For users in UTC-5 (America/Lima), midnight UTC is 7 PM of the PREVIOUS DAY.
+  // To fix this logically, we must convert the 'YYYY-MM-DD' input into a proper TIMESTAMPTZ.
+  // If the date is 'today' (locally), we just use the current timestamp (which has the correct time).
+  // If it's a future or past date, we append T12:00:00-05:00 to ensure it falls squarely in the correct local day.
+  
+  const todayLocal = new Date(new Date().getTime() - 5 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const visit_timestamp = payload.visit_date === todayLocal 
+    ? new Date().toISOString() 
+    : `${payload.visit_date}T12:00:00-05:00`;
+    
+  const scheduled_timestamp = payload.scheduled_date === todayLocal 
+    ? new Date().toISOString() 
+    : `${payload.scheduled_date}T12:00:00-05:00`;
+
   // Determine payment status
   let payment_status = 'pendiente';
   if (payload.initial_payment >= payload.price_charged && payload.price_charged > 0) {
@@ -111,8 +127,8 @@ export async function createVisitAction(payload: {
       company_id: profile.company_id,
       contact_id: final_contact_id,
       service_id: payload.service_id,
-      visit_date: payload.visit_date,
-      scheduled_date: payload.scheduled_date,
+      visit_date: visit_timestamp,
+      scheduled_date: scheduled_timestamp,
       status: payload.status,
       price_charged: payload.price_charged,
       payment_status,
@@ -135,7 +151,7 @@ export async function createVisitAction(payload: {
         visit_id: data.id,
         amount: payload.initial_payment,
         payment_method: payload.payment_method,
-        payment_date: payload.visit_date
+        payment_date: visit_timestamp
       });
       
     if (paymentError) {
@@ -180,5 +196,44 @@ export async function updateVisitStatusAction(visitId: string, status: 'completa
     }
   }
   
+  return { success: true };
+}
+
+export async function addPaymentAction(visitId: string, amount: number, paymentMethod: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'No autorizado' };
+
+  const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+  if (!profile?.company_id) return { error: 'Empresa no encontrada' };
+
+  // Insert payment
+  const { error: paymentError } = await supabase
+    .from('spa_payments')
+    .insert({
+      company_id: profile.company_id,
+      visit_id: visitId,
+      amount: amount,
+      payment_method: paymentMethod,
+      payment_date: new Date().toISOString()
+    });
+
+  if (paymentError) {
+    return { error: paymentError.message };
+  }
+
+  // Check total paid and update visit status
+  const { data: payments } = await supabase.from('spa_payments').select('amount').eq('visit_id', visitId);
+  const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+  
+  const { data: visit } = await supabase.from('spa_visits').select('price_charged').eq('id', visitId).single();
+  
+  if (visit) {
+    let payment_status = 'parcial';
+    if (totalPaid >= visit.price_charged) payment_status = 'pagado';
+    
+    await supabase.from('spa_visits').update({ payment_status }).eq('id', visitId);
+  }
+
   return { success: true };
 }
