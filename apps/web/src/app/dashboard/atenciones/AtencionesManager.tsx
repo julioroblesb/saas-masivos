@@ -48,7 +48,7 @@ export function AtencionesManager({
     contact_id: '',
     service_id: '',
     staff_id: '',
-    scheduled_date: new Date().toISOString().slice(0, 16),
+    scheduled_date: new Date().toISOString(),
     price_charged: 0,
     notes: '',
   });
@@ -77,7 +77,7 @@ export function AtencionesManager({
     setEditForm({
       service_id: visit.service_id,
       staff_id: visit.staff_id || '',
-      scheduled_date: (visit.scheduled_date || visit.visit_date).slice(0, 16),
+      scheduled_date: visit.scheduled_date || visit.visit_date,
       price_charged: visit.price_charged,
       status: visit.status,
       notes: visit.notes || ''
@@ -137,8 +137,10 @@ export function AtencionesManager({
     }
     
     // Auto-determine status based on date
-    const selectedDateStr = form.scheduled_date.split('T')[0];
-    const todayStr = new Date(new Date().getTime() - 5 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const selectedDateObj = new Date(form.scheduled_date);
+    const selectedDateStr = new Date(selectedDateObj.getTime() - selectedDateObj.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    const todayObj = new Date();
+    const todayStr = new Date(todayObj.getTime() - todayObj.getTimezoneOffset() * 60000).toISOString().split('T')[0];
     const computedStatus = selectedDateStr === todayStr ? 'en_curso' : 'agendada';
     
     setIsSubmitting(true);
@@ -429,7 +431,7 @@ export function AtencionesManager({
                                         setEditForm({
                                           service_id: visit.service_id || '',
                                           staff_id: visit.staff_id || '',
-                                          scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                          scheduled_date: visit.visit_date || '',
                                           price_charged: visit.price_charged || 0,
                                           status: visit.status || 'agendada',
                                           notes: visit.notes || ''
@@ -517,7 +519,7 @@ export function AtencionesManager({
                                      setEditForm({
                                        service_id: visit.service_id || '',
                                        staff_id: visit.staff_id || '',
-                                       scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                       scheduled_date: visit.visit_date || '',
                                        price_charged: visit.price_charged || 0,
                                        status: visit.status || 'agendada',
                                        notes: visit.notes || ''

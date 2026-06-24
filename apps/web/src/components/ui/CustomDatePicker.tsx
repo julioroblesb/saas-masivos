@@ -108,22 +108,16 @@ export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value,
       <Flatpickr
         ref={ref}
         value={value}
-        onChange={([date]) => {
+        onChange={([date], dateStr) => {
           if (date) {
-            const offset = date.getTimezoneOffset();
-            const adjustedDate = new Date(date.getTime() - (offset*60*1000));
-            if (enableTime) {
-              onChangeDate(adjustedDate.toISOString().slice(0, 16));
-            } else {
-              onChangeDate(adjustedDate.toISOString().split('T')[0]);
-            }
+            onChangeDate(date.toISOString());
           } else {
             onChangeDate('');
           }
         }}
         options={{
           locale: Spanish,
-          dateFormat: enableTime ? "Y-m-d\\TH:i" : "Y-m-d",
+          dateFormat: enableTime ? "Z" : "Y-m-d", // Use ISO format for value
           altInput: true,
           altFormat: enableTime ? "d M Y, h:i K" : "d M Y",
           enableTime: enableTime,

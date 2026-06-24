@@ -95,6 +95,7 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
     if (autoMsgs.careEnabled && autoMsgs.careTemplate) {
       queueInserts.push({
         company_id: visit.company_id,
+        visit_id: visitId,
         contact_id: visit.crm_marketing_contacts?.id,
         phone: visit.crm_marketing_contacts?.phone,
         message: replaceVars(autoMsgs.careTemplate),
@@ -105,6 +106,7 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
       if (visit.spa_services?.care_instructions || visit.spa_services?.care_image_url) {
         queueInserts.push({
           company_id: visit.company_id,
+          visit_id: visitId,
           contact_id: visit.crm_marketing_contacts?.id,
           phone: visit.crm_marketing_contacts?.phone,
           message: visit.spa_services.care_instructions || 'Instrucciones de cuidado',
@@ -121,6 +123,7 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
 
       queueInserts.push({
         company_id: visit.company_id,
+        visit_id: visitId,
         contact_id: visit.crm_marketing_contacts?.id,
         phone: visit.crm_marketing_contacts?.phone,
         message: replaceVars(autoMsgs.followUpTemplate),
