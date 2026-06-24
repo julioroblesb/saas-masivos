@@ -67,9 +67,9 @@ export async function GET(request: Request) {
     const replaceVars = (text: string) => {
       if (!text) return '';
       return text
-        .replace(/\{\{nombre\}\}/gi, visit.crm_marketing_contacts?.name || '')
-        .replace(/\{\{servicio\}\}/gi, visit.spa_services?.name || '')
-        .replace(/\{\{dias\}\}/gi, visit.spa_services?.duration_days?.toString() || '0');
+        .replace(/\{\{nombre\}\}/gi, ((visit.crm_marketing_contacts as any) as any)?.name || '')
+        .replace(/\{\{servicio\}\}/gi, (visit.spa_services as any)?.name || '')
+        .replace(/\{\{dias\}\}/gi, (visit.spa_services as any)?.duration_days?.toString() || '0');
     };
 
     const queueInserts = [];
@@ -78,36 +78,36 @@ export async function GET(request: Request) {
       queueInserts.push({
         company_id: visit.company_id,
         visit_id: targetVisitId,
-        contact_id: visit.crm_marketing_contacts?.id,
-        phone: visit.crm_marketing_contacts?.phone,
+        contact_id: (visit.crm_marketing_contacts as any)?.id,
+        phone: (visit.crm_marketing_contacts as any)?.phone,
         message: replaceVars(autoMsgs.careTemplate),
         status: 'pendiente',
         scheduled_for: new Date().toISOString(),
       });
 
-      if (visit.spa_services?.care_instructions || visit.spa_services?.care_image_url) {
+      if ((visit.spa_services as any)?.care_instructions || (visit.spa_services as any)?.care_image_url) {
         queueInserts.push({
           company_id: visit.company_id,
           visit_id: targetVisitId,
-          contact_id: visit.crm_marketing_contacts?.id,
-          phone: visit.crm_marketing_contacts?.phone,
-          message: visit.spa_services.care_instructions || 'Instrucciones de cuidado',
-          media_url: visit.spa_services.care_image_url || null,
+          contact_id: ((visit.crm_marketing_contacts as any) as any)?.id,
+          phone: ((visit.crm_marketing_contacts as any) as any)?.phone,
+          message: (visit.spa_services as any)?.care_instructions || 'Instrucciones de cuidado',
+          media_url: (visit.spa_services as any)?.care_image_url || null,
           status: 'pendiente',
           scheduled_for: new Date(Date.now() + 5000).toISOString(),
         });
       }
     }
 
-    if (autoMsgs.followUpEnabled && autoMsgs.followUpTemplate && visit.spa_services?.duration_days > 0) {
+    if (autoMsgs.followUpEnabled && autoMsgs.followUpTemplate && (visit.spa_services as any)?.duration_days > 0) {
       const scheduledDate = new Date();
-      scheduledDate.setDate(scheduledDate.getDate() + visit.spa_services.duration_days);
+      scheduledDate.setDate(scheduledDate.getDate() + (visit.spa_services as any).duration_days);
 
       queueInserts.push({
         company_id: visit.company_id,
         visit_id: targetVisitId,
-        contact_id: visit.crm_marketing_contacts?.id,
-        phone: visit.crm_marketing_contacts?.phone,
+        contact_id: (visit.crm_marketing_contacts as any)?.id,
+        phone: (visit.crm_marketing_contacts as any)?.phone,
         message: replaceVars(autoMsgs.followUpTemplate),
         status: 'pendiente',
         scheduled_for: scheduledDate.toISOString(),
