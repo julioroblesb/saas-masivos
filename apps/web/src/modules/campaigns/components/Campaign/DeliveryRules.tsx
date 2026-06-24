@@ -52,7 +52,7 @@ export function DeliveryRules({
                 value={minDelaySec} 
                 onChange={e => setMinDelaySec(Number(e.target.value))} 
                 onBlur={() => setMinDelaySec(Math.max(30, minDelaySec))}
-                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-base bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-base bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
               />
             </div>
           </div>
@@ -67,20 +67,19 @@ export function DeliveryRules({
                 value={maxDelaySec} 
                 onChange={e => setMaxDelaySec(Number(e.target.value))} 
                 onBlur={() => setMaxDelaySec(Math.max(30, Math.max(minDelaySec, maxDelaySec)))}
-                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-base bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-base bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
               />
             </div>
           </div>
         </div>
 
-        <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex items-start gap-3 mt-2">
-          <Clock className="text-primary mt-0.5" size={20} />
-          <div>
-            <h4 className="text-sm font-bold text-primary mb-1">Tiempo Estimado de Ejecución</h4>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Tomará <strong className="text-black dark:text-white">{formatTime(estimatedSeconds)}</strong> en despachar los {targetContactsCount} mensajes de esta campaña.
-            </p>
-          </div>
+        <div className="border-l-2 border-primary pl-4 py-1 flex flex-col gap-1 mt-4">
+          <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
+            <Clock size={16} /> Tiempo Estimado de Ejecución
+          </h4>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Tomará <strong className="text-slate-800 dark:text-slate-200">{formatTime(estimatedSeconds)}</strong> en despachar los {targetContactsCount} mensajes de esta campaña.
+          </p>
         </div>
       </div>
     </div>

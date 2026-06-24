@@ -420,7 +420,13 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     .form-textarea,
     .form-select,
     .form-multiselect {
-        @apply w-full rounded-xl border border-white-light bg-white px-4 py-2 text-sm font-semibold text-black !outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:text-white-dark dark:focus:border-primary;
+        @apply w-full rounded-xl border border-white-light bg-white px-4 py-2 text-sm font-semibold text-black !outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm dark:border-slate-800 dark:bg-slate-900/50 dark:text-white-light dark:focus:border-primary;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder,
+    .form-select::placeholder {
+        @apply text-slate-400 dark:text-slate-500;
     }
 
     .form-input-lg,

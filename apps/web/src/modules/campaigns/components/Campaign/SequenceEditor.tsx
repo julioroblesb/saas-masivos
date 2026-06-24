@@ -32,13 +32,13 @@ export function SequenceEditor({
         </div>
         <h3 className="m-0 text-xl font-bold dark:text-white-light">Mensajes</h3>
       </div>
-      <div className="flex flex-col gap-8 pl-4 border-l-2 border-slate-200 dark:border-slate-800 ml-2">
+      <div className="flex flex-col gap-12 pl-4 border-l border-slate-200 dark:border-slate-800 ml-3">
         {sequence.map((msg, idx) => (
-          <div key={msg.id} className="relative -ml-[25px] flex gap-5 group">
+          <div key={msg.id} className="relative -ml-[21px] flex gap-6 group">
             {/* Timeline Dot */}
-            <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 border-4 border-white dark:border-[#0e1726] flex-shrink-0 mt-1"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 mt-2 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
             
-            <div className="flex-1 flex flex-col gap-3">
+            <div className="flex-1 flex flex-col gap-4">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Mensaje {idx + 1}</span>
@@ -67,15 +67,15 @@ export function SequenceEditor({
                     <button type="button" onClick={() => updateMessage(msg.id, { content: msg.content + '{{despedida}} ' })} className="btn btn-sm btn-outline-primary"><span>🤝</span> Despedida</button>
                   </div>
                   <textarea
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors min-h-[80px]"
+                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-colors min-h-[80px]"
                     value={msg.content}
                     onChange={e => updateMessage(msg.id, { content: e.target.value })}
                     placeholder="Escribe el mensaje aquí... Usa los botones de arriba para inyectar variables."
                     rows={4}
                   />
-                  <small className="text-zinc-500 dark:text-zinc-400 text-xs mt-0.5 leading-relaxed">
-                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-zinc-200 dark:bg-zinc-700 px-1 rounded">{`{{saludo}}`}</code> y <code className="bg-zinc-200 dark:bg-zinc-700 px-1 rounded">{`{{despedida}}`}</code> para que el sistema rote entre 100 variaciones distintas automáticamente. 
-                    Además, inyectamos una <strong>huella invisible única</strong> en código para cada mensaje.
+                  <small className="text-zinc-500 dark:text-zinc-400 text-xs mt-1 leading-relaxed">
+                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">{`{{saludo}}`}</code> y <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">{`{{despedida}}`}</code> para rotar variaciones automáticamente. 
+                    Además, inyectamos una <strong>huella invisible única</strong> por mensaje.
                   </small>
                 </div>
               ) : (
@@ -105,12 +105,10 @@ export function SequenceEditor({
           </div>
         ))}
         
-        <div className="relative -ml-[25px] flex gap-5">
-          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-[#0e1726] flex-shrink-0 mt-2 flex items-center justify-center text-zinc-400">
-            <Plus size={12} />
-          </div>
-          <button type="button" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2 flex items-center gap-1" onClick={addMessage}>
-            Agregar Mensaje
+        <div className="relative -ml-[21px] flex gap-6">
+          <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 flex-shrink-0 mt-2.5 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
+          <button type="button" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors py-1.5 flex items-center gap-1" onClick={addMessage}>
+            <Plus size={16} /> Agregar Mensaje
           </button>
         </div>
       </div>

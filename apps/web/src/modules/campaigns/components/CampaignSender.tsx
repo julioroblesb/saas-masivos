@@ -191,9 +191,9 @@ export function CampaignSender() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-12 xl:gap-8">
         {/* LEFT: Config & Sequence & Delays (2/3 width) */}
-        <div className="xl:col-span-2 space-y-16">
+        <div className="xl:col-span-2 space-y-24">
           <div>
             <SegmentConfig
               targetContactIds={targetContactIds}
@@ -251,7 +251,7 @@ export function CampaignSender() {
                   ></div>
                 </div>
               </div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
+              <div className="text-sm text-zinc-500 dark:text-zinc-300 mt-2 leading-relaxed">
                 Límite actual: <strong className="text-primary">{accountTier.limit} msgs/día</strong>.
                 <br className="mb-1" />
                 {accountTier.nextLimit && accountTier.nextReqMsgs ? (

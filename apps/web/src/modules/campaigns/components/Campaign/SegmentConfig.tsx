@@ -127,14 +127,14 @@ export function SegmentConfig({
       <div className="pl-11 flex flex-col gap-5">
         <div className="flex flex-col gap-3">
           <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">¿A quién quieres enviar esta campaña?</label>
-          <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg w-max">
+          <div className="flex gap-6 border-b border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setAudienceMode('clientes')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 -mb-[1px] ${
                 audienceMode === 'clientes'
-                  ? 'bg-white dark:bg-slate-700 shadow text-primary'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               <Users size={16} /> A mis Clientes
@@ -142,10 +142,10 @@ export function SegmentConfig({
             <button
               type="button"
               onClick={() => setAudienceMode('base')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 -mb-[1px] ${
                 audienceMode === 'base'
-                  ? 'bg-white dark:bg-slate-700 shadow text-primary'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               <PhoneForwarded size={16} /> A una Base Nueva
@@ -158,7 +158,7 @@ export function SegmentConfig({
 
         {/* CONTENIDO DINÁMICO SEGÚN EL MODO */}
         {audienceMode === 'clientes' ? (
-          <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
@@ -185,7 +185,7 @@ export function SegmentConfig({
 
             <div className="flex gap-2 text-xs">
               <button type="button" onClick={selectAllFiltered} className="text-primary hover:underline">Seleccionar filtrados ({filteredClients.length})</button>
-              <span className="text-zinc-300">|</span>
+              <span className="text-zinc-300 dark:text-zinc-700">|</span>
               <button type="button" onClick={clearSelection} className="text-danger hover:underline">Limpiar selección</button>
             </div>
 
@@ -196,11 +196,11 @@ export function SegmentConfig({
                 <div className="p-4 text-center text-sm text-zinc-500">No hay clientes que coincidan.</div>
               ) : (
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-zinc-50 dark:bg-zinc-800/50 sticky top-0">
+                  <thead className="border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-dark">
                     <tr>
-                      <th className="p-2 w-10 text-center"><input type="checkbox" checked={filteredClients.every(c => targetContactIds.includes(c.id))} onChange={(e) => e.target.checked ? selectAllFiltered() : clearSelection()} className="rounded text-primary focus:ring-primary" /></th>
-                      <th className="p-2 font-medium text-zinc-600 dark:text-zinc-300">Cliente</th>
-                      <th className="p-2 font-medium text-zinc-600 dark:text-zinc-300 text-right">Último Servicio</th>
+                      <th className="py-3 px-2 w-10 text-center"><input type="checkbox" checked={filteredClients.every(c => targetContactIds.includes(c.id))} onChange={(e) => e.target.checked ? selectAllFiltered() : clearSelection()} className="rounded border-slate-300 text-primary focus:ring-primary" /></th>
+                      <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300">Cliente</th>
+                      <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300 text-right">Último Servicio</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -224,24 +224,23 @@ export function SegmentConfig({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="p-3 bg-warning/10 border border-warning/20 rounded-xl text-sm text-warning-dark">
-              <strong>⚠️ Importante:</strong> Estos números se utilizarán exclusivamente para este envío masivo y <strong>no se guardarán en tu base de clientes</strong>. 
-              Recuerda que enviar masivos a contactos que no te conocen aumenta el riesgo de que bloqueen tu número de WhatsApp.
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex justify-between">
+          <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 flex justify-between">
                 <span>Ingresa los números de WhatsApp</span>
-                <span className="text-primary">{targetRawPhones.length} números válidos detectados</span>
+                <span className="text-primary">{targetRawPhones.length} válidos</span>
               </label>
               <textarea 
                 rows={6}
                 placeholder="Pega aquí los números separados por comas o saltos de línea...&#10;Ej: 51987654321, 51999888777"
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-[border-color,box-shadow] shadow-sm resize-y"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y"
                 value={rawText}
                 onChange={handleRawTextChange}
               />
-              <p className="text-xs text-zinc-500">Asegúrate de incluir el código de país (ej. 51 para Perú) sin símbolos "+".</p>
+              <div className="flex justify-between items-start gap-4">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Asegúrate de incluir el código de país (ej. 51 para Perú) sin símbolos "+".</p>
+                <p className="text-xs text-warning dark:text-warning text-right max-w-[200px] leading-tight">Los números masivos fríos tienen mayor riesgo de baneo en WhatsApp.</p>
+              </div>
             </div>
           </div>
         )}
