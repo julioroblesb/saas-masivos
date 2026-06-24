@@ -77,7 +77,6 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
 
     const autoMsgs = company?.settings?.auto_messages || {
       careEnabled: true,
-      careEnabled: true,
       careTemplate: DEFAULT_CARE_TEMPLATE,
       careInstructionsTemplate: "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}",
       followUpEnabled: true,
