@@ -6,10 +6,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const visitId = searchParams.get('visit_id');
 
-  if (!visitId) {
-    return NextResponse.json({ error: 'Falta visit_id' }, { status: 400 });
-  }
-
   try {
     const supabase = await createClient();
     
