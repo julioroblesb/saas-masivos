@@ -56,8 +56,11 @@ export async function createVisitAction(payload: {
   new_contact?: { name: string; phone: string };
   service_id: string;
   visit_date: string;
-  status: 'en_curso' | 'completado' | 'cancelado';
+  status: 'en_curso' | 'completado' | 'cancelado' | 'agendada';
   price_charged: number;
+  initial_payment: number;
+  payment_method: 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta';
+  scheduled_date: string;
   notes?: string;
   staff_id?: string;
 }) {
@@ -93,6 +96,14 @@ export async function createVisitAction(payload: {
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };
   
+  // Determine payment status
+  let payment_status = 'pendiente';
+  if (payload.initial_payment >= payload.price_charged && payload.price_charged > 0) {
+    payment_status = 'pagado';
+  } else if (payload.initial_payment > 0) {
+    payment_status = 'parcial';
+  }
+
   // Insert visit
   const { data, error } = await supabase
     .from('spa_visits')
@@ -101,8 +112,10 @@ export async function createVisitAction(payload: {
       contact_id: final_contact_id,
       service_id: payload.service_id,
       visit_date: payload.visit_date,
+      scheduled_date: payload.scheduled_date,
       status: payload.status,
       price_charged: payload.price_charged,
+      payment_status,
       notes: payload.notes,
       staff_id: payload.staff_id || null
     })
@@ -111,6 +124,24 @@ export async function createVisitAction(payload: {
     
   if (error) {
     return { error: error.message };
+  }
+
+  // Insert initial payment if amount > 0
+  if (payload.initial_payment > 0) {
+    const { error: paymentError } = await supabase
+      .from('spa_payments')
+      .insert({
+        company_id: profile.company_id,
+        visit_id: data.id,
+        amount: payload.initial_payment,
+        payment_method: payload.payment_method,
+        payment_date: payload.visit_date
+      });
+      
+    if (paymentError) {
+      console.error('Error inserting initial payment:', paymentError);
+      // Not returning error here to avoid blocking the visit creation, but ideally should use a transaction
+    }
   }
   
   // If status is 'completado', trigger the complete visit RPC

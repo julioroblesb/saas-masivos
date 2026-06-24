@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox } from 'lucide-react';
+import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox, Trash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { archiveContactsAction, upsertContactAction } from './actions';
+import { archiveContactsAction, upsertContactAction, deleteContactAction } from './actions';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
@@ -152,6 +152,30 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     setIsSubmitting(false);
   };
 
+  const handleDelete = async (client: ClientMetric, e: React.MouseEvent) => {
+    e.stopPropagation();
+    MySwal.fire({
+      title: '¿Eliminar cliente?',
+      html: `Estás a punto de eliminar a <strong>${client.name || client.phone}</strong>.<br/>Esta acción eliminará también su historial de atenciones y pagos. No se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-outline-secondary' }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await deleteContactAction(client.id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.success('Cliente eliminado');
+          setClients(prev => prev.filter(c => c.id !== client.id));
+          router.refresh();
+        }
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Top Bar / Filters */}
@@ -253,12 +277,22 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     )}
                   </td>
                   <td className="text-right pr-6">
-                    <button 
-                      onClick={() => handleOpenModal(client)}
-                      className="btn btn-sm btn-outline-primary opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Edit className="w-4 h-4" /> Editar
-                    </button>
+                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleOpenModal(client)}
+                        className="btn btn-sm btn-outline-primary"
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => handleDelete(client, e)}
+                        className="btn btn-sm btn-outline-danger"
+                        title="Eliminar permanentemente"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

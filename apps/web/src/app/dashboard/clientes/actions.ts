@@ -29,6 +29,20 @@ export async function archiveContactsAction(ids: string[], archive: boolean) {
   return { success: true };
 }
 
+export async function deleteContactAction(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('rpc_delete_marketing_contact', {
+    p_contact_id: id
+  });
+  
+  if (error) {
+    console.error('Error deleting contact:', error);
+    return { error: 'Ocurrió un error al intentar eliminar el contacto permanentemente' };
+  }
+  
+  return { success: true };
+}
+
 export async function upsertContactAction(payload: {
   phone: string;
   name?: string;

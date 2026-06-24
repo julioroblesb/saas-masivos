@@ -36,8 +36,11 @@ export function AtencionesManager({
     contact_id: '',
     service_id: '',
     visit_date: new Date().toISOString().split('T')[0],
-    status: 'en_curso' as 'en_curso' | 'completado' | 'cancelado',
+    scheduled_date: new Date().toISOString().split('T')[0],
+    status: 'en_curso' as 'en_curso' | 'completado' | 'cancelado' | 'agendada',
     price_charged: 0,
+    initial_payment: 0,
+    payment_method: 'efectivo' as 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta',
     notes: '',
     staff_id: ''
   });
@@ -53,7 +56,8 @@ export function AtencionesManager({
     setForm(prev => ({
       ...prev,
       service_id: serviceId,
-      price_charged: s ? (s.promo_price || s.price) : 0
+      price_charged: s ? (s.promo_price || s.price) : 0,
+      initial_payment: s ? (s.promo_price || s.price) : 0
     }));
   };
 
@@ -69,8 +73,11 @@ export function AtencionesManager({
       new_contact: showNewPatient ? newPatient : undefined,
       service_id: form.service_id,
       visit_date: form.visit_date,
+      scheduled_date: form.scheduled_date,
       status: form.status,
       price_charged: form.price_charged,
+      initial_payment: form.initial_payment,
+      payment_method: form.payment_method,
       notes: form.notes,
       staff_id: form.staff_id || undefined
     });
@@ -405,7 +412,7 @@ export function AtencionesManager({
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Fecha de Visita *
+                    <Calendar className="w-4 h-4 text-primary" /> Fecha de Registro *
                   </label>
                   <CustomDatePicker 
                     value={form.visit_date}
@@ -416,7 +423,18 @@ export function AtencionesManager({
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-primary" /> Precio Cobrado
+                    <Calendar className="w-4 h-4 text-primary" /> Fecha Programada (Cita) *
+                  </label>
+                  <CustomDatePicker 
+                    value={form.scheduled_date}
+                    onChangeDate={(dateStr) => setForm(prev => ({ ...prev, scheduled_date: dateStr }))}
+                    placeholder="Seleccione la fecha"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-primary" /> Precio Total Acordado
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
@@ -431,14 +449,47 @@ export function AtencionesManager({
 
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-primary" /> Abono Inicial
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
+                    <input 
+                      type="number"
+                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                      value={form.initial_payment}
+                      onChange={e => setForm(prev => ({ ...prev, initial_payment: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" /> Método de Pago
+                  </label>
+                  <CustomSelect
+                    options={[
+                      { value: 'efectivo', label: 'Efectivo' },
+                      { value: 'yape', label: 'Yape' },
+                      { value: 'plin', label: 'Plin' },
+                      { value: 'transferencia', label: 'Transferencia' },
+                      { value: 'tarjeta', label: 'Tarjeta' }
+                    ]}
+                    value={{ value: form.payment_method, label: form.payment_method.charAt(0).toUpperCase() + form.payment_method.slice(1) }}
+                    onChange={(selected: any) => setForm(prev => ({ ...prev, payment_method: selected ? selected.value : 'efectivo' }))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <Activity className="w-4 h-4 text-primary" /> Estado Inicial
                   </label>
                   <CustomSelect
                     options={[
                       { value: 'completado', label: 'Completado (Programa mensajes aut.)' },
-                      { value: 'en_curso', label: 'En Curso (No programa mensajes aut.)' }
+                      { value: 'en_curso', label: 'En Curso (No programa mensajes aut.)' },
+                      { value: 'agendada', label: 'Agendada (Cita futura)' }
                     ]}
-                    value={{ value: form.status, label: form.status === 'completado' ? 'Completado (Programa mensajes aut.)' : 'En Curso (No programa mensajes aut.)' }}
+                    value={{ value: form.status, label: form.status === 'completado' ? 'Completado (Programa mensajes aut.)' : form.status === 'agendada' ? 'Agendada (Cita futura)' : 'En Curso (No programa mensajes aut.)' }}
                     onChange={(selected: any) => setForm(prev => ({ ...prev, status: selected ? selected.value : 'completado' }))}
                   />
                 </div>

@@ -40,6 +40,8 @@ export interface SpaVisit {
   completed_at?: string;
   notes?: string;
   price_charged?: number;
+  payment_status?: 'pagado' | 'parcial' | 'pendiente';
+  scheduled_date?: string;
   follow_up_date?: string;
   follow_up_sent: boolean;
   care_sent: boolean;
@@ -49,6 +51,18 @@ export interface SpaVisit {
   contact_phone?: string;
   service_name?: string;
   service_price?: number;
+  amount_paid?: number;
+}
+
+export interface SpaPayment {
+  id: string;
+  company_id: string;
+  visit_id: string;
+  amount: number;
+  payment_method: 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta';
+  payment_date: string;
+  notes?: string;
+  created_at: string;
 }
 
 // Spa Follow-up (mensaje automático programado)
