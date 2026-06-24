@@ -72,8 +72,15 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
       .eq('id', visit.company_id)
       .single();
 
-    const autoMsgs = company?.settings?.auto_messages;
-    if (!autoMsgs) return { success: true };
+    const DEFAULT_CARE_TEMPLATE = "Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!";
+    const DEFAULT_FOLLOWUP_TEMPLATE = "Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!";
+
+    const autoMsgs = company?.settings?.auto_messages || {
+      careEnabled: true,
+      careTemplate: DEFAULT_CARE_TEMPLATE,
+      followUpEnabled: true,
+      followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE
+    };
 
     const replaceVars = (text: string) => {
       if (!text) return '';

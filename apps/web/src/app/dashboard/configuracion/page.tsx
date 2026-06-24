@@ -5,14 +5,16 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
-import { Loader2, Building2 } from 'lucide-react';
+import { Loader2, Building2, X } from 'lucide-react';
 import { AutoMessagesConfig } from './AutoMessagesConfig';
 
 export default function ConfiguracionPage() {
   const supabase = createClient();
   const [companyName, setCompanyName] = useState('');
   const [companyId, setCompanyId] = useState('');
-  const [settings, setSettings] = useState<{ greetings: string, farewells: string }>({ greetings: '', farewells: '' });
+  const [settings, setSettings] = useState<{ greetings: string[], farewells: string[] }>({ greetings: [], farewells: [] });
+  const [newGreeting, setNewGreeting] = useState('');
+  const [newFarewell, setNewFarewell] = useState('');
   const [fullSettingsObj, setFullSettingsObj] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,8 +44,8 @@ export default function ConfiguracionPage() {
             if (company.settings) {
               setFullSettingsObj(company.settings);
               setSettings({
-                greetings: company.settings.greetings?.join('\n') || '',
-                farewells: company.settings.farewells?.join('\n') || '',
+                greetings: company.settings.greetings || [],
+                farewells: company.settings.farewells || [],
               });
             }
           }
@@ -66,8 +68,8 @@ export default function ConfiguracionPage() {
     setIsSaving(true);
     try {
       const formattedSettings = {
-        greetings: settings.greetings.split('\n').map(s => s.trim()).filter(s => s),
-        farewells: settings.farewells.split('\n').map(s => s.trim()).filter(s => s)
+        greetings: settings.greetings.filter((s: string) => s.trim()),
+        farewells: settings.farewells.filter((s: string) => s.trim())
       };
 
       const res = await fetch('/api/settings/company', {
@@ -149,25 +151,103 @@ export default function ConfiguracionPage() {
         </div>
         
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium dark:text-white-light">Opciones para Saludo Aleatorio <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{saludo}}'}</code></label>
-              <textarea 
-                value={settings.greetings}
-                onChange={(e) => setSettings({ ...settings, greetings: e.target.value })}
-                placeholder="Hola&#10;Buen día&#10;Qué tal"
-                className="form-textarea w-full min-h-[120px] rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark resize-none transition-all"
-              />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Ejemplo: Escribe "Hola", dale a Enter, escribe "Buen día".</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <label className="text-sm font-medium dark:text-white-light">Opciones para Saludo <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{saludo}}'}</code></label>
+              
+              <div className="flex flex-wrap gap-2 min-h-[40px] p-4 rounded-xl border border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
+                {settings.greetings.length === 0 && <span className="text-sm text-zinc-400">Sin saludos...</span>}
+                {settings.greetings.map((greet, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm font-medium">
+                    <span>{greet}</span>
+                    <button 
+                      type="button"
+                      onClick={() => setSettings(prev => ({...prev, greetings: prev.greetings.filter((_, i) => i !== idx)}))}
+                      className="opacity-60 hover:opacity-100 hover:text-danger transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Input 
+                  value={newGreeting}
+                  onChange={(e) => setNewGreeting(e.target.value)}
+                  placeholder="Ej. Hola"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (newGreeting.trim()) {
+                        setSettings(prev => ({...prev, greetings: [...prev.greetings, newGreeting.trim()]}));
+                        setNewGreeting('');
+                      }
+                    }
+                  }}
+                />
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    if (newGreeting.trim()) {
+                      setSettings(prev => ({...prev, greetings: [...prev.greetings, newGreeting.trim()]}));
+                      setNewGreeting('');
+                    }
+                  }}
+                >
+                  Añadir
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
+
+            <div className="space-y-4">
               <label className="text-sm font-medium dark:text-white-light">Opciones para Despedida <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{despedida}}'}</code></label>
-              <textarea 
-                value={settings.farewells}
-                onChange={(e) => setSettings({ ...settings, farewells: e.target.value })}
-                placeholder="Saludos&#10;Gracias&#10;Hasta luego"
-                className="form-textarea w-full min-h-[120px] rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark resize-none transition-all"
-              />
+              
+              <div className="flex flex-wrap gap-2 min-h-[40px] p-4 rounded-xl border border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
+                {settings.farewells.length === 0 && <span className="text-sm text-zinc-400">Sin despedidas...</span>}
+                {settings.farewells.map((farewell, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5 bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg text-sm font-medium">
+                    <span>{farewell}</span>
+                    <button 
+                      type="button"
+                      onClick={() => setSettings(prev => ({...prev, farewells: prev.farewells.filter((_, i) => i !== idx)}))}
+                      className="opacity-60 hover:opacity-100 hover:text-danger transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Input 
+                  value={newFarewell}
+                  onChange={(e) => setNewFarewell(e.target.value)}
+                  placeholder="Ej. Saludos"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (newFarewell.trim()) {
+                        setSettings(prev => ({...prev, farewells: [...prev.farewells, newFarewell.trim()]}));
+                        setNewFarewell('');
+                      }
+                    }
+                  }}
+                />
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    if (newFarewell.trim()) {
+                      setSettings(prev => ({...prev, farewells: [...prev.farewells, newFarewell.trim()]}));
+                      setNewFarewell('');
+                    }
+                  }}
+                >
+                  Añadir
+                </Button>
+              </div>
             </div>
           </div>
         </div>

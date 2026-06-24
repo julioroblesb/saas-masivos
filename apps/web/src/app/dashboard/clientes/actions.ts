@@ -31,6 +31,13 @@ export async function archiveContactsAction(ids: string[], archive: boolean) {
 
 export async function deleteContactAction(id: string) {
   const supabase = await createClient();
+  
+  // Unlink visits to prevent losing financial history
+  await supabase.from('spa_visits').update({ contact_id: null }).eq('contact_id', id);
+  
+  // Delete scheduled messages
+  await supabase.from('crm_wa_queue').delete().eq('contact_id', id);
+  
   const { error } = await supabase.rpc('rpc_delete_marketing_contact', {
     p_contact_id: id
   });

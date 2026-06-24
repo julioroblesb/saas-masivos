@@ -21,7 +21,7 @@ const Header = () => {
 
     const [userEmail, setUserEmail] = useState<string>('');
     const [role, setRole] = useState<string>('');
-    const [companyName, setCompanyName] = useState<string>('SaaS Masivos');
+    const [companyName, setCompanyName] = useState<string>('Renova CRM');
 
     useEffect(() => {
         const fetchUser = async () => {

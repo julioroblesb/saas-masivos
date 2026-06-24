@@ -12,8 +12,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Masivos",
-  description: "SaaS Application",
+  title: "Renova CRM",
+  description: "Renueva la relación con tus clientes.",
 };
 
 export default function RootLayout({
