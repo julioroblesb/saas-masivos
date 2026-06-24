@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction } from './actions';
+import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction, deleteVisitAction, editVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
@@ -59,6 +59,60 @@ export function AtencionesManager({
   const [search, setSearch] = useState('');
 
   // Handle service selection to auto-fill price
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState<any>(null);
+
+  const [editForm, setEditForm] = useState({
+    service_id: '',
+    staff_id: '',
+    scheduled_date: '',
+    price_charged: 0,
+    status: '',
+    notes: ''
+  });
+
+  const handleEditClick = (visit: any) => {
+    setSelectedVisit(visit);
+    setEditForm({
+      service_id: visit.service_id,
+      staff_id: visit.staff_id || '',
+      scheduled_date: (visit.scheduled_date || visit.visit_date).slice(0, 16),
+      price_charged: visit.price_charged,
+      status: visit.status,
+      notes: visit.notes || ''
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    setIsSubmitting(true);
+    const res = await editVisitAction(selectedVisit.id, editForm);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Atención editada');
+      setIsEditModalOpen(false);
+      setVisits(visits.map(v => v.id === selectedVisit.id ? { ...v, ...editForm, service_name: services.find(s => s.id === editForm.service_id)?.name } : v));
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleDeleteSubmit = async () => {
+    setIsSubmitting(true);
+    const res = await deleteVisitAction(selectedVisit.id);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Atención eliminada');
+      setIsDeleteModalOpen(false);
+      setVisits(visits.filter(v => v.id !== selectedVisit.id));
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
   const handleServiceChange = (serviceId: string) => {
     const s = services.find(x => x.id === serviceId);
     setForm(prev => ({
@@ -382,6 +436,7 @@ export function AtencionesManager({
                     <th className="p-4">Trabajadora</th>
                     <th className="p-4">Monto</th>
                     <th className="p-4">Estado</th>
+                    <th className="p-4">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -413,6 +468,12 @@ export function AtencionesManager({
                         <span className={`badge ${visit.status === 'completado' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
                           {visit.status.replace('_', ' ')}
                         </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditClick(visit)} className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">Editar</button>
+                          <button onClick={() => { setSelectedVisit(visit); setIsDeleteModalOpen(true); }} className="text-danger hover:text-danger/80 transition-colors text-sm font-medium">Eliminar</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -760,6 +821,158 @@ export function AtencionesManager({
                   disabled={isSubmitting || paymentAmount <= 0}
                 >
                   {isSubmitting ? 'Guardando...' : 'Guardar Abono'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Editar Atención */}
+      {isEditModalOpen && selectedVisit && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Editar Atención
+              </h3>
+              <button 
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
+                  </label>
+                  <CustomSelect
+                    options={services.map(s => ({ value: s.id, label: s.name }))}
+                    value={editForm.service_id ? { value: editForm.service_id, label: services.find(s => s.id === editForm.service_id)?.name || '' } : null}
+                    onChange={(selected: any) => setEditForm(prev => ({ ...prev, service_id: selected ? selected.value : '' }))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" /> Trabajadora
+                  </label>
+                  <CustomSelect
+                    options={staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []}
+                    value={editForm.staff_id && staffList ? { value: editForm.staff_id, label: staffList.find((s: any) => s.id === editForm.staff_id)?.name || '' } : null}
+                    onChange={(selected: any) => setEditForm(prev => ({ ...prev, staff_id: selected ? selected.value : '' }))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-primary" /> Fecha
+                  </label>
+                  <input 
+                    type="datetime-local" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
+                    value={editForm.scheduled_date}
+                    onChange={e => setEditForm(prev => ({ ...prev, scheduled_date: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-primary" /> Precio Cobrado
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
+                    <input 
+                      type="number"
+                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                      value={editForm.price_charged}
+                      onChange={e => setEditForm(prev => ({ ...prev, price_charged: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" /> Estado
+                  </label>
+                  <CustomSelect
+                    options={[
+                      { value: 'completado', label: 'Completado' },
+                      { value: 'en_curso', label: 'En Curso' },
+                      { value: 'agendada', label: 'Agendada' },
+                      { value: 'cancelado', label: 'Cancelado' }
+                    ]}
+                    value={{ value: editForm.status, label: editForm.status }}
+                    onChange={(selected: any) => setEditForm(prev => ({ ...prev, status: selected ? selected.value : 'completado' }))}
+                  />
+                </div>
+
+                <div className="space-y-4 col-span-1 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" /> Notas
+                  </label>
+                  <textarea 
+                    className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
+                    rows={3}
+                    value={editForm.notes}
+                    onChange={e => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3 mt-6">
+                <button 
+                  className="btn btn-outline-secondary rounded-xl px-6"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="btn btn-primary rounded-xl px-8"
+                  onClick={handleEditSubmit}
+                  disabled={isSubmitting || !editForm.service_id || !editForm.scheduled_date}
+                >
+                  {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Confirmar Eliminación */}
+      {isDeleteModalOpen && selectedVisit && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">
+                ¿Eliminar Atención?
+              </h3>
+              <p className="text-zinc-500 text-sm">
+                Se borrará permanentemente la atención de <strong>{selectedVisit.contact_name}</strong>. Esta acción no se puede deshacer.
+              </p>
+              
+              <div className="flex gap-3 justify-center pt-4">
+                <button 
+                  className="btn btn-outline-secondary rounded-xl px-6"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="btn btn-danger rounded-xl px-6"
+                  onClick={handleDeleteSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Eliminando...' : 'Sí, Eliminar'}
                 </button>
               </div>
             </div>

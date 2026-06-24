@@ -32,7 +32,7 @@ export default async function CobranzaPage() {
       payment_status,
       debt_due_date,
       contact_id,
-      marketing_contacts (name, phone),
+      crm_marketing_contacts (name, phone),
       spa_services (name)
     `)
     .eq('company_id', profile.company_id)
@@ -50,8 +50,8 @@ export default async function CobranzaPage() {
     const amount_paid = vPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
     return {
       id: v.id,
-      contact_name: v.marketing_contacts?.name,
-      contact_phone: v.marketing_contacts?.phone,
+      contact_name: v.crm_marketing_contacts?.name,
+      contact_phone: v.crm_marketing_contacts?.phone,
       service_name: v.spa_services?.name,
       visit_date: v.visit_date,
       scheduled_date: v.scheduled_date,

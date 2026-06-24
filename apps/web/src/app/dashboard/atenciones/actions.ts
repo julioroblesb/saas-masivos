@@ -272,3 +272,46 @@ export async function completeAndPayVisitAction(visitId: string, payload: {
 
   return { success: true };
 }
+
+export async function deleteVisitAction(visitId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'No autorizado' };
+
+  // Eliminar abonos primero si existieran (la base de datos podría tener ON DELETE CASCADE, pero aseguramos)
+  await supabase.from('spa_payments').delete().eq('visit_id', visitId);
+
+  const { error } = await supabase.from('spa_visits').delete().eq('id', visitId);
+  if (error) return { error: error.message };
+
+  return { success: true };
+}
+
+export async function editVisitAction(visitId: string, payload: {
+  service_id: string;
+  staff_id?: string;
+  scheduled_date: string;
+  price_charged: number;
+  status: string;
+  notes?: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'No autorizado' };
+
+  const { error } = await supabase
+    .from('spa_visits')
+    .update({
+      service_id: payload.service_id,
+      staff_id: payload.staff_id || null,
+      scheduled_date: new Date(payload.scheduled_date).toISOString(),
+      visit_date: new Date(payload.scheduled_date).toISOString(),
+      price_charged: payload.price_charged,
+      status: payload.status,
+      notes: payload.notes
+    })
+    .eq('id', visitId);
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
