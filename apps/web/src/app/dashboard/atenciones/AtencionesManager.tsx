@@ -939,7 +939,6 @@ export function AtencionesManager({
                 {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
-            </div>
           </div>
         </div>
       )}
