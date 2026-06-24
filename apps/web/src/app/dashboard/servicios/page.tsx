@@ -372,7 +372,10 @@ export default function SpaServicesPage() {
                       />
                       <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/10 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform dark:border-zinc-600 peer-checked:bg-primary"></div>
                     </div>
-                    <span className="text-sm font-semibold text-black dark:text-white group-hover:text-primary transition-colors">Servicio Activo (Visible)</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-black dark:text-white group-hover:text-primary transition-colors">Servicio Activo en el Catálogo</span>
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 max-w-[280px]">Si lo desactivas, dejará de aparecer como opción al crear nuevas atenciones, pero no perderás tu historial de ventas.</span>
+                    </div>
                   </label>
                 </div>
               </div>

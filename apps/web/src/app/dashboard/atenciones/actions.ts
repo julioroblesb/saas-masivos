@@ -51,6 +51,89 @@ export async function getAtencionesData() {
   };
 }
 
+async function scheduleAutoMessages(visitId: string, supabase: any) {
+  try {
+    const { data: visit, error: visitErr } = await supabase
+      .from('spa_visits')
+      .select(`
+        company_id,
+        visit_date,
+        spa_services ( name, duration_days, care_instructions, care_image_url ),
+        crm_marketing_contacts ( id, phone, name )
+      `)
+      .eq('id', visitId)
+      .single();
+
+    if (!visit || visitErr) return { error: visitErr?.message };
+
+    const { data: company } = await supabase
+      .from('companies')
+      .select('settings')
+      .eq('id', visit.company_id)
+      .single();
+
+    const autoMsgs = company?.settings?.auto_messages;
+    if (!autoMsgs) return { success: true };
+
+    const replaceVars = (text: string) => {
+      if (!text) return '';
+      return text
+        .replace(/\{\{nombre\}\}/gi, visit.crm_marketing_contacts?.name || '')
+        .replace(/\{\{servicio\}\}/gi, visit.spa_services?.name || '')
+        .replace(/\{\{dias\}\}/gi, visit.spa_services?.duration_days?.toString() || '0');
+    };
+
+    const queueInserts = [];
+
+    if (autoMsgs.careEnabled && autoMsgs.careTemplate) {
+      queueInserts.push({
+        company_id: visit.company_id,
+        contact_id: visit.crm_marketing_contacts?.id,
+        phone: visit.crm_marketing_contacts?.phone,
+        message: replaceVars(autoMsgs.careTemplate),
+        status: 'pendiente',
+        scheduled_for: new Date().toISOString(),
+      });
+
+      if (visit.spa_services?.care_instructions || visit.spa_services?.care_image_url) {
+        queueInserts.push({
+          company_id: visit.company_id,
+          contact_id: visit.crm_marketing_contacts?.id,
+          phone: visit.crm_marketing_contacts?.phone,
+          message: visit.spa_services.care_instructions || 'Instrucciones de cuidado',
+          media_url: visit.spa_services.care_image_url || null,
+          status: 'pendiente',
+          scheduled_for: new Date(Date.now() + 5000).toISOString(), // 5 seconds after to ensure it arrives second
+        });
+      }
+    }
+
+    if (autoMsgs.followUpEnabled && autoMsgs.followUpTemplate && visit.spa_services?.duration_days > 0) {
+      const scheduledDate = new Date();
+      scheduledDate.setDate(scheduledDate.getDate() + visit.spa_services.duration_days);
+
+      queueInserts.push({
+        company_id: visit.company_id,
+        contact_id: visit.crm_marketing_contacts?.id,
+        phone: visit.crm_marketing_contacts?.phone,
+        message: replaceVars(autoMsgs.followUpTemplate),
+        status: 'pendiente',
+        scheduled_for: scheduledDate.toISOString(),
+      });
+    }
+
+    if (queueInserts.length > 0) {
+      const { error: insertErr } = await supabase.from('crm_wa_queue').insert(queueInserts);
+      if (insertErr) console.error('Error inserting auto messages:', insertErr);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error scheduling auto messages:', error);
+    return { error: error.message };
+  }
+}
+
 export async function createVisitAction(payload: {
   contact_id?: string;
   new_contact?: { name: string; phone: string };
@@ -127,14 +210,12 @@ export async function createVisitAction(payload: {
     return { error: error.message };
   }
   
-  // If status is 'completado', trigger the complete visit RPC
+  // If status is 'completado', schedule auto messages
   if (payload.status === 'completado') {
-    const { error: rpcError } = await supabase.rpc('rpc_complete_visit', {
-      p_visit_id: data.id
-    });
-    if (rpcError) {
-      console.error('Error completing visit RPC:', rpcError);
-      return { error: 'Visita creada, pero hubo un error al programar los mensajes de seguimiento: ' + rpcError.message };
+    const { error: scheduleError } = await scheduleAutoMessages(data.id, supabase);
+    if (scheduleError) {
+      console.error('Error scheduling auto messages:', scheduleError);
+      return { error: 'Visita creada, pero hubo un error al programar los mensajes: ' + scheduleError };
     }
   }
   
@@ -154,12 +235,10 @@ export async function updateVisitStatusAction(visitId: string, status: 'completa
   }
   
   if (status === 'completado') {
-    const { error: rpcError } = await supabase.rpc('rpc_complete_visit', {
-      p_visit_id: visitId
-    });
-    if (rpcError) {
-      console.error('Error completing visit RPC:', rpcError);
-      return { error: 'Estado actualizado, pero hubo un error al programar los mensajes: ' + rpcError.message };
+    const { error: scheduleError } = await scheduleAutoMessages(visitId, supabase);
+    if (scheduleError) {
+      console.error('Error scheduling auto messages:', scheduleError);
+      return { error: 'Estado actualizado, pero hubo un error al programar los mensajes: ' + scheduleError };
     }
   }
   
@@ -265,7 +344,7 @@ export async function completeAndPayVisitAction(visitId: string, payload: {
 
   // Trigger followups logic since it is completado
   try {
-    await supabase.rpc('rpc_schedule_spa_followups', { p_visit_id: visitId });
+    await scheduleAutoMessages(visitId, supabase);
   } catch(e) {
     console.error('Failed to trigger followups', e);
   }

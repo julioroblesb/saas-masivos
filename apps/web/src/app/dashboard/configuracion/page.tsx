@@ -156,9 +156,9 @@ export default function ConfiguracionPage() {
                 value={settings.greetings}
                 onChange={(e) => setSettings({ ...settings, greetings: e.target.value })}
                 placeholder="Hola&#10;Buen día&#10;Qué tal"
-                className="form-textarea w-full min-h-[120px]"
+                className="form-textarea w-full min-h-[120px] rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark resize-none transition-all"
               />
-              <p className="text-xs text-white-dark mt-2">Ejemplo: Escribe "Hola", dale a Enter, escribe "Buen día".</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Ejemplo: Escribe "Hola", dale a Enter, escribe "Buen día".</p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium dark:text-white-light">Opciones para Despedida <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{despedida}}'}</code></label>
@@ -166,7 +166,7 @@ export default function ConfiguracionPage() {
                 value={settings.farewells}
                 onChange={(e) => setSettings({ ...settings, farewells: e.target.value })}
                 placeholder="Saludos&#10;Gracias&#10;Hasta luego"
-                className="form-textarea w-full min-h-[120px]"
+                className="form-textarea w-full min-h-[120px] rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark resize-none transition-all"
               />
             </div>
           </div>
