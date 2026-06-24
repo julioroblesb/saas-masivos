@@ -90,14 +90,14 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
                 </tr>
                 {isExpanded && c.sequence && (
                   <tr className="!bg-secondary-light/30 dark:!bg-secondary-dark-light/30">
-                    <td colSpan={6} className="py-4 px-6 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
+                    <td colSpan={6} className="py-4 px-6 border-b border-black-light/50 dark:border-dark-dark-light">
                       <div className="pl-4 border-l-2 border-info">
                         <h4 className="text-xs font-semibold text-white-dark uppercase tracking-wider mb-3">Mensajes Enviados ({c.sequence.length})</h4>
                         <div className="space-y-3">
                           {c.sequence.map((msg, idx) => (
-                            <div key={msg.id} className="bg-white dark:bg-[#121c2c] rounded-lg p-4 border border-[#e0e6ed] dark:border-[#1b2e4b] shadow-sm max-w-3xl">
+                            <div key={msg.id} className="bg-white dark:bg-dark rounded-lg p-4 border border-black-light/50 dark:border-dark-dark-light shadow-sm max-w-3xl">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-[#ebebeb] dark:bg-dark-light text-dark dark:text-white-light text-xs font-bold px-2 py-0.5 rounded">Paso {idx + 1}</span>
+                                <span className="bg-black-light/20 dark:bg-dark-light text-dark dark:text-white-light text-xs font-bold px-2 py-0.5 rounded">Paso {idx + 1}</span>
                                 <span className="text-xs text-white-dark font-medium capitalize">{msg.type}</span>
                                 {msg.delayAfterMs > 0 && <span className="text-xs text-white-dark ml-auto">Espera {(msg.delayAfterMs / 1000).toFixed(1)}s después</span>}
                               </div>

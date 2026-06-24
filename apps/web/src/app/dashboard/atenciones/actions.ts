@@ -141,7 +141,7 @@ export async function createVisitAction(payload: {
   return { success: true, data };
 }
 
-export async function updateVisitStatusAction(visitId: string, status: 'completado' | 'cancelado') {
+export async function updateVisitStatusAction(visitId: string, status: 'completado' | 'cancelado' | 'no_asistio') {
   const supabase = await createClient();
   
   const { error } = await supabase

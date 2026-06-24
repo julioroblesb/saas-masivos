@@ -112,7 +112,7 @@ export default function MensajeriaView() {
 
   return (
     <div className="panel p-0 overflow-hidden">
-      <div className="flex items-center justify-between p-5 border-b border-white-light dark:border-[#191e3a]">
+      <div className="flex items-center justify-between p-5 border-b border-black-light/50 dark:border-dark-light">
         <h5 className="font-semibold text-lg dark:text-white-light">Mensajes Programados y Sistema</h5>
         <button className="btn btn-sm btn-outline-primary" onClick={fetchMessages}>
           Actualizar

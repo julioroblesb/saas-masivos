@@ -99,7 +99,7 @@ const Sidebar = () => {
             <nav
                 className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-[100dvh] w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-transform duration-300 ease-out ${semidark ? 'text-white-dark' : ''}`}
             >
-                <div className="h-full bg-white dark:bg-black">
+                <div className="h-full bg-bg dark:bg-dark">
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition duration-300 ease-out">
@@ -120,7 +120,7 @@ const Sidebar = () => {
                         <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
                             {role === 'super_admin' && (
                                 <>
-                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
                                         <span>Administración</span>
                                     </h2>
@@ -128,7 +128,7 @@ const Sidebar = () => {
                                         <Link href="/admin" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Panel Admin</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Panel Admin</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -137,7 +137,7 @@ const Sidebar = () => {
 
                             {role === 'tenant' && (
                                 <>
-                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
                                         <span>Inicio</span>
                                     </h2>
@@ -145,12 +145,12 @@ const Sidebar = () => {
                                         <Link href="/dashboard" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Dashboard</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Dashboard</span>
                                             </div>
                                         </Link>
                                     </li>
 
-                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
                                         <span>Gestión Spa</span>
                                     </h2>
@@ -159,7 +159,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/atenciones" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuCalendar className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Atenciones</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Atenciones</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -168,7 +168,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/trabajadoras" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Equipo</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Equipo</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -177,7 +177,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/servicios" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuApps className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Servicios</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Servicios</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -186,7 +186,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/productos" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuWidgets className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Productos</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Productos</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -195,7 +195,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/clientes" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Clientes</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Clientes</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -203,13 +203,13 @@ const Sidebar = () => {
                                     <li className="nav-item">
                                         <Link href="/dashboard/cobranza" className="nav-link group">
                                             <div className="flex items-center">
-                                                <Coins className="shrink-0 group-hover:!text-primary w-5 h-5 text-[#506690]" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Cobranza</span>
+                                                <Coins className="shrink-0 group-hover:!text-primary w-5 h-5 text-muted" />
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Cobranza</span>
                                             </div>
                                         </Link>
                                     </li>
 
-                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
                                         <span>Marketing</span>
                                     </h2>
@@ -218,7 +218,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/campanas" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Campañas</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Campañas</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -227,7 +227,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/mensajeria" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Mensajería</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Mensajería</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -236,12 +236,12 @@ const Sidebar = () => {
                                         <Link href="/dashboard/bot" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Bot de IA</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Bot de IA</span>
                                             </div>
                                         </Link>
                                     </li>
 
-                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
                                         <span>Ajustes</span>
                                     </h2>
@@ -250,7 +250,7 @@ const Sidebar = () => {
                                         <Link href="/dashboard/configuracion" className="nav-link group">
                                             <div className="flex items-center">
                                                 <IconSettings className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Configuración</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Configuración</span>
                                             </div>
                                         </Link>
                                     </li>
@@ -259,7 +259,7 @@ const Sidebar = () => {
                                         <Link href="/terminos" className="nav-link group" target="_blank">
                                             <div className="flex items-center">
                                                 <IconInfoCircle className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Términos y Políticas</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Términos y Políticas</span>
                                             </div>
                                         </Link>
                                     </li>

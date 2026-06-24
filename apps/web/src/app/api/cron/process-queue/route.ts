@@ -119,10 +119,6 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
   else if (daysActive <= 6) maxDailyLimit = 150;
   else if (daysActive <= 13) maxDailyLimit = 300;
 
-  if (currentDailyCount >= maxDailyLimit) {
-    return { skipped: `limite diario alcanzado (warmup: ${currentDailyCount}/${maxDailyLimit})` };
-  }
-
   let localNextAllowedSendAt = next_allowed_send_at ? new Date(next_allowed_send_at) : new Date(0);
   const runStartTime = Date.now();
   let processedCount = 0;
@@ -164,7 +160,10 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 } // Delays predeterminados para automáticos
       };
     } else {
-      // Si no hay automáticos, verificamos horario antes de sacar masivos
+      // Si no hay automáticos, verificamos límites y horario antes de sacar masivos
+      if (currentDailyCount >= maxDailyLimit) {
+        break; // Límite diario alcanzado para campañas masivas
+      }
       if (currentHour < 8 || currentHour >= 20) {
         break; // Fuera de horario comercial para campañas masivas (08:00-20:00 PET)
       }

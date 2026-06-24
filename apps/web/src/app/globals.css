@@ -5,32 +5,50 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-primary: #E11D48; /* Vibrant Rose / Hot Pink */
-  --color-primary-light: #FFE4E6;
-  --color-primary-dark-light: rgba(225,29,72,.15);
-  --color-secondary: #0A0A0A; /* Dark Tech / Off Black */
-  --color-secondary-light: #18181B;
-  --color-secondary-dark-light: rgba(10,10,10,.15);
-  --color-success: #10B981;
-  --color-success-light: #D1FAE5;
-  --color-success-dark-light: rgba(16,185,129,.15);
-  --color-danger: #F43F5E;
-  --color-danger-light: #FFE4E6;
-  --color-danger-dark-light: rgba(244,63,94,.15);
-  --color-warning: #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-warning-dark-light: rgba(245,158,11,.15);
-  --color-info: #3B82F6;
-  --color-info-light: #DBEAFE;
-  --color-info-dark-light: rgba(59,130,246,.15);
-  --color-dark: #111111;
-  --color-dark-light: #27272A;
-  --color-dark-dark-light: rgba(17,17,17,.15);
-  --color-black: #000000;
-  --color-black-light: #E4E4E7;
-  --color-black-dark-light: rgba(0,0,0,.15);
-  --color-white-light: #FAFAFA;
-  --color-white-dark: #A1A1AA;
+  /* Brand Palette (OKLCH) */
+  --color-bg: oklch(1.000 0.000 0); /* Pure white */
+  --color-surface: oklch(0.980 0.005 18); /* Very slightly warm */
+  --color-ink: oklch(0.150 0.020 18);
+  --color-muted: oklch(0.450 0.020 18);
+  
+  --color-primary: oklch(0.550 0.220 18); /* Brand Rose / Hot Pink */
+  --color-primary-light: oklch(0.950 0.050 18);
+  --color-primary-dark-light: oklch(0.550 0.220 18 / 0.15);
+  
+  --color-accent: oklch(0.650 0.150 45); /* Coral Accent */
+  
+  --color-secondary: oklch(0.200 0.000 0); /* Off Black */
+  --color-secondary-light: oklch(0.250 0.000 0);
+  --color-secondary-dark-light: oklch(0.200 0.000 0 / 0.15);
+  
+  /* Status Colors */
+  --color-success: oklch(0.650 0.150 150);
+  --color-success-light: oklch(0.950 0.050 150);
+  --color-success-dark-light: oklch(0.650 0.150 150 / 0.15);
+  
+  --color-danger: oklch(0.600 0.200 25);
+  --color-danger-light: oklch(0.950 0.050 25);
+  --color-danger-dark-light: oklch(0.600 0.200 25 / 0.15);
+  
+  --color-warning: oklch(0.750 0.150 80);
+  --color-warning-light: oklch(0.960 0.050 80);
+  --color-warning-dark-light: oklch(0.750 0.150 80 / 0.15);
+  
+  --color-info: oklch(0.600 0.150 250);
+  --color-info-light: oklch(0.950 0.050 250);
+  --color-info-dark-light: oklch(0.600 0.150 250 / 0.15);
+  
+  /* Legacy Grays (Mapped to OKLCH) */
+  --color-dark: oklch(0.150 0.010 18);
+  --color-dark-light: oklch(0.250 0.010 18);
+  --color-dark-dark-light: oklch(0.150 0.010 18 / 0.15);
+  
+  --color-black: oklch(0.000 0.000 0);
+  --color-black-light: oklch(0.920 0.005 18);
+  --color-black-dark-light: oklch(0.000 0.000 0 / 0.15);
+  
+  --color-white-light: oklch(0.980 0.005 18);
+  --color-white-dark: oklch(0.700 0.010 18);
   
   --font-outfit: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   
@@ -98,16 +116,16 @@
     }
 
     body {
-        @apply bg-[#FAFAFA] font-outfit;
+        @apply bg-bg text-ink font-outfit;
     }
 
     body.dark {
-        @apply bg-[#0A0A0A] text-white-light;
+        @apply bg-dark text-white-light;
     }
 
     /* Panel */
     .panel {
-        @apply relative rounded-2xl bg-white p-5 shadow-sm border border-[#E4E4E7] dark:bg-[#111111] dark:border-[#27272A] dark:shadow-none;
+        @apply relative rounded-2xl bg-surface p-6 shadow-sm border border-black-light/50 dark:bg-dark-light dark:border-dark-dark-light dark:shadow-none;
     }
     /* Navbar */
     .navbar-sticky header,
@@ -115,7 +133,7 @@
         @apply sticky top-0 z-20;
     }
     .navbar-floating header {
-        @apply bg-[#fafafa]/90 px-6 pt-4 dark:bg-[#060818]/90;
+        @apply bg-bg/90 backdrop-blur-md px-6 pt-4 dark:bg-dark/90;
     }
     .navbar-floating header > div > div:first-child {
         @apply rounded-md;

@@ -6,7 +6,6 @@ import { CampaignSender } from './components/CampaignSender';
 import { CampaignProgressCard } from './components/CampaignProgressCard';
 import { CampaignHistoryTable } from './components/CampaignHistoryTable';
 import { useCampaigns } from '../../hooks/queries/useCampaigns';
-import './Campaigns.css';
 
 export default function CampaignsView() {
   const [activeTab, setActiveTab] = useState('new');
@@ -19,10 +18,10 @@ export default function CampaignsView() {
   return (
     <div className="space-y-6">
       {/* Vristo style tabs */}
-      <div className="mb-5 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
+      <div className="mb-5 flex flex-wrap border-b border-black-light/50 dark:border-dark-light">
         <button
           className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
-            activeTab === 'new' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+            activeTab === 'new' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('new')}
         >
@@ -31,7 +30,7 @@ export default function CampaignsView() {
 
         <button
           className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
-            activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+            activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('active')}
         >
@@ -45,7 +44,7 @@ export default function CampaignsView() {
 
         <button
           className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
-            activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-white-dark hover:border-white-light dark:hover:border-[#191e3a]'
+            activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('history')}
         >
@@ -64,9 +63,9 @@ export default function CampaignsView() {
           <div className="flex flex-col gap-6">
             {activeCampaigns.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 panel">
-                <Activity size={48} className="text-white-dark mb-4" />
-                <h3 className="text-lg font-semibold text-dark dark:text-white-light mb-2">No hay campañas activas</h3>
-                <p className="text-white-dark mb-6 text-center">Las campañas en proceso de envío aparecerán aquí.</p>
+                <Activity size={48} className="text-muted mb-4" />
+                <h3 className="text-lg font-semibold text-ink dark:text-white-light mb-2">No hay campañas activas</h3>
+                <p className="text-muted mb-6 text-center">Las campañas en proceso de envío aparecerán aquí.</p>
                 <button 
                   className="btn btn-primary"
                   onClick={() => setActiveTab('new')}

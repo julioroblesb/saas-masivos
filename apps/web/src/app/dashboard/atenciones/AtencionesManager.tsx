@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users } from 'lucide-react';
+import { Plus, CheckCircle, XCircle, Search, Calendar, User, ShoppingBag, Coins, FileText, Clock, AlertTriangle, Activity, Phone, Users, MoreVertical } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createVisitAction, updateVisitStatusAction, addPaymentAction, completeAndPayVisitAction, deleteVisitAction, editVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
@@ -360,96 +360,91 @@ export function AtencionesManager({
             {Object.keys(groupedVisits).map(date => (
               <div key={date}>
                 <h3 className="text-lg font-bold text-black dark:text-white mb-4 capitalize">{date}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-3">
                   {groupedVisits[date].map((visit: any) => (
-                    <div key={visit.id} className="panel p-0 hover:-translate-y-1 transition-transform duration-300 overflow-hidden relative group border-2 border-transparent hover:border-primary/20">
-                      <div className="p-5 border-b border-black-light dark:border-dark-light bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900/50">
-                        <div className="flex justify-between items-start mb-3">
-                          <span className={`badge ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : visit.status === 'no_asistio' ? 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400' : 'bg-danger/10 text-danger'}`}>
-                            {visit.status.replace('_', ' ')}
-                          </span>
-                          <span className="text-xl font-bold text-black dark:text-white">
-                            S/ {visit.price_charged}
-                          </span>
-                        </div>
-                        <h4 className="text-lg font-bold text-black dark:text-white mb-1">{visit.contact_name || 'Paciente Sin Nombre'}</h4>
-                        <div className="flex items-center text-sm text-zinc-500 gap-1 mb-1">
-                          <Phone size={14} /> +{visit.contact_phone}
-                        </div>
-                        <div className="text-sm font-semibold text-primary">{visit.service_name}</div>
-                        {visit.staff_id && staffList && (
-                          <div className="text-xs text-zinc-500 mt-2">
-                            Atendido por: <span className="font-medium text-zinc-700 dark:text-zinc-300">{staffList.find((s: any) => s.id === visit.staff_id)?.name || 'Desconocido'}</span>
-                          </div>
-                        )}
+                    <div key={visit.id} className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group">
+                      
+                      {/* Left: Info */}
+                      <div className="flex items-center gap-4">
+                         <div className="flex flex-col items-center justify-center bg-bg dark:bg-dark rounded-xl w-16 h-16 shrink-0 border border-black-light/30 dark:border-dark-dark-light">
+                           <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">Hora</span>
+                           <span className="text-lg font-bold text-ink dark:text-white-light">{new Date(visit.created_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+                         </div>
+                         <div>
+                           <div className="flex items-center gap-2 mb-0.5">
+                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Paciente'}</h4>
+                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : visit.status === 'no_asistio' ? 'bg-black-light/50 text-muted' : 'bg-danger/10 text-danger'}`}>
+                               {visit.status.replace('_', ' ')}
+                             </span>
+                           </div>
+                           <div className="text-sm font-semibold text-primary leading-tight">{visit.service_name}</div>
+                           <div className="flex items-center text-xs text-muted gap-3 mt-1.5">
+                             <span className="flex items-center gap-1"><Phone size={12}/> {visit.contact_phone}</span>
+                             {visit.staff_id && staffList && (
+                               <span className="flex items-center gap-1"><User size={12}/> {staffList.find((s: any) => s.id === visit.staff_id)?.name}</span>
+                             )}
+                           </div>
+                         </div>
                       </div>
-                      <div className="p-5 bg-white dark:bg-dark space-y-3">
-                        {visit.notes && (
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-black-light dark:border-dark-light">
-                            {visit.notes}
-                          </p>
-                        )}
-                        <div className="flex flex-col gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-zinc-500">Cobrado:</span>
-                            <span className="font-semibold text-black dark:text-white">S/ {visit.amount_paid || 0} de S/ {visit.price_charged}</span>
-                          </div>
-                          {(visit.payment_status === 'pendiente' || visit.payment_status === 'parcial') && (
-                            <button 
-                              onClick={() => {
-                                setPaymentVisit(visit);
-                                setPaymentAmount(visit.price_charged - (visit.amount_paid || 0));
-                                setIsPaymentModalOpen(true);
-                              }}
-                              className="w-full btn btn-sm btn-outline-primary bg-primary/5 border-primary/20 hover:bg-primary hover:text-white transition-colors"
-                            >
-                              <Coins className="w-4 h-4 mr-2" /> Agregar Abono
-                            </button>
-                          )}
-                        </div>
-                        <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
-                          <div className="text-xs text-zinc-400 mr-auto flex items-center">
-                            Creado: {new Date(visit.created_at).toLocaleString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true, day: '2-digit', month: 'short' })}
-                          </div>
-                          {visit.status === 'en_curso' && (
-                            <div className="flex flex-wrap items-center gap-2 justify-end">
-                              <button 
-                                className="btn btn-sm btn-outline-secondary"
-                                onClick={() => {
-                                  setSelectedVisit(visit);
-                                  setEditForm({
-                                    service_id: visit.service_id || '',
-                                    staff_id: visit.staff_id || '',
-                                    scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
-                                    notes: visit.notes || ''
-                                  });
-                                  setIsEditModalOpen(true);
-                                }}
-                              >
-                                Editar
-                              </button>
-                              <button 
-                                className="btn btn-sm btn-outline-warning"
-                                onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}
-                              >
-                                No Asistió
-                              </button>
-                              <button 
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
-                              >
-                                Cancelar
-                              </button>
-                              <button 
-                                className="btn btn-sm btn-outline-success"
-                                onClick={() => handleUpdateStatus(visit.id, 'completado')}
-                              >
-                                Completar
-                              </button>
-                            </div>
-                          )}
-                        </div>
+
+                      {/* Right: Actions and Price */}
+                      <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full md:w-auto">
+                         
+                         {visit.notes && (
+                           <div className="hidden md:flex items-center text-xs text-muted max-w-[150px] truncate" title={visit.notes}>
+                             <FileText size={14} className="mr-1 shrink-0" />
+                             <span className="truncate">{visit.notes}</span>
+                           </div>
+                         )}
+
+                         <div className="text-left md:text-right flex flex-col justify-center">
+                            <span className="text-lg font-bold text-ink dark:text-white-light leading-tight">S/ {visit.price_charged}</span>
+                            <span className="text-xs text-muted font-medium">
+                              Cobrado: S/ {visit.amount_paid || 0}
+                            </span>
+                         </div>
+                         
+                         <div className="flex items-center gap-2 mt-2 md:mt-0 justify-end">
+                            {(visit.payment_status === 'pendiente' || visit.payment_status === 'parcial') && (
+                               <button 
+                                 onClick={() => {
+                                   setPaymentVisit(visit);
+                                   setPaymentAmount(visit.price_charged - (visit.amount_paid || 0));
+                                   setIsPaymentModalOpen(true);
+                                 }}
+                                 className="btn btn-sm bg-primary/10 text-primary hover:bg-primary hover:text-white border-transparent shadow-none"
+                               >
+                                 <Coins size={14} className="mr-1.5" /> Abonar
+                               </button>
+                            )}
+                            
+                            {visit.status === 'en_curso' && (
+                               <div className="relative group/menu z-10">
+                                  <button className="btn btn-sm btn-outline-secondary px-2 border-black-light/50 dark:border-dark-light">
+                                     <MoreVertical size={16} />
+                                  </button>
+                                  <div className="absolute right-0 top-full mt-1 w-48 bg-surface dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl shadow-lg opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col py-1 overflow-hidden">
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-black-light/5 dark:hover:bg-dark-light text-ink dark:text-white-light w-full transition-colors" onClick={() => {
+                                        setSelectedVisit(visit);
+                                        setEditForm({
+                                          service_id: visit.service_id || '',
+                                          staff_id: visit.staff_id || '',
+                                          scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                          price_charged: visit.price_charged || 0,
+                                          status: visit.status || 'agendada',
+                                          notes: visit.notes || ''
+                                        });
+                                        setIsEditModalOpen(true);
+                                     }}>Editar Cita</button>
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'completado')}>Marcar Completada</button>
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}>No Asistió</button>
+                                     <button className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'cancelado')}>Cancelar Cita</button>
+                                  </div>
+                               </div>
+                            )}
+                         </div>
                       </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -467,58 +462,75 @@ export function AtencionesManager({
             {Object.keys(groupedFutureVisits).map(date => (
               <div key={date}>
                 <h3 className="text-lg font-bold text-black dark:text-white mb-4 capitalize">{date}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-3">
                   {groupedFutureVisits[date].map((visit: any) => (
-                    <div key={visit.id} className="panel p-0 hover:-translate-y-1 transition-transform duration-300 overflow-hidden relative group border-2 border-transparent hover:border-primary/20">
-                      <div className="p-5 border-b border-black-light dark:border-dark-light bg-gradient-to-br from-white to-zinc-50 dark:from-dark dark:to-zinc-900/50">
-                        <div className="flex justify-between items-start mb-3">
-                          <span className="badge bg-primary/10 text-primary">Agendada</span>
-                          <span className="text-xl font-bold text-black dark:text-white">S/ {visit.price_charged}</span>
-                        </div>
-                        <h4 className="text-lg font-bold text-black dark:text-white mb-1">{visit.contact_name || 'Paciente Sin Nombre'}</h4>
-                        <div className="flex items-center text-sm text-zinc-500 gap-1 mb-1">
-                          <Phone size={14} /> +{visit.contact_phone}
-                        </div>
-                        <div className="text-sm font-semibold text-primary">{visit.service_name}</div>
-                        {visit.staff_id && staffList && (
-                          <div className="text-xs text-zinc-500 mt-2">
-                            Atendido por: <span className="font-medium text-zinc-700 dark:text-zinc-300">{staffList.find((s: any) => s.id === visit.staff_id)?.name || 'Desconocido'}</span>
-                          </div>
-                        )}
+                    <div key={visit.id} className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group">
+                      
+                      {/* Left: Info */}
+                      <div className="flex items-center gap-4">
+                         <div className="flex flex-col items-center justify-center bg-bg dark:bg-dark rounded-xl w-16 h-16 shrink-0 border border-black-light/30 dark:border-dark-dark-light">
+                           <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">Hora</span>
+                           <span className="text-lg font-bold text-ink dark:text-white-light">{new Date(visit.visit_date).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+                         </div>
+                         <div>
+                           <div className="flex items-center gap-2 mb-0.5">
+                             <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">{visit.contact_name || 'Paciente'}</h4>
+                             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary">
+                               Agendada
+                             </span>
+                           </div>
+                           <div className="text-sm font-semibold text-primary leading-tight">{visit.service_name}</div>
+                           <div className="flex items-center text-xs text-muted gap-3 mt-1.5">
+                             <span className="flex items-center gap-1"><Phone size={12}/> {visit.contact_phone}</span>
+                             {visit.staff_id && staffList && (
+                               <span className="flex items-center gap-1"><User size={12}/> {staffList.find((s: any) => s.id === visit.staff_id)?.name}</span>
+                             )}
+                           </div>
+                         </div>
                       </div>
-                      <div className="p-5 bg-white dark:bg-dark space-y-3">
-                        <div className="flex items-center text-sm font-semibold text-zinc-700 dark:text-zinc-300 gap-2 mb-2">
-                          <Calendar size={16} className="text-primary" /> {new Date(visit.visit_date).toLocaleString('es-PE', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })}
-                        </div>
-                        {visit.notes && (
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-black-light dark:border-dark-light">
-                            {visit.notes}
-                          </p>
-                        )}
-                        <div className="flex justify-end gap-2 pt-2 border-t border-black-light dark:border-dark-light mt-2">
-                           <button 
-                             className="btn btn-sm btn-outline-secondary"
-                             onClick={() => {
-                               setSelectedVisit(visit);
-                               setEditForm({
-                                 service_id: visit.service_id || '',
-                                 staff_id: visit.staff_id || '',
-                                 scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
-                                 notes: visit.notes || ''
-                               });
-                               setIsEditModalOpen(true);
-                             }}
-                           >
-                             Editar
-                           </button>
-                           <button 
-                             className="btn btn-sm btn-outline-danger"
-                             onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
-                           >
-                             Cancelar Cita
-                           </button>
-                        </div>
+
+                      {/* Right: Actions and Price */}
+                      <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full md:w-auto">
+                         
+                         {visit.notes && (
+                           <div className="hidden md:flex items-center text-xs text-muted max-w-[150px] truncate" title={visit.notes}>
+                             <FileText size={14} className="mr-1 shrink-0" />
+                             <span className="truncate">{visit.notes}</span>
+                           </div>
+                         )}
+
+                         <div className="text-left md:text-right flex flex-col justify-center">
+                            <span className="text-lg font-bold text-ink dark:text-white-light leading-tight">S/ {visit.price_charged}</span>
+                            <span className="text-xs text-muted font-medium">
+                              Cobrado: S/ {visit.amount_paid || 0}
+                            </span>
+                         </div>
+                         
+                         <div className="flex items-center gap-2 mt-2 md:mt-0 justify-end">
+                            <div className="relative group/menu z-10">
+                               <button className="btn btn-sm btn-outline-secondary px-2 border-black-light/50 dark:border-dark-light">
+                                  <MoreVertical size={16} />
+                               </button>
+                               <div className="absolute right-0 top-full mt-1 w-48 bg-surface dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl shadow-lg opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col py-1 overflow-hidden">
+                                  <button className="px-4 py-2 text-sm text-left hover:bg-black-light/5 dark:hover:bg-dark-light text-ink dark:text-white-light w-full transition-colors" onClick={() => {
+                                     setSelectedVisit(visit);
+                                     setEditForm({
+                                       service_id: visit.service_id || '',
+                                       staff_id: visit.staff_id || '',
+                                       scheduled_date: visit.visit_date ? new Date(new Date(visit.visit_date).getTime() - 5 * 60 * 60 * 1000).toISOString().slice(0,16) : '',
+                                       price_charged: visit.price_charged || 0,
+                                       status: visit.status || 'agendada',
+                                       notes: visit.notes || ''
+                                     });
+                                     setIsEditModalOpen(true);
+                                  }}>Editar Cita</button>
+                                  <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'no_asistio')}>No Asistió</button>
+                                  <button className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'cancelado')}>Cancelar Cita</button>
+                               </div>
+                            </div>
+                         </div>
                       </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -688,8 +700,13 @@ export function AtencionesManager({
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-primary" /> Precio Total Acordado
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center justify-between">
+                    <span className="flex items-center gap-2"><Coins className="w-4 h-4 text-primary" /> Precio Total Acordado *</span>
+                    {form.service_id && services.find(s => s.id === form.service_id)?.promo_price && (
+                      <span className="text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded">
+                        Mínimo: S/ {services.find(s => s.id === form.service_id)?.promo_price}
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>

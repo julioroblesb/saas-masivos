@@ -161,7 +161,7 @@ export function CampaignProgressCard({ campaign }: { campaign: WaCampaign }) {
           <span className="text-sm font-medium text-white-dark">Progreso de envío</span>
           <span className="text-sm font-bold text-dark dark:text-white-light">{percentage}%</span>
         </div>
-        <div className="w-full bg-[#ebebeb] dark:bg-dark-light rounded-full h-2 mb-2 overflow-hidden">
+        <div className="w-full bg-black-light/20 dark:bg-dark-light rounded-full h-2 mb-2 overflow-hidden">
           <div 
             className="bg-primary h-2 rounded-full transition-[width] duration-500 ease-linear" 
             style={{ width: `${percentage}%` }} 
@@ -172,7 +172,7 @@ export function CampaignProgressCard({ campaign }: { campaign: WaCampaign }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 py-4 border-y border-[#e0e6ed] dark:border-[#1b2e4b]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 py-4 border-y border-black-light/50 dark:border-dark-dark-light">
         <div className="text-center p-3 bg-success-light dark:bg-success-dark-light rounded-lg">
           <div className="text-2xl font-bold text-success">{campaign.sent}</div>
           <div className="text-xs font-medium text-success uppercase flex items-center justify-center gap-1 mt-1">
