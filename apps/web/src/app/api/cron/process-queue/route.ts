@@ -57,10 +57,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'No hay sesiones activas' });
     }
 
-    // 2. Procesar CADA empresa EN PARALELO. Ninguna espera a otra.
-    const results = await Promise.allSettled(
-      sessions.map((session) => processOneCompany(supabaseAdmin, session))
-    );
+    // 2. Procesar en lotes (chunks) para no ahogar los sockets y la RAM (Escalabilidad)
+    const CHUNK_SIZE = 5;
+    const results: PromiseSettledResult<any>[] = [];
+    
+    for (let i = 0; i < sessions.length; i += CHUNK_SIZE) {
+      const chunk = sessions.slice(i, i + CHUNK_SIZE);
+      const chunkResults = await Promise.allSettled(
+        chunk.map((session) => processOneCompany(supabaseAdmin, session))
+      );
+      results.push(...chunkResults);
+    }
 
     const summary = results.map((r, i) => ({
       company_id: sessions[i].company_id,

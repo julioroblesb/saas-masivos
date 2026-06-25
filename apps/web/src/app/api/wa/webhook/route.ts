@@ -12,9 +12,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'company_id missing in query params' }, { status: 400 });
     }
 
-    // Usar INTERNAL_TOKEN como secreto para webhooks
+    // Hacer obligatorio INTERNAL_TOKEN
     const internalToken = process.env.INTERNAL_TOKEN;
-    if (internalToken && token !== internalToken) {
+    if (!internalToken) {
+      console.warn('CRITICAL WARNING: INTERNAL_TOKEN no está configurado en las variables de entorno.');
+      return NextResponse.json({ error: 'System misconfiguration. Webhooks disabled.' }, { status: 500 });
+    }
+    
+    if (token !== internalToken) {
       return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
