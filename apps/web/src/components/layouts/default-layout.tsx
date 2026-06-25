@@ -7,12 +7,14 @@ import ScrollToTop from '@/components/layouts/scroll-to-top';
 import Setting from '@/components/layouts/setting';
 import Sidebar from '@/components/layouts/sidebar';
 import Portals from '@/components/portals';
+import DemoBanner from '@/components/demo-banner';
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             {/* BEGIN MAIN CONTAINER */}
             <div className="relative">
+                <DemoBanner />
                 <Overlay />
                 <ScrollToTop />
 

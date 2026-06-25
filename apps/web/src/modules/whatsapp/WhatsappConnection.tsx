@@ -15,6 +15,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const [status, setStatus] = useState<string>('cargando');
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
   const supabase = createClient();
 
   // 1. Obtener estado inicial solo al montar
@@ -22,6 +23,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     if (!companyId) return;
 
     const fetchStatus = async () => {
+      // Obtener estado de la sesión
       const { data } = await supabase
         .from('wa_sessions')
         .select('status')
@@ -32,6 +34,17 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
         setStatus(data.status);
       } else {
         setStatus('desconectado');
+      }
+
+      // Obtener si es cuenta demo
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('is_demo')
+        .eq('id', companyId)
+        .maybeSingle();
+        
+      if (companyData?.is_demo) {
+        setIsDemo(true);
       }
     };
 
@@ -160,14 +173,21 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-sm font-medium">WhatsApp Vinculado</span>
         </div>
-        <button 
-          type="button"
-          onClick={handleDisconnect} 
-          disabled={loading}
-          className="btn btn-outline-danger btn-sm"
-        >
-          {loading ? 'Desvinculando...' : 'Desvincular'}
-        </button>
+        <div className="relative group">
+          <button 
+            type="button"
+            onClick={handleDisconnect} 
+            disabled={loading || isDemo}
+            className={`btn btn-sm ${isDemo ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-danger'}`}
+          >
+            {loading ? 'Desvinculando...' : 'Desvincular'}
+          </button>
+          {isDemo && (
+            <div className="absolute top-full mt-2 w-max max-w-xs p-2 bg-slate-800 text-white text-xs rounded shadow-lg hidden group-hover:block z-10">
+              Esta acción está deshabilitada en el modo de demostración.
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -188,10 +208,17 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
 
       <div className="flex items-center space-x-4">
         {status === 'desconectado' || status === 'error' || status === 'error_desconexion' ? (
-          <Button onClick={handleStartSession} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white w-fit">
-            <Smartphone className="w-4 h-4 mr-2" />
-            {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
-          </Button>
+          <div className="relative group">
+            <Button onClick={handleStartSession} disabled={loading || isDemo} className={`text-white w-fit ${isDemo ? 'bg-slate-400 cursor-not-allowed opacity-50' : 'bg-green-600 hover:bg-green-700'}`}>
+              <Smartphone className="w-4 h-4 mr-2" />
+              {loading ? 'Iniciando...' : 'Vincular WhatsApp'}
+            </Button>
+            {isDemo && (
+              <div className="absolute top-full mt-2 w-max max-w-xs p-2 bg-slate-800 text-white text-xs rounded shadow-lg hidden group-hover:block z-10">
+                Esta acción está deshabilitada en el modo de demostración.
+              </div>
+            )}
+          </div>
         ) : null}
       </div>
 
