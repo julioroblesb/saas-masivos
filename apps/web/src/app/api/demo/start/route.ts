@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // TODO: Reemplazar por el ID real cuando el usuario lo provea
-const TEMPLATE_COMPANY_ID = '00000000-0000-0000-0000-000000000000';
+const TEMPLATE_COMPANY_ID = '3c3cb849-06c8-4250-b4cf-9375422684a6';
 
 export async function POST(req: Request) {
   try {

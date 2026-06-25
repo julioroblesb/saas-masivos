@@ -156,7 +156,7 @@ const Sidebar = () => {
                                     </h2>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/atenciones" className="nav-link group">
+                                        <Link href="/dashboard/atenciones" className="nav-link nav-atenciones group">
                                             <div className="flex items-center">
                                                 <IconMenuCalendar className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Atenciones</span>
@@ -224,7 +224,7 @@ const Sidebar = () => {
                                     </li>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/mensajeria" className="nav-link group">
+                                        <Link href="/dashboard/mensajeria" className="nav-link nav-mensajeria group">
                                             <div className="flex items-center">
                                                 <IconMenuChat className="shrink-0 group-hover:!text-primary" />
                                                 <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Mensajería</span>

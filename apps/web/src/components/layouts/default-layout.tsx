@@ -8,12 +8,14 @@ import Setting from '@/components/layouts/setting';
 import Sidebar from '@/components/layouts/sidebar';
 import Portals from '@/components/portals';
 import DemoBanner from '@/components/demo-banner';
+import DemoTour from '@/components/demo-tour';
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             {/* BEGIN MAIN CONTAINER */}
             <div className="relative">
+                <DemoTour />
                 <DemoBanner />
                 <Overlay />
                 <ScrollToTop />
