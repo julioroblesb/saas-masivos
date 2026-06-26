@@ -45,7 +45,7 @@ export default function DemoTour() {
 
     const steps: Step[] = [
         {
-            target: 'body', // Pop-up central
+            target: 'body',
             content: (
                 <div className="text-center p-2">
                     <h2 className="text-xl font-bold mb-2 text-pink-600">¡Bienvenido al Entorno de Prueba!</h2>
@@ -59,22 +59,85 @@ export default function DemoTour() {
         },
         {
             target: '.nav-atenciones',
-            content: 'Primero, entra a la sección de Atenciones (Agenda). Aquí es donde manejarás las citas.',
+            content: 'Primero, entra a la sección de Atenciones (Agenda). Aquí manejarás las citas.',
             placement: 'right',
             skipBeacon: true,
         },
         {
             target: '.btn-nueva-atencion',
-            content: 'Haz clic en "Nueva Atención" para registrar una cita. Rellena los datos de prueba y guárdalos; esto activará los mensajes automáticos y lo agregará al CRM.',
+            content: 'Haz clic en "Nueva Atención" para abrir el registro de citas.',
             placement: 'bottom',
-            skipBeacon: true,
+            spotlightClicks: true,
+            disableBeacon: true,
+            hideNext: true,
+        },
+        {
+            target: '.btn-nuevo-cliente',
+            content: 'Presiona aquí ("+ Nuevo cliente") para que pruebes el sistema ingresando tus datos.',
+            placement: 'bottom',
+            spotlightClicks: true,
+            disableBeacon: true,
+            hideNext: true,
+        },
+        {
+            target: '.inputs-nuevo-cliente',
+            content: 'Escribe tu nombre y tu celular. IMPORTANTE: Usa el código de país (ej: 51) seguido de tu número sin espacios ni símbolos (ej: 51987654321).',
+            placement: 'bottom',
+            spotlightClicks: true,
+        },
+        {
+            target: '.select-servicio',
+            content: 'Simula elegir un servicio en la lista desplegable, y luego haz clic en "Registrar Atención".',
+            placement: 'right',
+            spotlightClicks: true,
+            hideNext: true,
+        },
+        {
+            target: '.btn-actions-atencion',
+            content: '¡Excelente! Ahora, abre el menú de acciones de la atención que acabas de crear (los 3 puntos).',
+            placement: 'left',
+            spotlightClicks: true,
+            hideNext: true,
+        },
+        {
+            target: '.btn-completar-atencion',
+            content: '...y márcala como "Completar Servicio".',
+            placement: 'left',
+            spotlightClicks: true,
+            hideNext: true,
         },
         {
             target: '.nav-mensajeria',
-            content: 'Finalmente, entra a Mensajería. ¡Verás que el prospecto ya recibió su mensaje automático de bienvenida por WhatsApp!',
+            content: 'Finalmente, entra a Mensajería. En unos minutos recibirás un mensaje automático por WhatsApp para que puedas revisar el resto del sistema.',
             placement: 'right',
         }
     ];
+
+    // Escuchar clics para avanzar pasos cuando hideNext es true
+    useEffect(() => {
+        if (!run || !isDemo) return;
+        const handleClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (stepIndex === 2 && target.closest('.btn-nueva-atencion')) {
+                setTimeout(() => setStepIndex(3), 400);
+            }
+            else if (stepIndex === 3 && target.closest('.btn-nuevo-cliente')) {
+                setTimeout(() => setStepIndex(4), 300);
+            }
+            else if (stepIndex === 5 && target.closest('.btn-registrar-atencion')) {
+                setTimeout(() => setStepIndex(6), 1500); // Esperar que guarde y cierre el modal
+            }
+            else if (stepIndex === 6 && target.closest('.btn-actions-atencion')) {
+                setTimeout(() => setStepIndex(7), 300);
+            }
+            else if (stepIndex === 7 && target.closest('.btn-completar-atencion')) {
+                setTimeout(() => setStepIndex(8), 800);
+            }
+        };
+
+        document.addEventListener('click', handleClick);
+        return () => document.removeEventListener('click', handleClick);
+    }, [run, isDemo, stepIndex]);
 
     const handleJoyrideCallback = (data: EventData) => {
         const { status, type, index, action } = data;
@@ -91,7 +154,7 @@ export default function DemoTour() {
                     if (pathname !== '/dashboard/atenciones') {
                         router.push('/dashboard/atenciones');
                     }
-                } else if (index === 2) {
+                } else if (index === 8) {
                     router.push('/dashboard/mensajeria');
                 }
                 setStepIndex(index + 1);

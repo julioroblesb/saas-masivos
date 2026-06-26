@@ -465,7 +465,7 @@ export function AtencionesManager({
                             )}
                             
                             {visit.status === 'en_curso' && (
-                               <div className="relative group/menu z-10">
+                               <div className="relative group/menu z-10 btn-actions-atencion">
                                   <button className="btn btn-sm btn-outline-secondary px-2 border-black-light/50 dark:border-dark-light">
                                      <MoreVertical size={16} />
                                   </button>
@@ -482,7 +482,7 @@ export function AtencionesManager({
                                         });
                                         setIsEditModalOpen(true);
                                      }}>Editar Cita</button>
-                                     <button className="px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'completado')}>Completar Servicio</button>
+                                     <button className="btn-completar-atencion px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'completado')}>Completar Servicio</button>
                                      <button className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors" onClick={() => { setNoAsistioVisit(visit); setRescheduleDate(visit.visit_date || new Date().toISOString()); setIsNoAsistioModalOpen(true); }}>No Asistió</button>
                                      <button className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors" onClick={() => handleUpdateStatus(visit.id, 'cancelado')}>Cancelar Cita</button>
                                   </div>
@@ -677,14 +677,14 @@ export function AtencionesManager({
                     <button 
                       type="button"
                       onClick={() => setShowNewPatient(!showNewPatient)}
-                      className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                      className="btn-nuevo-cliente text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       {showNewPatient ? 'Seleccionar existente' : '+ Nuevo cliente'}
                     </button>
                   </div>
                   
                   {showNewPatient ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="inputs-nuevo-cliente grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <input 
                         type="text" 
                         placeholder="Nombre completo" 
@@ -710,7 +710,7 @@ export function AtencionesManager({
                   )}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 select-servicio">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
                   </label>
@@ -792,7 +792,7 @@ export function AtencionesManager({
                 Cancelar
               </button>
               <button 
-                className="btn btn-primary rounded-xl px-8" 
+                className="btn-registrar-atencion btn btn-primary rounded-xl px-8" 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
               >
