@@ -59,7 +59,7 @@ export default function DemoTour() {
         },
         {
             target: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'body' : '.nav-atenciones',
-            content: 'Primero, entra a la sección de Atenciones (Agenda). Aquí manejarás las citas.',
+            content: 'Estás en la sección de Atenciones (Agenda). Aquí manejarás todas las citas.',
             placement: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'center' : 'right',
             skipBeacon: true,
         },
@@ -176,10 +176,34 @@ export default function DemoTour() {
                     if (pathname !== '/dashboard/atenciones') {
                         router.push('/dashboard/atenciones');
                     }
-                } else if (index === 8) {
+                    setStepIndex(1);
+                } else if (index === 1) { // .nav-atenciones
+                    setStepIndex(2);
+                } else if (index === 2) { // .btn-nueva-atencion
+                    (document.querySelector('.btn-nueva-atencion') as HTMLElement)?.click();
+                    setTimeout(() => setStepIndex(3), 400);
+                } else if (index === 3) { // .btn-nuevo-cliente
+                    (document.querySelector('.btn-nuevo-cliente') as HTMLElement)?.click();
+                    setTimeout(() => setStepIndex(4), 400);
+                } else if (index === 4) { // .inputs-nuevo-cliente
+                    setStepIndex(5);
+                } else if (index === 5) { // .select-servicio
+                    (document.querySelector('.btn-registrar-atencion') as HTMLElement)?.click();
+                    setTimeout(() => {
+                        setStepIndex(6);
+                        setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+                    }, 1500);
+                } else if (index === 6) { // .btn-actions-atencion
+                    // The menu opens on hover, but we can't simulate hover easily. 
+                    // However, we can just advance to step 7 and tell them to click "Completar".
+                    setStepIndex(7);
+                } else if (index === 7) { // .btn-completar-atencion
+                    (document.querySelector('.btn-completar-atencion') as HTMLElement)?.click();
+                    setTimeout(() => setStepIndex(8), 800);
+                } else if (index === 8) { // .nav-mensajeria
                     router.push('/dashboard/mensajeria');
+                    setStepIndex(9);
                 }
-                setStepIndex(index + 1);
             } else if (action === 'prev') {
                 setStepIndex(index - 1);
             }
