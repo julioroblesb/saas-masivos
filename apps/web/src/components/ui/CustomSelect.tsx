@@ -43,6 +43,10 @@ const customStyles: StylesConfig<any, boolean> = {
     ...base,
     color: 'var(--text-color, #0A0A0A)'
   }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 10001
+  }),
   placeholder: (base) => ({
     ...base,
     color: 'var(--muted-color, #71717A)'
@@ -74,7 +78,12 @@ export function CustomSelect(props: SelectProps<any, boolean>) {
            border-radius: 0.5rem;
         }
       `}</style>
-      <Select styles={customStyles} {...props} />
+      <Select 
+        styles={customStyles} 
+        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+        menuPosition="fixed"
+        {...props} 
+      />
     </div>
   );
 }
