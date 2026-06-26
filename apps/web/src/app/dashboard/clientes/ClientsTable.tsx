@@ -18,6 +18,7 @@ interface ClientMetric {
   is_archived: boolean;
   created_at: string;
   email?: string | null;
+  document_number?: string | null;
   birthday?: string | null;
   allergies_and_conditions?: string | null;
   preferences?: string | null;
@@ -47,6 +48,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     phone: '',
     name: '',
     email: '',
+    documentNumber: '',
     birthday: '',
     allergiesAndConditions: '',
     preferences: '',
