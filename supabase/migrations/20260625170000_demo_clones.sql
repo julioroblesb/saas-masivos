@@ -58,8 +58,8 @@ BEGIN
     -- C. Clonar Servicios
     -- Usamos un bucle for simple en caso de que queramos mapear IDs a futuro
     FOR v_old_service_id IN SELECT id FROM spa_services WHERE company_id = p_template_company_id LOOP
-        INSERT INTO spa_services (company_id, name, description, price, duration_mins, is_active)
-        SELECT v_new_company_id, name, description, price, duration_mins, is_active
+        INSERT INTO spa_services (company_id, name, description, price, min_price, promo_price, duration_days, care_instructions, care_image_url, is_active)
+        SELECT v_new_company_id, name, description, price, min_price, promo_price, duration_days, care_instructions, care_image_url, is_active
         FROM spa_services WHERE id = v_old_service_id;
     END LOOP;
 
