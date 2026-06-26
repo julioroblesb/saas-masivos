@@ -58,7 +58,8 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
 }
 
 export async function createVisitAction(data: {
-  contact_id: string;
+  contact_id?: string;
+  new_contact?: { name: string; phone: string; document_number?: string };
   service_id: string;
   staff_id: string;
   visit_date: string; // ISO string with time
@@ -68,11 +69,31 @@ export async function createVisitAction(data: {
   if (!companyId) return { error: 'No company context' };
 
   try {
+    let finalContactId = data.contact_id;
+
+    if (data.new_contact) {
+      const { data: newC, error: errC } = await supabase
+        .from('crm_marketing_contacts')
+        .insert({
+          company_id: companyId,
+          name: data.new_contact.name,
+          phone: data.new_contact.phone,
+          document_number: data.new_contact.document_number,
+          tags: ['nuevo_paciente']
+        })
+        .select('id')
+        .single();
+      if (errC) throw errC;
+      finalContactId = newC.id;
+    }
+
+    if (!finalContactId) return { error: 'Contact is required' };
+
     const { error } = await supabase
       .from('spa_visits')
       .insert({
         company_id: companyId,
-        contact_id: data.contact_id,
+        contact_id: finalContactId,
         service_id: data.service_id,
         staff_id: data.staff_id,
         visit_date: data.visit_date,

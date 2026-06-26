@@ -31,6 +31,8 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
 
   const [availability, setAvailability] = useState<any>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [showNewPatient, setShowNewPatient] = useState(false);
+  const [newPatient, setNewPatient] = useState({ name: '', phone: '', document_number: '' });
 
   // Filter staff by selected service
   const availableStaff = useMemo(() => {
@@ -128,7 +130,11 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
   }, [availability, form.date]);
 
   const handleSubmit = async () => {
-    if (!form.contact_id || !form.service_id || !form.staff_id || !form.date || !form.time) {
+    if ((!showNewPatient && !form.contact_id) || (showNewPatient && !newPatient.name)) {
+      MySwal.fire('Atención', 'Por favor selecciona o ingresa un cliente.', 'warning');
+      return;
+    }
+    if (!form.service_id || !form.staff_id || !form.date || !form.time) {
       MySwal.fire('Atención', 'Por favor completa todos los campos para agendar.', 'warning');
       return;
     }
@@ -138,7 +144,8 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
     const visitDate = new Date(`${form.date}T${form.time}:00`);
 
     const result = await createVisitAction({
-      contact_id: form.contact_id,
+      contact_id: !showNewPatient ? form.contact_id : undefined,
+      new_contact: showNewPatient ? newPatient : undefined,
       service_id: form.service_id,
       staff_id: form.staff_id,
       visit_date: visitDate.toISOString(),
@@ -188,22 +195,60 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
             {/* Left Column */}
             <div className="space-y-5">
               <div>
-                <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Cliente *</label>
-                <CustomSelect
-                  options={contacts.map(c => ({
-                    value: c.id,
-                    label: `${c.name} ${c.document_number ? `- DNI: ${c.document_number}` : ''}`
-                  }))}
-                  value={form.contact_id ? { 
-                    value: form.contact_id, 
-                    label: contacts.find(c => c.id === form.contact_id)?.name + 
-                           (contacts.find(c => c.id === form.contact_id)?.document_number ? ` - DNI: ${contacts.find(c => c.id === form.contact_id)?.document_number}` : '')
-                  } : null}
-                  onChange={(opt: any) => setForm({...form, contact_id: opt ? opt.value : ''})}
-                  placeholder="Selecciona o busca un cliente..."
-                  isSearchable
-                  isClearable
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold block text-zinc-900 dark:text-white">Cliente *</label>
+                  <button 
+                    type="button"
+                    onClick={() => setShowNewPatient(!showNewPatient)}
+                    className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    {showNewPatient ? 'Seleccionar existente' : '+ Nuevo cliente'}
+                  </button>
+                </div>
+                
+                {showNewPatient ? (
+                  <div className="grid grid-cols-1 gap-3 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                    <input 
+                      type="text" 
+                      placeholder="Nombre completo *" 
+                      className="form-input text-sm rounded-lg border-zinc-300 dark:border-zinc-700 w-full"
+                      value={newPatient.name}
+                      onChange={e => setNewPatient(p => ({ ...p, name: e.target.value }))}
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input 
+                        type="text" 
+                        placeholder="DNI (opcional)" 
+                        className="form-input text-sm rounded-lg border-zinc-300 dark:border-zinc-700 w-full"
+                        value={newPatient.document_number}
+                        onChange={e => setNewPatient(p => ({ ...p, document_number: e.target.value }))}
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="Teléfono (opcional)" 
+                        className="form-input text-sm rounded-lg border-zinc-300 dark:border-zinc-700 w-full"
+                        value={newPatient.phone}
+                        onChange={e => setNewPatient(p => ({ ...p, phone: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <CustomSelect
+                    options={contacts.map(c => ({
+                      value: c.id,
+                      label: `${c.name} ${c.document_number ? `- DNI: ${c.document_number}` : ''}`
+                    }))}
+                    value={form.contact_id ? { 
+                      value: form.contact_id, 
+                      label: contacts.find(c => c.id === form.contact_id)?.name + 
+                             (contacts.find(c => c.id === form.contact_id)?.document_number ? ` - DNI: ${contacts.find(c => c.id === form.contact_id)?.document_number}` : '')
+                    } : null}
+                    onChange={(opt: any) => setForm({...form, contact_id: opt ? opt.value : ''})}
+                    placeholder="Selecciona o busca un cliente..."
+                    isSearchable
+                    isClearable
+                  />
+                )}
               </div>
 
               <div>
