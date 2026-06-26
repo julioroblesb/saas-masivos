@@ -1,13 +1,14 @@
 'use server';
 
-import { supabase } from '@/shared/utils/supabase';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 const getCompanyId = async () => {
-  const cookieStore = await cookies();
-  const companyId = cookieStore.get('companyId')?.value;
-  return companyId;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await supabase.from('spa_profiles').select('company_id').eq('user_id', user.id).single();
+  return profile?.company_id || null;
 };
 
 export async function getStaffAvailabilityAction(staffId: string, date: string) {
@@ -18,7 +19,8 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
     const [y, m, d] = date.split('-').map(Number);
     const targetDate = new Date(y, m - 1, d);
     const dayOfWeek = targetDate.getDay(); // 0 = Sunday, 1 = Monday...
-    
+    const supabase = await createClient();
+
     // 1. Get base schedule
     const { data: schedule } = await supabase
       .from('spa_staff_schedules')
@@ -69,6 +71,7 @@ export async function createVisitAction(data: {
   if (!companyId) return { error: 'No company context' };
 
   try {
+    const supabase = await createClient();
     let finalContactId = data.contact_id;
 
     if (data.new_contact) {
