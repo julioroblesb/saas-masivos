@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, UserPlus, Calendar } from 'lucide-react';
+import { Plus, Edit2, Trash2, UserPlus, Calendar, Check } from 'lucide-react';
 import { getStaffListAction, upsertStaffAction, deleteStaffAction } from './actions';
 import { SpaStaff } from '@/types/crm';
 import { supabase } from '@/shared/utils/supabase';
@@ -280,9 +280,16 @@ export default function TrabajadorasView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-black-light dark:border-dark-light p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
                   {services.map(s => (
                     <label key={s.id} className="flex items-center gap-3 cursor-pointer text-sm p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded-lg transition-colors">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all flex-shrink-0 ${
+                        form.services.includes(s.id) 
+                          ? 'bg-primary border-primary text-white' 
+                          : 'bg-white border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 text-transparent'
+                      }`}>
+                        <Check className="w-3 h-3" strokeWidth={3} />
+                      </div>
                       <input 
                         type="checkbox" 
-                        className="rounded-full border-black-light dark:border-dark-light text-primary focus:ring-primary focus:ring-offset-0 w-4 h-4 cursor-pointer transition-all"
+                        className="hidden"
                         checked={form.services.includes(s.id)}
                         onChange={() => toggleService(s.id)}
                       />
@@ -293,16 +300,23 @@ export default function TrabajadorasView() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 mt-6 pt-6 border-t border-black-light dark:border-dark-light">
-                <input 
-                  type="checkbox" 
-                  id="isActive"
-                  className="rounded-full border-black-light dark:border-dark-light text-primary focus:ring-primary focus:ring-offset-0 w-5 h-5 cursor-pointer transition-all"
-                  checked={form.isActive}
-                  onChange={e => setForm({...form, isActive: e.target.checked})}
-                />
-                <label htmlFor="isActive" className="text-sm cursor-pointer select-none font-medium text-black dark:text-white">Trabajadora activa en el sistema</label>
-              </div>
+                <label htmlFor="isActive" className="flex items-center gap-3 cursor-pointer select-none group">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all flex-shrink-0 ${
+                    form.isActive 
+                      ? 'bg-primary border-primary text-white' 
+                      : 'bg-white border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 text-transparent'
+                  }`}>
+                    <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    id="isActive"
+                    className="hidden"
+                    checked={form.isActive}
+                    onChange={e => setForm({...form, isActive: e.target.checked})}
+                  />
+                  <span className="text-sm font-medium text-black dark:text-white">Trabajadora activa en el sistema</span>
+                </label>
             </div>
 
             <div className="p-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
