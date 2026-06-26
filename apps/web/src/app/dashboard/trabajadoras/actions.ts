@@ -85,7 +85,7 @@ export async function upsertStaffAction(payload: {
       .single();
       
     if (error) return { error: 'Error creando trabajadora: ' + error.message };
-    staffId = data.id;
+    staffId = (data as any)?.id;
 
     // 2.5 Insertar horario por defecto (Lunes a Viernes de 09:00 a 18:00)
     const defaultSchedules = [1, 2, 3, 4, 5, 6, 0].map(day => ({
