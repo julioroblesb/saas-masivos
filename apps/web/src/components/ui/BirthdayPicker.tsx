@@ -2,22 +2,27 @@ import React from 'react';
 import { CustomSelect } from './CustomSelect';
 
 interface BirthdayPickerProps {
-  value: string; // format "MM-DD"
+  value: string; // format "YYYY-MM-DD"
   onChange: (value: string) => void;
   className?: string;
 }
 
 export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPickerProps) {
-  const [monthStr, dayStr] = value ? value.split('-') : ['', ''];
+  const [yearStr, monthStr, dayStr] = value ? value.split('-') : ['', '', ''];
+
+  const handleYearChange = (val: string) => {
+    if (!val && !monthStr && !dayStr) onChange('');
+    else onChange(`${val || '1990'}-${monthStr || '01'}-${dayStr || '01'}`);
+  };
 
   const handleMonthChange = (val: string) => {
-    if (!val && !dayStr) onChange('');
-    else onChange(`${val || '01'}-${dayStr || '01'}`);
+    if (!val && !dayStr && !yearStr) onChange('');
+    else onChange(`${yearStr || '1990'}-${val || '01'}-${dayStr || '01'}`);
   };
 
   const handleDayChange = (val: string) => {
-    if (!val && !monthStr) onChange('');
-    else onChange(`${monthStr || '01'}-${val || '01'}`);
+    if (!val && !monthStr && !yearStr) onChange('');
+    else onChange(`${yearStr || '1990'}-${monthStr || '01'}-${val || '01'}`);
   };
 
   const months = [
@@ -35,13 +40,23 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
     { value: '12', label: 'Diciembre' },
   ];
 
-  const getDaysInMonth = (m: string) => {
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => {
+    const y = (currentYear - i).toString();
+    return { value: y, label: y };
+  });
+
+  const getDaysInMonth = (m: string, y: string) => {
     if (['04', '06', '09', '11'].includes(m)) return 30;
-    if (m === '02') return 29; // allow leap day
+    if (m === '02') {
+      const yearNum = y ? parseInt(y) : 1990;
+      const isLeap = (yearNum % 4 === 0 && yearNum % 100 !== 0) || (yearNum % 400 === 0);
+      return isLeap ? 29 : 28;
+    }
     return 31;
   };
 
-  const maxDays = monthStr ? getDaysInMonth(monthStr) : 31;
+  const maxDays = monthStr ? getDaysInMonth(monthStr, yearStr) : 31;
   const days = Array.from({ length: maxDays }, (_, i) => {
     const d = (i + 1).toString().padStart(2, '0');
     return { value: d, label: d };
@@ -49,6 +64,15 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
 
   return (
     <div className={`flex gap-2 ${className}`}>
+      <div className="w-24">
+        <CustomSelect
+          options={days}
+          value={days.find(d => d.value === dayStr) || null}
+          onChange={(opt) => handleDayChange(opt?.value || '')}
+          placeholder="Día"
+          isSearchable={false}
+        />
+      </div>
       <div className="flex-1">
         <CustomSelect
           options={months}
@@ -58,13 +82,13 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
           isSearchable={false}
         />
       </div>
-      <div className="w-24">
+      <div className="w-28">
         <CustomSelect
-          options={days}
-          value={days.find(d => d.value === dayStr) || null}
-          onChange={(opt) => handleDayChange(opt?.value || '')}
-          placeholder="Día"
-          isSearchable={false}
+          options={years}
+          value={years.find(y => y.value === yearStr) || null}
+          onChange={(opt) => handleYearChange(opt?.value || '')}
+          placeholder="Año"
+          isSearchable={true}
         />
       </div>
     </div>

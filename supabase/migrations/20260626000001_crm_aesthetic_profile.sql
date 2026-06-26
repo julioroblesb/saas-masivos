@@ -16,8 +16,14 @@ ALTER TABLE crm_marketing_contacts
   ADD COLUMN IF NOT EXISTS customer_segment TEXT DEFAULT 'Nuevo';
 
 -- Forzar tipo fecha por si en otra migración se definió como varchar
+-- Convertimos "MM-DD" viejo a "1900-MM-DD" para que no se pierda el dato y PostgreSQL lo acepte
 ALTER TABLE crm_marketing_contacts
-  ALTER COLUMN birthday TYPE DATE USING NULLIF(birthday::text, '')::DATE;
+  ALTER COLUMN birthday TYPE DATE USING 
+    CASE 
+      WHEN birthday IS NULL OR birthday::text = '' THEN NULL
+      WHEN length(birthday::text) = 5 THEN ('1900-' || birthday::text)::DATE
+      ELSE birthday::text::DATE
+    END;
 
 -- 2. Función para recalcular el segmento de un cliente
 -- Reglas acordadas:
