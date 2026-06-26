@@ -261,13 +261,28 @@ export default function TrabajadorasView() {
               </div>
 
               <div>
-                <label className="text-sm font-semibold mb-2 block text-black dark:text-white">Servicios que ofrece</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold text-black dark:text-white">Servicios que ofrece</label>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                    onClick={() => {
+                      if (form.services.length === services.length && services.length > 0) {
+                        setForm({ ...form, services: [] });
+                      } else {
+                        setForm({ ...form, services: services.map(s => s.id) });
+                      }
+                    }}
+                  >
+                    {form.services.length === services.length && services.length > 0 ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                  </button>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-black-light dark:border-dark-light p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
                   {services.map(s => (
                     <label key={s.id} className="flex items-center gap-3 cursor-pointer text-sm p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded-lg transition-colors">
                       <input 
                         type="checkbox" 
-                        className="rounded border-black-light dark:border-dark-light text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                        className="rounded-full border-black-light dark:border-dark-light text-primary focus:ring-primary focus:ring-offset-0 w-4 h-4 cursor-pointer transition-all"
                         checked={form.services.includes(s.id)}
                         onChange={() => toggleService(s.id)}
                       />
@@ -282,7 +297,7 @@ export default function TrabajadorasView() {
                 <input 
                   type="checkbox" 
                   id="isActive"
-                  className="rounded border-black-light dark:border-dark-light text-primary focus:ring-primary w-5 h-5 cursor-pointer"
+                  className="rounded-full border-black-light dark:border-dark-light text-primary focus:ring-primary focus:ring-offset-0 w-5 h-5 cursor-pointer transition-all"
                   checked={form.isActive}
                   onChange={e => setForm({...form, isActive: e.target.checked})}
                 />

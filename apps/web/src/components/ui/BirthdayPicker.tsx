@@ -63,8 +63,8 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
   });
 
   return (
-    <div className={`flex gap-2 ${className}`}>
-      <div className="w-24">
+    <div className={`grid grid-cols-[1fr,1.5fr,1fr] gap-2 ${className}`}>
+      <div>
         <CustomSelect
           options={days}
           value={days.find(d => d.value === dayStr) || null}
@@ -73,7 +73,7 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
           isSearchable={false}
         />
       </div>
-      <div className="flex-1">
+      <div>
         <CustomSelect
           options={months}
           value={months.find(m => m.value === monthStr) || null}
@@ -82,7 +82,7 @@ export function BirthdayPicker({ value, onChange, className = '' }: BirthdayPick
           isSearchable={false}
         />
       </div>
-      <div className="w-28">
+      <div>
         <CustomSelect
           options={years}
           value={years.find(y => y.value === yearStr) || null}
