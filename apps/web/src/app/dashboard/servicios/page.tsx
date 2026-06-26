@@ -174,64 +174,62 @@ export default function SpaServicesPage() {
         </button>
       </div>
 
-      <div className="flex flex-col">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-6">
         {services.length === 0 ? (
-          <div className="rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
+          <div className="col-span-full rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
             <Scissors className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-6 opacity-50" />
             <p className="text-zinc-500 dark:text-zinc-400 text-lg font-medium">El catálogo está vacío.</p>
           </div>
         ) : (
-          <div className="divide-y divide-black-light/50 dark:divide-dark-dark-light">
-            {services.map(service => (
-              <div key={service.id} className="group py-6 first:pt-4 flex flex-col md:flex-row md:items-start justify-between gap-4 transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 -mx-4 px-4 rounded-2xl">
+          services.map(service => (
+            <div key={service.id} className="group relative flex flex-col p-3 rounded-2xl border border-black-light/30 dark:border-dark-dark-light bg-white/40 dark:bg-dark-light/10 hover:border-black-light/60 dark:hover:border-dark-light transition-colors min-h-[140px]">
+              
+              {/* Top Section: Title & Actions overlay */}
+              <div className="flex justify-between items-start gap-2 mb-2">
+                <h3 className="text-sm font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors flex-1">{service.name}</h3>
                 
-                {/* Info Column */}
-                <div className="flex-1 max-w-2xl">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-bold tracking-tight text-black dark:text-white group-hover:text-primary transition-colors">{service.name}</h3>
-                    {!service.is_active && (
-                      <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-[10px] font-bold uppercase tracking-widest">Inactivo</span>
-                    )}
-                  </div>
-                  
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium mb-3">
-                    {service.description || 'Sin descripción detallada.'}
-                  </p>
-                  
-                  {service.duration_days > 0 && (
-                     <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium">
-                        <Clock className="w-3.5 h-3.5" /> Seguimiento a los {service.duration_days} días
-                     </div>
-                  )}
+                {/* Actions overlayed cleanly on hover */}
+                <div className="flex flex-row gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0">
+                  <button onClick={() => openEdit(service)} className="p-1 bg-white/90 backdrop-blur-sm text-black rounded-md shadow hover:bg-white transition-all pointer-events-auto">
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                  <button onClick={() => handleDelete(service.id)} className="p-1 bg-white/90 backdrop-blur-sm text-danger rounded-md shadow hover:bg-white transition-all pointer-events-auto">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
                 </div>
-
-                {/* Price & Actions Column */}
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[150px]">
-                  <div className="text-left md:text-right">
-                    <div className="flex items-baseline md:justify-end gap-1">
-                      <span className="text-xs font-semibold text-zinc-400">S/</span>
-                      <span className="text-2xl font-bold tracking-tight text-black dark:text-white">{service.price}</span>
-                    </div>
-                    {service.promo_price && (
-                       <div className="mt-1 text-xs font-bold text-success flex items-center md:justify-end gap-1">
-                          <Tag className="w-3 h-3" /> Promo S/ {service.promo_price}
-                       </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEdit(service)} className="flex items-center justify-center w-8 h-8 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-primary hover:text-white transition-all shadow-sm">
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => handleDelete(service.id)} className="flex items-center justify-center w-8 h-8 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-danger hover:text-white transition-all shadow-sm">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
               </div>
-            ))}
-          </div>
+
+              {!service.is_active && (
+                <div className="mb-2">
+                  <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-[9px] font-bold uppercase tracking-widest inline-block">Inactivo</span>
+                </div>
+              )}
+              
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-3 font-medium leading-relaxed mb-4 flex-1">
+                {service.description || 'Sin descripción detallada.'}
+              </p>
+              
+              {/* Bottom Section: Price & Follow-up */}
+              <div className="mt-auto flex flex-col gap-1 border-t border-black-light/20 dark:border-dark-light/30 pt-2">
+                 <div className="flex items-baseline gap-1">
+                   <span className="text-[10px] font-semibold text-zinc-400">S/</span>
+                   <span className="text-lg font-bold tracking-tight text-black dark:text-white">{service.price}</span>
+                   {service.promo_price && (
+                      <span className="ml-auto text-[9px] font-bold text-success flex items-center gap-1">
+                         <Tag className="w-2.5 h-2.5" /> Promo S/{service.promo_price}
+                      </span>
+                   )}
+                 </div>
+                 
+                 {service.duration_days > 0 && (
+                    <div className="flex items-center gap-1 text-[9px] text-zinc-400 font-medium">
+                       <Clock className="w-2.5 h-2.5" /> Seg. a los {service.duration_days} días
+                    </div>
+                 )}
+              </div>
+
+            </div>
+          ))
         )}
       </div>
 

@@ -170,7 +170,7 @@ export default function SpaProductsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-6">
         {products.length === 0 ? (
           <div className="col-span-full rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
             <Package className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-6 opacity-50" />
@@ -178,54 +178,54 @@ export default function SpaProductsPage() {
           </div>
         ) : (
           products.map(product => (
-            <div key={product.id} className="group relative flex flex-col p-2.5 rounded-[1.5rem] border border-black-light/30 dark:border-dark-dark-light bg-white/40 dark:bg-dark-light/10 hover:border-black-light/60 dark:hover:border-dark-light transition-colors">
+            <div key={product.id} className="group relative flex flex-col p-1.5 rounded-2xl border border-black-light/30 dark:border-dark-dark-light bg-white/40 dark:bg-dark-light/10 hover:border-black-light/60 dark:hover:border-dark-light transition-colors">
               
               {/* Image Container */}
-              <div className="aspect-[4/5] w-full bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-center relative overflow-hidden mb-4">
+              <div className="aspect-square w-full bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-center relative overflow-hidden mb-2">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" />
                 ) : (
-                  <Package className="w-16 h-16 text-zinc-300 dark:text-zinc-700" />
+                  <Package className="w-10 h-10 text-zinc-300 dark:text-zinc-700" />
                 )}
                 
                 {/* Actions overlayed cleanly on hover */}
                 <div className="absolute inset-0 bg-black/5 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-2 group-hover:translate-x-0">
-                  <button onClick={() => openEdit(product)} className="p-2.5 bg-white/90 backdrop-blur-sm text-black rounded-full shadow-lg hover:scale-110 hover:bg-white transition-all pointer-events-auto">
-                    <Edit2 className="w-4 h-4" />
+                <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-2 group-hover:translate-x-0">
+                  <button onClick={() => openEdit(product)} className="p-1.5 bg-white/90 backdrop-blur-sm text-black rounded-full shadow hover:scale-110 hover:bg-white transition-all pointer-events-auto">
+                    <Edit2 className="w-3 h-3" />
                   </button>
-                  <button onClick={() => handleDelete(product.id)} className="p-2.5 bg-white/90 backdrop-blur-sm text-danger rounded-full shadow-lg hover:scale-110 hover:bg-white transition-all pointer-events-auto">
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={() => handleDelete(product.id)} className="p-1.5 bg-white/90 backdrop-blur-sm text-danger rounded-full shadow hover:scale-110 hover:bg-white transition-all pointer-events-auto">
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
 
                 {!product.is_active && (
-                  <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full">
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/80 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-widest rounded-full">
                     Agotado / Inactivo
                   </div>
                 )}
               </div>
               
               {/* Clean Typography below */}
-              <div className="flex flex-col flex-1 px-2 pb-1">
-                <div className="flex justify-between items-start gap-3 mb-1.5">
-                  <h3 className="text-base font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
-                  <span className="text-base font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
+              <div className="flex flex-col flex-1 px-1.5 pb-1">
+                <div className="flex justify-between items-start gap-2 mb-1">
+                  <h3 className="text-sm font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                  <span className="text-sm font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
                 </div>
                 
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-3 font-medium leading-relaxed">
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2 font-medium leading-relaxed">
                   {product.description || 'Sin descripción detallada.'}
                 </p>
                 
-                <div className="mt-auto pt-2 flex items-center">
+                <div className="mt-auto pt-1 flex items-center">
                    {product.stock > 0 ? (
-                      <span className={`text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 ${product.stock <= 5 ? 'text-warning' : 'text-zinc-400'}`}>
-                         <span className={`w-1.5 h-1.5 rounded-full ${product.stock <= 5 ? 'bg-warning' : 'bg-zinc-300 dark:bg-zinc-600'}`}></span>
-                         {product.stock} disponibles
+                      <span className={`text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 ${product.stock <= 5 ? 'text-warning' : 'text-zinc-400'}`}>
+                         <span className={`w-1 h-1 rounded-full ${product.stock <= 5 ? 'bg-warning' : 'bg-zinc-300 dark:bg-zinc-600'}`}></span>
+                         {product.stock} disp.
                       </span>
                    ) : (
-                      <span className="text-xs font-bold uppercase tracking-widest text-danger flex items-center gap-1.5">
-                         <span className="w-1.5 h-1.5 rounded-full bg-danger"></span>
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-danger flex items-center gap-1">
+                         <span className="w-1 h-1 rounded-full bg-danger"></span>
                          Sin stock
                       </span>
                    )}
