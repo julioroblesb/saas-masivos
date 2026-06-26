@@ -10,13 +10,15 @@ export async function GET(req: Request) {
   );
 
   const authHeader = req.headers.get('authorization');
+  const { searchParams } = new URL(req.url);
+  const tokenParam = searchParams.get('token');
   const CRON_SECRET = process.env.CRON_SECRET;
   
   if (!CRON_SECRET) {
     return NextResponse.json({ error: 'CRON_SECRET no configurado en servidor' }, { status: 500 });
   }
   
-  if (authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${CRON_SECRET}` && tokenParam !== CRON_SECRET) {
     return new Response('Unauthorized', { status: 401 });
   }
 
