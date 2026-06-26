@@ -86,6 +86,17 @@ export async function upsertStaffAction(payload: {
       
     if (error) return { error: 'Error creando trabajadora: ' + error.message };
     staffId = data.id;
+
+    // 2.5 Insertar horario por defecto (Lunes a Viernes de 09:00 a 18:00)
+    const defaultSchedules = [1, 2, 3, 4, 5, 6, 0].map(day => ({
+      company_id: profile.company_id,
+      staff_id: staffId,
+      day_of_week: day,
+      start_time: '09:00:00',
+      end_time: '18:00:00',
+      is_working: day >= 1 && day <= 5
+    }));
+    await supabase.from('spa_staff_schedules').insert(defaultSchedules);
   }
 
   if (!staffId) return { error: 'No se pudo obtener el ID de la trabajadora' };

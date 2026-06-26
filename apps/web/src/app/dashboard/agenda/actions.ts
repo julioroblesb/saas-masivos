@@ -15,7 +15,9 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
   if (!companyId) return { error: 'No company context' };
 
   try {
-    const dayOfWeek = new Date(date).getDay(); // 0 = Sunday, 1 = Monday...
+    const [y, m, d] = date.split('-').map(Number);
+    const targetDate = new Date(y, m - 1, d);
+    const dayOfWeek = targetDate.getDay(); // 0 = Sunday, 1 = Monday...
     
     // 1. Get base schedule
     const { data: schedule } = await supabase
@@ -33,20 +35,17 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
       .eq('block_date', date);
 
     // 3. Get existing visits (ignore cancelled/no show)
-    // visit_date includes time in postgres typically, but we should query by day
-    // Since visit_date is TIMESTAMPTZ, we need to filter range.
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(date);
-    endDate.setHours(23, 59, 59, 999);
+    // Querying with Peru timezone offset (-05:00) to ensure accurate day bounds
+    const startIso = `${date}T00:00:00-05:00`;
+    const endIso = `${date}T23:59:59-05:00`;
 
     const { data: visits } = await supabase
       .from('spa_visits')
       .select('visit_date, duration_minutes, status')
       .eq('staff_id', staffId)
       .in('status', ['agendado', 'en_curso', 'completado'])
-      .gte('visit_date', startDate.toISOString())
-      .lte('visit_date', endDate.toISOString());
+      .gte('visit_date', startIso)
+      .lte('visit_date', endIso);
 
     return {
       schedule: schedule || null,
