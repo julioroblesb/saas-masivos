@@ -15,6 +15,10 @@ ALTER TABLE crm_marketing_contacts
   ADD COLUMN IF NOT EXISTS last_visit_date TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS customer_segment TEXT DEFAULT 'Nuevo';
 
+-- Forzar tipo fecha por si en otra migración se definió como varchar
+ALTER TABLE crm_marketing_contacts
+  ALTER COLUMN birthday TYPE DATE USING NULLIF(birthday::text, '')::DATE;
+
 -- 2. Función para recalcular el segmento de un cliente
 -- Reglas acordadas:
 -- - Nuevo: Creado hace menos de 30 días
@@ -91,7 +95,7 @@ SELECT
   phone,
   email,
   birthday,
-  EXTRACT(YEAR FROM AGE(birthday)) as age,
+  EXTRACT(YEAR FROM AGE(NULLIF(birthday::text, '')::date)) as age,
   allergies_and_conditions,
   preferences,
   internal_notes,
