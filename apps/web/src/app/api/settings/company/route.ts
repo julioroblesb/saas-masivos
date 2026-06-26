@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function GET() {
   try {
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
       .eq('id', companyId)
       .single();
 
-    // 2. Actualizar en la base de datos local
+    // 2. Actualizar en la base de datos local usando SERVICE ROLE
     const updateData: any = { };
     if (companyName) {
       updateData.name = companyName.trim();
@@ -58,7 +59,13 @@ export async function POST(req: Request) {
       updateData.settings = { ...(currentCompany?.settings || {}), ...settings };
     }
 
-    const { error: updateError } = await supabase
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
+
+    const { error: updateError } = await supabaseAdmin
       .from('companies')
       .update(updateData)
       .eq('id', companyId);
