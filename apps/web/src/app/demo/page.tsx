@@ -26,9 +26,7 @@ export default function DemoLandingPage() {
 
       // 2. Llamar al backend para clonar la plantilla
       const res = await fetch('/api/demo/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: authData.user.id }),
+        method: 'POST'
       });
 
       const data = await res.json();

@@ -1,16 +1,20 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/utils/supabase/server';
 
 // TODO: Reemplazar por el ID real cuando el usuario lo provea
 const TEMPLATE_COMPANY_ID = '3c3cb849-06c8-4250-b4cf-9375422684a6';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await req.json();
+    const supabaseServer = await createServerClient();
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     // Usar Service Role para bypass RLS al crear la empresa
     const supabaseAdmin = createClient(
