@@ -118,3 +118,45 @@ export async function deleteStaffAction(id: string) {
   revalidatePath('/dashboard/trabajadoras');
   return { success: true };
 }
+
+export async function getStaffSchedulesAction(staffId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('spa_staff_schedules')
+    .select('*')
+    .eq('staff_id', staffId)
+    .order('day_of_week', { ascending: true });
+    
+  if (error) {
+    console.error('Error fetching staff schedules:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function upsertStaffSchedulesAction(staffId: string, schedules: any[]) {
+  const supabase = await createClient();
+  const { data: profile } = await supabase.from('profiles').select('company_id').single();
+  if (!profile?.company_id) return { error: 'No autorizado' };
+
+  // Eliminar los horarios anteriores para este staff (sobreescribir)
+  await supabase.from('spa_staff_schedules').delete().eq('staff_id', staffId);
+
+  // Insertar los nuevos
+  if (schedules.length > 0) {
+    const schedulesToInsert = schedules.map(sch => ({
+      company_id: profile.company_id,
+      staff_id: staffId,
+      day_of_week: sch.day_of_week,
+      start_time: sch.start_time,
+      end_time: sch.end_time,
+      is_working: sch.is_working
+    }));
+
+    const { error } = await supabase.from('spa_staff_schedules').insert(schedulesToInsert);
+    if (error) return { error: 'Error guardando horarios: ' + error.message };
+  }
+
+  revalidatePath('/dashboard/trabajadoras');
+  return { success: true };
+}

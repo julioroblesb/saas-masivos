@@ -35,13 +35,14 @@ export interface SpaVisit {
   company_id: string;
   contact_id: string;
   service_id: string;
-  status: 'en_curso' | 'completado' | 'cancelado';
+  status: 'agendado' | 'en_curso' | 'completado' | 'cancelado';
   visit_date: string;
   completed_at?: string;
   notes?: string;
   price_charged?: number;
   payment_status?: 'pagado' | 'parcial' | 'pendiente';
   scheduled_date?: string;
+  duration_minutes?: number;
   follow_up_date?: string;
   debt_due_date?: string;
   follow_up_sent: boolean;
@@ -115,4 +116,24 @@ export interface AutoMessageSettings {
   followUpTemplate: string;
   birthdayEnabled: boolean;
   birthdayTemplate: string;
+}
+
+export interface SpaStaffSchedule {
+  id: string;
+  company_id: string;
+  staff_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_working: boolean;
+}
+
+export interface SpaStaffBlock {
+  id: string;
+  company_id: string;
+  staff_id: string;
+  block_date: string;
+  start_time: string;
+  end_time: string;
+  reason?: string;
 }

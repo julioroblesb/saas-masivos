@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, UserPlus } from 'lucide-react';
+import { Plus, Edit2, Trash2, UserPlus, Calendar } from 'lucide-react';
 import { getStaffListAction, upsertStaffAction, deleteStaffAction } from './actions';
 import { SpaStaff } from '@/types/crm';
 import { supabase } from '@/shared/utils/supabase';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
+import { ScheduleConfigModal } from './ScheduleConfigModal';
 
 const MySwal = withReactContent(Swal);
 
@@ -16,6 +17,8 @@ export default function TrabajadorasView() {
   const [services, setServices] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduleStaff, setScheduleStaff] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState<{
     id?: string;
     name: string;
@@ -184,6 +187,16 @@ export default function TrabajadorasView() {
                         <button className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" onClick={() => handleOpenModal(staff)}>
                           <Edit2 size={16} />
                         </button>
+                        <button 
+                          className="p-2 text-zinc-500 hover:text-secondary hover:bg-secondary/10 rounded-lg transition-colors" 
+                          title="Configurar Horario"
+                          onClick={() => {
+                            setScheduleStaff({ id: staff.id, name: staff.name });
+                            setIsScheduleModalOpen(true);
+                          }}
+                        >
+                          <Calendar size={16} />
+                        </button>
                         <button className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors" onClick={() => handleDelete(staff.id)}>
                           <Trash2 size={16} />
                         </button>
@@ -293,6 +306,17 @@ export default function TrabajadorasView() {
             </div>
           </div>
         </div>
+      )}
+
+      {isScheduleModalOpen && scheduleStaff && (
+        <ScheduleConfigModal 
+          staffId={scheduleStaff.id}
+          staffName={scheduleStaff.name}
+          onClose={() => {
+            setIsScheduleModalOpen(false);
+            setScheduleStaff(null);
+          }}
+        />
       )}
     </div>
   );
