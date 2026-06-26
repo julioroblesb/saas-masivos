@@ -170,55 +170,68 @@ export default function SpaProductsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
         {products.length === 0 ? (
-          <div className="col-span-full rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light text-center py-12">
-            <Package className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
-            <p className="text-zinc-500 dark:text-zinc-400">No tienes productos registrados.</p>
+          <div className="col-span-full rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
+            <Package className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-6 opacity-50" />
+            <p className="text-zinc-500 dark:text-zinc-400 text-lg font-medium">No tienes productos registrados.</p>
           </div>
         ) : (
           products.map(product => (
-            <div key={product.id} className="rounded-3xl bg-white dark:bg-dark p-0 relative overflow-hidden group hover:shadow-lg transition-[transform,box-shadow,background-color] duration-300 border border-black-light dark:border-dark-light flex flex-col">
-              <div className="h-48 w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center relative overflow-hidden">
+            <div key={product.id} className="group relative flex flex-col">
+              
+              {/* Image Container (Editorial edge-to-edge style, borderless) */}
+              <div className="aspect-[4/5] w-full bg-zinc-100 dark:bg-zinc-900 rounded-2xl flex items-center justify-center relative overflow-hidden mb-5">
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" />
                 ) : (
-                  <Package className="w-12 h-12 text-zinc-300 dark:text-zinc-600" />
+                  <Package className="w-16 h-16 text-zinc-300 dark:text-zinc-700" />
                 )}
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(product)} className="p-1.5 bg-white text-primary rounded-md shadow hover:bg-zinc-50">
+                
+                {/* Actions overlayed cleanly on hover */}
+                <div className="absolute inset-0 bg-black/5 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-2 group-hover:translate-x-0">
+                  <button onClick={() => openEdit(product)} className="p-2.5 bg-white/90 backdrop-blur-sm text-black rounded-full shadow-lg hover:scale-110 hover:bg-white transition-all pointer-events-auto">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(product.id)} className="p-1.5 bg-white text-danger rounded-md shadow hover:bg-zinc-50">
+                  <button onClick={() => handleDelete(product.id)} className="p-2.5 bg-white/90 backdrop-blur-sm text-danger rounded-full shadow-lg hover:scale-110 hover:bg-white transition-all pointer-events-auto">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
+
                 {!product.is_active && (
-                  <div className="absolute top-2 left-2 badge bg-danger/90 text-white text-xs">
-                    Inactivo
+                  <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full">
+                    Agotado / Inactivo
                   </div>
                 )}
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
-                <h3 className="text-lg font-bold tracking-tight text-black dark:text-white mb-2">{product.name}</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">
-                  {product.description || 'Sin descripción'}
+              {/* Clean Typography below */}
+              <div className="flex flex-col flex-1 px-1">
+                <div className="flex justify-between items-start gap-4 mb-2">
+                  <h3 className="text-xl font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                  <span className="text-lg font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
+                </div>
+                
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 font-medium leading-relaxed">
+                  {product.description || 'Sin descripción detallada.'}
                 </p>
                 
-                <div className="flex items-center justify-between border-t border-black-light dark:border-dark-light pt-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
-                    <p className="text-xl font-bold tracking-tight text-primary">S/ {product.price}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Stock</p>
-                    <p className={`text-sm font-bold tracking-tight ${product.stock <= 5 ? 'text-danger' : 'text-success'}`}>
-                      {product.stock} un.
-                    </p>
-                  </div>
+                <div className="mt-auto pt-2 flex items-center">
+                   {product.stock > 0 ? (
+                      <span className={`text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 ${product.stock <= 5 ? 'text-warning' : 'text-zinc-400'}`}>
+                         <span className={`w-1.5 h-1.5 rounded-full ${product.stock <= 5 ? 'bg-warning' : 'bg-zinc-300 dark:bg-zinc-600'}`}></span>
+                         {product.stock} disponibles
+                      </span>
+                   ) : (
+                      <span className="text-xs font-bold uppercase tracking-widest text-danger flex items-center gap-1.5">
+                         <span className="w-1.5 h-1.5 rounded-full bg-danger"></span>
+                         Sin stock
+                      </span>
+                   )}
                 </div>
               </div>
+
             </div>
           ))
         )}

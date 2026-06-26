@@ -78,6 +78,13 @@ export function AtencionesManager({
   const [newPatient, setNewPatient] = useState({ name: '', phone: '' });
   
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset page when search or tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, activeTab, pageSize]);
 
   // Handle service selection to auto-fill price
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -301,6 +308,11 @@ export function AtencionesManager({
     }, {});
 
   const historyVisits = filteredVisits.filter(v => v.status === 'completado' || v.status === 'cancelado' || v.status === 'no_asistio');
+  const totalPages = Math.ceil(historyVisits.length / pageSize) || 1;
+  const paginatedHistory = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return historyVisits.slice(start, start + pageSize);
+  }, [historyVisits, currentPage, pageSize]);
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -603,7 +615,7 @@ export function AtencionesManager({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                  {historyVisits.map((visit: any) => (
+                  {paginatedHistory.map((visit: any) => (
                     <tr key={visit.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                       <td className="p-4 text-black dark:text-white font-medium">{new Date(visit.scheduled_date || visit.visit_date).toLocaleString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                       <td className="p-4">
@@ -644,6 +656,49 @@ export function AtencionesManager({
               </table>
             )}
           </div>
+          {historyVisits.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">Mostrar</span>
+                <select 
+                  className="form-select text-sm rounded-lg border-black-light dark:border-dark-light bg-white dark:bg-dark py-1 pl-2 pr-8"
+                  value={pageSize}
+                  onChange={e => setPageSize(Number(e.target.value))}
+                >
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                  <option value={30}>30</option>
+                  <option value={50}>50</option>
+                </select>
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">filas</span>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Página {currentPage} de {totalPages} ({historyVisits.length} total)
+                </span>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-1.5 rounded-lg border border-black-light dark:border-dark-light hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="sr-only">Anterior</span>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-1.5 rounded-lg border border-black-light dark:border-dark-light hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="sr-only">Siguiente</span>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

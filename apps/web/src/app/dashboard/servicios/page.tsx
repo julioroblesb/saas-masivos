@@ -174,53 +174,64 @@ export default function SpaServicesPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col">
         {services.length === 0 ? (
-          <div className="col-span-full rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light text-center py-12">
-            <Scissors className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" />
-            <p className="text-zinc-500 dark:text-zinc-400">No tienes servicios registrados.</p>
+          <div className="rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
+            <Scissors className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-6 opacity-50" />
+            <p className="text-zinc-500 dark:text-zinc-400 text-lg font-medium">El catálogo está vacío.</p>
           </div>
         ) : (
-          services.map(service => (
-            <div key={service.id} className="rounded-3xl bg-white dark:bg-dark p-5 relative overflow-hidden group hover:shadow-lg transition-[transform,box-shadow,background-color] duration-300 border border-black-light dark:border-dark-light">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">{service.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    {service.is_active ? (
-                      <span className="badge bg-success/10 text-success text-xs flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Activo</span>
-                    ) : (
-                      <span className="badge bg-danger/10 text-danger text-xs flex items-center gap-1"><XCircle className="w-3 h-3"/> Inactivo</span>
+          <div className="divide-y divide-black-light/50 dark:divide-dark-dark-light">
+            {services.map(service => (
+              <div key={service.id} className="group py-10 first:pt-4 flex flex-col md:flex-row md:items-start justify-between gap-8 transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 -mx-6 px-6 rounded-3xl">
+                
+                {/* Info Column */}
+                <div className="flex-1 max-w-2xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-3xl font-extrabold tracking-tight text-black dark:text-white group-hover:text-primary transition-colors">{service.name}</h3>
+                    {!service.is_active && (
+                      <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-[10px] font-bold uppercase tracking-widest">Inactivo</span>
                     )}
                   </div>
+                  
+                  <p className="text-lg text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium mb-6">
+                    {service.description || 'Sin descripción detallada.'}
+                  </p>
+                  
+                  {service.duration_days > 0 && (
+                     <div className="flex items-center gap-2 text-sm text-zinc-400 font-medium">
+                        <Clock className="w-4 h-4" /> Seguimiento post-servicio a los {service.duration_days} días
+                     </div>
+                  )}
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(service)} className="p-1.5 text-primary hover:bg-primary/10 rounded-md">
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => handleDelete(service.id)} className="p-1.5 text-danger hover:bg-danger/10 rounded-md">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+
+                {/* Price & Actions Column */}
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-6 min-w-[200px]">
+                  <div className="text-left md:text-right">
+                    <div className="flex items-baseline md:justify-end gap-1">
+                      <span className="text-sm font-semibold text-zinc-400">S/</span>
+                      <span className="text-4xl font-bold tracking-tighter text-black dark:text-white">{service.price}</span>
+                    </div>
+                    {service.promo_price && (
+                       <div className="mt-1 text-sm font-bold text-success flex items-center md:justify-end gap-1">
+                          <Tag className="w-3 h-3" /> Promo S/ {service.promo_price}
+                       </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openEdit(service)} className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-primary hover:text-white transition-all shadow-sm">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDelete(service.id)} className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-danger hover:text-white transition-all shadow-sm">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
+
               </div>
-              
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 h-10">
-                {service.description || 'Sin descripción'}
-              </p>
-              
-              <div className="flex items-end justify-between border-t border-black-light dark:border-dark-light pt-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Precio</p>
-                  <p className="text-xl font-bold tracking-tight text-primary">S/ {service.price}</p>
-                  {service.promo_price && <p className="text-xs text-success font-semibold tracking-wide">Promo: S/ {service.promo_price}</p>}
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Duración Cuidados</p>
-                  <p className="text-sm font-semibold text-black dark:text-white">{service.duration_days} días</p>
-                </div>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
