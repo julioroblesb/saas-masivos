@@ -2,8 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { EventData, STATUS, Step } from 'react-joyride';
+import { createClient } from '@/utils/supabase/client';
+import dynamic from 'next/dynamic';
+
+const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.Joyride), {
+    ssr: false,
+});
 
 export default function DemoTour() {
     const [isDemo, setIsDemo] = useState(false);
@@ -11,7 +16,7 @@ export default function DemoTour() {
     const [stepIndex, setStepIndex] = useState(0);
     const pathname = usePathname();
     const router = useRouter();
-    const supabase = createClientComponentClient();
+    const supabase = createClient();
 
     const [mounted, setMounted] = useState(false);
 
@@ -50,19 +55,19 @@ export default function DemoTour() {
                 </div>
             ),
             placement: 'center',
-            disableBeacon: true,
+            skipBeacon: true,
         },
         {
             target: '.nav-atenciones',
             content: 'Primero, entra a la sección de Atenciones (Agenda). Aquí es donde manejarás las citas.',
             placement: 'right',
-            disableBeacon: true,
+            skipBeacon: true,
         },
         {
             target: '.btn-nueva-atencion',
             content: 'Haz clic aquí para registrar una nueva atención o cita. Esto simulará a un prospecto nuevo.',
             placement: 'bottom',
-            disableBeacon: true,
+            skipBeacon: true,
         },
         {
             target: '.form-nueva-atencion',
@@ -76,7 +81,7 @@ export default function DemoTour() {
         }
     ];
 
-    const handleJoyrideCallback = (data: CallBackProps) => {
+    const handleJoyrideCallback = (data: EventData) => {
         const { status, type, index, action } = data;
 
         if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
@@ -114,20 +119,19 @@ export default function DemoTour() {
             run={run}
             stepIndex={stepIndex}
             continuous={true}
-            showSkipButton={true}
-            showProgress={true}
-            hideCloseButton={true}
-            disableOverlayClose={true}
-            spotlightClicks={true}
+            options={{
+                zIndex: 10000,
+                primaryColor: '#e11d48', // pink-600
+                textColor: '#334155',
+                backgroundColor: '#ffffff',
+                overlayColor: 'rgba(0, 0, 0, 0.6)',
+                showProgress: true,
+                buttons: ['back', 'primary', 'skip'],
+                overlayClickAction: false,
+                blockTargetInteraction: false,
+            }}
             styles={{
-                options: {
-                    zIndex: 10000,
-                    primaryColor: '#e11d48', // pink-600
-                    textColor: '#334155',
-                    backgroundColor: '#ffffff',
-                    overlayColor: 'rgba(0, 0, 0, 0.6)',
-                },
-                buttonNext: {
+                buttonPrimary: {
                     backgroundColor: '#e11d48',
                     borderRadius: '8px',
                     padding: '8px 16px',
@@ -150,7 +154,7 @@ export default function DemoTour() {
                 next: 'Siguiente',
                 skip: 'Saltar Tour',
             }}
-            callback={handleJoyrideCallback}
+            onEvent={handleJoyrideCallback}
         />
     );
 }

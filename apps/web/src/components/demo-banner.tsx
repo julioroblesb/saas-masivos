@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/client';
 import IconMessage from '@/components/icon/icon-message';
 
 export default function DemoBanner() {
     const [isDemo, setIsDemo] = useState(false);
-    const supabase = createClientComponentClient();
+    const supabase = createClient();
 
     useEffect(() => {
         const checkDemo = async () => {
