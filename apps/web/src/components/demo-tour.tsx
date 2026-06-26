@@ -65,14 +65,9 @@ export default function DemoTour() {
         },
         {
             target: '.btn-nueva-atencion',
-            content: 'Haz clic aquí para registrar una nueva atención o cita. Esto simulará a un prospecto nuevo.',
+            content: 'Haz clic en "Nueva Atención" para registrar una cita. Rellena los datos de prueba y guárdalos; esto activará los mensajes automáticos y lo agregará al CRM.',
             placement: 'bottom',
             skipBeacon: true,
-        },
-        {
-            target: '.form-nueva-atencion',
-            content: 'Rellena tus datos reales o de prueba. Al guardar, el sistema activará los mensajes automáticos y lo agregará al CRM.',
-            placement: 'top',
         },
         {
             target: '.nav-mensajeria',
@@ -90,24 +85,19 @@ export default function DemoTour() {
             return;
         }
 
-        // Si el usuario avanza de paso, controlamos la navegación si es necesario
-        if (type === 'step:after' && action === 'next') {
-            if (index === 0) {
-                // Ir a atenciones si no está
-                if (pathname !== '/dashboard/atenciones') {
-                    router.push('/dashboard/atenciones');
+        if (type === 'step:after') {
+            if (action === 'next') {
+                if (index === 0) {
+                    if (pathname !== '/dashboard/atenciones') {
+                        router.push('/dashboard/atenciones');
+                    }
+                } else if (index === 2) {
+                    router.push('/dashboard/mensajeria');
                 }
+                setStepIndex(index + 1);
+            } else if (action === 'prev') {
+                setStepIndex(index - 1);
             }
-            else if (index === 1) {
-                // El usuario debe hacer clic en "Nueva Atención"
-                // Idealmente el step 2 apunta al botón en /dashboard/atenciones
-            }
-            else if (index === 3) {
-                // Sugerirle ir a mensajería
-                router.push('/dashboard/mensajeria');
-            }
-            
-            setStepIndex(index + 1);
         }
     };
 
