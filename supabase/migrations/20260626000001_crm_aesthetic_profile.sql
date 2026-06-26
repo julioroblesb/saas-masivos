@@ -119,7 +119,7 @@ CREATE OR REPLACE FUNCTION rpc_upsert_marketing_contact(
     p_allergies_and_conditions text DEFAULT NULL,
     p_preferences text DEFAULT NULL,
     p_internal_notes text DEFAULT NULL
-) RETURNS jsonb SET search_path = public, pg_temp AS $$$
+) RETURNS jsonb SET search_path = public, pg_temp AS $$
 DECLARE 
     v_company_id uuid; 
     v_contact_id uuid;
@@ -147,7 +147,7 @@ BEGIN
 
     RETURN jsonb_build_object('success', true, 'id', v_contact_id);
 END;
-$$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 
@@ -175,7 +175,7 @@ RETURNS TABLE (
     customer_segment text,
     last_visit_at timestamptz, 
     last_service_name text
-) SET search_path = public, pg_temp AS $$$
+) SET search_path = public, pg_temp AS $$
 DECLARE v_company_id uuid;
 BEGIN
     SELECT company_id INTO v_company_id FROM profiles WHERE profiles.id = auth.uid();
@@ -207,5 +207,5 @@ BEGIN
     GROUP BY c.id
     ORDER BY c.created_at DESC;
 END;
-$$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
