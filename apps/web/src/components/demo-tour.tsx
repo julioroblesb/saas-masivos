@@ -101,21 +101,43 @@ export default function DemoTour() {
         },
         {
             target: '.btn-actions-atencion',
-            content: '¡Cita registrada! Haz clic en los tres puntitos para ver las opciones de esta atención.',
+            content: '¡Cita registrada! Pasa el mouse sobre los tres puntitos para ver las opciones de esta atención.',
             placement: 'left',
             spotlightClicks: true,
-            hideFooter: true,
+            hideBackButton: true,
         },
         {
             target: '.btn-completar-atencion',
             content: 'Ahora marca esta cita como "Completar Servicio".',
             placement: 'left',
             spotlightClicks: true,
-            hideFooter: true,
+            hideBackButton: true,
+        },
+        {
+            target: '.btn-completar-submit',
+            content: 'Confirma el detalle haciendo clic en "Completar Atención".',
+            placement: 'bottom',
+            spotlightClicks: true,
+            hideBackButton: true,
+        },
+        {
+            target: 'body',
+            content: (
+                <div className="text-left space-y-2">
+                    <p className="font-bold text-lg mb-2">¡Cita Completada! 🎉</p>
+                    <p>Al completar el servicio, ocurren 3 cosas automáticamente:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                        <li>Se registra al cliente y su fecha de última atención.</li>
+                        <li>Recibe un <strong>WhatsApp de agradecimiento</strong> en minutos.</li>
+                        <li>Se programa un <strong>recordatorio automático</strong> para su próxima sesión de mantenimiento, fidelizándolo para que regrese.</li>
+                    </ul>
+                </div>
+            ),
+            placement: 'center',
         },
         {
             target: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'body' : '.nav-mensajeria',
-            content: 'Finalmente, entra a Mensajería. En unos minutos recibirás un mensaje automático por WhatsApp para que puedas revisar el resto del sistema.',
+            content: 'Finalmente, entra a Mensajería para que puedas revisar el resto del sistema.',
             placement: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'center' : 'right',
         }
     ];
@@ -154,6 +176,11 @@ export default function DemoTour() {
                 setTimeout(() => {
                     setStepIndex(8);
                 }, 800);
+            }
+            else if (stepIndex === 8 && target.closest('.btn-completar-submit')) {
+                setTimeout(() => {
+                    setStepIndex(9);
+                }, 1200); // Wait for modal to close
             }
         };
 
@@ -200,9 +227,15 @@ export default function DemoTour() {
                 } else if (index === 7) { // .btn-completar-atencion
                     (document.querySelector('.btn-completar-atencion') as HTMLElement)?.click();
                     setTimeout(() => setStepIndex(8), 800);
-                } else if (index === 8) { // .nav-mensajeria
+                } else if (index === 8) { // .btn-completar-submit
+                    (document.querySelector('.btn-completar-submit') as HTMLElement)?.click();
+                    setTimeout(() => setStepIndex(9), 1200);
+                } else if (index === 9) { // informative body step
                     router.push('/dashboard/mensajeria');
-                    setStepIndex(9);
+                    setStepIndex(10);
+                } else if (index === 10) { // .nav-mensajeria
+                    // Reached the end manually, we can just finish
+                    setStepIndex(11);
                 }
             } else if (action === 'prev') {
                 setStepIndex(index - 1);

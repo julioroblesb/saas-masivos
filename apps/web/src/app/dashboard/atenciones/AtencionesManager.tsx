@@ -903,7 +903,7 @@ export function AtencionesManager({
                   Cancelar
                 </button>
                 <button 
-                  className="btn btn-success rounded-xl px-8 text-white"
+                  className="btn btn-success btn-completar-submit rounded-xl px-8 text-white"
                   onClick={handleCompleteSubmit}
                   disabled={isSubmitting}
                 >
