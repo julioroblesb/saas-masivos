@@ -7,8 +7,16 @@
 ALTER TABLE spa_visits 
   ADD COLUMN IF NOT EXISTS duration_minutes INTEGER DEFAULT 60;
 
--- Quitar cualquier constraint anterior de status y volver a crearlo
+-- Quitar cualquier constraint anterior de status
 ALTER TABLE spa_visits DROP CONSTRAINT IF EXISTS spa_visits_status_check;
+
+-- Normalizar cualquier estado desconocido a 'agendado' para evitar errores de restricción
+UPDATE spa_visits 
+SET status = 'agendado' 
+WHERE status NOT IN ('agendado', 'en_curso', 'completado', 'cancelado') 
+   OR status IS NULL;
+
+-- Volver a crear el constraint
 ALTER TABLE spa_visits ADD CONSTRAINT spa_visits_status_check 
   CHECK (status IN ('agendado', 'en_curso', 'completado', 'cancelado'));
 
