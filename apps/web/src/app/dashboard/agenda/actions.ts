@@ -16,7 +16,7 @@ const getCompanyId = async () => {
       return { error: 'No user session found' };
     }
     
-    const { data: profile, error: profileError } = await supabase.from('spa_profiles').select('company_id').eq('user_id', user.id).single();
+    const { data: profile, error: profileError } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
     if (profileError) {
       console.error('getCompanyId - Profile Error:', profileError);
       return { error: 'Profile Error: ' + profileError.message };
