@@ -35,7 +35,7 @@ export interface SpaVisit {
   company_id: string;
   contact_id: string;
   service_id: string;
-  status: 'agendado' | 'en_curso' | 'completado' | 'cancelado';
+  status: 'agendado' | 'en_curso' | 'completado' | 'cancelado' | 'no_asistio';
   visit_date: string;
   completed_at?: string;
   notes?: string;

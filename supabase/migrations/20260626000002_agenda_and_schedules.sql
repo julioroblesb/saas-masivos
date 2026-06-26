@@ -10,15 +10,12 @@ ALTER TABLE spa_visits
 -- Quitar cualquier constraint anterior de status
 ALTER TABLE spa_visits DROP CONSTRAINT IF EXISTS spa_visits_status_check;
 
--- Normalizar cualquier estado desconocido a 'agendado' para evitar errores de restricción
-UPDATE spa_visits 
-SET status = 'agendado' 
-WHERE status NOT IN ('agendado', 'en_curso', 'completado', 'cancelado') 
-   OR status IS NULL;
+-- Normalizar el error de dedo en la base de datos ('agendada' -> 'agendado')
+UPDATE spa_visits SET status = 'agendado' WHERE status = 'agendada';
 
--- Volver a crear el constraint
+-- Volver a crear el constraint incluyendo el estado 'no_asistio'
 ALTER TABLE spa_visits ADD CONSTRAINT spa_visits_status_check 
-  CHECK (status IN ('agendado', 'en_curso', 'completado', 'cancelado'));
+  CHECK (status IN ('agendado', 'en_curso', 'completado', 'cancelado', 'no_asistio'));
 
 -- 2. Crear tabla spa_staff_schedules (Disponibilidad semanal recurrente)
 CREATE TABLE IF NOT EXISTS spa_staff_schedules (
