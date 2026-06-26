@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { SpaVisit, SpaService } from '@/types/spa';
-import { SpaStaff, CrmMarketingContact } from '@/types/crm';
+import { SpaStaff, CRMMarketingContact } from '@/types/crm';
 import { 
   Calendar as CalendarIcon, 
   Kanban, 
