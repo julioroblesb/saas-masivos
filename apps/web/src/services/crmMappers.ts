@@ -12,10 +12,15 @@ export function mapMarketingContactFromDB(row: DBMarketingContactRow): CRMMarket
     name: row.name || undefined,
     email: row.email || undefined,
     birthday: row.birthday || undefined,
-    notes: row.notes || undefined,
+    allergiesAndConditions: row.allergies_and_conditions || undefined,
+    preferences: row.preferences || undefined,
+    internalNotes: row.internal_notes || undefined,
+    totalSpent: row.total_spent ? Number(row.total_spent) : 0,
+    totalVisits: row.total_visits || 0,
+    lastVisitDate: row.last_visit_date || undefined,
+    customerSegment: row.customer_segment || 'Nuevo',
     tags: row.tags || [],
     createdAt: row.created_at,
-    totalVisits: row.total_visits || 0,
     lastServiceName: row.last_service_name || undefined
   };
 }

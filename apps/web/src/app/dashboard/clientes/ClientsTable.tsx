@@ -19,10 +19,14 @@ interface ClientMetric {
   created_at: string;
   email?: string | null;
   birthday?: string | null;
-  notes?: string | null;
+  allergies_and_conditions?: string | null;
+  preferences?: string | null;
+  internal_notes?: string | null;
+  total_spent?: number;
   total_visits?: number;
   last_visit_at?: string | null;
   last_service_name?: string | null;
+  customer_segment?: 'VIP' | 'Frecuente' | 'Nuevo' | 'En Riesgo' | 'Perdido' | 'Ocasional';
 }
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
@@ -44,7 +48,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     name: '',
     email: '',
     birthday: '',
-    notes: ''
+    allergiesAndConditions: '',
+    preferences: '',
+    internalNotes: ''
   });
 
   // Formatting dates
@@ -87,7 +93,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         name: client.name || '',
         email: client.email || '',
         birthday: client.birthday || '',
-        notes: client.notes || ''
+        allergiesAndConditions: client.allergies_and_conditions || '',
+        preferences: client.preferences || '',
+        internalNotes: client.internal_notes || ''
       });
     } else {
       setForm({
@@ -96,7 +104,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         name: '',
         email: '',
         birthday: '',
-        notes: ''
+        allergiesAndConditions: '',
+        preferences: '',
+        internalNotes: ''
       });
     }
     setIsModalOpen(true);
@@ -139,7 +149,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       name: form.name,
       email: form.email,
       birthday: form.birthday,
-      notes: form.notes
+      allergiesAndConditions: form.allergiesAndConditions,
+      preferences: form.preferences,
+      internalNotes: form.internalNotes
     });
     
     if (res.error) {
@@ -205,8 +217,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             <tr className="border-b border-black-light dark:border-dark-light">
               <th className="py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cliente</th>
               <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Contacto</th>
-              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Cumpleaños</th>
-              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Atenciones</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Segmento</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Visitas</th>
+              <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">LTV</th>
               <th className="text-left py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Último Servicio</th>
               <th className="text-right py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">Acciones</th>
             </tr>
@@ -238,9 +251,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       </div>
                       <div>
                         <div className="font-semibold text-black dark:text-white">{client.name || 'Sin nombre'}</div>
-                        {client.notes && (
-                          <div className="text-xs text-zinc-500 truncate max-w-[200px]" title={client.notes}>
-                            {client.notes}
+                        {client.birthday && (
+                          <div className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
+                            <Calendar className="w-3 h-3" /> {client.birthday}
                           </div>
                         )}
                       </div>
@@ -258,13 +271,22 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     </div>
                   </td>
                   <td className="py-4 px-4 text-center">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white-light dark:bg-zinc-800 text-black dark:text-white text-sm font-medium">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {client.birthday || '-'}
-                    </div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
+                      ${client.customer_segment === 'VIP' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' : ''}
+                      ${client.customer_segment === 'Frecuente' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' : ''}
+                      ${client.customer_segment === 'Nuevo' ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' : ''}
+                      ${client.customer_segment === 'En Riesgo' ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' : ''}
+                      ${client.customer_segment === 'Perdido' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' : ''}
+                      ${client.customer_segment === 'Ocasional' || !client.customer_segment ? 'bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700' : ''}
+                    `}>
+                      {client.customer_segment || 'Ocasional'}
+                    </span>
                   </td>
                   <td className="py-4 px-4 text-center">
                     <span className="font-semibold text-black dark:text-white text-lg">{client.total_visits || 0}</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">${client.total_spent || 0}</span>
                   </td>
                   <td className="py-4 px-4">
                     {client.last_service_name ? (
@@ -373,16 +395,42 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   />
                 </div>
 
-                <div className="space-y-4 col-span-1 md:col-span-2">
+                <div className="space-y-4 md:col-span-2">
                   <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-primary" /> Notas Adicionales
+                    <FileText className="w-4 h-4 text-danger" /> Alergias y Condiciones Médicas
                   </label>
                   <textarea 
-                    rows={3}
-                    placeholder="Detalles médicos, preferencias, etc." 
+                    rows={2}
+                    placeholder="Ej: Rosácea, alergia a almendras, marcapasos..." 
+                    className="form-textarea rounded-xl border-black-light dark:border-dark-light focus:border-danger focus:ring-danger shadow-sm w-full"
+                    value={form.allergiesAndConditions}
+                    onChange={e => setForm({ ...form, allergiesAndConditions: e.target.value })}
+                  ></textarea>
+                </div>
+
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" /> Preferencias del Cliente
+                  </label>
+                  <textarea 
+                    rows={2}
+                    placeholder="Ej: Presión de masaje fuerte, café sin azúcar..." 
                     className="form-textarea rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm w-full"
-                    value={form.notes}
-                    onChange={e => setForm({ ...form, notes: e.target.value })}
+                    value={form.preferences}
+                    onChange={e => setForm({ ...form, preferences: e.target.value })}
+                  ></textarea>
+                </div>
+
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-zinc-500" /> Notas Internas (Staff)
+                  </label>
+                  <textarea 
+                    rows={2}
+                    placeholder="Apuntes libres de los terapeutas..." 
+                    className="form-textarea rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm w-full"
+                    value={form.internalNotes}
+                    onChange={e => setForm({ ...form, internalNotes: e.target.value })}
                   ></textarea>
                 </div>
 

@@ -55,16 +55,21 @@ export async function upsertContactAction(payload: {
   name?: string;
   email?: string;
   birthday?: string;
-  notes?: string;
+  allergiesAndConditions?: string;
+  preferences?: string;
+  internalNotes?: string;
 }) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', {
     p_phone: payload.phone,
     p_name: payload.name || null,
     p_tags: ['cliente'],
+    p_opt_in_source: null,
     p_email: payload.email || null,
     p_birthday: payload.birthday || null,
-    p_notes: payload.notes || null
+    p_allergies_and_conditions: payload.allergiesAndConditions || null,
+    p_preferences: payload.preferences || null,
+    p_internal_notes: payload.internalNotes || null
   });
   
   if (error) {

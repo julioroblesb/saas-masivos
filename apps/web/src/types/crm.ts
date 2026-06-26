@@ -4,10 +4,15 @@ export interface CRMMarketingContact {
   name?: string;
   email?: string;
   birthday?: string;
-  notes?: string;
+  allergiesAndConditions?: string;
+  preferences?: string;
+  internalNotes?: string;
+  totalSpent?: number;
+  totalVisits?: number;
+  lastVisitDate?: string;
+  customerSegment?: 'VIP' | 'Frecuente' | 'Nuevo' | 'En Riesgo' | 'Perdido' | 'Ocasional';
   tags: string[];
   createdAt: string;
-  totalVisits?: number;
   lastServiceName?: string;
 }
 
