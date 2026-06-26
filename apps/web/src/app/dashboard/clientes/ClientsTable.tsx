@@ -92,6 +92,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         phone: client.phone,
         name: client.name || '',
         email: client.email || '',
+        documentNumber: client.document_number || '',
         birthday: client.birthday || '',
         allergiesAndConditions: client.allergies_and_conditions || '',
         preferences: client.preferences || '',
@@ -103,6 +104,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         phone: '',
         name: '',
         email: '',
+        documentNumber: '',
         birthday: '',
         allergiesAndConditions: '',
         preferences: '',
@@ -148,6 +150,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       phone: form.phone,
       name: form.name,
       email: form.email,
+      documentNumber: form.documentNumber,
       birthday: form.birthday,
       allergiesAndConditions: form.allergiesAndConditions,
       preferences: form.preferences,
@@ -369,6 +372,19 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     value={form.phone}
                     onChange={e => setForm({ ...form, phone: e.target.value })}
                     disabled={!!form.id} // Prevents changing phone if it's the primary key for upsert
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" /> DNI
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="Ej: 12345678" 
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
+                    value={form.documentNumber}
+                    onChange={e => setForm({ ...form, documentNumber: e.target.value })}
                   />
                 </div>
 

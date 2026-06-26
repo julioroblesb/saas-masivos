@@ -58,6 +58,7 @@ export async function upsertContactAction(payload: {
   allergiesAndConditions?: string;
   preferences?: string;
   internalNotes?: string;
+  documentNumber?: string;
 }) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', {
@@ -69,7 +70,8 @@ export async function upsertContactAction(payload: {
     p_birthday: payload.birthday || null,
     p_allergies_and_conditions: payload.allergiesAndConditions || null,
     p_preferences: payload.preferences || null,
-    p_internal_notes: payload.internalNotes || null
+    p_internal_notes: payload.internalNotes || null,
+    p_document_number: payload.documentNumber || null
   });
   
   if (error) {

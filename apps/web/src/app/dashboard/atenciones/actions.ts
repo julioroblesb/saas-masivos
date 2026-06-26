@@ -239,6 +239,21 @@ export async function createVisitAction(payload: {
   // Determine payment status (siempre pendiente al inicio, no cobramos al crear)
   let payment_status = 'pendiente';
 
+  // Check overlap if staff is selected
+  if (payload.staff_id) {
+    const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
+      p_staff_id: payload.staff_id,
+      p_visit_date: visit_timestamp,
+      p_duration_minutes: 60
+    });
+    
+    if (overlapError) {
+      console.error('Overlap check failed:', overlapError);
+    } else if (hasOverlap) {
+      return { error: 'El especialista seleccionado ya tiene una cita agendada en ese horario. Por favor, selecciona otro especialista u otro horario.' };
+    }
+  }
+
   // Insert visit
   const { data, error } = await supabase
     .from('spa_visits')

@@ -116,6 +116,21 @@ export async function createVisitAction(data: {
 
     if (!finalContactId) return { error: 'Contact is required' };
 
+    // Check overlap if staff is selected
+    if (data.staff_id) {
+      const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
+        p_staff_id: data.staff_id,
+        p_visit_date: data.visit_date,
+        p_duration_minutes: data.duration_minutes
+      });
+      
+      if (overlapError) {
+        console.error('Overlap check failed:', overlapError);
+      } else if (hasOverlap) {
+        return { error: 'El especialista seleccionado ya tiene una cita agendada en ese horario. Por favor, selecciona otro especialista u otro horario.' };
+      }
+    }
+
     const { error } = await supabase
       .from('spa_visits')
       .insert({
