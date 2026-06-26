@@ -43,7 +43,7 @@ export default function DemoTour() {
         checkDemo();
     }, [supabase]);
 
-    const steps: Step[] = [
+    const steps: any[] = [
         {
             target: 'body',
             content: (
