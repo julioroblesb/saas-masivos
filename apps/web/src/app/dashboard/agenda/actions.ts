@@ -4,16 +4,39 @@ import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 const getCompanyId = async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await supabase.from('spa_profiles').select('company_id').eq('user_id', user.id).single();
-  return profile?.company_id || null;
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error('getCompanyId - Auth Error:', userError);
+      return { error: 'Auth Error: ' + userError.message };
+    }
+    if (!user) {
+      console.error('getCompanyId - No User Found');
+      return { error: 'No user session found' };
+    }
+    
+    const { data: profile, error: profileError } = await supabase.from('spa_profiles').select('company_id').eq('user_id', user.id).single();
+    if (profileError) {
+      console.error('getCompanyId - Profile Error:', profileError);
+      return { error: 'Profile Error: ' + profileError.message };
+    }
+    if (!profile?.company_id) {
+      console.error('getCompanyId - No Company ID in profile');
+      return { error: 'No company ID found for this user' };
+    }
+    
+    return { companyId: profile.company_id };
+  } catch (err: any) {
+    console.error('getCompanyId - Caught Exception:', err);
+    return { error: 'Exception: ' + err.message };
+  }
 };
 
 export async function getStaffAvailabilityAction(staffId: string, date: string) {
-  const companyId = await getCompanyId();
-  if (!companyId) return { error: 'No company context' };
+  const ctx = await getCompanyId();
+  if (ctx?.error) return { error: ctx.error };
+  const companyId = ctx.companyId;
 
   try {
     const [y, m, d] = date.split('-').map(Number);
@@ -67,8 +90,9 @@ export async function createVisitAction(data: {
   visit_date: string; // ISO string with time
   duration_minutes: number;
 }) {
-  const companyId = await getCompanyId();
-  if (!companyId) return { error: 'No company context' };
+  const ctx = await getCompanyId();
+  if (ctx?.error) return { error: ctx.error };
+  const companyId = ctx.companyId;
 
   try {
     const supabase = await createClient();
