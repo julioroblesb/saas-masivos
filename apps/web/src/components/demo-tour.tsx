@@ -58,9 +58,9 @@ export default function DemoTour() {
             skipBeacon: true,
         },
         {
-            target: '.nav-atenciones',
+            target: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'body' : '.nav-atenciones',
             content: 'Primero, entra a la sección de Atenciones (Agenda). Aquí manejarás las citas.',
-            placement: 'right',
+            placement: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'center' : 'right',
             skipBeacon: true,
         },
         {
@@ -69,8 +69,7 @@ export default function DemoTour() {
             placement: 'bottom',
             spotlightClicks: true,
             disableBeacon: true,
-            hideNext: true,
-            hideBackButton: true,
+            hideFooter: true,
         },
         {
             target: '.btn-nuevo-cliente',
@@ -78,8 +77,7 @@ export default function DemoTour() {
             placement: 'bottom',
             spotlightClicks: true,
             disableBeacon: true,
-            hideNext: true,
-            hideBackButton: true,
+            hideFooter: true,
         },
         {
             target: '.inputs-nuevo-cliente',
@@ -99,29 +97,26 @@ export default function DemoTour() {
             content: 'Simula elegir un servicio en la lista desplegable, y luego haz clic en "Registrar Atención".',
             placement: 'right',
             spotlightClicks: true,
-            hideNext: true,
-            hideBackButton: true,
+            hideFooter: true,
         },
         {
-            target: '.table-atenciones tbody tr:first-child .btn-actions-atencion',
+            target: '.btn-actions-atencion',
             content: '¡Cita registrada! Haz clic en los tres puntitos para ver las opciones de esta atención.',
             placement: 'left',
             spotlightClicks: true,
-            hideNext: true,
-            hideBackButton: true,
+            hideFooter: true,
         },
         {
             target: '.btn-completar-atencion',
             content: 'Ahora marca esta cita como "Completar Servicio".',
             placement: 'left',
             spotlightClicks: true,
-            hideNext: true,
-            hideBackButton: true,
+            hideFooter: true,
         },
         {
-            target: '.nav-mensajeria',
+            target: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'body' : '.nav-mensajeria',
             content: 'Finalmente, entra a Mensajería. En unos minutos recibirás un mensaje automático por WhatsApp para que puedas revisar el resto del sistema.',
-            placement: 'right',
+            placement: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'center' : 'right',
         }
     ];
 
