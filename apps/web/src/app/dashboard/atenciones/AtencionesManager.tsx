@@ -649,7 +649,7 @@ export function AtencionesManager({
 
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+        <div className="fixed inset-0 z-[999] flex items-start justify-center pt-[10vh] p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
           <div className="bg-white form-nueva-atencion dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
               <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">

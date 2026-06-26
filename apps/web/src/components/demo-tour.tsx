@@ -70,6 +70,7 @@ export default function DemoTour() {
             spotlightClicks: true,
             disableBeacon: true,
             hideNext: true,
+            hideBackButton: true,
         },
         {
             target: '.btn-nuevo-cliente',
@@ -78,12 +79,20 @@ export default function DemoTour() {
             spotlightClicks: true,
             disableBeacon: true,
             hideNext: true,
+            hideBackButton: true,
         },
         {
             target: '.inputs-nuevo-cliente',
-            content: 'Escribe tu nombre y tu celular. IMPORTANTE: Usa el código de país (ej: 51) seguido de tu número sin espacios ni símbolos (ej: 51987654321).',
+            content: (
+                <div className="text-left">
+                    <p className="mb-2"><strong>1.</strong> Escribe tu nombre.</p>
+                    <p><strong>2.</strong> En el teléfono, escribe el código <strong className="text-pink-600">51</strong> seguido de tu número (Ej: 51999888777). Todo junto, sin espacios ni símbolos.</p>
+                </div>
+            ),
             placement: 'bottom',
             spotlightClicks: true,
+            disableBeacon: true,
+            hideBackButton: true,
         },
         {
             target: '.select-servicio',
@@ -91,20 +100,23 @@ export default function DemoTour() {
             placement: 'right',
             spotlightClicks: true,
             hideNext: true,
+            hideBackButton: true,
         },
         {
-            target: '.btn-actions-atencion',
-            content: '¡Excelente! Ahora, abre el menú de acciones de la atención que acabas de crear (los 3 puntos).',
+            target: '.table-atenciones tbody tr:first-child .btn-actions-atencion',
+            content: '¡Cita registrada! Haz clic en los tres puntitos para ver las opciones de esta atención.',
             placement: 'left',
             spotlightClicks: true,
             hideNext: true,
+            hideBackButton: true,
         },
         {
             target: '.btn-completar-atencion',
-            content: '...y márcala como "Completar Servicio".',
+            content: 'Ahora marca esta cita como "Completar Servicio".',
             placement: 'left',
             spotlightClicks: true,
             hideNext: true,
+            hideBackButton: true,
         },
         {
             target: '.nav-mensajeria',
@@ -119,19 +131,34 @@ export default function DemoTour() {
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             if (stepIndex === 2 && target.closest('.btn-nueva-atencion')) {
-                setTimeout(() => setStepIndex(3), 400);
+                setTimeout(() => {
+                    setStepIndex(3);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 400); // After animation finishes
+                }, 400);
             }
             else if (stepIndex === 3 && target.closest('.btn-nuevo-cliente')) {
-                setTimeout(() => setStepIndex(4), 300);
+                setTimeout(() => {
+                    setStepIndex(4);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                }, 300);
             }
             else if (stepIndex === 5 && target.closest('.btn-registrar-atencion')) {
-                setTimeout(() => setStepIndex(6), 1500); // Esperar que guarde y cierre el modal
+                setTimeout(() => {
+                    setStepIndex(6);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 400); // After modal closes and table updates
+                }, 1500); // Esperar que guarde y cierre el modal
             }
             else if (stepIndex === 6 && target.closest('.btn-actions-atencion')) {
-                setTimeout(() => setStepIndex(7), 300);
+                setTimeout(() => {
+                    setStepIndex(7);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                }, 300);
             }
             else if (stepIndex === 7 && target.closest('.btn-completar-atencion')) {
-                setTimeout(() => setStepIndex(8), 800);
+                setTimeout(() => {
+                    setStepIndex(8);
+                }, 800);
             }
         };
 
