@@ -178,7 +178,7 @@ export default function DemoTour() {
                 textColor: '#334155',
                 backgroundColor: '#ffffff',
                 overlayColor: 'rgba(0, 0, 0, 0.6)',
-                showProgress: true,
+                showProgress: false,
                 buttons: ['back', 'primary', 'skip'],
                 overlayClickAction: false,
                 blockTargetInteraction: false,

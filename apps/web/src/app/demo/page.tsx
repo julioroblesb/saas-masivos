@@ -65,10 +65,10 @@ export default function DemoLandingPage() {
             
             <div className="space-y-3">
               <h1 className="text-3xl font-bold tracking-tight text-[#FAFAFA] text-balance leading-[1.15]">
-                Tu Centro de Operaciones Inteligente
+                Recupera clientes y multiplica las citas de tu Spa
               </h1>
               <p className="text-[15px] leading-relaxed text-[#A1A1AA] text-balance">
-                Experimenta un entorno de prueba interactivo diseñado para potenciar tu salón. Registra citas y descubre cómo automatizamos tu comunicación por WhatsApp.
+                Experimenta un entorno de prueba interactivo. Deja que el sistema trabaje por ti: agenda citas fácilmente y descubre cómo automatizamos tu seguimiento por WhatsApp en piloto automático para que ningún cliente te olvide.
               </p>
             </div>
           </div>
