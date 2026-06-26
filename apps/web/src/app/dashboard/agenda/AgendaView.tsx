@@ -10,7 +10,8 @@ import {
   ChevronRight, 
   Clock, 
   User,
-  Plus
+  Plus,
+  Filter
 } from 'lucide-react';
 import { 
   format, 
@@ -23,9 +24,12 @@ import {
   endOfMonth, 
   isSameMonth, 
   isSameDay, 
-  isToday 
+  isToday,
+  isWithinInterval
 } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { DayVisitsModal } from './DayVisitsModal';
+import { VisitDetailsModal } from './VisitDetailsModal';
 
 interface AgendaViewProps {
   initialVisits: any[];
@@ -37,6 +41,13 @@ interface AgendaViewProps {
 export function AgendaView({ initialVisits, services, contacts, staffList }: AgendaViewProps) {
   const [view, setView] = useState<'calendar' | 'kanban'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // Modals state
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
+  
+  // Kanban filter state
+  const [kanbanFilter, setKanbanFilter] = useState<'day' | 'week' | 'month'>('week');
 
   // Derive data
   const monthStart = startOfMonth(currentDate);
@@ -74,28 +85,72 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
     }
   };
 
+  // Filter kanban visits based on current kanbanFilter and currentDate
+  const kanbanVisits = useMemo(() => {
+    return initialVisits.filter(visit => {
+      if (!visit.visit_date) return false;
+      const visitDate = new Date(visit.visit_date);
+      
+      if (kanbanFilter === 'day') {
+        return isSameDay(visitDate, currentDate);
+      } else if (kanbanFilter === 'week') {
+        const wStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+        const wEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+        return isWithinInterval(visitDate, { start: wStart, end: wEnd });
+      } else {
+        return isSameMonth(visitDate, currentDate);
+      }
+    });
+  }, [initialVisits, currentDate, kanbanFilter]);
+
   return (
     <div className="flex flex-col h-full min-h-[70vh] bg-white dark:bg-dark-light rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in zoom-in-95 duration-500">
       
       {/* Header controls */}
       <div className="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-900/20">
         
-        {/* Month Navigation */}
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white capitalize w-48">
-            {format(currentDate, dateFormat, { locale: es })}
-          </h2>
-          <div className="flex items-center bg-white dark:bg-dark border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm p-1">
-            <button onClick={prevMonth} className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button onClick={goToToday} className="px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-700 dark:text-zinc-300">
-              Hoy
-            </button>
-            <button onClick={nextMonth} className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500">
-              <ChevronRight className="w-5 h-5" />
-            </button>
+        {/* Navigation */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white capitalize w-48">
+              {format(currentDate, dateFormat, { locale: es })}
+            </h2>
+            <div className="flex items-center bg-white dark:bg-dark border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm p-1">
+              <button onClick={prevMonth} className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={goToToday} className="px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-700 dark:text-zinc-300">
+                Hoy
+              </button>
+              <button onClick={nextMonth} className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
+
+          {/* Kanban Filter (Only visible in Kanban view) */}
+          {view === 'kanban' && (
+            <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-1 rounded-xl shadow-inner animate-in fade-in slide-in-from-left-4">
+              <button 
+                onClick={() => setKanbanFilter('day')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${kanbanFilter === 'day' ? 'bg-white dark:bg-dark text-primary shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+              >
+                Día
+              </button>
+              <button 
+                onClick={() => setKanbanFilter('week')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${kanbanFilter === 'week' ? 'bg-white dark:bg-dark text-primary shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+              >
+                Semana
+              </button>
+              <button 
+                onClick={() => setKanbanFilter('month')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${kanbanFilter === 'month' ? 'bg-white dark:bg-dark text-primary shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+              >
+                Mes
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Actions & View Toggle */}
@@ -143,7 +198,8 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                 return (
                   <div 
                     key={day.toString()} 
-                    className={`min-h-[120px] p-2 border-r border-b border-zinc-100 dark:border-zinc-800/60 transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 group
+                    onClick={() => setSelectedDay(day)}
+                    className={`min-h-[120px] p-2 border-r border-b border-zinc-100 dark:border-zinc-800/60 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/20 group cursor-pointer
                       ${!isSameMonth(day, monthStart) ? 'bg-zinc-50/50 dark:bg-zinc-900/20 text-zinc-400' : 'bg-white dark:bg-dark text-zinc-900 dark:text-zinc-100'}
                       ${isToday(day) ? 'bg-primary/5 dark:bg-primary/5' : ''}
                     `}
@@ -153,19 +209,23 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                         {format(day, 'd')}
                       </span>
                       {dayVisits.length > 0 && (
-                        <span className="text-[10px] font-bold text-zinc-400">
+                        <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
                           {dayVisits.length} citas
                         </span>
                       )}
                     </div>
                     
                     {/* Visits List for Day */}
-                    <div className="space-y-1.5 max-h-[85px] overflow-y-auto pr-1 custom-scrollbar">
-                      {dayVisits.map(visit => {
+                    <div className="space-y-1.5 max-h-[85px] overflow-hidden relative">
+                      {dayVisits.slice(0, 3).map(visit => {
                         const contact = visit.crm_marketing_contacts;
                         const service = visit.spa_services;
                         return (
-                          <div key={visit.id} className={`px-2 py-1.5 rounded border text-xs truncate flex flex-col gap-0.5 shadow-sm transition-transform hover:scale-[1.02] cursor-pointer ${getStatusColor(visit.status)}`}>
+                          <div 
+                            key={visit.id} 
+                            onClick={(e) => { e.stopPropagation(); setSelectedVisit(visit); }}
+                            className={`px-2 py-1.5 rounded border text-xs truncate flex flex-col gap-0.5 shadow-sm transition-transform hover:scale-[1.02] cursor-pointer ${getStatusColor(visit.status)}`}
+                          >
                             <div className="font-semibold truncate">{contact?.name || 'Cliente'}</div>
                             <div className="flex items-center gap-1 opacity-80 text-[10px]">
                               <Clock className="w-3 h-3" />
@@ -174,6 +234,11 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                           </div>
                         );
                       })}
+                      {dayVisits.length > 3 && (
+                        <div className="text-[10px] font-semibold text-zinc-500 text-center pt-1 bg-gradient-to-t from-white dark:from-dark to-transparent">
+                          + {dayVisits.length - 3} más
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -182,69 +247,83 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
           </div>
         ) : (
           <div className="flex-1 overflow-x-auto pb-4">
-            {/* Kanban placeholder */}
             <div className="flex gap-6 h-full min-w-max">
-               {/* Agendado */}
-               <div className="w-80 flex flex-col bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                    <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                      Agendado
-                    </h3>
-                    <span className="bg-zinc-200 dark:bg-zinc-800 text-xs font-bold px-2 py-1 rounded-full text-zinc-600 dark:text-zinc-300">
-                      {initialVisits.filter(v => v.status === 'agendado').length}
-                    </span>
-                  </div>
-                  <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                    {/* Kanban cards will go here */}
-                    {initialVisits.filter(v => v.status === 'agendado').slice(0,5).map(visit => (
-                      <div key={visit.id} className="bg-white dark:bg-dark p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors">
-                        <div className="font-semibold text-sm mb-1">{visit.crm_marketing_contacts?.name}</div>
-                        <div className="text-xs text-zinc-500 mb-3">{visit.spa_services?.name}</div>
-                        <div className="flex items-center justify-between text-xs text-zinc-400">
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> {format(new Date(visit.visit_date), 'dd MMM, HH:mm')}</span>
-                        </div>
+               {['agendado', 'en_curso', 'completado'].map(colStatus => {
+                 const colVisits = kanbanVisits.filter(v => v.status === colStatus);
+                 const bgHeader = colStatus === 'agendado' ? 'bg-blue-500' : colStatus === 'en_curso' ? 'bg-amber-500' : 'bg-emerald-500';
+                 
+                 return (
+                   <div key={colStatus} className="w-80 flex flex-col bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                      <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2 capitalize">
+                          <div className={`w-2.5 h-2.5 rounded-full ${bgHeader}`}></div>
+                          {colStatus.replace('_', ' ')}
+                        </h3>
+                        <span className="bg-zinc-200 dark:bg-zinc-800 text-xs font-bold px-2 py-1 rounded-full text-zinc-600 dark:text-zinc-300">
+                          {colVisits.length}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-               </div>
-               {/* En Curso */}
-               <div className="w-80 flex flex-col bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                    <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                      En Curso
-                    </h3>
-                  </div>
-                  <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                  {initialVisits.filter(v => v.status === 'en_curso').slice(0,5).map(visit => (
-                      <div key={visit.id} className="bg-white dark:bg-dark p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors">
-                        <div className="font-semibold text-sm mb-1">{visit.crm_marketing_contacts?.name}</div>
+                      <div className="p-4 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                        {colVisits.map(visit => {
+                           const contact = visit.crm_marketing_contacts;
+                           const service = visit.spa_services;
+                           const staff = staffList.find(s => s.id === visit.staff_id);
+                           
+                           return (
+                             <div 
+                               key={visit.id} 
+                               onClick={() => setSelectedVisit(visit)}
+                               className="bg-white dark:bg-dark p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-primary/50 hover:shadow-md transition-all group"
+                             >
+                               <div className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{contact?.name || 'Cliente'}</div>
+                               <div className="text-xs text-zinc-500 mb-3">{service?.name || 'Servicio General'}</div>
+                               
+                               <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/60">
+                                 <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+                                   <Clock className="w-3.5 h-3.5 text-zinc-400" /> 
+                                   {format(new Date(visit.visit_date), 'dd MMM, HH:mm', { locale: es })}
+                                 </div>
+                                 <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+                                   <User className="w-3.5 h-3.5 text-zinc-400" />
+                                   {staff?.name || 'Sin asignar'}
+                                 </div>
+                               </div>
+                             </div>
+                           )
+                        })}
+                        {colVisits.length === 0 && (
+                          <div className="text-center py-8 text-sm text-zinc-400 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
+                            No hay citas
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-               </div>
-               {/* Completado */}
-               <div className="w-80 flex flex-col bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                    <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                      Completado
-                    </h3>
-                  </div>
-                  <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                  {initialVisits.filter(v => v.status === 'completado').slice(0,5).map(visit => (
-                      <div key={visit.id} className="bg-white dark:bg-dark p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors">
-                        <div className="font-semibold text-sm mb-1">{visit.crm_marketing_contacts?.name}</div>
-                      </div>
-                    ))}
-                  </div>
-               </div>
+                   </div>
+                 );
+               })}
             </div>
           </div>
         )}
       </div>
 
+      {selectedDay && (
+        <DayVisitsModal 
+          date={selectedDay}
+          visits={getVisitsForDay(selectedDay)}
+          onClose={() => setSelectedDay(null)}
+          onVisitClick={(visit) => {
+             setSelectedDay(null);
+             setSelectedVisit(visit);
+          }}
+        />
+      )}
+
+      {selectedVisit && (
+        <VisitDetailsModal 
+          visit={selectedVisit}
+          staffList={staffList}
+          onClose={() => setSelectedVisit(null)}
+        />
+      )}
     </div>
   );
 }
