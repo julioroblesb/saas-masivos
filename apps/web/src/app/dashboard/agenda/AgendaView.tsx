@@ -30,6 +30,7 @@ import {
 import { es } from 'date-fns/locale';
 import { DayVisitsModal } from './DayVisitsModal';
 import { VisitDetailsModal } from './VisitDetailsModal';
+import { NewBookingModal } from './NewBookingModal';
 
 interface AgendaViewProps {
   initialVisits: any[];
@@ -45,6 +46,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
   // Modals state
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   // Kanban specific state
   const [kanbanFilter, setKanbanFilter] = useState<'day' | 'week' | 'month'>('week');
@@ -199,7 +201,10 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
               <span className="hidden sm:inline">Kanban</span>
             </button>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium shadow-md shadow-primary/20 hover:bg-primary/90 transition-all shrink-0">
+          <button 
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium shadow-md shadow-primary/20 hover:bg-primary/90 transition-all shrink-0"
+            onClick={() => setIsBookingModalOpen(true)}
+          >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nueva Cita</span>
           </button>
@@ -376,6 +381,21 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
           visit={selectedVisit}
           staffList={staffList}
           onClose={() => setSelectedVisit(null)}
+        />
+      )}
+
+      {isBookingModalOpen && (
+        <NewBookingModal 
+          contacts={contacts}
+          services={services}
+          staffList={staffList}
+          onClose={() => setIsBookingModalOpen(false)}
+          onSuccess={() => {
+            setIsBookingModalOpen(false);
+            // In a real app we might refetch data here, but Server Actions with revalidatePath 
+            // should trigger a router refresh. Wait a tiny bit just in case.
+            window.location.reload(); 
+          }}
         />
       )}
     </div>
