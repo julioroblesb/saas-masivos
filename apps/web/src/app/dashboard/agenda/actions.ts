@@ -4,14 +4,14 @@ import { supabase } from '@/shared/utils/supabase';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
-const getCompanyId = () => {
-  const cookieStore = cookies();
+const getCompanyId = async () => {
+  const cookieStore = await cookies();
   const companyId = cookieStore.get('companyId')?.value;
   return companyId;
 };
 
 export async function getStaffAvailabilityAction(staffId: string, date: string) {
-  const companyId = getCompanyId();
+  const companyId = await getCompanyId();
   if (!companyId) return { error: 'No company context' };
 
   try {
@@ -65,7 +65,7 @@ export async function createVisitAction(data: {
   visit_date: string; // ISO string with time
   duration_minutes: number;
 }) {
-  const companyId = getCompanyId();
+  const companyId = await getCompanyId();
   if (!companyId) return { error: 'No company context' };
 
   try {
