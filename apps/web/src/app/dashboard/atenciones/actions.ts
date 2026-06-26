@@ -36,15 +36,27 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   // Get contacts
   const { data: contacts, error: cErr } = await supabase
     .from('crm_marketing_contacts')
-    .select('id, name, phone, email')
+    .select('id, name, phone, email, document_number')
     .order('name');
     
   // Get active staff
   const { data: staff, error: staffErr } = await supabase
     .from('spa_staff')
-    .select('id, name, role')
+    .select('id, name, role, is_active')
     .eq('is_active', true)
     .order('name');
+
+  const { data: staffServices } = await supabase
+    .from('spa_staff_services')
+    .select('staff_id, service_id');
+
+  const staffWithServices = staff?.map(s => ({
+    id: s.id,
+    name: s.name,
+    role: s.role,
+    isActive: s.is_active,
+    services: staffServices?.filter((ss: any) => ss.staff_id === s.id).map((ss: any) => ss.service_id) || []
+  })) || [];
 
   // Get payment methods from company settings
   let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
@@ -68,7 +80,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       service_name: v.spa_services?.name,
     })) || [],
     contacts: contacts || [],
-    staff: staff || [],
+    staff: staffWithServices,
     paymentMethods,
     error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message
   };

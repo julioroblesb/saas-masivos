@@ -5,6 +5,7 @@ import { X, Calendar, User, Clock, AlertCircle } from 'lucide-react';
 import { format, parse, addMinutes, isBefore, isAfter, isEqual } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getStaffAvailabilityAction, createVisitAction } from './actions';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -188,47 +189,52 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
             <div className="space-y-5">
               <div>
                 <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Cliente *</label>
-                <select 
-                  className="w-full form-select rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary"
-                  value={form.contact_id}
-                  onChange={(e) => setForm({...form, contact_id: e.target.value})}
-                >
-                  <option value="">Selecciona un cliente</option>
-                  {contacts.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <CustomSelect
+                  options={contacts.map(c => ({
+                    value: c.id,
+                    label: `${c.name} ${c.document_number ? `- DNI: ${c.document_number}` : ''}`
+                  }))}
+                  value={form.contact_id ? { 
+                    value: form.contact_id, 
+                    label: contacts.find(c => c.id === form.contact_id)?.name + 
+                           (contacts.find(c => c.id === form.contact_id)?.document_number ? ` - DNI: ${contacts.find(c => c.id === form.contact_id)?.document_number}` : '')
+                  } : null}
+                  onChange={(opt: any) => setForm({...form, contact_id: opt ? opt.value : ''})}
+                  placeholder="Selecciona o busca un cliente..."
+                  isSearchable
+                  isClearable
+                />
               </div>
 
               <div>
                 <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Servicio *</label>
-                <select 
-                  className="w-full form-select rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary"
-                  value={form.service_id}
-                  onChange={(e) => {
-                    setForm({...form, service_id: e.target.value, staff_id: ''}); // reset staff on service change
+                <CustomSelect
+                  options={services.map(s => ({
+                    value: s.id,
+                    label: s.name
+                  }))}
+                  value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id)?.name } : null}
+                  onChange={(opt: any) => {
+                    setForm({...form, service_id: opt ? opt.value : '', staff_id: ''}); // reset staff on service change
                   }}
-                >
-                  <option value="">Selecciona un servicio</option>
-                  {services.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
+                  placeholder="Selecciona un servicio..."
+                  isSearchable
+                />
               </div>
 
               <div>
                 <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Especialista *</label>
-                <select 
-                  className="w-full form-select rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary disabled:opacity-50"
-                  value={form.staff_id}
-                  onChange={(e) => setForm({...form, staff_id: e.target.value})}
-                  disabled={!form.service_id}
-                >
-                  <option value="">Selecciona una especialista</option>
-                  {availableStaff.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
+                <CustomSelect
+                  options={availableStaff.map(s => ({
+                    value: s.id,
+                    label: s.name
+                  }))}
+                  value={form.staff_id ? { value: form.staff_id, label: availableStaff.find(s => s.id === form.staff_id)?.name } : null}
+                  onChange={(opt: any) => setForm({...form, staff_id: opt ? opt.value : ''})}
+                  placeholder="Selecciona una especialista..."
+                  isDisabled={!form.service_id}
+                  isSearchable
+                />
                 {form.service_id && availableStaff.length === 0 && (
                   <p className="text-xs text-danger mt-2 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" /> No hay especialistas activos para este servicio.
