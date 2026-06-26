@@ -178,10 +178,10 @@ export default function SpaProductsPage() {
           </div>
         ) : (
           products.map(product => (
-            <div key={product.id} className="group relative flex flex-col">
+            <div key={product.id} className="group relative flex flex-col p-2.5 rounded-[1.5rem] border border-black-light/30 dark:border-dark-dark-light bg-white/40 dark:bg-dark-light/10 hover:border-black-light/60 dark:hover:border-dark-light transition-colors">
               
-              {/* Image Container (Editorial edge-to-edge style, borderless) */}
-              <div className="aspect-[4/5] w-full bg-zinc-100 dark:bg-zinc-900 rounded-2xl flex items-center justify-center relative overflow-hidden mb-5">
+              {/* Image Container */}
+              <div className="aspect-[4/5] w-full bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-center relative overflow-hidden mb-4">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" />
                 ) : (
@@ -207,13 +207,13 @@ export default function SpaProductsPage() {
               </div>
               
               {/* Clean Typography below */}
-              <div className="flex flex-col flex-1 px-1">
-                <div className="flex justify-between items-start gap-4 mb-2">
-                  <h3 className="text-xl font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
-                  <span className="text-lg font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
+              <div className="flex flex-col flex-1 px-2 pb-1">
+                <div className="flex justify-between items-start gap-3 mb-1.5">
+                  <h3 className="text-base font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                  <span className="text-base font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
                 </div>
                 
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 font-medium leading-relaxed">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-3 font-medium leading-relaxed">
                   {product.description || 'Sin descripción detallada.'}
                 </p>
                 

@@ -183,48 +183,48 @@ export default function SpaServicesPage() {
         ) : (
           <div className="divide-y divide-black-light/50 dark:divide-dark-dark-light">
             {services.map(service => (
-              <div key={service.id} className="group py-10 first:pt-4 flex flex-col md:flex-row md:items-start justify-between gap-8 transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 -mx-6 px-6 rounded-3xl">
+              <div key={service.id} className="group py-6 first:pt-4 flex flex-col md:flex-row md:items-start justify-between gap-4 transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 -mx-4 px-4 rounded-2xl">
                 
                 {/* Info Column */}
                 <div className="flex-1 max-w-2xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-3xl font-extrabold tracking-tight text-black dark:text-white group-hover:text-primary transition-colors">{service.name}</h3>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-xl font-bold tracking-tight text-black dark:text-white group-hover:text-primary transition-colors">{service.name}</h3>
                     {!service.is_active && (
                       <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-[10px] font-bold uppercase tracking-widest">Inactivo</span>
                     )}
                   </div>
                   
-                  <p className="text-lg text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium mb-6">
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium mb-3">
                     {service.description || 'Sin descripción detallada.'}
                   </p>
                   
                   {service.duration_days > 0 && (
-                     <div className="flex items-center gap-2 text-sm text-zinc-400 font-medium">
-                        <Clock className="w-4 h-4" /> Seguimiento post-servicio a los {service.duration_days} días
+                     <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium">
+                        <Clock className="w-3.5 h-3.5" /> Seguimiento a los {service.duration_days} días
                      </div>
                   )}
                 </div>
 
                 {/* Price & Actions Column */}
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-6 min-w-[200px]">
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[150px]">
                   <div className="text-left md:text-right">
                     <div className="flex items-baseline md:justify-end gap-1">
-                      <span className="text-sm font-semibold text-zinc-400">S/</span>
-                      <span className="text-4xl font-bold tracking-tighter text-black dark:text-white">{service.price}</span>
+                      <span className="text-xs font-semibold text-zinc-400">S/</span>
+                      <span className="text-2xl font-bold tracking-tight text-black dark:text-white">{service.price}</span>
                     </div>
                     {service.promo_price && (
-                       <div className="mt-1 text-sm font-bold text-success flex items-center md:justify-end gap-1">
+                       <div className="mt-1 text-xs font-bold text-success flex items-center md:justify-end gap-1">
                           <Tag className="w-3 h-3" /> Promo S/ {service.promo_price}
                        </div>
                     )}
                   </div>
 
                   <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEdit(service)} className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-primary hover:text-white transition-all shadow-sm">
-                      <Edit2 className="w-4 h-4" />
+                    <button onClick={() => openEdit(service)} className="flex items-center justify-center w-8 h-8 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-primary hover:text-white transition-all shadow-sm">
+                      <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDelete(service.id)} className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-danger hover:text-white transition-all shadow-sm">
-                      <Trash2 className="w-4 h-4" />
+                    <button onClick={() => handleDelete(service.id)} className="flex items-center justify-center w-8 h-8 rounded-full bg-black-light/20 dark:bg-dark-light text-zinc-600 dark:text-zinc-300 hover:bg-danger hover:text-white transition-all shadow-sm">
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
