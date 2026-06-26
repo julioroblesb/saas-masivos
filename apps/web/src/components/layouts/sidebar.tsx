@@ -11,6 +11,7 @@ import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
 import IconMenuUsers from '@/components/icon/menu/icon-menu-users';
 import IconMenuChat from '@/components/icon/menu/icon-menu-chat';
 import IconMenuCalendar from '@/components/icon/menu/icon-menu-calendar';
+import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
 import IconMenuApps from '@/components/icon/menu/icon-menu-apps';
 import IconMenuWidgets from '@/components/icon/menu/icon-menu-widgets';
 import IconSettings from '@/components/icon/icon-settings';
@@ -156,10 +157,19 @@ const Sidebar = () => {
                                     </h2>
 
                                     <li className="nav-item">
-                                        <Link href="/dashboard/atenciones" className="nav-link nav-atenciones group">
+                                        <Link href="/dashboard/agenda" className="nav-link nav-agenda group">
                                             <div className="flex items-center">
                                                 <IconMenuCalendar className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Atenciones</span>
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Agenda & Citas</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item">
+                                        <Link href="/dashboard/atenciones" className="nav-link nav-atenciones group">
+                                            <div className="flex items-center">
+                                                <IconMenuDatatables className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">Atenciones (Historial)</span>
                                             </div>
                                         </Link>
                                     </li>
