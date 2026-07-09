@@ -110,7 +110,7 @@ export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value,
         value={value}
         onChange={([date], dateStr) => {
           if (date) {
-            onChangeDate(date.toISOString());
+            onChangeDate(enableTime ? date.toISOString() : dateStr);
           } else {
             onChangeDate('');
           }

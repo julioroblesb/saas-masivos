@@ -384,9 +384,19 @@ export function AtencionesManager({
 
         <div className="flex flex-col xl:flex-row flex-wrap items-end xl:items-center gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
-            <input type="date" className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]" value={dateFilter.start} onChange={e => applyDateFilter(e.target.value, dateFilter.end)} title="Fecha de inicio" />
+            <CustomDatePicker 
+              value={dateFilter.start} 
+              onChangeDate={date => applyDateFilter(date, dateFilter.end)} 
+              placeholder="dd/mm/aaaa"
+              className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]" 
+            />
             <span className="text-zinc-400 font-medium">-</span>
-            <input type="date" className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]" value={dateFilter.end} onChange={e => applyDateFilter(dateFilter.start, e.target.value)} title="Fecha de fin" />
+            <CustomDatePicker 
+              value={dateFilter.end} 
+              onChangeDate={date => applyDateFilter(dateFilter.start, date)} 
+              placeholder="dd/mm/aaaa"
+              className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]" 
+            />
           </div>
           <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
