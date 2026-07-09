@@ -88,7 +88,7 @@ export function BotConfig() {
           </p>
           
           <a 
-            href="https://wa.me/tunumerodeasesoria" 
+            href="https://wa.me/51936755465" 
             target="_blank" 
             rel="noreferrer"
             className="inline-flex items-center space-x-2 bg-white text-primary hover:bg-zinc-50 px-8 py-3 rounded-xl font-bold transition-colors relative z-10 shadow-sm"
