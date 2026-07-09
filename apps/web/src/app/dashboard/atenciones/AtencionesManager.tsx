@@ -658,8 +658,8 @@ export function AtencionesManager({
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button onClick={() => handleEditClick(visit)} className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">Editar</button>
-                          <button onClick={() => { setSelectedVisit(visit); setIsDeleteModalOpen(true); }} className="text-danger hover:text-danger/80 transition-colors text-sm font-medium">Eliminar</button>
+                          <button onClick={() => handleEditClick(visit)} className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-semibold">Editar</button>
+                          <button onClick={() => { setSelectedVisit(visit); setIsDeleteModalOpen(true); }} className="px-3 py-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors text-xs font-semibold">Eliminar</button>
                         </div>
                       </td>
                     </tr>
@@ -939,11 +939,11 @@ export function AtencionesManager({
                   <label className="text-sm font-semibold text-warning-dark flex items-center gap-2">
                     <Calendar className="w-4 h-4" /> Fecha Promesa de Pago *
                   </label>
-                  <input 
-                    type="date"
-                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
+                  <CustomDatePicker 
                     value={completeDebtDate}
-                    onChange={e => setCompleteDebtDate(e.target.value)}
+                    onChangeDate={date => setCompleteDebtDate(date)}
+                    placeholder="dd/mm/aaaa"
+                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
                   />
                   <p className="text-xs text-zinc-500">Debe seleccionar una fecha para enviar la alerta de cobranza.</p>
                 </div>

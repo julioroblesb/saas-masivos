@@ -6,6 +6,7 @@ import { format, parse, addMinutes, isBefore, isAfter, isEqual } from 'date-fns'
 import { es } from 'date-fns/locale';
 import { getStaffAvailabilityAction, createVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -292,12 +293,14 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
             <div className="space-y-5 bg-zinc-50 dark:bg-zinc-900/30 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-800">
               <div>
                 <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Fecha *</label>
-                <input 
-                  type="date" 
-                  className="w-full form-input rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary"
+                <CustomDatePicker 
                   value={form.date}
-                  min={format(new Date(), 'yyyy-MM-dd')}
-                  onChange={(e) => setForm({...form, date: e.target.value})}
+                  onChangeDate={(date) => setForm({...form, date})}
+                  placeholder="dd/mm/aaaa"
+                  className="w-full form-input rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary"
+                  options={{
+                    minDate: format(new Date(), 'yyyy-MM-dd')
+                  }}
                 />
               </div>
 
