@@ -27,57 +27,40 @@ export async function GET(request: Request) {
     
     const companyId = profile.company_id;
     
-    // 3. Create a dummy contact for this company to attach the messages to
-    const dummyContact = {
+    // 3. Create 20 dummy contacts for this company
+    const dummyContacts = Array.from({ length: 20 }).map((_, i) => ({
       company_id: companyId,
-      name: 'Dummy Seed Contact',
-      phone: '51999999999',
+      name: `Cliente Demo ${i + 1}`,
+      phone: `519${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`,
       tags: ['seed']
-    };
+    }));
     
-    const { data: contact, error: contactError } = await supabaseAdmin
+    const { data: contacts, error: contactError } = await supabaseAdmin
       .from('crm_marketing_contacts')
-      .insert(dummyContact)
-      .select('id')
-      .single();
+      .insert(dummyContacts)
+      .select('id, name, phone');
       
-    if (contactError) throw contactError;
+    if (contactError || !contacts) throw contactError;
     
     // 4. Insert dummy messages in crm_wa_queue
-    const dummyMessages = [
-      {
+    const dummyMessages = contacts.map((contact, i) => {
+      const isAgradecimiento = i % 2 === 0;
+      const servicio = isAgradecimiento ? 'Corte de Cabello' : 'Manicura';
+      const dias = 3;
+      
+      const message = isAgradecimiento
+        ? `Hola ${contact.name}! Gracias por visitarnos hoy. Esperamos que hayas disfrutado tu servicio de ${servicio}. ¡Que tengas un excelente día!`
+        : `Hola ${contact.name}, ¿cómo sigues después de tu servicio de ${servicio} hace ${dias} días? Queríamos saber cómo te fue. ¡Saludos!`;
+        
+      return {
         company_id: companyId,
         contact_id: contact.id,
-        phone: '51999999991',
-        message: 'Mensaje cancelado de prueba 1 (origen: spa_visits)',
-        status: 'cancelado',
-        scheduled_for: new Date().toISOString()
-      },
-      {
-        company_id: companyId,
-        contact_id: contact.id,
-        phone: '51999999992',
-        message: 'Mensaje cancelado de prueba 2',
-        status: 'cancelado',
-        scheduled_for: new Date(Date.now() + 86400000).toISOString()
-      },
-      {
-        company_id: companyId,
-        contact_id: contact.id,
-        phone: '51999999993',
-        message: 'Mensaje fallido de prueba',
-        status: 'fallido',
-        scheduled_for: new Date().toISOString()
-      },
-      {
-        company_id: companyId,
-        contact_id: contact.id,
-        phone: '51999999994',
-        message: 'Mensaje pendiente de prueba',
-        status: 'pendiente',
-        scheduled_for: new Date(Date.now() + 86400000 * 2).toISOString()
-      }
-    ];
+        phone: contact.phone,
+        message: message,
+        status: 'enviado',
+        scheduled_for: new Date(Date.now() - Math.random() * 86400000 * 5).toISOString() // Sent in the past 5 days
+      };
+    });
     
     const { error: insertError } = await supabaseAdmin
       .from('crm_wa_queue')
