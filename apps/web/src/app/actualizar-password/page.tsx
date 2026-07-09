@@ -1,35 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
-import { Lock, Mail, Loader2, LogIn, CheckCircle2 } from 'lucide-react';
+import { Lock, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
+export default function ActualizarPasswordPage() {
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  useEffect(() => {
+    // Verificar si el usuario está autenticado (PKCE auto logs in after click)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        // Podría ser que no haya venido del enlace o el token expiró
+        toast.error('Sesión inválida o enlace expirado. Por favor solicita un nuevo cambio de contraseña.');
+        router.push('/recuperar-password');
+      }
+    };
+    
+    checkSession();
+  }, [router, supabase.auth]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error('Las contraseñas no coinciden');
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.updateUser({
+      password: password
     });
 
     if (error) {
-      toast.error(error.message.includes('Invalid login credentials') ? 'Correo o contraseña incorrectos.' : error.message);
+      toast.error(error.message);
       setLoading(false);
       return;
     }
 
-    toast.success('Inicio de sesión exitoso');
+    toast.success('Contraseña actualizada correctamente');
     router.push('/dashboard');
     router.refresh();
   };
@@ -56,26 +79,11 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]" style={{ textWrap: 'balance' }}>
-              Renueva la relación con tus clientes.
+              Protege tu cuenta.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
-              Centraliza la gestión de tus clientes, reservas y operaciones en una sola plataforma diseñada para negocios de alto rendimiento.
+              Crea una nueva contraseña segura para tu cuenta. Asegúrate de no olvidarla esta vez.
             </p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-white/90">
-              <CheckCircle2 className="text-white/60" size={20} />
-              <span>Gestión integral de clientes y reservas</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/90">
-              <CheckCircle2 className="text-white/60" size={20} />
-              <span>Fidelización y comunicación inteligente</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/90">
-              <CheckCircle2 className="text-white/60" size={20} />
-              <span>Analíticas y control financiero en tiempo real</span>
-            </div>
           </div>
         </div>
       </div>
@@ -83,44 +91,23 @@ export default function LoginPage() {
       {/* Form Side */}
       <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-zinc-900">
         <div className="w-full max-w-[400px]">
+          
           <div className="mb-10 text-center flex flex-col items-center md:hidden">
             <div className="h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
               RC
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Iniciar Sesión</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa para continuar a tu panel</p>
+            <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Nueva Contraseña</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu nueva contraseña para acceder</p>
           </div>
 
           <div className="hidden md:block mb-10">
-            <h2 className="text-3xl font-bold text-black dark:text-white mb-2 tracking-tight">Iniciar Sesión</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tus credenciales para acceder</p>
+            <h2 className="text-3xl font-bold text-black dark:text-white mb-2 tracking-tight">Nueva Contraseña</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu nueva contraseña para acceder</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleUpdate} className="space-y-6">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-black dark:text-white">Correo Electrónico</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 dark:bg-dark border border-black-light dark:border-dark-light rounded-xl text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm"
-                  placeholder="usuario@ejemplo.com"
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="block text-sm font-semibold text-black dark:text-white">Contraseña</label>
-                <Link href="/recuperar-password" className="text-xs font-medium text-primary hover:underline">
-                  ¿Olvidaste tu contraseña?
-                </Link>
-              </div>
+              <label className="block text-sm font-semibold text-black dark:text-white">Nueva Contraseña</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
@@ -136,17 +123,34 @@ export default function LoginPage() {
               </div>
             </div>
             
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-black dark:text-white">Confirmar Contraseña</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-zinc-50 dark:bg-dark border border-black-light dark:border-dark-light rounded-xl text-black dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                  placeholder="••••••••"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+            
             <button
               type="submit"
-              disabled={loading || !email || !password}
+              disabled={loading || !password || !confirmPassword}
               className={`w-full flex items-center justify-center gap-2 py-3.5 mt-4 rounded-xl font-semibold bg-primary text-white transition-all hover:bg-primary/90 active:scale-[0.98] ${
-                (loading || !email || !password) ? 'opacity-70 cursor-not-allowed' : 'shadow-lg shadow-primary/25'
+                (loading || !password || !confirmPassword) ? 'opacity-70 cursor-not-allowed' : 'shadow-lg shadow-primary/25'
               }`}
             >
               {loading ? (
-                <><Loader2 size={18} className="animate-spin" /> Procesando...</>
+                <><Loader2 size={18} className="animate-spin" /> Actualizando...</>
               ) : (
-                <>Acceder al Panel <LogIn size={18} /></>
+                <>Actualizar y Entrar</>
               )}
             </button>
           </form>
