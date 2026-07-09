@@ -195,22 +195,24 @@ export default function MensajeriaView() {
                         </button>
                       </div>
                     ) : (
-                      msg.status === 'pendiente' && (
-                        <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-2">
+                        {msg.status === 'pendiente' && (
                           <button 
                             className="btn btn-sm btn-outline-primary p-1.5" 
                             onClick={() => handleEditClick(msg)}
+                            title="Editar"
                           >
                             <Edit size={14} />
                           </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger p-1.5" 
-                            onClick={() => handleDelete(msg.id)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      )
+                        )}
+                        <button 
+                          className="btn btn-sm btn-outline-danger p-1.5" 
+                          onClick={() => handleDelete(msg.id)}
+                          title="Eliminar"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
