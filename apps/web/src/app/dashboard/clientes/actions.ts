@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
 export async function getClientsMetrics() {
   const supabase = await createClient();
@@ -35,8 +36,9 @@ export async function deleteContactAction(id: string) {
   // Unlink visits to prevent losing financial history
   await supabase.from('spa_visits').update({ contact_id: null }).eq('contact_id', id);
   
-  // Delete scheduled messages
-  await supabase.from('crm_wa_queue').delete().eq('contact_id', id);
+  // Delete scheduled messages using admin client to bypass RLS
+  const adminSupabase = getSupabaseAdmin();
+  await adminSupabase.from('crm_wa_queue').delete().eq('contact_id', id);
   
   const { error } = await supabase.rpc('rpc_delete_marketing_contact', {
     p_contact_id: id
