@@ -83,8 +83,8 @@ export default function DemoTour() {
             target: '.inputs-nuevo-cliente',
             content: (
                 <div className="text-left">
-                    <p className="mb-2"><strong>1.</strong> Escribe tu nombre.</p>
-                    <p><strong>2.</strong> En el teléfono, escribe el código <strong className="text-pink-600">51</strong> seguido de tu número (Ej: 51999888777). Todo junto, sin espacios ni símbolos.</p>
+                    <p className="mb-2"><strong>1.</strong> Ingresa tu nombre (o un nombre de prueba).</p>
+                    <p><strong>2.</strong> Ingresa tu número de WhatsApp real con tu código de país (Ej: <strong>51</strong>999888777). <br/><br/><em>No uses símbolos ni espacios. Si usas tu número real, el bot de prueba te enviará un mensaje.</em></p>
                 </div>
             ),
             placement: 'bottom',
@@ -94,7 +94,7 @@ export default function DemoTour() {
         },
         {
             target: '.select-servicio',
-            content: 'Simula elegir un servicio en la lista desplegable, y luego haz clic en "Registrar Atención".',
+            content: 'Ahora selecciona un servicio cualquiera de la lista y haz clic en el botón "Registrar Atención" al final.',
             placement: 'right',
             spotlightClicks: true,
             hideFooter: true,

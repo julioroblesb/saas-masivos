@@ -42,12 +42,15 @@ export function useUpsertMarketingContact() {
         p_name: contact.name || null,
         p_email: contact.email || null,
         p_birthday: contact.birthday || null,
-        p_notes: contact.notes || null,
+        p_internal_notes: contact.notes || null,
         p_tags: contact.tags || [],
-        p_opt_in_source: contact.opt_in_source
+        p_opt_in_source: contact.opt_in_source || null,
+        p_allergies_and_conditions: null,
+        p_preferences: null,
+        p_document_number: null
       };
       RpcUpsertMarketingContactSchema.parse(payload);
-      const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload);
+      const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload as any);
       if (error) throw error;
       return data;
     },

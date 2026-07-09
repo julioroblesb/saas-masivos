@@ -215,7 +215,14 @@ export async function createVisitAction(payload: {
     const { data: contactData, error: contactError } = await supabase.rpc('rpc_upsert_marketing_contact', {
       p_phone: payload.new_contact.phone,
       p_name: payload.new_contact.name || '',
-      p_tags: ['cliente']
+      p_tags: ['cliente'],
+      p_opt_in_source: null,
+      p_email: null,
+      p_birthday: null,
+      p_allergies_and_conditions: null,
+      p_preferences: null,
+      p_internal_notes: null,
+      p_document_number: null
     });
 
     if (contactError || !contactData) {

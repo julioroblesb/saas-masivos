@@ -10,9 +10,12 @@ export const RpcUpsertMarketingContactSchema = z.object({
   p_name: z.string().nullable().optional(),
   p_email: z.string().email().nullable().optional().or(z.literal('')),
   p_birthday: z.string().nullable().optional(),
-  p_notes: z.string().nullable().optional(),
+  p_internal_notes: z.string().nullable().optional(),
   p_tags: z.array(z.string()).optional(),
-  p_opt_in_source: z.string().optional()
+  p_opt_in_source: z.string().nullable().optional(),
+  p_allergies_and_conditions: z.string().nullable().optional(),
+  p_preferences: z.string().nullable().optional(),
+  p_document_number: z.string().nullable().optional()
 }).strict();
 
 export const RpcBatchInsertMarketingContactsSchema = z.object({
