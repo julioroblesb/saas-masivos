@@ -83,8 +83,8 @@ export default function LoginPage() {
       {/* Form Side */}
       <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 sm:p-12 relative bg-white dark:bg-zinc-900">
         <div className="w-full max-w-[400px]">
-          <div className="mb-10 text-center flex flex-col items-center">
-            <div className="lg:hidden h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
+          <div className="mb-10 text-center flex flex-col items-center md:hidden">
+            <div className="h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
               RC
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Iniciar Sesión</h2>
