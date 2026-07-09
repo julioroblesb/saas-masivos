@@ -153,7 +153,7 @@ const Sidebar = () => {
 
                                     <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>Gestión Spa</span>
+                                        <span>Gestión de Negocio</span>
                                     </h2>
 
                                     <li className="nav-item">

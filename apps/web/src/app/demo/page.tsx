@@ -63,7 +63,7 @@ export default function DemoLandingPage() {
             
             <div className="space-y-3">
               <h1 className="text-3xl font-bold tracking-tight text-[#FAFAFA] text-balance leading-[1.15]">
-                Recupera clientes y multiplica las citas de tu Spa
+                Recupera clientes y multiplica las citas de tu Negocio
               </h1>
               <p className="text-[15px] leading-relaxed text-[#A1A1AA] text-balance">
                 Experimenta un entorno de prueba interactivo. Deja que el sistema trabaje por ti: agenda citas fácilmente y descubre cómo automatizamos tu seguimiento por WhatsApp en piloto automático para que ningún cliente te olvide.

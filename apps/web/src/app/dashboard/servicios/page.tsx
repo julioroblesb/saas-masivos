@@ -163,7 +163,7 @@ export default function SpaServicesPage() {
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
-            <Scissors className="w-8 h-8 text-primary" /> Servicios del Spa
+            <Scissors className="w-8 h-8 text-primary" /> Servicios del Negocio
           </h1>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
             Administra tu catálogo de servicios, precios e instrucciones de cuidado post-servicio.

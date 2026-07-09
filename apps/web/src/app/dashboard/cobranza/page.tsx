@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import CobranzaManager from './CobranzaManager';
 
 export const metadata = {
-  title: 'Cobranza | CRM Spa',
+  title: 'Cobranza | CRM Negocios',
 };
 
 export default async function CobranzaPage() {

@@ -108,7 +108,7 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
           <MessageSquare className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold dark:text-white-light">Mensajes Automáticos (Spa)</h2>
+          <h2 className="text-lg font-semibold dark:text-white-light">Mensajes Automáticos (Negocio)</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Configura los mensajes de agradecimiento y seguimiento que se enviarán automáticamente a tus clientes.</p>
         </div>
       </div>

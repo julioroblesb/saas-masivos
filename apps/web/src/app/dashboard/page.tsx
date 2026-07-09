@@ -65,7 +65,7 @@ export default async function DashboardPage() {
             Panel de Control
           </h1>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
-            Resumen de tu Spa
+            Resumen de tu Negocio
           </p>
         </div>
         <WhatsappConnection companyId={profile?.company_id} />
