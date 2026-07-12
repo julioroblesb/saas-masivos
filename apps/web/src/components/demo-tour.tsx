@@ -5,6 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { EventData, STATUS, Step } from 'react-joyride';
 import { createClient } from '@/utils/supabase/client';
 import dynamic from 'next/dynamic';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleSidebar } from '@/store/themeConfigSlice';
+import { IRootState } from '@/store';
 
 const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.Joyride), {
     ssr: false,
@@ -17,6 +21,8 @@ export default function DemoTour() {
     const pathname = usePathname();
     const router = useRouter();
     const supabase = createClient();
+    const dispatch = useDispatch();
+    const themeConfig = useSelector((state: IRootState) => state.themeConfig);
 
     const [mounted, setMounted] = useState(false);
 
@@ -36,6 +42,10 @@ export default function DemoTour() {
                     const tourCompleted = localStorage.getItem('masivos_demo_tour_completed');
                     if (!tourCompleted) {
                         setRun(true);
+                        // Cerrar sidebar en móvil si está abierto para no tapar el tour
+                        if (window.innerWidth < 1024 && themeConfig.sidebar) {
+                            dispatch(toggleSidebar());
+                        }
                     }
                 }
             }
@@ -65,7 +75,7 @@ export default function DemoTour() {
         },
         {
             target: '.btn-nueva-atencion',
-            content: 'Haz clic en "Nueva Atención" para abrir el registro de citas.',
+            content: 'Presiona en "Nueva Atención" para abrir el registro de citas.',
             placement: 'bottom',
             spotlightClicks: true,
             disableBeacon: true,
@@ -94,17 +104,19 @@ export default function DemoTour() {
         },
         {
             target: '.select-servicio',
-            content: 'Ahora selecciona un servicio cualquiera de la lista y haz clic en el botón "Registrar Atención" al final.',
+            content: 'Ahora selecciona un servicio cualquiera de la lista y presiona el botón "Registrar Atención" al final.',
             placement: 'right',
             spotlightClicks: true,
             hideFooter: true,
+            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' }, buttonBack: { display: 'none' } }
         },
         {
             target: '.btn-actions-atencion',
-            content: '¡Cita registrada! Pasa el mouse sobre los tres puntitos para ver las opciones de esta atención.',
+            content: '¡Cita registrada! Presiona sobre los tres puntitos para ver las opciones de esta atención.',
             placement: 'left',
             spotlightClicks: true,
             hideBackButton: true,
+            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: '.btn-completar-atencion',
@@ -112,13 +124,15 @@ export default function DemoTour() {
             placement: 'left',
             spotlightClicks: true,
             hideBackButton: true,
+            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: '.btn-completar-submit',
-            content: 'Confirma el detalle haciendo clic en "Completar Atención".',
+            content: 'Confirma el detalle presionando en "Completar Atención".',
             placement: 'bottom',
             spotlightClicks: true,
             hideBackButton: true,
+            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: 'body',
@@ -213,6 +227,12 @@ export default function DemoTour() {
                     (document.querySelector('.btn-nuevo-cliente') as HTMLElement)?.click();
                     setTimeout(() => setStepIndex(4), 400);
                 } else if (index === 4) { // .inputs-nuevo-cliente
+                    const nameInput = document.querySelector('input[placeholder="Nombre completo"]') as HTMLInputElement;
+                    const phoneInput = document.querySelector('input[placeholder="Teléfono (ej: 51987654321)"]') as HTMLInputElement;
+                    if (!nameInput?.value?.trim() || !phoneInput?.value?.trim()) {
+                        toast.error("Por favor completa tu nombre y teléfono antes de continuar", { duration: 4000 });
+                        return; // Prevent advancing
+                    }
                     setStepIndex(5);
                 } else if (index === 5) { // .select-servicio
                     (document.querySelector('.btn-registrar-atencion') as HTMLElement)?.click();

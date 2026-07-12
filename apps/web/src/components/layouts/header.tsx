@@ -55,17 +55,17 @@ const Header = () => {
         <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''}`}>
             <div className="shadow-sm">
                 <div className="relative flex w-full items-center bg-white dark:bg-dark border-b border-black-light dark:border-dark-light px-5 py-2.5">
-                    <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2 lg:hidden">
-                        <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center">
-                            <span className="align-middle text-2xl font-semibold transition duration-300 ease-out ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">{companyName}</span>
-                        </Link>
+                    <div className="horizontal-logo flex items-center gap-2 ltr:mr-2 rtl:ml-2 lg:hidden max-w-[55vw]">
                         <button
                             type="button"
-                            className="collapse-icon flex flex-none rounded-full bg-black-light/10 p-2 hover:bg-black-light/20 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark-light/40 dark:text-muted dark:hover:bg-dark-light/60 dark:hover:text-primary lg:hidden"
+                            className="collapse-icon flex flex-none rounded-full bg-black-light/10 p-2 hover:bg-black-light/20 hover:text-primary dark:bg-dark-light/40 dark:text-muted dark:hover:bg-dark-light/60 dark:hover:text-primary lg:hidden"
                             onClick={() => dispatch(toggleSidebar())}
                         >
                             <IconMenu className="h-5 w-5" />
                         </button>
+                        <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center overflow-hidden">
+                            <span className="align-middle text-lg sm:text-2xl font-semibold transition duration-300 ease-out dark:text-white-light truncate">{companyName}</span>
+                        </Link>
                     </div>
 
                     <div className="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">

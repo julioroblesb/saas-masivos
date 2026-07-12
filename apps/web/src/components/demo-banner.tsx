@@ -40,18 +40,18 @@ export default function DemoBanner() {
     if (!isDemo) return null;
 
     return (
-        <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white w-full py-3 px-4 flex items-center justify-center shadow-md z-50 sticky top-0">
-            <span className="font-medium mr-4 text-sm sm:text-base">
+        <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white w-full py-2.5 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 shadow-md z-[60] relative">
+            <span className="font-medium text-xs sm:text-sm text-center">
                 Estás en un entorno de demostración. Los datos se borrarán en 24 horas.
             </span>
             <a 
                 href="https://wa.me/51936755465?text=Hola%20Julio,%20estoy%20probando%20el%20demo%20y%20deseo%20contratar%20el%20sistema." 
                 target="_blank" 
                 rel="noreferrer"
-                className="bg-white text-pink-600 font-bold px-4 py-1.5 rounded-full shadow hover:bg-pink-50 transition-colors flex items-center text-sm"
+                className="bg-white text-pink-600 font-bold px-3 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-sm hover:bg-pink-50 transition-colors flex items-center text-xs sm:text-sm whitespace-nowrap"
             >
-                <IconMessage className="w-4 h-4 mr-2" />
-                Si deseas contratar esto, contáctanos aquí
+                <IconMessage className="w-4 h-4 mr-1.5" />
+                ¿Te gusta el sistema? Contáctanos
             </a>
         </div>
     );
