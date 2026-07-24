@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:characterization": "npx vitest run --config vitest.config.mts",
-    "test:characterization:watch": "vitest"
+    "test:characterization": "vitest run"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -53,7 +52,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
-    "pg": "^8.22.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

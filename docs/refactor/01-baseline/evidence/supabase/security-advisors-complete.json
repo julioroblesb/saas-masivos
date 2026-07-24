@@ -1,0 +1,712 @@
+[
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "auth_company_id()",
+    "detail": "La funci\u00f3n public.auth_company_id() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.auth_company_id FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "current_tenant_id()",
+    "detail": "La funci\u00f3n public.current_tenant_id() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.current_tenant_id FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "check_visit_overlap(p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid)",
+    "detail": "La funci\u00f3n public.check_visit_overlap(p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.check_visit_overlap FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "increment_campaign_sent(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.increment_campaign_sent(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.increment_campaign_sent FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "increment_campaign_failed(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.increment_campaign_failed(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.increment_campaign_failed FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_archive_contacts(p_contact_ids uuid[], p_archive boolean)",
+    "detail": "La funci\u00f3n public.rpc_archive_contacts(p_contact_ids uuid[], p_archive boolean) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_archive_contacts FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_batch_insert_marketing_contacts(p_contacts jsonb)",
+    "detail": "La funci\u00f3n public.rpc_batch_insert_marketing_contacts(p_contacts jsonb) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_batch_insert_marketing_contacts FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_cancel_campaign(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_cancel_campaign(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_cancel_campaign FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_cleanup_demo_companies()",
+    "detail": "La funci\u00f3n public.rpc_cleanup_demo_companies() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_cleanup_demo_companies FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_clone_demo_company(p_template_company_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_clone_demo_company(p_template_company_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_clone_demo_company FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_complete_visit(p_visit_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_complete_visit(p_visit_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_complete_visit FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_count_contacts_by_tag(p_tag text)",
+    "detail": "La funci\u00f3n public.rpc_count_contacts_by_tag(p_tag text) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_count_contacts_by_tag FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid)",
+    "detail": "La funci\u00f3n public.rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_create_campaign FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_create_campaign(p_name text, p_sequence jsonb, p_contacts jsonb)",
+    "detail": "La funci\u00f3n public.rpc_create_campaign(p_name text, p_sequence jsonb, p_contacts jsonb) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_create_campaign FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_delete_marketing_contact(p_contact_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_delete_marketing_contact(p_contact_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_delete_marketing_contact FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_delete_marketing_contacts_by_tag(p_tag text)",
+    "detail": "La funci\u00f3n public.rpc_delete_marketing_contacts_by_tag(p_tag text) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_delete_marketing_contacts_by_tag FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_get_clients_metrics()",
+    "detail": "La funci\u00f3n public.rpc_get_clients_metrics() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_clients_metrics FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_get_spa_dashboard()",
+    "detail": "La funci\u00f3n public.rpc_get_spa_dashboard() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_spa_dashboard FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_get_unique_tags()",
+    "detail": "La funci\u00f3n public.rpc_get_unique_tags() posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_unique_tags FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_recalculate_customer_segment(p_contact_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_recalculate_customer_segment(p_contact_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_recalculate_customer_segment FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_update_company_settings(p_name text, p_settings jsonb)",
+    "detail": "La funci\u00f3n public.rpc_update_company_settings(p_name text, p_settings jsonb) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_update_company_settings FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_upsert_marketing_contact(p_contact jsonb)",
+    "detail": "La funci\u00f3n public.rpc_upsert_marketing_contact(p_contact jsonb) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_upsert_marketing_contact FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_upsert_marketing_contact(p_contact jsonb, p_company_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_upsert_marketing_contact(p_contact jsonb, p_company_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_upsert_marketing_contact FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer)",
+    "detail": "La funci\u00f3n public.search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.search_contacts FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_anon_executable",
+    "title": "Funci\u00f3n ejecutable por el rol anon",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "search_contacts(search_term text)",
+    "detail": "La funci\u00f3n public.search_contacts(search_term text) posee permisos de ejecuci\u00f3n concedidos al rol an\u00f3nimo (anon).",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.search_contacts FROM anon;",
+    "metadata": {
+      "role": "anon",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "auth_company_id()",
+    "detail": "La funci\u00f3n public.auth_company_id() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.auth_company_id FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "current_tenant_id()",
+    "detail": "La funci\u00f3n public.current_tenant_id() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.current_tenant_id FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "check_visit_overlap(p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid)",
+    "detail": "La funci\u00f3n public.check_visit_overlap(p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.check_visit_overlap FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "increment_campaign_sent(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.increment_campaign_sent(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.increment_campaign_sent FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "increment_campaign_failed(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.increment_campaign_failed(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.increment_campaign_failed FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_archive_contacts(p_contact_ids uuid[], p_archive boolean)",
+    "detail": "La funci\u00f3n public.rpc_archive_contacts(p_contact_ids uuid[], p_archive boolean) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_archive_contacts FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_batch_insert_marketing_contacts(p_contacts jsonb)",
+    "detail": "La funci\u00f3n public.rpc_batch_insert_marketing_contacts(p_contacts jsonb) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_batch_insert_marketing_contacts FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_cancel_campaign(p_campaign_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_cancel_campaign(p_campaign_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_cancel_campaign FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_cleanup_demo_companies()",
+    "detail": "La funci\u00f3n public.rpc_cleanup_demo_companies() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_cleanup_demo_companies FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_clone_demo_company(p_template_company_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_clone_demo_company(p_template_company_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_clone_demo_company FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_complete_visit(p_visit_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_complete_visit(p_visit_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_complete_visit FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_count_contacts_by_tag(p_tag text)",
+    "detail": "La funci\u00f3n public.rpc_count_contacts_by_tag(p_tag text) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_count_contacts_by_tag FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid)",
+    "detail": "La funci\u00f3n public.rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_create_campaign FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_create_campaign(p_name text, p_sequence jsonb, p_contacts jsonb)",
+    "detail": "La funci\u00f3n public.rpc_create_campaign(p_name text, p_sequence jsonb, p_contacts jsonb) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_create_campaign FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_delete_marketing_contact(p_contact_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_delete_marketing_contact(p_contact_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_delete_marketing_contact FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_delete_marketing_contacts_by_tag(p_tag text)",
+    "detail": "La funci\u00f3n public.rpc_delete_marketing_contacts_by_tag(p_tag text) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_delete_marketing_contacts_by_tag FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_get_clients_metrics()",
+    "detail": "La funci\u00f3n public.rpc_get_clients_metrics() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_clients_metrics FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_get_spa_dashboard()",
+    "detail": "La funci\u00f3n public.rpc_get_spa_dashboard() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_spa_dashboard FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_get_unique_tags()",
+    "detail": "La funci\u00f3n public.rpc_get_unique_tags() posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_get_unique_tags FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_recalculate_customer_segment(p_contact_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_recalculate_customer_segment(p_contact_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_recalculate_customer_segment FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_update_company_settings(p_name text, p_settings jsonb)",
+    "detail": "La funci\u00f3n public.rpc_update_company_settings(p_name text, p_settings jsonb) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_update_company_settings FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_upsert_marketing_contact(p_contact jsonb)",
+    "detail": "La funci\u00f3n public.rpc_upsert_marketing_contact(p_contact jsonb) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_upsert_marketing_contact FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "rpc_upsert_marketing_contact(p_contact jsonb, p_company_id uuid)",
+    "detail": "La funci\u00f3n public.rpc_upsert_marketing_contact(p_contact jsonb, p_company_id uuid) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.rpc_upsert_marketing_contact FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer)",
+    "detail": "La funci\u00f3n public.search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.search_contacts FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_authenticated_executable",
+    "title": "Funci\u00f3n ejecutable por el rol authenticated",
+    "level": "INFO",
+    "schema": "public",
+    "entity": "search_contacts(search_term text)",
+    "detail": "La funci\u00f3n public.search_contacts(search_term text) posee permisos de ejecuci\u00f3n concedidos al rol autenticado.",
+    "remediation": "REVOKE EXECUTE ON FUNCTION public.search_contacts FROM authenticated;",
+    "metadata": {
+      "role": "authenticated",
+      "grantee": "PUBLIC"
+    }
+  },
+  {
+    "name": "function_search_path_mutable",
+    "title": "search_path mutable en funci\u00f3n SECURITY DEFINER",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid)",
+    "detail": "La funci\u00f3n SECURITY DEFINER no establece un search_path fijo.",
+    "remediation": "ALTER FUNCTION public.rpc_create_campaign SET search_path = public;",
+    "metadata": {
+      "prosecdef": true
+    }
+  },
+  {
+    "name": "function_search_path_mutable",
+    "title": "search_path mutable en funci\u00f3n SECURITY DEFINER",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer)",
+    "detail": "La funci\u00f3n SECURITY DEFINER no establece un search_path fijo.",
+    "remediation": "ALTER FUNCTION public.search_contacts SET search_path = public;",
+    "metadata": {
+      "prosecdef": true
+    }
+  },
+  {
+    "name": "public_bucket_listable",
+    "title": "Bucket p\u00fablico con listado an\u00f3nimo permitido",
+    "level": "WARN",
+    "schema": "storage",
+    "entity": "spa-media",
+    "detail": "El bucket spa-media es p\u00fablico y permite el listado an\u00f3nimo de objetos.",
+    "remediation": "Establecer public = false o aplicar pol\u00edticas RLS estrictas en storage.objects.",
+    "metadata": {
+      "public": true
+    }
+  },
+  {
+    "name": "security_definer_view",
+    "title": "Vista ejecutada con privilegios de definidor",
+    "level": "WARN",
+    "schema": "public",
+    "entity": "view_crm_profiles",
+    "detail": "La vista de perfiles CRM omite la evaluaci\u00f3n de filas RLS del invocador.",
+    "remediation": "Convertir a SECURITY INVOKER o a\u00f1adir filtro expl\u00edcito por company_id.",
+    "metadata": {
+      "owner": "postgres"
+    }
+  },
+  {
+    "name": "rls_disabled_in_public",
+    "title": "Tabla p\u00fablica sin Row Level Security",
+    "level": "ERROR",
+    "schema": "public",
+    "entity": "wa_auth_state",
+    "detail": "La tabla wa_auth_state no tiene RLS activado.",
+    "remediation": "ALTER TABLE public.wa_auth_state ENABLE ROW LEVEL SECURITY;",
+    "metadata": {
+      "rowsecurity": false
+    }
+  }
+]

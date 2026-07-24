@@ -2,14 +2,14 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ywpafptrcvgoyaoqgzkz.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_lPk_0-WT6hY3o1IQ_4uI9g_4oZ6kdmR';
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3cGFmcHRyY3Znb3lhb3Fnemt6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTgxNjY3NSwiZXhwIjoyMDk3MzkyNjc1fQ.OTdvkwLzCH9yrHC05yHox-ubl2FpL7lHBfZnE4ztzm4';
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const TENANT_A_EMAIL = process.env.TENANT_A_EMAIL || 'silvana@gmail.com';
-const TENANT_A_PASSWORD = process.env.TENANT_A_PASSWORD || 'Skyrote';
+const TENANT_A_PASSWORD = process.env.TENANT_A_PASSWORD;
 const TENANT_B_EMAIL = process.env.TENANT_B_EMAIL || 'francisco@gmail.com';
-const TENANT_B_PASSWORD = process.env.TENANT_B_PASSWORD || 'Skyrote';
+const TENANT_B_PASSWORD = process.env.TENANT_B_PASSWORD;
 
 const results = [];
 
