@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { EventData, STATUS, Step } from 'react-joyride';
+import { STATUS, Step } from 'react-joyride';
 import { createClient } from '@/utils/supabase/client';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { IRootState } from '@/store';
 
-const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.Joyride), {
+const Joyride = dynamic(() => import('react-joyride'), {
     ssr: false,
 });
 
@@ -202,7 +202,7 @@ export default function DemoTour() {
         return () => document.removeEventListener('click', handleClick);
     }, [run, isDemo, stepIndex]);
 
-    const handleJoyrideCallback = (data: EventData) => {
+    const handleJoyrideCallback = (data: any) => {
         const { status, type, index, action } = data;
 
         if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
@@ -271,19 +271,21 @@ export default function DemoTour() {
             run={run}
             stepIndex={stepIndex}
             continuous={true}
-            options={{
-                zIndex: 10000,
-                primaryColor: '#e11d48', // pink-600
-                textColor: '#334155',
-                backgroundColor: '#ffffff',
-                overlayColor: 'rgba(0, 0, 0, 0.6)',
-                showProgress: false,
-                buttons: ['back', 'primary', 'skip'],
-                overlayClickAction: false,
-                blockTargetInteraction: false,
-            }}
+            {...({
+                options: {
+                    zIndex: 10000,
+                    primaryColor: '#e11d48',
+                    textColor: '#334155',
+                    backgroundColor: '#ffffff',
+                    overlayColor: 'rgba(0, 0, 0, 0.6)',
+                    showProgress: false,
+                    buttons: ['back', 'primary', 'skip'],
+                    overlayClickAction: false,
+                    blockTargetInteraction: false,
+                }
+            } as any)}
             styles={{
-                buttonPrimary: {
+                buttonNext: {
                     backgroundColor: '#e11d48',
                     borderRadius: '8px',
                     padding: '8px 16px',
