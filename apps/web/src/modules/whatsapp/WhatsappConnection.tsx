@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
-import { QrCode, Smartphone, Loader2, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
+import { QrCode, Smartphone, Loader2, CheckCircle2, AlertCircle, XCircle, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +16,8 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
+  const [qrTimedOut, setQrTimedOut] = useState(false);
+  const pollCountRef = useRef(0);
   const supabase = createClient();
 
   // 1. Obtener estado inicial solo al montar
@@ -23,7 +25,6 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     if (!companyId) return;
 
     const fetchStatus = async () => {
-      // Obtener estado de la sesión
       const { data } = await supabase
         .from('wa_sessions')
         .select('status')
@@ -36,7 +37,6 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
         setStatus('desconectado');
       }
 
-      // Obtener si es cuenta demo
       const { data: companyData } = await supabase
         .from('companies')
         .select('is_demo')
@@ -51,33 +51,40 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
     fetchStatus();
   }, [companyId, supabase]);
 
-  // 2. Suscribirse al QR y polling condicional
+  // 2. Polling controlado: 3s intervalo, máximo 20 intentos (60s)
   useEffect(() => {
     if (!companyId) return;
 
-    const channel = supabase.channel(`wa_qr_${companyId}`);
-    
-    channel.on('broadcast', { event: 'qr_update' }, (payload) => {
-      setQrCode(payload.payload.qr);
-      setStatus('conectando');
-    }).subscribe();
-
     let isMounted = true;
     let interval: NodeJS.Timeout;
-    if (status === 'conectando' || status === 'esperando_qr') {
+
+    if (status === 'conectando' || status === 'esperando_qr' || status === 'generando_qr' || status === 'provisionando') {
+      if (qrTimedOut) return;
+
+      pollCountRef.current = 0;
+
       interval = setInterval(async () => {
+        if (!isMounted) return;
+
+        pollCountRef.current += 1;
+        if (pollCountRef.current > 20) {
+          clearInterval(interval);
+          setQrTimedOut(true);
+          return;
+        }
+
         try {
           const res = await fetch('/api/wa/status');
           if (res.ok && isMounted) {
             const data = await res.json();
-            // Use functional state update to avoid closure stale state issues
+
             setStatus(prev => {
-              // If we already aborted/disconnected, don't revert to a connecting state
               if (prev === 'desconectado' || prev === 'cargando') return prev;
               
               if (data.status && data.status !== prev) {
                 if (data.status === 'conectado') {
                   setQrCode(null);
+                  setQrTimedOut(false);
                   toast.success('¡WhatsApp conectado exitosamente!');
                 }
                 return data.status;
@@ -85,53 +92,76 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
               return prev;
             });
             
-            if (data.qr && data.qr !== qrCode && isMounted) {
+            if (data.qr && isMounted) {
               setQrCode(data.qr);
+              setQrTimedOut(false);
             }
           }
         } catch (err) {
           console.error('Error polling status:', err);
         }
-      }, 5000);
+      }, 3000);
     }
 
     return () => {
       isMounted = false;
-      supabase.removeChannel(channel);
       if (interval) clearInterval(interval);
     };
-  }, [companyId, status, supabase, qrCode]);
+  }, [companyId, status, qrTimedOut]);
 
   const handleAbort = async () => {
     setStatus('desconectado');
     setQrCode(null);
+    setQrTimedOut(false);
+    pollCountRef.current = 0;
     try {
-      const res = await fetch('/api/wa/disconnect', { method: 'POST' });
-      if (!res.ok) {
-         console.warn('Error backend al desconectar');
-      }
+      await fetch('/api/wa/disconnect', { method: 'POST' });
     } catch (err) {
-      console.error('Error abortando conexion:', err);
+      console.error('Error abortando conexión:', err);
     }
   };
 
   const handleStartSession = async () => {
     setLoading(true);
+    setQrTimedOut(false);
+    pollCountRef.current = 0;
     try {
       const res = await fetch('/api/wa/instance', { method: 'POST' });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || errorData.details || 'Error al iniciar');
+        throw new Error(errorData.error || 'Error al iniciar instancia');
       }
       const data = await res.json();
-      setStatus('esperando_qr');
+      setStatus(data.status || 'generando_qr');
       if (data.qr) {
         setQrCode(data.qr);
+        setStatus('esperando_qr');
       }
-      toast.success('Instancia creada, por favor escanea el QR...');
+      toast.success('Inicializando servicio de WhatsApp...');
     } catch (err: any) {
-      toast.error(err.message || 'Ocurrió un error al conectar con el servidor.');
+      toast.error(err.message || 'Error al conectar con el servidor.');
       setStatus('desconectado');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!confirm('¿Estás seguro de que quieres desvincular este WhatsApp? Se detendrá el envío de campañas.')) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/wa/disconnect', { method: 'POST' });
+      if (!res.ok) throw new Error('Error al desvincular');
+      
+      setStatus('desconectado');
+      setQrCode(null);
+      setQrTimedOut(false);
+      toast.success('WhatsApp desvinculado correctamente');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al desconectar');
     } finally {
       setLoading(false);
     }
@@ -145,26 +175,6 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       </div>
     );
   }
-
-  const handleDisconnect = async () => {
-    if (!confirm('¿Estás seguro de que quieres desvincular este WhatsApp? Se detendrá el envío de campañas y tendrás que volver a escanear el QR si deseas usarlo de nuevo.')) {
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const res = await fetch('/api/wa/disconnect', { method: 'POST' });
-      if (!res.ok) throw new Error('Error al desvincular');
-      
-      setStatus('desconectado');
-      setQrCode(null);
-      toast.success('WhatsApp desvinculado correctamente');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al desconectar');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (status === 'conectado') {
     return (
@@ -197,11 +207,11 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
       {status === 'error_desconexion' && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 p-4 rounded-xl flex flex-col gap-2 max-w-xl">
           <h4 className="m-0 text-[0.9rem] font-bold text-red-900 dark:text-red-300 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <AlertCircle className="w-4 h-4 text-red-600" />
             Envíos Pausados por Errores
           </h4>
           <p className="m-0 text-[0.8rem] text-red-800 dark:text-red-200/80 leading-relaxed">
-            Tu conexión de WhatsApp presentó múltiples errores consecutivos. Por tu seguridad y para evitar bloqueos, el sistema ha frenado automáticamente tus campañas. Por favor, <strong>vuelve a vincular tu WhatsApp</strong> para reanudar los envíos pendientes.
+            Tu conexión de WhatsApp presentó errores de comunicación. Por favor, <strong>vuelve a vincular tu WhatsApp</strong> para reanudar los envíos.
           </p>
         </div>
       )}
@@ -222,10 +232,10 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
         ) : null}
       </div>
 
-      {/* QR Modal Overlay */}
-      {(status === 'conectando' || status === 'esperando_qr') && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+      {/* Modal QR Overlay */}
+      {(status === 'conectando' || status === 'esperando_qr' || status === 'generando_qr' || status === 'provisionando') && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 my-auto">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
               <h3 className="text-xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -242,8 +252,22 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
               </button>
             </div>
             
-            <div className="p-8 flex flex-col items-center justify-center min-h-[300px]">
-              {qrCode ? (
+            <div className="p-8 flex flex-col items-center justify-center min-h-[320px]">
+              {qrTimedOut ? (
+                <div className="flex flex-col items-center text-center p-4">
+                  <AlertCircle className="w-12 h-12 text-amber-500 mb-3" />
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                    El QR está tardando más de lo esperado
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-6 max-w-xs">
+                    El servidor de WhatsApp no ha retornado la imagen a tiempo. Puedes volver a intentarlo.
+                  </p>
+                  <Button onClick={handleStartSession} className="bg-primary text-white">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Reintentar generación
+                  </Button>
+                </div>
+              ) : qrCode ? (
                 <div className="flex flex-col items-center animate-in slide-in-from-bottom-4 duration-300">
                   <div className="bg-white p-3 rounded-xl border border-zinc-200 shadow-lg mb-6">
                     <Image src={qrCode} alt="WhatsApp QR Code" width={220} height={220} className="rounded-md" />
@@ -263,7 +287,10 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
                     <QrCode className="w-10 h-10 text-zinc-400" />
                   </div>
                   <Loader2 className="w-6 h-6 animate-spin mb-3 text-green-600" />
-                  <span className="text-base font-medium">Generando código seguro...</span>
+                  <span className="text-base font-medium text-zinc-900 dark:text-zinc-100">
+                    {status === 'generando_qr' ? 'Generando código QR...' : 'Preparando servicio...'}
+                  </span>
+                  <span className="text-xs text-zinc-400 mt-1">Por favor espera un momento</span>
                 </div>
               )}
             </div>

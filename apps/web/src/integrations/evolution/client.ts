@@ -7,6 +7,22 @@ export class EvolutionApiError extends Error {
   }
 }
 
+export function extractEvolutionQr(payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+
+  const data = payload as Record<string, any>;
+
+  return (
+    data.base64 ??
+    data.code ??
+    data.qr ??
+    data.qrcode?.base64 ??
+    data.qrcode?.code ??
+    data.qrcode?.qr ??
+    null
+  );
+}
+
 function getHeaders(): Record<string, string> {
   const env = getEnv();
   const headers: Record<string, string> = {

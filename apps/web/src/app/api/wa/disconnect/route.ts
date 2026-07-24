@@ -22,7 +22,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
     }
 
-    // Obtener la instancia de Evolution API
     const { data: session } = await supabase
       .from('wa_sessions')
       .select('bb_project_id')
@@ -40,7 +39,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Limpiar sesión local y resetear a desconectado
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -51,6 +49,7 @@ export async function POST(req: Request) {
       bb_project_id: null,
       status: 'desconectado',
       phone_number: null,
+      connection_started_at: null,
       last_disconnect_reason: 'Desvinculado manualmente por el usuario',
       updated_at: new Date().toISOString()
     }).eq('company_id', profile.company_id);

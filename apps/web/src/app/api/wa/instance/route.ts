@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import { evolution, EvolutionApiError } from '@/integrations/evolution/client';
+import { evolution, EvolutionApiError, extractEvolutionQr } from '@/integrations/evolution/client';
 import { getEnv } from '@/config/env';
 import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
 
@@ -53,17 +53,14 @@ export async function POST(req: Request) {
     const cleanCompanyId = profile.company_id.replaceAll('-', '');
     const instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
 
-    const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
-    const host = req.headers.get('host');
-    const webhookUrl = `${protocol}://${host}/api/wa/webhook`;
     const env = getEnv();
+    const webhookUrl = `${env.APP_PUBLIC_URL}/api/wa/webhook`;
 
     let qr = null;
     try {
       const createData = await evolution.createInstance(instanceName);
-      qr = createData?.qrcode?.base64 || null;
+      qr = extractEvolutionQr(createData);
     } catch (createErr: any) {
-      // Ignorar únicamente si es conflicto 409 (la instancia ya existe en Evolution API)
       if (createErr instanceof EvolutionApiError && createErr.status !== 409) {
         throw createErr;
       }
@@ -77,10 +74,14 @@ export async function POST(req: Request) {
       { auth: { persistSession: false } }
     );
     
+    // Resetear connection_started_at a null durante la provisión/generación
+    const initialStatus = qr ? 'esperando_qr' : 'generando_qr';
+
     const { error: sessionError } = await supabaseAdmin.from('wa_sessions').upsert({
       company_id: profile.company_id,
       bb_project_id: instanceName,
-      status: 'conectando',
+      status: initialStatus,
+      connection_started_at: null,
       updated_at: new Date().toISOString()
     });
 
@@ -91,11 +92,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       message: 'Instancia inicializada en Evolution API v2.2.3', 
       instanceName,
-      status: 'conectando',
+      status: initialStatus,
+      code: qr ? 'QR_READY' : 'QR_NOT_READY',
       qr
     });
   } catch (error: any) {
-    console.error('Error al iniciar instancia en Evolution API:', error);
-    return NextResponse.json({ error: error.message || 'Error al iniciar instancia' }, { status: 500 });
+    console.error('Error al iniciar instancia en Evolution API:', {
+      message: error instanceof Error ? error.message : String(error)
+    });
+    return NextResponse.json({ 
+      error: error.message || 'Error al iniciar instancia',
+      code: 'INSTANCE_INIT_FAILED' 
+    }, { status: 500 });
   }
 }
