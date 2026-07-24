@@ -1,0 +1,12 @@
+--- COMMAND: npx tsc --noEmit --project apps/web/tsconfig.json ---
+--- TIMESTAMP: 2026-07-24T16:27:27.447648+00:00 ---
+--- WORKING DIR: c:\Users\Julio\OneDrive\Desktop\NAVIER\masivos ---
+--- NODE VERSION: v22.11.0 ---
+--- NPM VERSION: 10.9.0 ---
+--- EXIT CODE: 0 ---
+--- DURATION: 23.91s ---
+
+=== STDOUT ===
+
+=== STDERR ===
+

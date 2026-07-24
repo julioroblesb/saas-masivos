@@ -1,0 +1,42 @@
+[
+  {
+    "id": "sec_001",
+    "lint_name": "security_definer_view",
+    "level": "WARN",
+    "target": "public.view_crm_profiles",
+    "remediation": "ALTER VIEW public.view_crm_profiles SET (security_barrier=true); or convert to SECURITY INVOKER.",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "id": "sec_002",
+    "lint_name": "function_search_path_mutable",
+    "level": "WARN",
+    "target": "public.rpc_create_campaign",
+    "remediation": "ALTER FUNCTION public.rpc_create_campaign(...) SET search_path = public;",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "id": "sec_003",
+    "lint_name": "function_search_path_mutable",
+    "level": "WARN",
+    "target": "public.search_contacts",
+    "remediation": "ALTER FUNCTION public.search_contacts(text) SET search_path = public;",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "id": "sec_004",
+    "lint_name": "rls_disabled_in_public",
+    "level": "ERROR",
+    "target": "public.wa_auth_state",
+    "remediation": "ALTER TABLE public.wa_auth_state ENABLE ROW LEVEL SECURITY;",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "id": "sec_005",
+    "lint_name": "public_bucket_listable",
+    "level": "WARN",
+    "target": "storage.spa-media",
+    "remediation": "Set public = false on bucket spa-media or configure row level policies.",
+    "future_stage": "Etapa 02"
+  }
+]

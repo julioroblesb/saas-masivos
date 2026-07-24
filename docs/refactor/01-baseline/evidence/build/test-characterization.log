@@ -1,0 +1,12 @@
+--- COMMAND: npm run test:characterization --workspace=apps/web ---
+--- TIMESTAMP: 2026-07-24T16:27:51.359226+00:00 ---
+--- WORKING DIR: c:\Users\Julio\OneDrive\Desktop\NAVIER\masivos ---
+--- NODE VERSION: v22.11.0 ---
+--- NPM VERSION: 10.9.0 ---
+--- EXIT CODE: 1 ---
+--- DURATION: 3.46s ---
+
+=== STDOUT ===
+None
+=== STDERR ===
+None

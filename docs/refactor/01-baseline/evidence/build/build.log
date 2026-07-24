@@ -1,0 +1,71 @@
+--- COMMAND: npm run build --workspace=apps/web ---
+--- TIMESTAMP: 2026-07-24T16:27:54.815689+00:00 ---
+--- WORKING DIR: c:\Users\Julio\OneDrive\Desktop\NAVIER\masivos ---
+--- NODE VERSION: v22.11.0 ---
+--- NPM VERSION: 10.9.0 ---
+--- EXIT CODE: 0 ---
+--- DURATION: 53.39s ---
+
+=== STDOUT ===
+
+> web@0.1.0 build
+> npx next build
+
+â–² Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+âœ“ Compiled successfully in 22.1s
+  Running TypeScript ...
+  Finished TypeScript in 21.2s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/27) ...
+  Generating static pages using 7 workers (6/27) 
+  Generating static pages using 7 workers (13/27) 
+  Generating static pages using 7 workers (20/27) 
+âœ“ Generating static pages using 7 workers (27/27) in 986ms
+  Finalizing page optimization ...
+
+Route (app)
+â”Œ â—‹ /
+â”œ â—‹ /_not-found
+â”œ â—‹ /actualizar-password
+â”œ Æ’ /admin
+â”œ Æ’ /api/cron/cleanup-demos
+â”œ Æ’ /api/cron/process-queue
+â”œ Æ’ /api/debug-messages
+â”œ Æ’ /api/debug-schedule
+â”œ Æ’ /api/debug-test-queue
+â”œ Æ’ /api/demo/start
+â”œ Æ’ /api/settings/company
+â”œ Æ’ /api/wa/disconnect
+â”œ Æ’ /api/wa/instance
+â”œ Æ’ /api/wa/status
+â”œ Æ’ /api/wa/webhook
+â”œ Æ’ /dashboard
+â”œ Æ’ /dashboard/agenda
+â”œ Æ’ /dashboard/atenciones
+â”œ Æ’ /dashboard/bot
+â”œ Æ’ /dashboard/campanas
+â”œ Æ’ /dashboard/clientes
+â”œ Æ’ /dashboard/cobranza
+â”œ â—‹ /dashboard/configuracion
+â”œ Æ’ /dashboard/mensajeria
+â”œ â—‹ /dashboard/productos
+â”œ â—‹ /dashboard/servicios
+â”œ â—‹ /dashboard/trabajadoras
+â”œ â—‹ /demo
+â”œ â—‹ /login
+â”œ â—‹ /recuperar-password
+â”” â—‹ /terminos
+
+
+Æ’ Proxy (Middleware)
+
+â—‹  (Static)   prerendered as static content
+Æ’  (Dynamic)  server-rendered on demand
+
+
+=== STDERR ===
+âš  The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+

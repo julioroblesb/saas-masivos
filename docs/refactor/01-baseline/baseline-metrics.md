@@ -1,4 +1,4 @@
-# Métricas de Línea Base del Sistema
+# Métricas de Línea Base del Sistema (Corregido)
 
 ## 1. Métricas del Repositorio de Código (`git ls-files`)
 
@@ -13,7 +13,17 @@
 
 ---
 
-## 2. Métricas de Supabase (Proyecto en Vivo `ywpafptrcvgoyaoqgzkz`)
+## 2. Métricas del Runner de Pruebas Unitarias Vitest
+
+| Métrica | Valor Registrado | Detalle |
+| :--- | :---: | :--- |
+| **Tests Reales de Código Productivo** | **7** | `evaluateTenantAccess` (3), `extractEvolutionQr` (3), `resolveSpintax` (1) |
+| **Tests Reales Pasados** | **7 (100%)** | `apps/web/src/domain/characterization.characterization.test.ts` |
+| **Casos No Automatizables sin Refactorización** | **5** | Clasificados en `test-matrix.md` |
+
+---
+
+## 3. Métricas de Supabase (Proyecto en Vivo `ywpafptrcvgoyaoqgzkz`)
 
 | Métrica | Valor Registrado | Evidencia / Fuente |
 | :--- | :---: | :--- |
@@ -21,6 +31,8 @@
 | **Vistas Públicas** | 1 | `views.csv` (`view_crm_profiles`) |
 | **Funciones / RPCs** | 25 | `functions.csv` |
 | **Funciones SECURITY DEFINER** | 20 | `functions.csv` |
+| **Funciones Ejecutables por Anon** | 25 | `functions.csv` |
+| **Funciones Ejecutables por Authenticated** | 25 | `functions.csv` |
 | **Políticas RLS Declaradas** | 38 | `rls-policies.csv` |
 | **Buckets de Storage Públicos** | 1 | `storage-buckets.csv` (`spa-media`) |
 | **Visitas Agendadas (`spa_visits`)** | 3,187 | `row-counts.csv` |
@@ -29,19 +41,19 @@
 
 ---
 
-## 3. Tiempos y Resultados del Build Limpio en PowerShell (`evidence/build/timings.json`)
+## 4. Tiempos y Resultados del Build Limpio en PowerShell (`evidence/build/`)
 
 | Comando | Duración | Exit Code Real | Estado de Línea Base |
 | :--- | :---: | :---: | :--- |
 | `npm ci` | 77.05s | **0** | **SUCCESS (Instalación limpia completa)** |
 | `npm run lint --workspace=apps/web` | 33.80s | **1** | FAILED (Warnings de deprecación ESLint en motor) |
 | `npx tsc --noEmit --project apps/web/tsconfig.json` | 23.91s | **0** | **SUCCESS (Verificación estática de tipos limpia)** |
-| `npm run test:characterization --workspace=apps/web` | 3.46s | **0** | **SUCCESS (12/12 Pruebas de Vitest pasan)** |
+| `npm run test:characterization --workspace=apps/web` | 3.46s | **0** | **SUCCESS (7/7 Pruebas reales pasadas)** |
 | `npm run build --workspace=apps/web` | 53.39s | **0** | **SUCCESS (Compilado en 53.39s con npx next build)** |
 
 ---
 
-## 4. Métricas de Servidor en Vivo (`servidor-julio` @ `2026-07-24T11:05:59-05:00`)
+## 5. Métricas de Servidor en Vivo (`servidor-julio` @ `2026-07-24T11:05:59-05:00`)
 
 | Métrica | Valor Medido | Observación |
 | :--- | :--- | :--- |

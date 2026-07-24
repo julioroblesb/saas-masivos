@@ -1,0 +1,33 @@
+--- COMMAND: npm ci ---
+--- TIMESTAMP: 2026-07-24T16:25:36.594563+00:00 ---
+--- WORKING DIR: c:\Users\Julio\OneDrive\Desktop\NAVIER\masivos ---
+--- NODE VERSION: v22.11.0 ---
+--- NPM VERSION: 10.9.0 ---
+--- EXIT CODE: 0 ---
+--- DURATION: 77.05s ---
+
+=== STDOUT ===
+
+added 753 packages, and audited 756 packages in 1m
+
+261 packages are looking for funding
+  run `npm fund` for details
+
+10 vulnerabilities (4 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+=== STDERR ===
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'eslint-visitor-keys@5.0.1',
+npm warn EBADENGINE   required: { node: '^20.19.0 || ^22.13.0 || >=24' },
+npm warn EBADENGINE   current: { node: 'v22.11.0', npm: '10.9.0' }
+npm warn EBADENGINE }
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+

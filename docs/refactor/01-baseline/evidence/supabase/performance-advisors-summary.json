@@ -1,0 +1,18 @@
+[
+  {
+    "id": "perf_001",
+    "lint_name": "unindexed_foreign_keys",
+    "level": "INFO",
+    "target": "public.crm_wa_queue",
+    "remediation": "CREATE INDEX idx_crm_wa_queue_campaign_id ON public.crm_wa_queue(campaign_id);",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "id": "perf_002",
+    "lint_name": "unindexed_foreign_keys",
+    "level": "INFO",
+    "target": "public.spa_visits",
+    "remediation": "CREATE INDEX idx_spa_visits_staff_id ON public.spa_visits(staff_id);",
+    "future_stage": "Etapa 02"
+  }
+]

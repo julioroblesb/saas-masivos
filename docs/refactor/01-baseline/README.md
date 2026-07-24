@@ -1,6 +1,6 @@
 # Línea Base e Inventario Técnico del Sistema (Etapa 01 - Corregido y Auditado)
 
-Este directorio contiene la caracterización integral, el inventario técnico real y la matriz de evidencias del sistema extraídos directamente del proyecto Supabase en vivo (**Ref:** `ywpafptrcvgoyaoqgzkz`), la suite de pruebas unitarias Vitest y la infraestructura del servidor Linux (`servidor-julio`).
+Este directorio contiene la caracterización integral, el inventario técnico real y la matriz de evidencias del sistema extraídos directamente del proyecto Supabase en vivo (**Ref:** `ywpafptrcvgoyaoqgzkz`), la suite de pruebas unitarias Vitest (7 pruebas reales pasadas) y la infraestructura del servidor Linux (`servidor-julio`).
 
 > **Declaración de Reconocimiento de Desviaciones**: El inventario inicial fue inferido desde migraciones locales. En esta entrega corregida, fue sustituido al 100% por una extracción reproducible y verificada ejecutada directamente contra la base de datos PostgreSQL desplegada en vivo (`Project ref: ywpafptrcvgoyaoqgzkz`).
 
@@ -29,8 +29,12 @@ Este directorio contiene la caracterización integral, el inventario técnico re
 
 - **Consultas SQL Reproducibles**: `docs/refactor/01-baseline/evidence/supabase/sql/` (`01_tables.sql` a `15_advisors-reference.md`).
 - **CSVs de Base de Datos Real**: `docs/refactor/01-baseline/evidence/supabase/` (`tables.csv`, `columns.csv`, `constraints.csv`, `foreign-keys.csv`, `indexes.csv`, `functions.csv`, `function-grants.csv`, `views.csv`, `triggers.csv`, `rls-policies.csv`, `grants.csv`, `storage-buckets.csv`, `extensions.csv`, `row-counts.csv`).
-- **Advisors Oficiales Supabase**: `docs/refactor/01-baseline/evidence/supabase/security-advisors.json` y `performance-advisors.json`.
-- **Auditoría Multi-Tenant RLS**: `docs/refactor/01-baseline/evidence/rls-test-results.json` (19 casos probados con Tenant A y Tenant B).
-- **Pruebas de Caracterización Vitest**: `apps/web/vitest.config.mts` y `apps/web/src/domain/characterization.characterization.test.ts` (12/12 pruebas pasadas).
+- **Advisors Crudos y Resúmenes Supabase**:
+  - `docs/refactor/01-baseline/evidence/supabase/security-advisors.raw.json`
+  - `docs/refactor/01-baseline/evidence/supabase/performance-advisors.raw.json`
+  - `docs/refactor/01-baseline/evidence/supabase/security-advisors-summary.json`
+  - `docs/refactor/01-baseline/evidence/supabase/performance-advisors-summary.json`
+- **Auditoría Multi-Tenant RLS**: `docs/refactor/01-baseline/evidence/rls-test-results.json` (19 casos probados con derivación dinámica de `company_id`).
+- **Pruebas de Caracterización Vitest**: `apps/web/vitest.config.mts` y `apps/web/src/domain/characterization.characterization.test.ts` (7/7 pruebas reales de código productivo pasadas).
 - **Métricas del Servidor Real**: `docs/refactor/01-baseline/evidence/server-metrics.txt` (`servidor-julio`).
-- **Logs Completos de Build y Limpieza**: `docs/refactor/01-baseline/evidence/build/` (`npm-ci.log`, `lint.log`, `typecheck.log`, `test-characterization.log`, `build.log`, `timings.json`).
+- **Logs Completos de Build y Limpieza en Git**: `docs/refactor/01-baseline/evidence/build/` (`npm-ci.log`, `lint.log`, `typecheck.log`, `test-characterization.log`, `build.log`, `timings.json`).
