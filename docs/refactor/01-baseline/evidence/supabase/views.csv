@@ -1,0 +1,2 @@
+view_name,schema,is_security_definer,definition
+view_crm_profiles,public,NO,View definition from migration

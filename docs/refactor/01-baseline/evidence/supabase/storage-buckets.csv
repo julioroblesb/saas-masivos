@@ -1,0 +1,2 @@
+bucket_id,name,public,file_size_limit,allowed_mime_types
+campaign-media,campaign-media,YES,10485760,"image/*,application/pdf"

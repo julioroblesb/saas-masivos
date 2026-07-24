@@ -1,0 +1,6 @@
+object_type,object_name,grantee,privilege_type
+TABLE,crm_marketing_contacts,authenticated,"SELECT, INSERT, UPDATE, DELETE"
+TABLE,crm_wa_campaigns,authenticated,"SELECT, INSERT, UPDATE, DELETE"
+TABLE,crm_wa_queue,authenticated,"SELECT, INSERT, UPDATE, DELETE"
+FUNCTION,search_contacts,anon,EXECUTE
+FUNCTION,rpc_create_campaign,anon,EXECUTE

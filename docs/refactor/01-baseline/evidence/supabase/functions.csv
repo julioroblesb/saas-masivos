@@ -1,0 +1,14 @@
+function_name,schema,return_type,is_security_definer,has_search_path,definition
+auth_company_id,public,uuid language sql stable,NO,NO,()
+rpc_upsert_marketing_contact,public,setof crm_marketing_contacts,YES,NO,"(p_phone text,     p_name text DEFAULT NULL,     p_tags text[] DEFAULT '{}'::text[])"
+rpc_batch_insert_marketing_contacts,public,void,YES,NO,(p_contacts jsonb)
+rpc_delete_marketing_contact,public,void,YES,NO,(p_id uuid)
+rpc_delete_marketing_contacts_by_tag,public,void,YES,NO,(p_tag text)
+rpc_create_campaign,public,jsonb,NO,NO,"(p_name text,     p_target_tag text,     p_sequence jsonb,     p_contacts jsonb,     p_min_delay_sec int,     p_max_delay_sec int,     p_created_by uuid)"
+rpc_cancel_campaign,public,jsonb,YES,NO,(p_campaign_id uuid)
+increment_campaign_sent,public,void,YES,NO,(p_campaign_id uuid)
+increment_campaign_failed,public,void,YES,NO,(p_campaign_id uuid)
+search_contacts,public,setof crm_marketing_contacts language sql stable,NO,NO,(search_term text)
+search_contacts,public,setof crm_marketing_contacts LANGUAGE sql STABLE,YES,YES,(search_term text)
+rpc_get_contacts,public,SETOF crm_marketing_contacts,YES,YES,(p_company_id uuid)
+rpc_recalculate_customer_segment,public,TEXT LANGUAGE plpgsql SECURITY DEFINER,YES,NO,(p_contact_id UUID)

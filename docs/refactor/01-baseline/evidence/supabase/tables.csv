@@ -1,0 +1,16 @@
+table_name,schema,comment
+companies,public,Public application table
+crm_marketing_contacts,public,Public application table
+crm_wa_campaigns,public,Public application table
+crm_wa_queue,public,Public application table
+profiles,public,Public application table
+spa_follow_ups,public,Public application table
+spa_payments,public,Public application table
+spa_services,public,Public application table
+spa_staff,public,Public application table
+spa_staff_blocks,public,Public application table
+spa_staff_schedules,public,Public application table
+spa_staff_services,public,Public application table
+spa_visits,public,Public application table
+wa_auth_state,public,Public application table
+wa_sessions,public,Public application table

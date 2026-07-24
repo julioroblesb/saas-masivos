@@ -1,0 +1,16 @@
+table_name,estimated_row_count
+companies,3
+profiles,3
+crm_marketing_contacts,12
+crm_wa_campaigns,2
+crm_wa_queue,5
+wa_sessions,1
+wa_auth_state,0
+spa_services,8
+spa_staff,4
+spa_staff_services,8
+spa_staff_schedules,20
+spa_staff_blocks,0
+spa_visits,6
+spa_payments,6
+spa_follow_ups,4

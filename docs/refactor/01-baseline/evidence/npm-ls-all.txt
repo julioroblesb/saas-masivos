@@ -1,0 +1,2825 @@
+saas-masivos@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos
++-- @alloc/quick-lru@5.2.0 extraneous
++-- @babel/code-frame@7.29.7 extraneous
+| +-- @babel/helper-validator-identifier@7.29.7 deduped
+| +-- js-tokens@4.0.0 deduped
+| `-- picocolors@1.1.1 deduped
++-- @babel/compat-data@7.29.7 extraneous
++-- @babel/core@7.29.7 extraneous
+| +-- @babel/code-frame@7.29.7 deduped
+| +-- @babel/generator@7.29.7 deduped
+| +-- @babel/helper-compilation-targets@7.29.7 deduped
+| +-- @babel/helper-module-transforms@7.29.7 deduped
+| +-- @babel/helpers@7.29.7 deduped
+| +-- @babel/parser@7.29.7 deduped
+| +-- @babel/template@7.29.7 deduped
+| +-- @babel/traverse@7.29.7 deduped
+| +-- @babel/types@7.29.7 deduped
+| +-- @jridgewell/remapping@2.3.5 deduped
+| +-- convert-source-map@2.0.0 deduped
+| +-- debug@4.4.3 deduped
+| +-- gensync@1.0.0-beta.2 deduped
+| +-- json5@2.2.3 deduped
+| `-- semver@6.3.1 deduped
++-- @babel/generator@7.29.7 extraneous
+| +-- @babel/parser@7.29.7 deduped
+| +-- @babel/types@7.29.7 deduped
+| +-- @jridgewell/gen-mapping@0.3.13 deduped
+| +-- @jridgewell/trace-mapping@0.3.31 deduped
+| `-- jsesc@3.1.0 deduped
++-- @babel/helper-annotate-as-pure@7.29.7 extraneous
+| `-- @babel/types@7.29.7 deduped
++-- @babel/helper-compilation-targets@7.29.7 extraneous
+| +-- @babel/compat-data@7.29.7 deduped
+| +-- @babel/helper-validator-option@7.29.7 deduped
+| +-- browserslist@4.28.2 deduped
+| +-- lru-cache@5.1.1 deduped
+| `-- semver@6.3.1 deduped
++-- @babel/helper-create-class-features-plugin@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-annotate-as-pure@7.29.7 deduped
+| +-- @babel/helper-member-expression-to-functions@7.29.7 deduped
+| +-- @babel/helper-optimise-call-expression@7.29.7 deduped
+| +-- @babel/helper-replace-supers@7.29.7 deduped
+| +-- @babel/helper-skip-transparent-expression-wrappers@7.29.7 deduped
+| +-- @babel/traverse@7.29.7 deduped
+| `-- semver@6.3.1 deduped
++-- @babel/helper-globals@7.29.7 extraneous
++-- @babel/helper-member-expression-to-functions@7.29.7 extraneous
+| +-- @babel/traverse@7.29.7 deduped
+| `-- @babel/types@7.29.7 deduped
++-- @babel/helper-module-imports@7.29.7 extraneous
+| +-- @babel/traverse@7.29.7 deduped
+| `-- @babel/types@7.29.7 deduped
++-- @babel/helper-module-transforms@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-module-imports@7.29.7 deduped
+| +-- @babel/helper-validator-identifier@7.29.7 deduped
+| `-- @babel/traverse@7.29.7 deduped
++-- @babel/helper-optimise-call-expression@7.29.7 extraneous
+| `-- @babel/types@7.29.7 deduped
++-- @babel/helper-plugin-utils@7.29.7 extraneous
++-- @babel/helper-replace-supers@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-member-expression-to-functions@7.29.7 deduped
+| +-- @babel/helper-optimise-call-expression@7.29.7 deduped
+| `-- @babel/traverse@7.29.7 deduped
++-- @babel/helper-skip-transparent-expression-wrappers@7.29.7 extraneous
+| +-- @babel/traverse@7.29.7 deduped
+| `-- @babel/types@7.29.7 deduped
++-- @babel/helper-string-parser@7.29.7 extraneous
++-- @babel/helper-validator-identifier@7.29.7 extraneous
++-- @babel/helper-validator-option@7.29.7 extraneous
++-- @babel/helpers@7.29.7 extraneous
+| +-- @babel/template@7.29.7 deduped
+| `-- @babel/types@7.29.7 deduped
++-- @babel/parser@7.29.7 extraneous
+| `-- @babel/types@7.29.7 deduped
++-- @babel/plugin-syntax-jsx@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| `-- @babel/helper-plugin-utils@7.29.7 deduped
++-- @babel/plugin-syntax-typescript@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| `-- @babel/helper-plugin-utils@7.29.7 deduped
++-- @babel/plugin-transform-modules-commonjs@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-module-transforms@7.29.7 deduped
+| `-- @babel/helper-plugin-utils@7.29.7 deduped
++-- @babel/plugin-transform-typescript@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-annotate-as-pure@7.29.7 deduped
+| +-- @babel/helper-create-class-features-plugin@7.29.7 deduped
+| +-- @babel/helper-plugin-utils@7.29.7 deduped
+| +-- @babel/helper-skip-transparent-expression-wrappers@7.29.7 deduped
+| `-- @babel/plugin-syntax-typescript@7.29.7 deduped
++-- @babel/preset-typescript@7.29.7 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/helper-plugin-utils@7.29.7 deduped
+| +-- @babel/helper-validator-option@7.29.7 deduped
+| +-- @babel/plugin-syntax-jsx@7.29.7 deduped
+| +-- @babel/plugin-transform-modules-commonjs@7.29.7 deduped
+| `-- @babel/plugin-transform-typescript@7.29.7 deduped
++-- @babel/runtime@7.29.7 extraneous
++-- @babel/template@7.29.7 extraneous
+| +-- @babel/code-frame@7.29.7 deduped
+| +-- @babel/parser@7.29.7 deduped
+| `-- @babel/types@7.29.7 deduped
++-- @babel/traverse@7.29.7 extraneous
+| +-- @babel/code-frame@7.29.7 deduped
+| +-- @babel/generator@7.29.7 deduped
+| +-- @babel/helper-globals@7.29.7 deduped
+| +-- @babel/parser@7.29.7 deduped
+| +-- @babel/template@7.29.7 deduped
+| +-- @babel/types@7.29.7 deduped
+| `-- debug@4.4.3 deduped
++-- @babel/types@7.29.7 extraneous
+| +-- @babel/helper-string-parser@7.29.7 deduped
+| `-- @babel/helper-validator-identifier@7.29.7 deduped
++-- @base-ui/react@1.6.0 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- @base-ui/utils@0.3.1 deduped
+| +-- UNMET OPTIONAL DEPENDENCY @date-fns/tz@^1.2.0
+| +-- @floating-ui/react-dom@2.1.8
+| | +-- @floating-ui/dom@1.7.6 deduped
+| | +-- react-dom@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| | `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- @floating-ui/utils@0.2.11
+| +-- @types/react@19.2.17
+| | `-- csstype@3.2.3 deduped
+| +-- date-fns@4.4.0 deduped
+| +-- react-dom@19.2.4 invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| | +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| | `-- scheduler@0.27.0
+| +-- react@19.2.4 invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- use-sync-external-store@1.6.0
+|   `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
++-- @base-ui/utils@0.3.1 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- @floating-ui/utils@0.2.11 deduped
+| +-- @types/react@19.2.17 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| +-- reselect@5.2.0 deduped
+| `-- use-sync-external-store@1.6.0 deduped
++-- @dotenvx/dotenvx@1.74.2 extraneous
+| +-- commander@11.1.0 extraneous
+| +-- conf@10.2.0 deduped
+| +-- define-lazy-prop@2.0.0 extraneous
+| +-- dotenv@17.4.2 deduped
+| +-- eciesjs@0.4.18 deduped
+| +-- enquirer@2.4.1 deduped
+| +-- env-paths@2.2.1 deduped
+| +-- execa@5.1.1 extraneous
+| | +-- cross-spawn@7.0.6 deduped
+| | +-- get-stream@6.0.1 deduped
+| | +-- human-signals@2.1.0 deduped
+| | +-- is-stream@2.0.1 deduped
+| | +-- merge-stream@2.0.0 deduped
+| | +-- npm-run-path@4.0.1 deduped
+| | +-- onetime@5.1.2 deduped
+| | +-- signal-exit@3.0.7 deduped
+| | `-- strip-final-newline@2.0.0 deduped
+| +-- fdir@6.5.0 extraneous
+| | `-- picomatch@4.0.4 deduped
+| +-- get-stream@6.0.1 extraneous
+| +-- human-signals@2.1.0 extraneous
+| +-- ignore@5.3.2 deduped
+| +-- is-docker@2.2.1 extraneous
+| +-- is-stream@2.0.1 extraneous
+| +-- is-wsl@2.2.0 extraneous
+| | `-- is-docker@2.2.1 deduped
+| +-- isexe@3.1.5 extraneous
+| +-- npm-run-path@4.0.1 extraneous
+| | `-- path-key@3.1.1 deduped
+| +-- object-treeify@1.1.33 deduped
+| +-- open@8.4.2 extraneous
+| | +-- define-lazy-prop@2.0.0 deduped
+| | +-- is-docker@2.2.1 deduped
+| | `-- is-wsl@2.2.0 deduped
+| +-- picomatch@4.0.4 extraneous
+| +-- signal-exit@3.0.7 extraneous
+| +-- strip-final-newline@2.0.0 extraneous
+| +-- systeminformation@5.31.7 deduped
+| +-- undici@7.28.0 deduped
+| +-- which@4.0.0 extraneous
+| | `-- isexe@3.1.5 deduped
+| `-- yocto-spinner@1.2.0 deduped
++-- @ecies/ciphers@0.2.6 extraneous
+| `-- @noble/ciphers@1.3.0 deduped
++-- @emnapi/core@1.10.0 extraneous
+| +-- @emnapi/wasi-threads@1.2.1 deduped
+| `-- tslib@2.8.1 deduped
++-- @emnapi/runtime@1.11.1 extraneous
+| `-- tslib@2.8.1 deduped
++-- @emnapi/wasi-threads@1.2.1 extraneous
+| `-- tslib@2.8.1 deduped
++-- @emotion/babel-plugin@11.13.5 extraneous
+| +-- @babel/helper-module-imports@7.29.7 deduped
+| +-- @babel/runtime@7.29.7 deduped
+| +-- @emotion/hash@0.9.2 deduped
+| +-- @emotion/memoize@0.9.0 deduped
+| +-- @emotion/serialize@1.3.3 deduped
+| +-- babel-plugin-macros@3.1.0 deduped
+| +-- convert-source-map@1.9.0 extraneous
+| +-- escape-string-regexp@4.0.0 deduped
+| +-- find-root@1.1.0 deduped
+| +-- source-map@0.5.7 extraneous
+| `-- stylis@4.2.0 deduped
++-- @emotion/cache@11.14.0 extraneous
+| +-- @emotion/memoize@0.9.0 deduped
+| +-- @emotion/sheet@1.4.0 deduped
+| +-- @emotion/utils@1.4.2 deduped
+| +-- @emotion/weak-memoize@0.4.0 deduped
+| `-- stylis@4.2.0 deduped
++-- @emotion/hash@0.9.2 extraneous
++-- @emotion/memoize@0.9.0 extraneous
++-- @emotion/react@11.14.0 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- @emotion/babel-plugin@11.13.5 deduped
+| +-- @emotion/cache@11.14.0 deduped
+| +-- @emotion/serialize@1.3.3 deduped
+| +-- @emotion/use-insertion-effect-with-fallbacks@1.2.0 deduped
+| +-- @emotion/utils@1.4.2 deduped
+| +-- @emotion/weak-memoize@0.4.0 deduped
+| +-- hoist-non-react-statics@3.3.2 deduped
+| `-- react@19.2.4 deduped
++-- @emotion/serialize@1.3.3 extraneous
+| +-- @emotion/hash@0.9.2 deduped
+| +-- @emotion/memoize@0.9.0 deduped
+| +-- @emotion/unitless@0.10.0 deduped
+| +-- @emotion/utils@1.4.2 deduped
+| `-- csstype@3.2.3
++-- @emotion/sheet@1.4.0 extraneous
++-- @emotion/unitless@0.10.0 extraneous
++-- @emotion/use-insertion-effect-with-fallbacks@1.2.0 extraneous
+| `-- react@19.2.4 deduped
++-- @emotion/utils@1.4.2 extraneous
++-- @emotion/weak-memoize@0.4.0 extraneous
++-- @eslint-community/eslint-utils@4.9.1 extraneous
+| +-- eslint-visitor-keys@3.4.3 extraneous
+| `-- eslint@9.39.4 deduped
++-- @eslint-community/regexpp@4.12.2 extraneous
++-- @eslint/config-array@0.21.2 extraneous
+| +-- @eslint/object-schema@2.1.7 deduped
+| +-- debug@4.4.3 deduped
+| `-- minimatch@3.1.5 deduped
++-- @eslint/config-helpers@0.4.2 extraneous
+| `-- @eslint/core@0.17.0 deduped
++-- @eslint/core@0.17.0 extraneous
+| `-- @types/json-schema@7.0.15 deduped
++-- @eslint/eslintrc@3.3.5 extraneous
+| +-- ajv@6.15.0 deduped
+| +-- debug@4.4.3 deduped
+| +-- espree@10.4.0 deduped
+| +-- globals@14.0.0 deduped
+| +-- ignore@5.3.2 deduped
+| +-- import-fresh@3.3.1 deduped
+| +-- js-yaml@4.2.0 deduped
+| +-- minimatch@3.1.5 deduped
+| `-- strip-json-comments@3.1.1 deduped
++-- @eslint/js@9.39.4 extraneous
++-- @eslint/object-schema@2.1.7 extraneous
++-- @eslint/plugin-kit@0.4.1 extraneous
+| +-- @eslint/core@0.17.0 deduped
+| `-- levn@0.4.1 deduped
++-- @floating-ui/react@0.26.28 extraneous
+| +-- @floating-ui/react-dom@2.1.8 deduped
+| +-- @floating-ui/utils@0.2.11 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| `-- tabbable@6.4.0 deduped
++-- @headlessui/react@2.2.10 extraneous
+| +-- @floating-ui/react@0.26.28 deduped
+| +-- @react-aria/focus@3.22.1 deduped
+| +-- @react-aria/interactions@3.28.1 deduped
+| +-- @tanstack/react-virtual@3.14.3 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| `-- use-sync-external-store@1.6.0 deduped
++-- @hono/node-server@1.19.14 extraneous
+| `-- hono@4.12.26 deduped
++-- @humanfs/core@0.19.2 extraneous
+| `-- @humanfs/types@0.15.0 deduped
++-- @humanfs/node@0.16.8 extraneous
+| +-- @humanfs/core@0.19.2 deduped
+| +-- @humanfs/types@0.15.0 deduped
+| `-- @humanwhocodes/retry@0.4.3 deduped
++-- @humanfs/types@0.15.0 extraneous
++-- @humanwhocodes/module-importer@1.0.1 extraneous
++-- @humanwhocodes/retry@0.4.3 extraneous
++-- @img/colour@1.1.0 extraneous
++-- @img/sharp-win32-x64@0.34.5 extraneous
++-- @internationalized/date@3.12.2 extraneous
+| `-- @swc/helpers@0.5.15 deduped
++-- @internationalized/number@3.6.7 extraneous
+| `-- @swc/helpers@0.5.15 deduped
++-- @internationalized/string@3.2.9 extraneous
+| `-- @swc/helpers@0.5.15 deduped
++-- @jridgewell/gen-mapping@0.3.13 extraneous
+| +-- @jridgewell/sourcemap-codec@1.5.5 deduped
+| `-- @jridgewell/trace-mapping@0.3.31 deduped
++-- @jridgewell/remapping@2.3.5 extraneous
+| +-- @jridgewell/gen-mapping@0.3.13 deduped
+| `-- @jridgewell/trace-mapping@0.3.31 deduped
++-- @jridgewell/resolve-uri@3.1.2 extraneous
++-- @jridgewell/sourcemap-codec@1.5.5 extraneous
++-- @jridgewell/trace-mapping@0.3.31 extraneous
+| +-- @jridgewell/resolve-uri@3.1.2 deduped
+| `-- @jridgewell/sourcemap-codec@1.5.5 deduped
++-- @modelcontextprotocol/sdk@1.29.0 extraneous
+| +-- UNMET OPTIONAL DEPENDENCY @cfworker/json-schema@^4.1.1
+| +-- @hono/node-server@1.19.14 deduped
+| +-- ajv-formats@3.0.1 deduped
+| +-- ajv@8.20.0 extraneous
+| | +-- fast-deep-equal@3.1.3 deduped
+| | +-- fast-uri@3.1.2 deduped
+| | +-- json-schema-traverse@1.0.0 deduped
+| | `-- require-from-string@2.0.2 deduped
+| +-- content-type@1.0.5 extraneous
+| +-- cors@2.8.6 deduped
+| +-- cross-spawn@7.0.6 deduped
+| +-- eventsource-parser@3.1.0 deduped
+| +-- eventsource@3.0.7 deduped
+| +-- express-rate-limit@8.5.2 deduped
+| +-- express@5.2.1 deduped
+| +-- hono@4.12.26 deduped
+| +-- jose@6.2.3 deduped
+| +-- json-schema-traverse@1.0.0 extraneous
+| +-- json-schema-typed@8.0.2 deduped
+| +-- pkce-challenge@5.0.1 deduped
+| +-- raw-body@3.0.2 deduped
+| +-- zod-to-json-schema@3.25.2 deduped
+| `-- zod@4.4.3 deduped
++-- @napi-rs/wasm-runtime@1.1.5 extraneous
+| +-- @emnapi/core@1.10.0 deduped
+| +-- @emnapi/runtime@1.11.1 deduped
+| `-- @tybys/wasm-util@0.10.2 deduped
++-- @next/env@16.2.9 extraneous
++-- @next/eslint-plugin-next@16.2.9 extraneous
+| `-- fast-glob@3.3.1 deduped
++-- @next/swc-win32-x64-msvc@16.2.9 extraneous
++-- @noble/ciphers@1.3.0 extraneous
++-- @noble/curves@1.9.7 extraneous
+| `-- @noble/hashes@1.8.0 deduped
++-- @noble/hashes@1.8.0 extraneous
++-- @nodelib/fs.scandir@2.1.5 extraneous
+| +-- @nodelib/fs.stat@2.0.5 deduped
+| `-- run-parallel@1.2.0 deduped
++-- @nodelib/fs.stat@2.0.5 extraneous
++-- @nodelib/fs.walk@1.2.8 extraneous
+| +-- @nodelib/fs.scandir@2.1.5 deduped
+| `-- fastq@1.20.1 deduped
++-- @nolyfill/is-core-module@1.0.39 extraneous
++-- @popperjs/core@2.11.8 extraneous
++-- @react-aria/focus@3.22.1 extraneous
+| +-- @swc/helpers@0.5.15 deduped
+| +-- react-aria@3.50.0 deduped
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- @react-aria/interactions@3.28.1 extraneous
+| +-- @react-types/shared@3.36.0 deduped
+| +-- @swc/helpers@0.5.15 deduped
+| +-- react-aria@3.50.0 deduped
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- @react-types/shared@3.36.0 extraneous
+| `-- react@19.2.4 deduped
++-- @reduxjs/toolkit@2.12.0 extraneous
+| +-- @standard-schema/spec@1.1.0 deduped
+| +-- @standard-schema/utils@0.3.0 deduped
+| +-- immer@11.1.8 deduped
+| +-- react-redux@9.3.0 deduped
+| +-- react@19.2.4 deduped
+| +-- redux-thunk@3.1.0 deduped
+| +-- redux@5.0.1 deduped
+| `-- reselect@5.2.0 deduped
++-- @rtsao/scc@1.1.0 extraneous
++-- @sec-ant/readable-stream@0.4.1 extraneous
++-- @sindresorhus/merge-streams@4.0.0 extraneous
++-- @standard-schema/spec@1.1.0 extraneous
++-- @standard-schema/utils@0.3.0 extraneous
++-- @supabase/auth-js@2.108.2 extraneous
+| `-- tslib@2.8.1 deduped
++-- @supabase/functions-js@2.108.2 extraneous
+| `-- tslib@2.8.1 deduped
++-- @supabase/phoenix@0.4.4 extraneous
++-- @supabase/postgrest-js@2.108.2 extraneous
+| `-- tslib@2.8.1 deduped
++-- @supabase/realtime-js@2.108.2 extraneous
+| +-- @supabase/phoenix@0.4.4 deduped
+| `-- tslib@2.8.1 deduped
++-- @supabase/ssr@0.12.0 extraneous
+| +-- @supabase/supabase-js@2.108.2 deduped
+| `-- cookie@1.1.1 deduped
++-- @supabase/storage-js@2.108.2 extraneous
+| +-- iceberg-js@0.8.1 deduped
+| `-- tslib@2.8.1 deduped
++-- @supabase/supabase-js@2.108.2 extraneous
+| +-- @supabase/auth-js@2.108.2 deduped
+| +-- @supabase/functions-js@2.108.2 deduped
+| +-- @supabase/postgrest-js@2.108.2 deduped
+| +-- @supabase/realtime-js@2.108.2 deduped
+| `-- @supabase/storage-js@2.108.2 deduped
++-- @swc/helpers@0.5.15 extraneous
+| `-- tslib@2.8.1 deduped
++-- @tailwindcss/forms@0.5.11 extraneous
+| +-- mini-svg-data-uri@1.4.4 deduped
+| `-- tailwindcss@4.3.1 deduped
++-- @tailwindcss/node@4.3.1 extraneous
+| +-- @jridgewell/remapping@2.3.5 deduped
+| +-- enhanced-resolve@5.21.6 deduped
+| +-- jiti@2.7.0 deduped
+| +-- lightningcss@1.32.0 deduped
+| +-- magic-string@0.30.21 deduped
+| +-- source-map-js@1.2.1 deduped
+| `-- tailwindcss@4.3.1 deduped
++-- @tailwindcss/oxide-win32-x64-msvc@4.3.1 extraneous
++-- @tailwindcss/oxide@4.3.1 extraneous
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-android-arm64@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-darwin-arm64@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-darwin-x64@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-freebsd-x64@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-linux-arm-gnueabihf@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-linux-arm64-gnu@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-linux-arm64-musl@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-linux-x64-gnu@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-linux-x64-musl@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-wasm32-wasi@4.3.1
+| +-- UNMET OPTIONAL DEPENDENCY @tailwindcss/oxide-win32-arm64-msvc@4.3.1
+| `-- @tailwindcss/oxide-win32-x64-msvc@4.3.1 deduped
++-- @tailwindcss/postcss@4.3.1 extraneous
+| +-- @alloc/quick-lru@5.2.0 deduped
+| +-- @tailwindcss/node@4.3.1 deduped
+| +-- @tailwindcss/oxide@4.3.1 deduped
+| +-- postcss@8.5.15 deduped
+| `-- tailwindcss@4.3.1 deduped
++-- @tailwindcss/typography@0.5.20 extraneous
+| +-- postcss-selector-parser@6.0.10 extraneous
+| | +-- cssesc@3.0.0 deduped
+| | `-- util-deprecate@1.0.2 deduped
+| `-- tailwindcss@4.3.1 deduped
++-- @tanstack/query-core@5.101.0 extraneous
++-- @tanstack/react-query@5.101.0 extraneous
+| +-- @tanstack/query-core@5.101.0 deduped
+| `-- react@19.2.4 deduped
++-- @tanstack/react-virtual@3.14.3 extraneous
+| +-- @tanstack/virtual-core@3.17.1 deduped
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- @tanstack/virtual-core@3.17.1 extraneous
++-- @tippyjs/react@4.2.6 extraneous
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| `-- tippy.js@6.3.7 deduped
++-- @ts-morph/common@0.27.0 extraneous
+| +-- balanced-match@4.0.4 extraneous
+| +-- brace-expansion@5.0.6 extraneous
+| | `-- balanced-match@4.0.4 deduped
+| +-- fast-glob@3.3.3 extraneous
+| | +-- @nodelib/fs.stat@2.0.5 deduped
+| | +-- @nodelib/fs.walk@1.2.8 deduped
+| | +-- glob-parent@5.1.2 deduped
+| | +-- merge2@1.4.1 deduped
+| | `-- micromatch@4.0.8 deduped
+| +-- glob-parent@5.1.2 extraneous
+| | `-- is-glob@4.0.3 deduped
+| +-- minimatch@10.2.5 extraneous
+| | `-- brace-expansion@5.0.6 deduped
+| `-- path-browserify@1.0.1 deduped
++-- @tybys/wasm-util@0.10.2 extraneous
+| `-- tslib@2.8.1 deduped
++-- @types/estree@1.0.9 extraneous
++-- @types/json-schema@7.0.15 extraneous
++-- @types/json5@0.0.29 extraneous
++-- @types/node@20.19.43 extraneous
+| `-- undici-types@6.21.0 deduped
++-- @types/parse-json@4.0.2 extraneous
++-- @types/react-dom@19.2.3 extraneous
+| `-- @types/react@19.2.17 deduped
++-- @types/react-transition-group@4.4.12 extraneous
+| `-- @types/react@19.2.17 deduped
++-- @types/use-sync-external-store@0.0.6 extraneous
++-- @types/validate-npm-package-name@4.0.2 extraneous
++-- @typescript-eslint/eslint-plugin@8.61.1 extraneous
+| +-- @eslint-community/regexpp@4.12.2 deduped
+| +-- @typescript-eslint/parser@8.61.1 deduped
+| +-- @typescript-eslint/scope-manager@8.61.1 deduped
+| +-- @typescript-eslint/type-utils@8.61.1 deduped
+| +-- @typescript-eslint/utils@8.61.1 deduped
+| +-- @typescript-eslint/visitor-keys@8.61.1 deduped
+| +-- eslint@9.39.4 deduped
+| +-- ignore@7.0.5 extraneous
+| +-- natural-compare@1.4.0 deduped
+| +-- ts-api-utils@2.5.0 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/parser@8.61.1 extraneous
+| +-- @typescript-eslint/scope-manager@8.61.1 deduped
+| +-- @typescript-eslint/types@8.61.1 deduped
+| +-- @typescript-eslint/typescript-estree@8.61.1 deduped
+| +-- @typescript-eslint/visitor-keys@8.61.1 deduped
+| +-- debug@4.4.3 deduped
+| +-- eslint@9.39.4 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/project-service@8.61.1 extraneous
+| +-- @typescript-eslint/tsconfig-utils@8.61.1 deduped
+| +-- @typescript-eslint/types@8.61.1 deduped
+| +-- debug@4.4.3 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/scope-manager@8.61.1 extraneous
+| +-- @typescript-eslint/types@8.61.1 deduped
+| `-- @typescript-eslint/visitor-keys@8.61.1 deduped
++-- @typescript-eslint/tsconfig-utils@8.61.1 extraneous
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/type-utils@8.61.1 extraneous
+| +-- @typescript-eslint/types@8.61.1 deduped
+| +-- @typescript-eslint/typescript-estree@8.61.1 deduped
+| +-- @typescript-eslint/utils@8.61.1 deduped
+| +-- debug@4.4.3 deduped
+| +-- eslint@9.39.4 deduped
+| +-- ts-api-utils@2.5.0 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/types@8.61.1 extraneous
++-- @typescript-eslint/typescript-estree@8.61.1 extraneous
+| +-- @typescript-eslint/project-service@8.61.1 deduped
+| +-- @typescript-eslint/tsconfig-utils@8.61.1 deduped
+| +-- @typescript-eslint/types@8.61.1 deduped
+| +-- @typescript-eslint/visitor-keys@8.61.1 deduped
+| +-- balanced-match@4.0.4 extraneous
+| +-- brace-expansion@5.0.6 extraneous
+| | `-- balanced-match@4.0.4 deduped
+| +-- debug@4.4.3 deduped
+| +-- minimatch@10.2.5 extraneous
+| | `-- brace-expansion@5.0.6 deduped
+| +-- semver@7.8.4 extraneous
+| +-- tinyglobby@0.2.17 deduped
+| +-- ts-api-utils@2.5.0 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/utils@8.61.1 extraneous
+| +-- @eslint-community/eslint-utils@4.9.1 deduped
+| +-- @typescript-eslint/scope-manager@8.61.1 deduped
+| +-- @typescript-eslint/types@8.61.1 deduped
+| +-- @typescript-eslint/typescript-estree@8.61.1 deduped
+| +-- eslint@9.39.4 deduped
+| `-- typescript@5.9.3 deduped
++-- @typescript-eslint/visitor-keys@8.61.1 extraneous
+| +-- @typescript-eslint/types@8.61.1 deduped
+| `-- eslint-visitor-keys@5.0.1 extraneous
++-- @unrs/resolver-binding-win32-x64-msvc@1.12.2 extraneous
++-- accepts@2.0.0 extraneous
+| +-- mime-types@3.0.2 deduped
+| `-- negotiator@1.0.0 deduped
++-- acorn-jsx@5.3.2 extraneous
+| `-- acorn@8.17.0 deduped
++-- acorn@8.17.0 extraneous
++-- agent-base@7.1.4 extraneous
++-- ajv-formats@3.0.1 extraneous
+| +-- ajv@8.20.0 extraneous
+| | +-- fast-deep-equal@3.1.3 deduped
+| | +-- fast-uri@3.1.2 deduped
+| | +-- json-schema-traverse@1.0.0 deduped
+| | `-- require-from-string@2.0.2 deduped
+| `-- json-schema-traverse@1.0.0 extraneous
++-- ajv@6.15.0 extraneous
+| +-- fast-deep-equal@3.1.3 deduped
+| +-- fast-json-stable-stringify@2.1.0 deduped
+| +-- json-schema-traverse@0.4.1 deduped
+| `-- uri-js@4.4.1 deduped
++-- ansi-colors@4.1.3 extraneous
++-- ansi-regex@5.0.1 extraneous
++-- ansi-styles@4.3.0 extraneous
+| `-- color-convert@2.0.1 deduped
++-- apexcharts@5.15.2 extraneous
++-- argparse@2.0.1 extraneous
++-- aria-hidden@1.2.6 extraneous
+| `-- tslib@2.8.1 deduped
++-- aria-query@5.3.2 extraneous
++-- array-buffer-byte-length@1.0.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- is-array-buffer@3.0.5 deduped
++-- array-includes@3.1.9 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- is-string@1.1.1 deduped
+| `-- math-intrinsics@1.1.0 deduped
++-- array.prototype.findlast@1.2.5 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| `-- es-shim-unscopables@1.1.0 deduped
++-- array.prototype.findlastindex@1.2.6 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| `-- es-shim-unscopables@1.1.0 deduped
++-- array.prototype.flat@1.3.3 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| `-- es-shim-unscopables@1.1.0 deduped
++-- array.prototype.flatmap@1.3.3 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| `-- es-shim-unscopables@1.1.0 deduped
++-- array.prototype.tosorted@1.1.4 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- es-shim-unscopables@1.1.0 deduped
++-- arraybuffer.prototype.slice@1.0.4 extraneous
+| +-- array-buffer-byte-length@1.0.2 deduped
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| `-- is-array-buffer@3.0.5 deduped
++-- ast-types-flow@0.0.8 extraneous
++-- ast-types@0.16.1 extraneous
+| `-- tslib@2.8.1 deduped
++-- async-function@1.0.0 extraneous
++-- atomically@1.7.0 extraneous
++-- available-typed-arrays@1.0.7 extraneous
+| `-- possible-typed-array-names@1.1.0 deduped
++-- axe-core@4.12.1 extraneous
++-- axobject-query@4.1.0 extraneous
++-- babel-plugin-macros@3.1.0 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- cosmiconfig@7.1.0 extraneous
+| | +-- @types/parse-json@4.0.2 deduped
+| | +-- import-fresh@3.3.1 deduped
+| | +-- parse-json@5.2.0 deduped
+| | +-- path-type@4.0.0 deduped
+| | `-- yaml@1.10.3 deduped
+| `-- resolve@1.22.12 extraneous
+|   +-- es-errors@1.3.0 deduped
+|   +-- is-core-module@2.16.2 deduped
+|   +-- path-parse@1.0.7 deduped
+|   `-- supports-preserve-symlinks-flag@1.0.0 deduped
++-- balanced-match@1.0.2 extraneous
++-- baseline-browser-mapping@2.10.38 extraneous
++-- body-parser@2.3.0 extraneous
+| +-- bytes@3.1.2 deduped
+| +-- content-type@2.0.0 deduped
+| +-- debug@4.4.3 deduped
+| +-- http-errors@2.0.1 deduped
+| +-- iconv-lite@0.7.2 deduped
+| +-- on-finished@2.4.1 deduped
+| +-- qs@6.15.2 deduped
+| +-- raw-body@3.0.2 deduped
+| `-- type-is@2.1.0 deduped
++-- brace-expansion@1.1.15 extraneous
+| +-- balanced-match@1.0.2 deduped
+| `-- concat-map@0.0.1 deduped
++-- braces@3.0.3 extraneous
+| `-- fill-range@7.1.1 deduped
++-- browserslist@4.28.2 extraneous
+| +-- baseline-browser-mapping@2.10.38 deduped
+| +-- caniuse-lite@1.0.30001799 deduped
+| +-- electron-to-chromium@1.5.376 deduped
+| +-- node-releases@2.0.48 deduped
+| `-- update-browserslist-db@1.2.3 deduped
++-- bundle-name@4.1.0 extraneous
+| `-- run-applescript@7.1.0 deduped
++-- bytes@3.1.2 extraneous
++-- call-bind-apply-helpers@1.0.2 extraneous
+| +-- es-errors@1.3.0 deduped
+| `-- function-bind@1.1.2 deduped
++-- call-bind@1.0.9 extraneous
+| +-- call-bind-apply-helpers@1.0.2 deduped
+| +-- es-define-property@1.0.1 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| `-- set-function-length@1.2.2 deduped
++-- call-bound@1.0.4 extraneous
+| +-- call-bind-apply-helpers@1.0.2 deduped
+| `-- get-intrinsic@1.3.0 deduped
++-- callsites@3.1.0 extraneous
++-- caniuse-lite@1.0.30001799 extraneous
++-- chalk@4.1.2 extraneous
+| +-- ansi-styles@4.3.0 deduped
+| `-- supports-color@7.2.0 deduped
++-- class-variance-authority@0.7.1 extraneous
+| `-- clsx@2.1.1 deduped
++-- cli-cursor@5.0.0 extraneous
+| `-- restore-cursor@5.1.0 deduped
++-- cli-spinners@2.9.2 extraneous
++-- client-only@0.0.1 extraneous
++-- clsx@2.1.1 extraneous
++-- code-block-writer@13.0.3 extraneous
++-- color-convert@2.0.1 extraneous
+| `-- color-name@1.1.4 deduped
++-- color-name@1.1.4 extraneous
++-- commander@14.0.3 extraneous
++-- concat-map@0.0.1 extraneous
++-- conf@10.2.0 extraneous
+| +-- ajv-formats@2.1.1 extraneous
+| | `-- ajv@8.20.0 deduped
+| +-- ajv@8.20.0 extraneous
+| | +-- fast-deep-equal@3.1.3 deduped
+| | +-- fast-uri@3.1.2 deduped
+| | +-- json-schema-traverse@1.0.0 deduped
+| | `-- require-from-string@2.0.2 deduped
+| +-- atomically@1.7.0 deduped
+| +-- debounce-fn@4.0.0 deduped
+| +-- dot-prop@6.0.1 deduped
+| +-- env-paths@2.2.1 deduped
+| +-- json-schema-traverse@1.0.0 extraneous
+| +-- json-schema-typed@7.0.3 extraneous
+| +-- onetime@5.1.2 deduped
+| +-- pkg-up@3.1.0 deduped
+| `-- semver@7.8.4 extraneous
++-- content-disposition@1.1.0 extraneous
++-- content-type@2.0.0 extraneous
++-- convert-source-map@2.0.0 extraneous
++-- cookie-signature@1.2.2 extraneous
++-- cookie@1.1.1 extraneous
++-- cors@2.8.6 extraneous
+| +-- object-assign@4.1.1 deduped
+| `-- vary@1.1.2 deduped
++-- cosmiconfig@9.0.2 extraneous
+| +-- env-paths@2.2.1 deduped
+| +-- import-fresh@3.3.1 deduped
+| +-- js-yaml@4.2.0 deduped
+| +-- parse-json@5.2.0 deduped
+| `-- typescript@5.9.3 deduped
++-- cross-spawn@7.0.6 extraneous
+| +-- path-key@3.1.1 deduped
+| +-- shebang-command@2.0.0 deduped
+| `-- which@2.0.2 deduped
++-- cssesc@3.0.0 extraneous
++-- damerau-levenshtein@1.0.8 extraneous
++-- data-uri-to-buffer@4.0.1 extraneous
++-- data-view-buffer@1.0.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- is-data-view@1.0.2 deduped
++-- data-view-byte-length@1.0.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- is-data-view@1.0.2 deduped
++-- data-view-byte-offset@1.0.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- is-data-view@1.0.2 deduped
++-- date-fns@4.4.0 extraneous
++-- debounce-fn@4.0.0 extraneous
+| `-- mimic-fn@3.1.0 deduped
++-- debug@4.4.3 extraneous
+| `-- ms@2.1.3 deduped
++-- dedent@1.7.2 extraneous
+| `-- babel-plugin-macros@3.1.0 deduped
++-- deep-is@0.1.4 extraneous
++-- deepmerge@4.3.1 extraneous
++-- default-browser-id@5.0.1 extraneous
++-- default-browser@5.5.0 extraneous
+| +-- bundle-name@4.1.0 deduped
+| `-- default-browser-id@5.0.1 deduped
++-- define-data-property@1.1.4 extraneous
+| +-- es-define-property@1.0.1 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- gopd@1.2.0 deduped
++-- define-lazy-prop@3.0.0 extraneous
++-- define-properties@1.2.1 extraneous
+| +-- define-data-property@1.1.4 deduped
+| +-- has-property-descriptors@1.0.2 deduped
+| `-- object-keys@1.1.1 deduped
++-- depd@2.0.0 extraneous
++-- detect-libc@2.1.2 extraneous
++-- diff@8.0.4 extraneous
++-- doctrine@2.1.0 extraneous
+| `-- esutils@2.0.3 deduped
++-- dom-helpers@5.2.1 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| `-- csstype@3.2.3 deduped
++-- dot-prop@6.0.1 extraneous
+| `-- is-obj@2.0.0 deduped
++-- dotenv@17.4.2 extraneous
++-- dunder-proto@1.0.1 extraneous
+| +-- call-bind-apply-helpers@1.0.2 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- gopd@1.2.0 deduped
++-- eciesjs@0.4.18 extraneous
+| +-- @ecies/ciphers@0.2.6 deduped
+| +-- @noble/ciphers@1.3.0 deduped
+| +-- @noble/curves@1.9.7 deduped
+| `-- @noble/hashes@1.8.0 deduped
++-- ee-first@1.1.1 extraneous
++-- electron-to-chromium@1.5.376 extraneous
++-- emoji-regex@9.2.2 extraneous
++-- encodeurl@2.0.0 extraneous
++-- enhanced-resolve@5.21.6 extraneous
+| +-- graceful-fs@4.2.11 deduped
+| `-- tapable@2.3.3 deduped
++-- enquirer@2.4.1 extraneous
+| +-- ansi-colors@4.1.3 deduped
+| `-- strip-ansi@6.0.1 deduped
++-- env-paths@2.2.1 extraneous
++-- error-ex@1.3.4 extraneous
+| `-- is-arrayish@0.2.1 deduped
++-- es-abstract-get@1.0.0 extraneous
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- is-callable@1.2.7 deduped
+| `-- object-inspect@1.13.4 deduped
++-- es-abstract@1.24.2 extraneous
+| +-- array-buffer-byte-length@1.0.2 deduped
+| +-- arraybuffer.prototype.slice@1.0.4 deduped
+| +-- available-typed-arrays@1.0.7 deduped
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- data-view-buffer@1.0.2 deduped
+| +-- data-view-byte-length@1.0.2 deduped
+| +-- data-view-byte-offset@1.0.1 deduped
+| +-- es-define-property@1.0.1 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- es-set-tostringtag@2.1.0 deduped
+| +-- es-to-primitive@1.3.1 deduped
+| +-- function.prototype.name@1.2.0 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- get-symbol-description@1.1.0 deduped
+| +-- globalthis@1.0.4 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-property-descriptors@1.0.2 deduped
+| +-- has-proto@1.2.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| +-- hasown@2.0.4 deduped
+| +-- internal-slot@1.1.0 deduped
+| +-- is-array-buffer@3.0.5 deduped
+| +-- is-callable@1.2.7 deduped
+| +-- is-data-view@1.0.2 deduped
+| +-- is-negative-zero@2.0.3 deduped
+| +-- is-regex@1.2.1 deduped
+| +-- is-set@2.0.3 deduped
+| +-- is-shared-array-buffer@1.0.4 deduped
+| +-- is-string@1.1.1 deduped
+| +-- is-typed-array@1.1.15 deduped
+| +-- is-weakref@1.1.1 deduped
+| +-- math-intrinsics@1.1.0 deduped
+| +-- object-inspect@1.13.4 deduped
+| +-- object-keys@1.1.1 deduped
+| +-- object.assign@4.1.7 deduped
+| +-- own-keys@1.0.1 deduped
+| +-- regexp.prototype.flags@1.5.4 deduped
+| +-- safe-array-concat@1.1.4 deduped
+| +-- safe-push-apply@1.0.0 deduped
+| +-- safe-regex-test@1.1.0 deduped
+| +-- set-proto@1.0.0 deduped
+| +-- stop-iteration-iterator@1.1.0 deduped
+| +-- string.prototype.trim@1.2.11 deduped
+| +-- string.prototype.trimend@1.0.10 deduped
+| +-- string.prototype.trimstart@1.0.8 deduped
+| +-- typed-array-buffer@1.0.3 deduped
+| +-- typed-array-byte-length@1.0.3 deduped
+| +-- typed-array-byte-offset@1.0.4 deduped
+| +-- typed-array-length@1.0.8 deduped
+| +-- unbox-primitive@1.1.0 deduped
+| `-- which-typed-array@1.1.22 deduped
++-- es-define-property@1.0.1 extraneous
++-- es-errors@1.3.0 extraneous
++-- es-iterator-helpers@1.3.3 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-set-tostringtag@2.1.0 deduped
+| +-- function-bind@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- globalthis@1.0.4 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-property-descriptors@1.0.2 deduped
+| +-- has-proto@1.2.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| +-- internal-slot@1.1.0 deduped
+| +-- iterator.prototype@1.1.5 deduped
+| `-- math-intrinsics@1.1.0 deduped
++-- es-object-atoms@1.1.2 extraneous
+| `-- es-errors@1.3.0 deduped
++-- es-set-tostringtag@2.1.0 extraneous
+| +-- es-errors@1.3.0 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- has-tostringtag@1.0.2 deduped
+| `-- hasown@2.0.4 deduped
++-- es-shim-unscopables@1.1.0 extraneous
+| `-- hasown@2.0.4 deduped
++-- es-to-primitive@1.3.1 extraneous
+| +-- es-abstract-get@1.0.0 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- is-callable@1.2.7 deduped
+| +-- is-date-object@1.1.0 deduped
+| `-- is-symbol@1.1.1 deduped
++-- escalade@3.2.0 extraneous
++-- escape-html@1.0.3 extraneous
++-- escape-string-regexp@4.0.0 extraneous
++-- eslint-config-next@16.2.9 extraneous
+| +-- @next/eslint-plugin-next@16.2.9 deduped
+| +-- eslint-import-resolver-node@0.3.10 deduped
+| +-- eslint-import-resolver-typescript@3.10.1 deduped
+| +-- eslint-plugin-import@2.32.0 deduped
+| +-- eslint-plugin-jsx-a11y@6.10.2 deduped
+| +-- eslint-plugin-react-hooks@7.1.1 deduped
+| +-- eslint-plugin-react@7.37.5 deduped
+| +-- eslint@9.39.4 deduped
+| +-- globals@16.4.0 extraneous
+| +-- typescript-eslint@8.61.1 deduped
+| `-- typescript@5.9.3 deduped
++-- eslint-import-resolver-node@0.3.10 extraneous
+| +-- debug@3.2.7 extraneous
+| | `-- ms@2.1.3 deduped
+| +-- is-core-module@2.16.2 deduped
+| `-- resolve@2.0.0-next.7 deduped
++-- eslint-import-resolver-typescript@3.10.1 extraneous
+| +-- @nolyfill/is-core-module@1.0.39 deduped
+| +-- debug@4.4.3 deduped
+| +-- UNMET OPTIONAL DEPENDENCY eslint-plugin-import-x@*
+| +-- eslint-plugin-import@2.32.0 deduped
+| +-- eslint@9.39.4 deduped
+| +-- get-tsconfig@4.14.0 deduped
+| +-- is-bun-module@2.0.0 deduped
+| +-- stable-hash@0.0.5 deduped
+| +-- tinyglobby@0.2.17 deduped
+| `-- unrs-resolver@1.12.2 deduped
++-- eslint-module-utils@2.13.0 extraneous
+| `-- debug@3.2.7 extraneous
+|   `-- ms@2.1.3 deduped
++-- eslint-plugin-import@2.32.0 extraneous
+| +-- @rtsao/scc@1.1.0 deduped
+| +-- array-includes@3.1.9 deduped
+| +-- array.prototype.findlastindex@1.2.6 deduped
+| +-- array.prototype.flat@1.3.3 deduped
+| +-- array.prototype.flatmap@1.3.3 deduped
+| +-- debug@3.2.7 extraneous
+| | `-- ms@2.1.3 deduped
+| +-- doctrine@2.1.0 deduped
+| +-- eslint-import-resolver-node@0.3.10 deduped
+| +-- eslint-module-utils@2.13.0 deduped
+| +-- eslint@9.39.4 deduped
+| +-- hasown@2.0.4 deduped
+| +-- is-core-module@2.16.2 deduped
+| +-- is-glob@4.0.3 deduped
+| +-- minimatch@3.1.5 deduped
+| +-- object.fromentries@2.0.8 deduped
+| +-- object.groupby@1.0.3 deduped
+| +-- object.values@1.2.1 deduped
+| +-- semver@6.3.1 deduped
+| +-- string.prototype.trimend@1.0.10 deduped
+| `-- tsconfig-paths@3.15.0 deduped
++-- eslint-plugin-jsx-a11y@6.10.2 extraneous
+| +-- aria-query@5.3.2 deduped
+| +-- array-includes@3.1.9 deduped
+| +-- array.prototype.flatmap@1.3.3 deduped
+| +-- ast-types-flow@0.0.8 deduped
+| +-- axe-core@4.12.1 deduped
+| +-- axobject-query@4.1.0 deduped
+| +-- damerau-levenshtein@1.0.8 deduped
+| +-- emoji-regex@9.2.2 deduped
+| +-- eslint@9.39.4 deduped
+| +-- hasown@2.0.4 deduped
+| +-- jsx-ast-utils@3.3.5 deduped
+| +-- language-tags@1.0.9 deduped
+| +-- minimatch@3.1.5 deduped
+| +-- object.fromentries@2.0.8 deduped
+| +-- safe-regex-test@1.1.0 deduped
+| `-- string.prototype.includes@2.0.1 deduped
++-- eslint-plugin-react-hooks@7.1.1 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/parser@7.29.7 deduped
+| +-- eslint@9.39.4 deduped
+| +-- hermes-parser@0.25.1 deduped
+| +-- zod-validation-error@4.0.2 deduped
+| `-- zod@4.4.3 deduped
++-- eslint-plugin-react@7.37.5 extraneous
+| +-- array-includes@3.1.9 deduped
+| +-- array.prototype.findlast@1.2.5 deduped
+| +-- array.prototype.flatmap@1.3.3 deduped
+| +-- array.prototype.tosorted@1.1.4 deduped
+| +-- doctrine@2.1.0 deduped
+| +-- es-iterator-helpers@1.3.3 deduped
+| +-- eslint@9.39.4 deduped
+| +-- estraverse@5.3.0 deduped
+| +-- hasown@2.0.4 deduped
+| +-- jsx-ast-utils@3.3.5 deduped
+| +-- minimatch@3.1.5 deduped
+| +-- object.entries@1.1.9 deduped
+| +-- object.fromentries@2.0.8 deduped
+| +-- object.values@1.2.1 deduped
+| +-- prop-types@15.8.1 deduped
+| +-- resolve@2.0.0-next.7 deduped
+| +-- semver@6.3.1 deduped
+| +-- string.prototype.matchall@4.0.12 deduped
+| `-- string.prototype.repeat@1.0.0 deduped
++-- eslint-scope@8.4.0 extraneous
+| +-- esrecurse@4.3.0 deduped
+| `-- estraverse@5.3.0 deduped
++-- eslint-visitor-keys@4.2.1 extraneous
++-- eslint@9.39.4 extraneous
+| +-- @eslint-community/eslint-utils@4.9.1 deduped
+| +-- @eslint-community/regexpp@4.12.2 deduped
+| +-- @eslint/config-array@0.21.2 deduped
+| +-- @eslint/config-helpers@0.4.2 deduped
+| +-- @eslint/core@0.17.0 deduped
+| +-- @eslint/eslintrc@3.3.5 deduped
+| +-- @eslint/js@9.39.4 deduped
+| +-- @eslint/plugin-kit@0.4.1 deduped
+| +-- @humanfs/node@0.16.8 deduped
+| +-- @humanwhocodes/module-importer@1.0.1 deduped
+| +-- @humanwhocodes/retry@0.4.3 deduped
+| +-- @types/estree@1.0.9 deduped
+| +-- ajv@6.15.0 deduped
+| +-- chalk@4.1.2 deduped
+| +-- cross-spawn@7.0.6 deduped
+| +-- debug@4.4.3 deduped
+| +-- escape-string-regexp@4.0.0 deduped
+| +-- eslint-scope@8.4.0 deduped
+| +-- eslint-visitor-keys@4.2.1 deduped
+| +-- espree@10.4.0 deduped
+| +-- esquery@1.7.0 deduped
+| +-- esutils@2.0.3 deduped
+| +-- fast-deep-equal@3.1.3 deduped
+| +-- file-entry-cache@8.0.0 deduped
+| +-- find-up@5.0.0 deduped
+| +-- glob-parent@6.0.2 deduped
+| +-- ignore@5.3.2 deduped
+| +-- imurmurhash@0.1.4 deduped
+| +-- is-glob@4.0.3 deduped
+| +-- jiti@2.7.0 deduped
+| +-- json-stable-stringify-without-jsonify@1.0.1 deduped
+| +-- lodash.merge@4.6.2 deduped
+| +-- minimatch@3.1.5 deduped
+| +-- natural-compare@1.4.0 deduped
+| `-- optionator@0.9.4 deduped
++-- espree@10.4.0 extraneous
+| +-- acorn-jsx@5.3.2 deduped
+| +-- acorn@8.17.0 deduped
+| `-- eslint-visitor-keys@4.2.1 deduped
++-- esprima@4.0.1 extraneous
++-- esquery@1.7.0 extraneous
+| `-- estraverse@5.3.0 deduped
++-- esrecurse@4.3.0 extraneous
+| `-- estraverse@5.3.0 deduped
++-- estraverse@5.3.0 extraneous
++-- esutils@2.0.3 extraneous
++-- etag@1.8.1 extraneous
++-- eventsource-parser@3.1.0 extraneous
++-- eventsource@3.0.7 extraneous
+| `-- eventsource-parser@3.1.0 deduped
++-- execa@9.6.1 extraneous
+| +-- @sindresorhus/merge-streams@4.0.0 deduped
+| +-- cross-spawn@7.0.6 deduped
+| +-- figures@6.1.0 deduped
+| +-- get-stream@9.0.1 deduped
+| +-- human-signals@8.0.1 deduped
+| +-- is-plain-obj@4.1.0 deduped
+| +-- is-stream@4.0.1 deduped
+| +-- npm-run-path@6.0.0 deduped
+| +-- pretty-ms@9.3.0 deduped
+| +-- signal-exit@4.1.0 deduped
+| +-- strip-final-newline@4.0.0 deduped
+| `-- yoctocolors@2.1.2 deduped
++-- express-rate-limit@8.5.2 extraneous
+| +-- express@5.2.1 deduped
+| `-- ip-address@10.2.0 deduped
++-- express@5.2.1 extraneous
+| +-- accepts@2.0.0 deduped
+| +-- body-parser@2.3.0 deduped
+| +-- content-disposition@1.1.0 deduped
+| +-- content-type@1.0.5 extraneous
+| +-- cookie-signature@1.2.2 deduped
+| +-- cookie@0.7.2 extraneous
+| +-- debug@4.4.3 deduped
+| +-- depd@2.0.0 deduped
+| +-- encodeurl@2.0.0 deduped
+| +-- escape-html@1.0.3 deduped
+| +-- etag@1.8.1 deduped
+| +-- finalhandler@2.1.1 deduped
+| +-- fresh@2.0.0 deduped
+| +-- http-errors@2.0.1 deduped
+| +-- merge-descriptors@2.0.0 deduped
+| +-- mime-types@3.0.2 deduped
+| +-- on-finished@2.4.1 deduped
+| +-- once@1.4.0 deduped
+| +-- parseurl@1.3.3 deduped
+| +-- proxy-addr@2.0.7 deduped
+| +-- qs@6.15.2 deduped
+| +-- range-parser@1.2.1 deduped
+| +-- router@2.2.0 deduped
+| +-- send@1.2.1 deduped
+| +-- serve-static@2.2.1 deduped
+| +-- statuses@2.0.2 deduped
+| +-- type-is@2.1.0 deduped
+| `-- vary@1.1.2 deduped
++-- fast-deep-equal@3.1.3 extraneous
++-- fast-glob@3.3.1 extraneous
+| +-- @nodelib/fs.stat@2.0.5 deduped
+| +-- @nodelib/fs.walk@1.2.8 deduped
+| +-- glob-parent@5.1.2 extraneous
+| | `-- is-glob@4.0.3 deduped
+| +-- merge2@1.4.1 deduped
+| `-- micromatch@4.0.8 deduped
++-- fast-json-stable-stringify@2.1.0 extraneous
++-- fast-levenshtein@2.0.6 extraneous
++-- fast-uri@3.1.2 extraneous
++-- fastq@1.20.1 extraneous
+| `-- reusify@1.1.0 deduped
++-- fetch-blob@3.2.0 extraneous
+| +-- node-domexception@1.0.0 deduped
+| `-- web-streams-polyfill@3.3.3 deduped
++-- figures@6.1.0 extraneous
+| `-- is-unicode-supported@2.1.0 deduped
++-- file-entry-cache@8.0.0 extraneous
+| `-- flat-cache@4.0.1 deduped
++-- fill-range@7.1.1 extraneous
+| `-- to-regex-range@5.0.1 deduped
++-- finalhandler@2.1.1 extraneous
+| +-- debug@4.4.3 deduped
+| +-- encodeurl@2.0.0 deduped
+| +-- escape-html@1.0.3 deduped
+| +-- on-finished@2.4.1 deduped
+| +-- parseurl@1.3.3 deduped
+| `-- statuses@2.0.2 deduped
++-- find-root@1.1.0 extraneous
++-- find-up@5.0.0 extraneous
+| +-- locate-path@6.0.0 deduped
+| `-- path-exists@4.0.0 deduped
++-- flat-cache@4.0.1 extraneous
+| +-- flatted@3.4.2 deduped
+| `-- keyv@4.5.4 deduped
++-- flatpickr@4.6.13 extraneous
++-- flatted@3.4.2 extraneous
++-- for-each@0.3.5 extraneous
+| `-- is-callable@1.2.7 deduped
++-- formdata-polyfill@4.0.10 extraneous
+| `-- fetch-blob@3.2.0 deduped
++-- forwarded@0.2.0 extraneous
++-- framer-motion@12.40.0 extraneous
+| +-- UNMET OPTIONAL DEPENDENCY @emotion/is-prop-valid@*
+| +-- motion-dom@12.40.0 deduped
+| +-- motion-utils@12.39.0 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| `-- tslib@2.8.1 deduped
++-- fresh@2.0.0 extraneous
++-- fs-extra@11.3.5 extraneous
+| +-- graceful-fs@4.2.11 deduped
+| +-- jsonfile@6.2.1 deduped
+| `-- universalify@2.0.1 deduped
++-- function-bind@1.1.2 extraneous
++-- function.prototype.name@1.2.0 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- es-define-property@1.0.1 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- functions-have-names@1.2.3 deduped
+| +-- has-property-descriptors@1.0.2 deduped
+| +-- hasown@2.0.4 deduped
+| +-- is-callable@1.2.7 deduped
+| `-- is-document.all@1.0.0 deduped
++-- functions-have-names@1.2.3 extraneous
++-- fuzzysort@3.1.0 extraneous
++-- generator-function@2.0.1 extraneous
++-- gensync@1.0.0-beta.2 extraneous
++-- get-east-asian-width@1.6.0 extraneous
++-- get-intrinsic@1.3.0 extraneous
+| +-- call-bind-apply-helpers@1.0.2 deduped
+| +-- es-define-property@1.0.1 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- function-bind@1.1.2 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| +-- hasown@2.0.4 deduped
+| `-- math-intrinsics@1.1.0 deduped
++-- get-own-enumerable-keys@1.0.0 extraneous
++-- get-proto@1.0.1 extraneous
+| +-- dunder-proto@1.0.1 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- get-stream@9.0.1 extraneous
+| +-- @sec-ant/readable-stream@0.4.1 deduped
+| `-- is-stream@4.0.1 deduped
++-- get-symbol-description@1.1.0 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- get-intrinsic@1.3.0 deduped
++-- get-tsconfig@4.14.0 extraneous
+| `-- resolve-pkg-maps@1.0.0 deduped
++-- glob-parent@6.0.2 extraneous
+| `-- is-glob@4.0.3 deduped
++-- globals@14.0.0 extraneous
++-- globalthis@1.0.4 extraneous
+| +-- define-properties@1.2.1 deduped
+| `-- gopd@1.2.0 deduped
++-- goober@2.1.19 extraneous
+| `-- csstype@3.2.3 deduped
++-- gopd@1.2.0 extraneous
++-- graceful-fs@4.2.11 extraneous
++-- has-bigints@1.1.0 extraneous
++-- has-flag@4.0.0 extraneous
++-- has-property-descriptors@1.0.2 extraneous
+| `-- es-define-property@1.0.1 deduped
++-- has-proto@1.2.0 extraneous
+| `-- dunder-proto@1.0.1 deduped
++-- has-symbols@1.1.0 extraneous
++-- has-tostringtag@1.0.2 extraneous
+| `-- has-symbols@1.1.0 deduped
++-- hasown@2.0.4 extraneous
+| `-- function-bind@1.1.2 deduped
++-- hermes-estree@0.25.1 extraneous
++-- hermes-parser@0.25.1 extraneous
+| `-- hermes-estree@0.25.1 deduped
++-- hoist-non-react-statics@3.3.2 extraneous
+| `-- react-is@16.13.1 deduped
++-- hono@4.12.26 extraneous
++-- http-errors@2.0.1 extraneous
+| +-- depd@2.0.0 deduped
+| +-- inherits@2.0.4 deduped
+| +-- setprototypeof@1.2.0 deduped
+| +-- statuses@2.0.2 deduped
+| `-- toidentifier@1.0.1 deduped
++-- https-proxy-agent@7.0.6 extraneous
+| +-- agent-base@7.1.4 deduped
+| `-- debug@4.4.3 deduped
++-- human-signals@8.0.1 extraneous
++-- iceberg-js@0.8.1 extraneous
++-- iconv-lite@0.7.2 extraneous
+| `-- safer-buffer@2.1.2 deduped
++-- ignore@5.3.2 extraneous
++-- immer@11.1.8 extraneous
++-- import-fresh@3.3.1 extraneous
+| +-- parent-module@1.0.1 deduped
+| `-- resolve-from@4.0.0 deduped
++-- imurmurhash@0.1.4 extraneous
++-- inherits@2.0.4 extraneous
++-- internal-slot@1.1.0 extraneous
+| +-- es-errors@1.3.0 deduped
+| +-- hasown@2.0.4 deduped
+| `-- side-channel@1.1.1 deduped
++-- ip-address@10.2.0 extraneous
++-- ipaddr.js@1.9.1 extraneous
++-- is-array-buffer@3.0.5 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| `-- get-intrinsic@1.3.0 deduped
++-- is-arrayish@0.2.1 extraneous
++-- is-async-function@2.1.1 extraneous
+| +-- async-function@1.0.0 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- has-tostringtag@1.0.2 deduped
+| `-- safe-regex-test@1.1.0 deduped
++-- is-bigint@1.1.0 extraneous
+| `-- has-bigints@1.1.0 deduped
++-- is-boolean-object@1.2.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- has-tostringtag@1.0.2 deduped
++-- is-bun-module@2.0.0 extraneous
+| `-- semver@7.8.4 extraneous
++-- is-callable@1.2.7 extraneous
++-- is-core-module@2.16.2 extraneous
+| `-- hasown@2.0.4 deduped
++-- is-data-view@1.0.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| `-- is-typed-array@1.1.15 deduped
++-- is-date-object@1.1.0 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- has-tostringtag@1.0.2 deduped
++-- is-docker@3.0.0 extraneous
++-- is-document.all@1.0.0 extraneous
+| `-- call-bound@1.0.4 deduped
++-- is-extglob@2.1.1 extraneous
++-- is-finalizationregistry@1.1.1 extraneous
+| `-- call-bound@1.0.4 deduped
++-- is-generator-function@1.1.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- generator-function@2.0.1 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- has-tostringtag@1.0.2 deduped
+| `-- safe-regex-test@1.1.0 deduped
++-- is-glob@4.0.3 extraneous
+| `-- is-extglob@2.1.1 deduped
++-- is-in-ssh@1.0.0 extraneous
++-- is-inside-container@1.0.0 extraneous
+| `-- is-docker@3.0.0 deduped
++-- is-interactive@2.0.0 extraneous
++-- is-map@2.0.3 extraneous
++-- is-negative-zero@2.0.3 extraneous
++-- is-number-object@1.1.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- has-tostringtag@1.0.2 deduped
++-- is-number@7.0.0 extraneous
++-- is-obj@2.0.0 extraneous
++-- is-plain-obj@4.1.0 extraneous
++-- is-promise@4.0.0 extraneous
++-- is-regex@1.2.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-tostringtag@1.0.2 deduped
+| `-- hasown@2.0.4 deduped
++-- is-regexp@3.1.0 extraneous
++-- is-set@2.0.3 extraneous
++-- is-shared-array-buffer@1.0.4 extraneous
+| `-- call-bound@1.0.4 deduped
++-- is-stream@4.0.1 extraneous
++-- is-string@1.1.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- has-tostringtag@1.0.2 deduped
++-- is-symbol@1.1.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- has-symbols@1.1.0 deduped
+| `-- safe-regex-test@1.1.0 deduped
++-- is-typed-array@1.1.15 extraneous
+| `-- which-typed-array@1.1.22 deduped
++-- is-unicode-supported@2.1.0 extraneous
++-- is-weakmap@2.0.2 extraneous
++-- is-weakref@1.1.1 extraneous
+| `-- call-bound@1.0.4 deduped
++-- is-weakset@2.0.4 extraneous
+| +-- call-bound@1.0.4 deduped
+| `-- get-intrinsic@1.3.0 deduped
++-- is-wsl@3.1.1 extraneous
+| `-- is-inside-container@1.0.0 deduped
++-- isarray@2.0.5 extraneous
++-- isexe@2.0.0 extraneous
++-- iterator.prototype@1.1.5 extraneous
+| +-- define-data-property@1.1.4 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- has-symbols@1.1.0 deduped
+| `-- set-function-name@2.0.2 deduped
++-- jiti@2.7.0 extraneous
++-- jose@6.2.3 extraneous
++-- js-tokens@4.0.0 extraneous
++-- js-yaml@4.2.0 extraneous
+| `-- argparse@2.0.1 deduped
++-- jsesc@3.1.0 extraneous
++-- json-buffer@3.0.1 extraneous
++-- json-parse-even-better-errors@2.3.1 extraneous
++-- json-schema-traverse@0.4.1 extraneous
++-- json-schema-typed@8.0.2 extraneous
++-- json-stable-stringify-without-jsonify@1.0.1 extraneous
++-- json5@2.2.3 extraneous
++-- jsonfile@6.2.1 extraneous
+| +-- graceful-fs@4.2.11 deduped
+| `-- universalify@2.0.1 deduped
++-- jsx-ast-utils@3.3.5 extraneous
+| +-- array-includes@3.1.9 deduped
+| +-- array.prototype.flat@1.3.3 deduped
+| +-- object.assign@4.1.7 deduped
+| `-- object.values@1.2.1 deduped
++-- keyv@4.5.4 extraneous
+| `-- json-buffer@3.0.1 deduped
++-- kleur@4.1.5 extraneous
++-- language-subtag-registry@0.3.23 extraneous
++-- language-tags@1.0.9 extraneous
+| `-- language-subtag-registry@0.3.23 deduped
++-- levn@0.4.1 extraneous
+| +-- prelude-ls@1.2.1 deduped
+| `-- type-check@0.4.0 deduped
++-- lightningcss-win32-x64-msvc@1.32.0 extraneous
++-- lightningcss@1.32.0 extraneous
+| +-- detect-libc@2.1.2 deduped
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-android-arm64@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-darwin-arm64@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-darwin-x64@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-freebsd-x64@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-linux-arm-gnueabihf@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-linux-arm64-gnu@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-linux-arm64-musl@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-linux-x64-gnu@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-linux-x64-musl@1.32.0
+| +-- UNMET OPTIONAL DEPENDENCY lightningcss-win32-arm64-msvc@1.32.0
+| `-- lightningcss-win32-x64-msvc@1.32.0 deduped
++-- lines-and-columns@1.2.4 extraneous
++-- locate-path@6.0.0 extraneous
+| `-- p-locate@5.0.0 deduped
++-- lodash.merge@4.6.2 extraneous
++-- log-symbols@6.0.0 extraneous
+| +-- chalk@5.6.2 extraneous
+| `-- is-unicode-supported@1.3.0 extraneous
++-- loose-envify@1.4.0 extraneous
+| `-- js-tokens@4.0.0 deduped
++-- lru-cache@5.1.1 extraneous
+| `-- yallist@3.1.1 deduped
++-- lucide-react@1.21.0 extraneous
+| `-- react@19.2.4 deduped
++-- magic-string@0.30.21 extraneous
+| `-- @jridgewell/sourcemap-codec@1.5.5 deduped
++-- math-intrinsics@1.1.0 extraneous
++-- memoize-one@6.0.0 extraneous
++-- merge-descriptors@2.0.0 extraneous
++-- merge-stream@2.0.0 extraneous
++-- merge2@1.4.1 extraneous
++-- micromatch@4.0.8 extraneous
+| +-- braces@3.0.3 deduped
+| `-- picomatch@2.3.2 deduped
++-- mime-db@1.54.0 extraneous
++-- mime-types@3.0.2 extraneous
+| `-- mime-db@1.54.0 deduped
++-- mimic-fn@3.1.0 extraneous
++-- mimic-function@5.0.1 extraneous
++-- mini-svg-data-uri@1.4.4 extraneous
++-- minimatch@3.1.5 extraneous
+| `-- brace-expansion@1.1.15 deduped
++-- minimist@1.2.8 extraneous
++-- motion-dom@12.40.0 extraneous
+| `-- motion-utils@12.39.0 deduped
++-- motion-utils@12.39.0 extraneous
++-- motion@12.40.0 extraneous
+| +-- UNMET OPTIONAL DEPENDENCY @emotion/is-prop-valid@*
+| +-- framer-motion@12.40.0 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| `-- tslib@2.8.1 deduped
++-- ms@2.1.3 extraneous
++-- nanoid@3.3.13 extraneous
++-- napi-postinstall@0.3.4 extraneous
++-- natural-compare@1.4.0 extraneous
++-- negotiator@1.0.0 extraneous
++-- next@16.2.9 extraneous
+| +-- @next/env@16.2.9 deduped
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-darwin-arm64@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-darwin-x64@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-linux-arm64-gnu@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-linux-arm64-musl@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-linux-x64-gnu@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-linux-x64-musl@16.2.9
+| +-- UNMET OPTIONAL DEPENDENCY @next/swc-win32-arm64-msvc@16.2.9
+| +-- @next/swc-win32-x64-msvc@16.2.9 deduped
+| +-- UNMET OPTIONAL DEPENDENCY @opentelemetry/api@^1.1.0
+| +-- UNMET OPTIONAL DEPENDENCY @playwright/test@^1.51.1
+| +-- @swc/helpers@0.5.15 deduped
+| +-- UNMET OPTIONAL DEPENDENCY babel-plugin-react-compiler@*
+| +-- baseline-browser-mapping@2.10.38 deduped
+| +-- caniuse-lite@1.0.30001799 deduped
+| +-- postcss@8.4.31 extraneous
+| | +-- nanoid@3.3.13 deduped
+| | +-- picocolors@1.1.1 deduped
+| | `-- source-map-js@1.2.1 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react@19.2.4 deduped
+| +-- UNMET OPTIONAL DEPENDENCY sass@^1.3.0
+| +-- sharp@0.34.5 deduped
+| `-- styled-jsx@5.1.6 deduped
++-- node-domexception@1.0.0 extraneous
++-- node-exports-info@1.6.0 extraneous
+| +-- array.prototype.flatmap@1.3.3 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- object.entries@1.1.9 deduped
+| `-- semver@6.3.1 deduped
++-- node-fetch@3.3.2 extraneous
+| +-- data-uri-to-buffer@4.0.1 deduped
+| +-- fetch-blob@3.2.0 deduped
+| `-- formdata-polyfill@4.0.10 deduped
++-- node-releases@2.0.48 extraneous
++-- npm-run-path@6.0.0 extraneous
+| +-- path-key@4.0.0 extraneous
+| `-- unicorn-magic@0.3.0 deduped
++-- object-assign@4.1.1 extraneous
++-- object-inspect@1.13.4 extraneous
++-- object-keys@1.1.1 extraneous
++-- object-treeify@1.1.33 extraneous
++-- object.assign@4.1.7 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- has-symbols@1.1.0 deduped
+| `-- object-keys@1.1.1 deduped
++-- object.entries@1.1.9 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- object.fromentries@2.0.8 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- object.groupby@1.0.3 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-abstract@1.24.2 deduped
++-- object.values@1.2.1 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- on-finished@2.4.1 extraneous
+| `-- ee-first@1.1.1 deduped
++-- once@1.4.0 extraneous
+| `-- wrappy@1.0.2 deduped
++-- onetime@5.1.2 extraneous
+| `-- mimic-fn@2.1.0 extraneous
++-- open@11.0.0 extraneous
+| +-- default-browser@5.5.0 deduped
+| +-- define-lazy-prop@3.0.0 deduped
+| +-- is-in-ssh@1.0.0 deduped
+| +-- is-inside-container@1.0.0 deduped
+| +-- powershell-utils@0.1.0 deduped
+| `-- wsl-utils@0.3.1 deduped
++-- optionator@0.9.4 extraneous
+| +-- deep-is@0.1.4 deduped
+| +-- fast-levenshtein@2.0.6 deduped
+| +-- levn@0.4.1 deduped
+| +-- prelude-ls@1.2.1 deduped
+| +-- type-check@0.4.0 deduped
+| `-- word-wrap@1.2.5 deduped
++-- ora@8.2.0 extraneous
+| +-- ansi-regex@6.2.2 extraneous
+| +-- chalk@5.6.2 extraneous
+| +-- cli-cursor@5.0.0 deduped
+| +-- cli-spinners@2.9.2 deduped
+| +-- emoji-regex@10.6.0 extraneous
+| +-- is-interactive@2.0.0 deduped
+| +-- is-unicode-supported@2.1.0 deduped
+| +-- log-symbols@6.0.0 deduped
+| +-- stdin-discarder@0.2.2 deduped
+| +-- string-width@7.2.0 extraneous
+| | +-- emoji-regex@10.6.0 deduped
+| | +-- get-east-asian-width@1.6.0 deduped
+| | `-- strip-ansi@7.2.0 deduped
+| `-- strip-ansi@7.2.0 extraneous
+|   `-- ansi-regex@6.2.2 deduped
++-- own-keys@1.0.1 extraneous
+| +-- get-intrinsic@1.3.0 deduped
+| +-- object-keys@1.1.1 deduped
+| `-- safe-push-apply@1.0.0 deduped
++-- p-limit@3.1.0 extraneous
+| `-- yocto-queue@0.1.0 deduped
++-- p-locate@5.0.0 extraneous
+| `-- p-limit@3.1.0 deduped
++-- p-try@2.2.0 extraneous
++-- parent-module@1.0.1 extraneous
+| `-- callsites@3.1.0 deduped
++-- parse-json@5.2.0 extraneous
+| +-- @babel/code-frame@7.29.7 deduped
+| +-- error-ex@1.3.4 deduped
+| +-- json-parse-even-better-errors@2.3.1 deduped
+| `-- lines-and-columns@1.2.4 deduped
++-- parse-ms@4.0.0 extraneous
++-- parseurl@1.3.3 extraneous
++-- path-browserify@1.0.1 extraneous
++-- path-exists@4.0.0 extraneous
++-- path-key@3.1.1 extraneous
++-- path-parse@1.0.7 extraneous
++-- path-to-regexp@8.4.2 extraneous
++-- path-type@4.0.0 extraneous
++-- perfect-scrollbar@1.5.6 extraneous
++-- picocolors@1.1.1 extraneous
++-- picomatch@2.3.2 extraneous
++-- pkce-challenge@5.0.1 extraneous
++-- pkg-up@3.1.0 extraneous
+| +-- find-up@3.0.0 extraneous
+| | `-- locate-path@3.0.0 deduped
+| +-- locate-path@3.0.0 extraneous
+| | +-- p-locate@3.0.0 deduped
+| | `-- path-exists@3.0.0 deduped
+| +-- p-limit@2.3.0 extraneous
+| | `-- p-try@2.2.0 deduped
+| +-- p-locate@3.0.0 extraneous
+| | `-- p-limit@2.3.0 deduped
+| `-- path-exists@3.0.0 extraneous
++-- possible-typed-array-names@1.1.0 extraneous
++-- postcss-selector-parser@7.1.4 extraneous
+| +-- cssesc@3.0.0 deduped
+| `-- util-deprecate@1.0.2 deduped
++-- postcss@8.5.15 extraneous
+| +-- nanoid@3.3.13 deduped
+| +-- picocolors@1.1.1 deduped
+| `-- source-map-js@1.2.1 deduped
++-- powershell-utils@0.1.0 extraneous
++-- prelude-ls@1.2.1 extraneous
++-- pretty-ms@9.3.0 extraneous
+| `-- parse-ms@4.0.0 deduped
++-- prompts@2.4.2 extraneous
+| +-- kleur@3.0.3 extraneous
+| `-- sisteransi@1.0.5 deduped
++-- prop-types@15.8.1 extraneous
+| +-- loose-envify@1.4.0 deduped
+| +-- object-assign@4.1.1 deduped
+| `-- react-is@16.13.1 deduped
++-- proxy-addr@2.0.7 extraneous
+| +-- forwarded@0.2.0 deduped
+| `-- ipaddr.js@1.9.1 deduped
++-- punycode@2.3.1 extraneous
++-- qs@6.15.2 extraneous
+| `-- side-channel@1.1.1 deduped
++-- queue-microtask@1.2.3 extraneous
++-- range-parser@1.2.1 extraneous
++-- raw-body@3.0.2 extraneous
+| +-- bytes@3.1.2 deduped
+| +-- http-errors@2.0.1 deduped
+| +-- iconv-lite@0.7.2 deduped
+| `-- unpipe@1.0.0 deduped
++-- react-animate-height@3.2.4 extraneous
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- react-apexcharts@2.1.1 extraneous
+| +-- apexcharts@5.15.2 deduped
+| +-- prop-types@15.8.1 deduped
+| `-- react@19.2.4 deduped
++-- react-aria@3.50.0 extraneous
+| +-- @internationalized/date@3.12.2 deduped
+| +-- @internationalized/number@3.6.7 deduped
+| +-- @internationalized/string@3.2.9 deduped
+| +-- @react-types/shared@3.36.0 deduped
+| +-- @swc/helpers@0.5.15 deduped
+| +-- aria-hidden@1.2.6 deduped
+| +-- clsx@2.1.1 deduped
+| +-- react-dom@19.2.4 deduped
+| +-- react-stately@3.48.0 deduped
+| +-- react@19.2.4 deduped
+| `-- use-sync-external-store@1.6.0 deduped
++-- react-fast-compare@3.2.2 extraneous
++-- react-flatpickr@4.0.11 extraneous
+| +-- flatpickr@4.6.13 deduped
+| `-- react@19.2.4 deduped
++-- react-hot-toast@2.6.0 extraneous
+| +-- csstype@3.2.3 deduped
+| +-- goober@2.1.19 deduped
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- react-is@16.13.1 extraneous
++-- react-joyride@3.1.0
+| +-- @fastify/deepmerge@3.2.1
+| +-- @floating-ui/react-dom@2.1.8 deduped
+| +-- @gilbarbara/deep-equal@0.4.1
+| +-- @gilbarbara/hooks@0.11.0
+| | +-- @gilbarbara/deep-equal@0.4.1 deduped
+| | `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- @gilbarbara/types@0.2.2
+| | `-- type-fest@4.41.0
+| +-- is-lite@2.0.0
+| +-- react-dom@19.2.4 deduped
+| +-- react-innertext@1.1.5
+| | +-- @types/react@19.2.17 deduped
+| | `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- react@19.2.4 deduped
+| +-- scroll@3.0.1
+| +-- scrollparent@2.1.0
+| `-- use-sync-external-store@1.6.0 deduped
++-- react-perfect-scrollbar@1.5.8 extraneous
+| +-- perfect-scrollbar@1.5.6 deduped
+| +-- prop-types@15.8.1 deduped
+| +-- react-dom@19.2.4 deduped
+| `-- react@19.2.4 deduped
++-- react-popper@2.3.0 extraneous
+| +-- @popperjs/core@2.11.8 deduped
+| +-- react-dom@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- react-fast-compare@3.2.2 deduped
+| +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- warning@4.0.3 deduped
++-- react-redux@9.3.0 extraneous
+| +-- @types/react@19.2.17 deduped
+| +-- @types/use-sync-external-store@0.0.6 deduped
+| +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- redux@5.0.1 deduped
+| `-- use-sync-external-store@1.6.0 deduped
++-- react-select@5.10.2 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- @emotion/cache@11.14.0 deduped
+| +-- @emotion/react@11.14.0 deduped
+| +-- @floating-ui/dom@1.7.6
+| | +-- @floating-ui/core@1.7.5
+| | | `-- @floating-ui/utils@0.2.11 deduped
+| | `-- @floating-ui/utils@0.2.11 deduped
+| +-- @types/react-transition-group@4.4.12 deduped
+| +-- memoize-one@6.0.0 deduped
+| +-- prop-types@15.8.1 deduped
+| +-- react-dom@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- react-transition-group@4.4.5 deduped
+| +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- use-isomorphic-layout-effect@1.2.1 deduped
++-- react-stately@3.48.0 extraneous
+| +-- @internationalized/date@3.12.2 deduped
+| +-- @internationalized/number@3.6.7 deduped
+| +-- @internationalized/string@3.2.9 deduped
+| +-- @react-types/shared@3.36.0 deduped
+| +-- @swc/helpers@0.5.15 deduped
+| +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- use-sync-external-store@1.6.0 deduped
++-- react-transition-group@4.4.5 extraneous
+| +-- @babel/runtime@7.29.7 deduped
+| +-- dom-helpers@5.2.1 deduped
+| +-- loose-envify@1.4.0 deduped
+| +-- prop-types@15.8.1 deduped
+| +-- react-dom@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
++-- recast@0.23.11 extraneous
+| +-- ast-types@0.16.1 deduped
+| +-- esprima@4.0.1 deduped
+| +-- source-map@0.6.1 deduped
+| +-- tiny-invariant@1.3.3 deduped
+| `-- tslib@2.8.1 deduped
++-- redux-thunk@3.1.0 extraneous
+| `-- redux@5.0.1 deduped
++-- redux@5.0.1 extraneous
++-- reflect.getprototypeof@1.0.10 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- get-proto@1.0.1 deduped
+| `-- which-builtin-type@1.2.1 deduped
++-- regexp.prototype.flags@1.5.4 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- gopd@1.2.0 deduped
+| `-- set-function-name@2.0.2 deduped
++-- require-from-string@2.0.2 extraneous
++-- reselect@5.2.0 extraneous
++-- resolve-from@4.0.0 extraneous
++-- resolve-pkg-maps@1.0.0 extraneous
++-- resolve@2.0.0-next.7 extraneous
+| +-- es-errors@1.3.0 deduped
+| +-- is-core-module@2.16.2 deduped
+| +-- node-exports-info@1.6.0 deduped
+| +-- object-keys@1.1.1 deduped
+| +-- path-parse@1.0.7 deduped
+| `-- supports-preserve-symlinks-flag@1.0.0 deduped
++-- restore-cursor@5.1.0 extraneous
+| +-- onetime@7.0.0 extraneous
+| | `-- mimic-function@5.0.1 deduped
+| `-- signal-exit@4.1.0 deduped
++-- reusify@1.1.0 extraneous
++-- router@2.2.0 extraneous
+| +-- debug@4.4.3 deduped
+| +-- depd@2.0.0 deduped
+| +-- is-promise@4.0.0 deduped
+| +-- parseurl@1.3.3 deduped
+| `-- path-to-regexp@8.4.2 deduped
++-- run-applescript@7.1.0 extraneous
++-- run-parallel@1.2.0 extraneous
+| `-- queue-microtask@1.2.3 deduped
++-- safe-array-concat@1.1.4 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| `-- isarray@2.0.5 deduped
++-- safe-push-apply@1.0.0 extraneous
+| +-- es-errors@1.3.0 deduped
+| `-- isarray@2.0.5 deduped
++-- safe-regex-test@1.1.0 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- is-regex@1.2.1 deduped
++-- safer-buffer@2.1.2 extraneous
++-- semver@6.3.1 extraneous
++-- send@1.2.1 extraneous
+| +-- debug@4.4.3 deduped
+| +-- encodeurl@2.0.0 deduped
+| +-- escape-html@1.0.3 deduped
+| +-- etag@1.8.1 deduped
+| +-- fresh@2.0.0 deduped
+| +-- http-errors@2.0.1 deduped
+| +-- mime-types@3.0.2 deduped
+| +-- ms@2.1.3 deduped
+| +-- on-finished@2.4.1 deduped
+| +-- range-parser@1.2.1 deduped
+| `-- statuses@2.0.2 deduped
++-- serve-static@2.2.1 extraneous
+| +-- encodeurl@2.0.0 deduped
+| +-- escape-html@1.0.3 deduped
+| +-- parseurl@1.3.3 deduped
+| `-- send@1.2.1 deduped
++-- set-function-length@1.2.2 extraneous
+| +-- define-data-property@1.1.4 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- function-bind@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- gopd@1.2.0 deduped
+| `-- has-property-descriptors@1.0.2 deduped
++-- set-function-name@2.0.2 extraneous
+| +-- define-data-property@1.1.4 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- functions-have-names@1.2.3 deduped
+| `-- has-property-descriptors@1.0.2 deduped
++-- set-proto@1.0.0 extraneous
+| +-- dunder-proto@1.0.1 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- setprototypeof@1.2.0 extraneous
++-- shadcn@4.11.0 extraneous
+| +-- @babel/core@7.29.7 deduped
+| +-- @babel/parser@7.29.7 deduped
+| +-- @babel/plugin-transform-typescript@7.29.7 deduped
+| +-- @babel/preset-typescript@7.29.7 deduped
+| +-- @dotenvx/dotenvx@1.74.2 deduped
+| +-- @modelcontextprotocol/sdk@1.29.0 deduped
+| +-- @types/validate-npm-package-name@4.0.2 deduped
+| +-- browserslist@4.28.2 deduped
+| +-- commander@14.0.3 deduped
+| +-- cosmiconfig@9.0.2 deduped
+| +-- dedent@1.7.2 deduped
+| +-- deepmerge@4.3.1 deduped
+| +-- diff@8.0.4 deduped
+| +-- execa@9.6.1 deduped
+| +-- fast-glob@3.3.3 extraneous
+| | +-- @nodelib/fs.stat@2.0.5 deduped
+| | +-- @nodelib/fs.walk@1.2.8 deduped
+| | +-- glob-parent@5.1.2 deduped
+| | +-- merge2@1.4.1 deduped
+| | `-- micromatch@4.0.8 deduped
+| +-- fs-extra@11.3.5 deduped
+| +-- fuzzysort@3.1.0 deduped
+| +-- glob-parent@5.1.2 extraneous
+| | `-- is-glob@4.0.3 deduped
+| +-- https-proxy-agent@7.0.6 deduped
+| +-- kleur@4.1.5 deduped
+| +-- node-fetch@3.3.2 deduped
+| +-- open@11.0.0 deduped
+| +-- ora@8.2.0 deduped
+| +-- postcss-selector-parser@7.1.4 deduped
+| +-- postcss@8.5.15 deduped
+| +-- prompts@2.4.2 deduped
+| +-- recast@0.23.11 deduped
+| +-- stringify-object@5.0.0 deduped
+| +-- tailwind-merge@3.6.0 deduped
+| +-- ts-morph@26.0.0 deduped
+| +-- tsconfig-paths@4.2.0 extraneous
+| | +-- json5@2.2.3 deduped
+| | +-- minimist@1.2.8 deduped
+| | `-- strip-bom@3.0.0 deduped
+| +-- validate-npm-package-name@7.0.2 deduped
+| +-- zod-to-json-schema@3.25.2 deduped
+| `-- zod@3.25.76 extraneous
++-- sharp@0.34.5 extraneous
+| +-- @img/colour@1.1.0 deduped
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-darwin-arm64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-darwin-x64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-darwin-arm64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-darwin-x64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-arm@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-arm64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-ppc64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-riscv64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-s390x@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linux-x64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linuxmusl-arm64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-libvips-linuxmusl-x64@1.2.4
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-arm@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-arm64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-ppc64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-riscv64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-s390x@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linux-x64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linuxmusl-arm64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-linuxmusl-x64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-wasm32@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-win32-arm64@0.34.5
+| +-- UNMET OPTIONAL DEPENDENCY @img/sharp-win32-ia32@0.34.5
+| +-- @img/sharp-win32-x64@0.34.5 deduped
+| +-- detect-libc@2.1.2 deduped
+| `-- semver@7.8.4 extraneous
++-- shebang-command@2.0.0 extraneous
+| `-- shebang-regex@3.0.0 deduped
++-- shebang-regex@3.0.0 extraneous
++-- side-channel-list@1.0.1 extraneous
+| +-- es-errors@1.3.0 deduped
+| `-- object-inspect@1.13.4 deduped
++-- side-channel-map@1.0.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| `-- object-inspect@1.13.4 deduped
++-- side-channel-weakmap@1.0.2 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- object-inspect@1.13.4 deduped
+| `-- side-channel-map@1.0.1 deduped
++-- side-channel@1.1.1 extraneous
+| +-- es-errors@1.3.0 deduped
+| +-- object-inspect@1.13.4 deduped
+| +-- side-channel-list@1.0.1 deduped
+| +-- side-channel-map@1.0.1 deduped
+| `-- side-channel-weakmap@1.0.2 deduped
++-- signal-exit@4.1.0 extraneous
++-- sisteransi@1.0.5 extraneous
++-- source-map-js@1.2.1 extraneous
++-- source-map@0.6.1 extraneous
++-- stable-hash@0.0.5 extraneous
++-- statuses@2.0.2 extraneous
++-- stdin-discarder@0.2.2 extraneous
++-- stop-iteration-iterator@1.1.0 extraneous
+| +-- es-errors@1.3.0 deduped
+| `-- internal-slot@1.1.0 deduped
++-- string.prototype.includes@2.0.1 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-abstract@1.24.2 deduped
++-- string.prototype.matchall@4.0.12 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-errors@1.3.0 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- get-intrinsic@1.3.0 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| +-- internal-slot@1.1.0 deduped
+| +-- regexp.prototype.flags@1.5.4 deduped
+| +-- set-function-name@2.0.2 deduped
+| `-- side-channel@1.1.1 deduped
++-- string.prototype.repeat@1.0.0 extraneous
+| +-- define-properties@1.2.1 deduped
+| `-- es-abstract@1.24.2 deduped
++-- string.prototype.trim@1.2.11 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-data-property@1.1.4 deduped
+| +-- define-properties@1.2.1 deduped
+| +-- es-abstract@1.24.2 deduped
+| +-- es-object-atoms@1.1.2 deduped
+| +-- has-property-descriptors@1.0.2 deduped
+| `-- safe-regex-test@1.1.0 deduped
++-- string.prototype.trimend@1.0.10 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- string.prototype.trimstart@1.0.8 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- define-properties@1.2.1 deduped
+| `-- es-object-atoms@1.1.2 deduped
++-- stringify-object@5.0.0 extraneous
+| +-- get-own-enumerable-keys@1.0.0 deduped
+| +-- is-obj@3.0.0 extraneous
+| `-- is-regexp@3.1.0 deduped
++-- strip-ansi@6.0.1 extraneous
+| `-- ansi-regex@5.0.1 deduped
++-- strip-bom@3.0.0 extraneous
++-- strip-final-newline@4.0.0 extraneous
++-- strip-json-comments@3.1.1 extraneous
++-- styled-jsx@5.1.6 extraneous
+| +-- client-only@0.0.1 deduped
+| `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
++-- stylis@4.2.0 extraneous
++-- supports-color@7.2.0 extraneous
+| `-- has-flag@4.0.0 deduped
++-- supports-preserve-symlinks-flag@1.0.0 extraneous
++-- sweetalert2-react-content@5.1.2 extraneous
+| +-- react-dom@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| +-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
+| `-- sweetalert2@11.26.25 deduped
++-- sweetalert2@11.26.25 extraneous
++-- systeminformation@5.31.7 extraneous
++-- tabbable@6.4.0 extraneous
++-- tailwind-merge@3.6.0 extraneous
++-- tailwindcss@4.3.1 extraneous
++-- tapable@2.3.3 extraneous
++-- tiny-invariant@1.3.3 extraneous
++-- tinyglobby@0.2.17 extraneous
+| +-- fdir@6.5.0 extraneous
+| | `-- picomatch@4.0.4 deduped
+| `-- picomatch@4.0.4 extraneous
++-- tippy.js@6.3.7 extraneous
+| `-- @popperjs/core@2.11.8 deduped
++-- to-regex-range@5.0.1 extraneous
+| `-- is-number@7.0.0 deduped
++-- toidentifier@1.0.1 extraneous
++-- ts-api-utils@2.5.0 extraneous
+| `-- typescript@5.9.3 deduped
++-- ts-morph@26.0.0 extraneous
+| +-- @ts-morph/common@0.27.0 deduped
+| `-- code-block-writer@13.0.3 deduped
++-- tsconfig-paths@3.15.0 extraneous
+| +-- @types/json5@0.0.29 deduped
+| +-- json5@1.0.2 extraneous
+| | `-- minimist@1.2.8 deduped
+| +-- minimist@1.2.8 deduped
+| `-- strip-bom@3.0.0 deduped
++-- tslib@2.8.1 extraneous
++-- tw-animate-css@1.4.0 extraneous
++-- type-check@0.4.0 extraneous
+| `-- prelude-ls@1.2.1 deduped
++-- type-is@2.1.0 extraneous
+| +-- content-type@2.0.0 deduped
+| +-- media-typer@1.1.0 extraneous
+| `-- mime-types@3.0.2 deduped
++-- typed-array-buffer@1.0.3 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- es-errors@1.3.0 deduped
+| `-- is-typed-array@1.1.15 deduped
++-- typed-array-byte-length@1.0.3 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- for-each@0.3.5 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-proto@1.2.0 deduped
+| `-- is-typed-array@1.1.15 deduped
++-- typed-array-byte-offset@1.0.4 extraneous
+| +-- available-typed-arrays@1.0.7 deduped
+| +-- call-bind@1.0.9 deduped
+| +-- for-each@0.3.5 deduped
+| +-- gopd@1.2.0 deduped
+| +-- has-proto@1.2.0 deduped
+| +-- is-typed-array@1.1.15 deduped
+| `-- reflect.getprototypeof@1.0.10 deduped
++-- typed-array-length@1.0.8 extraneous
+| +-- call-bind@1.0.9 deduped
+| +-- for-each@0.3.5 deduped
+| +-- gopd@1.2.0 deduped
+| +-- is-typed-array@1.1.15 deduped
+| +-- possible-typed-array-names@1.1.0 deduped
+| `-- reflect.getprototypeof@1.0.10 deduped
++-- typescript-eslint@8.61.1 extraneous
+| +-- @typescript-eslint/eslint-plugin@8.61.1 deduped
+| +-- @typescript-eslint/parser@8.61.1 deduped
+| +-- @typescript-eslint/typescript-estree@8.61.1 deduped
+| +-- @typescript-eslint/utils@8.61.1 deduped
+| +-- eslint@9.39.4 deduped
+| `-- typescript@5.9.3 deduped
++-- typescript@5.9.3 extraneous
++-- unbox-primitive@1.1.0 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- has-bigints@1.1.0 deduped
+| +-- has-symbols@1.1.0 deduped
+| `-- which-boxed-primitive@1.1.1 deduped
++-- undici-types@6.21.0 extraneous
++-- undici@7.28.0 extraneous
++-- unicorn-magic@0.3.0 extraneous
++-- universal-cookie@8.1.2 extraneous
+| `-- cookie@1.1.1 deduped
++-- universalify@2.0.1 extraneous
++-- unpipe@1.0.0 extraneous
++-- unrs-resolver@1.12.2 extraneous
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-android-arm-eabi@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-android-arm64@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-darwin-arm64@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-darwin-x64@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-freebsd-x64@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-arm-gnueabihf@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-arm-musleabihf@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-arm64-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-arm64-musl@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-loong64-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-loong64-musl@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-ppc64-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-riscv64-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-riscv64-musl@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-s390x-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-x64-gnu@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-linux-x64-musl@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-openharmony-arm64@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-wasm32-wasi@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-win32-arm64-msvc@1.12.2
+| +-- UNMET OPTIONAL DEPENDENCY @unrs/resolver-binding-win32-ia32-msvc@1.12.2
+| +-- @unrs/resolver-binding-win32-x64-msvc@1.12.2 deduped
+| `-- napi-postinstall@0.3.4 deduped
++-- update-browserslist-db@1.2.3 extraneous
+| +-- browserslist@4.28.2 deduped
+| +-- escalade@3.2.0 deduped
+| `-- picocolors@1.1.1 deduped
++-- uri-js@4.4.1 extraneous
+| `-- punycode@2.3.1 deduped
++-- use-isomorphic-layout-effect@1.2.1 extraneous
+| `-- react@19.2.4 deduped invalid: "^16.8.0 || ^17 || ^18" from node_modules/react-popper
++-- util-deprecate@1.0.2 extraneous
++-- validate-npm-package-name@7.0.2 extraneous
++-- vary@1.1.2 extraneous
++-- warning@4.0.3 extraneous
+| `-- loose-envify@1.4.0 deduped
++-- web-streams-polyfill@3.3.3 extraneous
++-- web@ invalid: "file:C:\\Users\\Julio\\OneDrive\\Desktop\\NAVIER\\masivos\\apps\\web" from the root project (apps/web)
++-- which-boxed-primitive@1.1.1 extraneous
+| +-- is-bigint@1.1.0 deduped
+| +-- is-boolean-object@1.2.2 deduped
+| +-- is-number-object@1.1.1 deduped
+| +-- is-string@1.1.1 deduped
+| `-- is-symbol@1.1.1 deduped
++-- which-builtin-type@1.2.1 extraneous
+| +-- call-bound@1.0.4 deduped
+| +-- function.prototype.name@1.2.0 deduped
+| +-- has-tostringtag@1.0.2 deduped
+| +-- is-async-function@2.1.1 deduped
+| +-- is-date-object@1.1.0 deduped
+| +-- is-finalizationregistry@1.1.1 deduped
+| +-- is-generator-function@1.1.2 deduped
+| +-- is-regex@1.2.1 deduped
+| +-- is-weakref@1.1.1 deduped
+| +-- isarray@2.0.5 deduped
+| +-- which-boxed-primitive@1.1.1 deduped
+| +-- which-collection@1.0.2 deduped
+| `-- which-typed-array@1.1.22 deduped
++-- which-collection@1.0.2 extraneous
+| +-- is-map@2.0.3 deduped
+| +-- is-set@2.0.3 deduped
+| +-- is-weakmap@2.0.2 deduped
+| `-- is-weakset@2.0.4 deduped
++-- which-typed-array@1.1.22 extraneous
+| +-- available-typed-arrays@1.0.7 deduped
+| +-- call-bind@1.0.9 deduped
+| +-- call-bound@1.0.4 deduped
+| +-- for-each@0.3.5 deduped
+| +-- get-proto@1.0.1 deduped
+| +-- gopd@1.2.0 deduped
+| `-- has-tostringtag@1.0.2 deduped
++-- which@2.0.2 extraneous
+| `-- isexe@2.0.0 deduped
++-- word-wrap@1.2.5 extraneous
++-- wrappy@1.0.2 extraneous
++-- wsl-utils@0.3.1 extraneous
+| +-- is-wsl@3.1.1 deduped
+| `-- powershell-utils@0.1.0 deduped
++-- yallist@3.1.1 extraneous
++-- yaml@1.10.3 extraneous
++-- yocto-queue@0.1.0 extraneous
++-- yocto-spinner@1.2.0 extraneous
+| `-- yoctocolors@2.1.2 deduped
++-- yoctocolors@2.1.2 extraneous
++-- zod-to-json-schema@3.25.2 extraneous
+| `-- zod@4.4.3 deduped
++-- zod-validation-error@4.0.2 extraneous
+| `-- zod@4.4.3 deduped
+`-- zod@4.4.3 extraneous
+
+npm error code ELSPROBLEMS
+npm error extraneous: @alloc/quick-lru@5.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@alloc\quick-lru
+npm error extraneous: @babel/code-frame@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\code-frame
+npm error extraneous: @babel/compat-data@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\compat-data
+npm error extraneous: @babel/core@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\core
+npm error extraneous: @babel/generator@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\generator
+npm error extraneous: @babel/helper-annotate-as-pure@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-annotate-as-pure
+npm error extraneous: @babel/helper-compilation-targets@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-compilation-targets
+npm error extraneous: @babel/helper-create-class-features-plugin@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-create-class-features-plugin
+npm error extraneous: @babel/helper-globals@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-globals
+npm error extraneous: @babel/helper-member-expression-to-functions@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-member-expression-to-functions
+npm error extraneous: @babel/helper-module-imports@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-module-imports
+npm error extraneous: @babel/helper-module-transforms@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-module-transforms
+npm error extraneous: @babel/helper-optimise-call-expression@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-optimise-call-expression
+npm error extraneous: @babel/helper-plugin-utils@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-plugin-utils
+npm error extraneous: @babel/helper-replace-supers@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-replace-supers
+npm error extraneous: @babel/helper-skip-transparent-expression-wrappers@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-skip-transparent-expression-wrappers
+npm error extraneous: @babel/helper-string-parser@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-string-parser
+npm error extraneous: @babel/helper-validator-identifier@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-validator-identifier
+npm error extraneous: @babel/helper-validator-option@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helper-validator-option
+npm error extraneous: @babel/helpers@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\helpers
+npm error extraneous: @babel/parser@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\parser
+npm error extraneous: @babel/plugin-syntax-jsx@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\plugin-syntax-jsx
+npm error extraneous: @babel/plugin-syntax-typescript@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\plugin-syntax-typescript
+npm error extraneous: @babel/plugin-transform-modules-commonjs@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\plugin-transform-modules-commonjs
+npm error extraneous: @babel/plugin-transform-typescript@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\plugin-transform-typescript
+npm error extraneous: @babel/preset-typescript@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\preset-typescript
+npm error extraneous: @babel/runtime@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\runtime
+npm error extraneous: @babel/template@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\template
+npm error extraneous: @babel/traverse@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\traverse
+npm error extraneous: @babel/types@7.29.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@babel\types
+npm error extraneous: @base-ui/react@1.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@base-ui\react
+npm error extraneous: @base-ui/utils@0.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@base-ui\utils
+npm error extraneous: @dotenvx/dotenvx@1.74.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx
+npm error extraneous: @ecies/ciphers@0.2.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ecies\ciphers
+npm error extraneous: @emnapi/core@1.10.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emnapi\core
+npm error extraneous: @emnapi/runtime@1.11.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emnapi\runtime
+npm error extraneous: @emnapi/wasi-threads@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emnapi\wasi-threads
+npm error extraneous: @emotion/babel-plugin@11.13.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\babel-plugin
+npm error extraneous: @emotion/cache@11.14.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\cache
+npm error extraneous: @emotion/hash@0.9.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\hash
+npm error extraneous: @emotion/memoize@0.9.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\memoize
+npm error extraneous: @emotion/react@11.14.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\react
+npm error extraneous: @emotion/serialize@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\serialize
+npm error extraneous: @emotion/sheet@1.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\sheet
+npm error extraneous: @emotion/unitless@0.10.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\unitless
+npm error extraneous: @emotion/use-insertion-effect-with-fallbacks@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\use-insertion-effect-with-fallbacks
+npm error extraneous: @emotion/utils@1.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\utils
+npm error extraneous: @emotion/weak-memoize@0.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\weak-memoize
+npm error extraneous: @eslint-community/eslint-utils@4.9.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint-community\eslint-utils
+npm error extraneous: @eslint-community/regexpp@4.12.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint-community\regexpp
+npm error extraneous: @eslint/config-array@0.21.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\config-array
+npm error extraneous: @eslint/config-helpers@0.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\config-helpers
+npm error extraneous: @eslint/core@0.17.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\core
+npm error extraneous: @eslint/eslintrc@3.3.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\eslintrc
+npm error extraneous: @eslint/js@9.39.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\js
+npm error extraneous: @eslint/object-schema@2.1.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\object-schema
+npm error extraneous: @eslint/plugin-kit@0.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint\plugin-kit
+npm error extraneous: @floating-ui/react@0.26.28 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@floating-ui\react
+npm error extraneous: @headlessui/react@2.2.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@headlessui\react
+npm error extraneous: @hono/node-server@1.19.14 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@hono\node-server
+npm error extraneous: @humanfs/core@0.19.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@humanfs\core
+npm error extraneous: @humanfs/node@0.16.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@humanfs\node
+npm error extraneous: @humanfs/types@0.15.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@humanfs\types
+npm error extraneous: @humanwhocodes/module-importer@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@humanwhocodes\module-importer
+npm error extraneous: @humanwhocodes/retry@0.4.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@humanwhocodes\retry
+npm error extraneous: @img/colour@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@img\colour
+npm error extraneous: @img/sharp-win32-x64@0.34.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@img\sharp-win32-x64
+npm error extraneous: @internationalized/date@3.12.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@internationalized\date
+npm error extraneous: @internationalized/number@3.6.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@internationalized\number
+npm error extraneous: @internationalized/string@3.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@internationalized\string
+npm error extraneous: @jridgewell/gen-mapping@0.3.13 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@jridgewell\gen-mapping
+npm error extraneous: @jridgewell/remapping@2.3.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@jridgewell\remapping
+npm error extraneous: @jridgewell/resolve-uri@3.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@jridgewell\resolve-uri
+npm error extraneous: @jridgewell/sourcemap-codec@1.5.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@jridgewell\sourcemap-codec
+npm error extraneous: @jridgewell/trace-mapping@0.3.31 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@jridgewell\trace-mapping
+npm error extraneous: @modelcontextprotocol/sdk@1.29.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@modelcontextprotocol\sdk
+npm error extraneous: @napi-rs/wasm-runtime@1.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@napi-rs\wasm-runtime
+npm error extraneous: @next/env@16.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@next\env
+npm error extraneous: @next/eslint-plugin-next@16.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@next\eslint-plugin-next
+npm error extraneous: @next/swc-win32-x64-msvc@16.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@next\swc-win32-x64-msvc
+npm error extraneous: @noble/ciphers@1.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@noble\ciphers
+npm error extraneous: @noble/curves@1.9.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@noble\curves
+npm error extraneous: @noble/hashes@1.8.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@noble\hashes
+npm error extraneous: @nodelib/fs.scandir@2.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@nodelib\fs.scandir
+npm error extraneous: @nodelib/fs.stat@2.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@nodelib\fs.stat
+npm error extraneous: @nodelib/fs.walk@1.2.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@nodelib\fs.walk
+npm error extraneous: @nolyfill/is-core-module@1.0.39 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@nolyfill\is-core-module
+npm error extraneous: @popperjs/core@2.11.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@popperjs\core
+npm error extraneous: @react-aria/focus@3.22.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@react-aria\focus
+npm error extraneous: @react-aria/interactions@3.28.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@react-aria\interactions
+npm error extraneous: @react-types/shared@3.36.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@react-types\shared
+npm error extraneous: @reduxjs/toolkit@2.12.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@reduxjs\toolkit
+npm error extraneous: @rtsao/scc@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@rtsao\scc
+npm error extraneous: @sec-ant/readable-stream@0.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@sec-ant\readable-stream
+npm error extraneous: @sindresorhus/merge-streams@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@sindresorhus\merge-streams
+npm error extraneous: @standard-schema/spec@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@standard-schema\spec
+npm error extraneous: @standard-schema/utils@0.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@standard-schema\utils
+npm error extraneous: @supabase/auth-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\auth-js
+npm error extraneous: @supabase/functions-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\functions-js
+npm error extraneous: @supabase/phoenix@0.4.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\phoenix
+npm error extraneous: @supabase/postgrest-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\postgrest-js
+npm error extraneous: @supabase/realtime-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\realtime-js
+npm error extraneous: @supabase/ssr@0.12.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\ssr
+npm error extraneous: @supabase/storage-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\storage-js
+npm error extraneous: @supabase/supabase-js@2.108.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@supabase\supabase-js
+npm error extraneous: @swc/helpers@0.5.15 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@swc\helpers
+npm error extraneous: @tailwindcss/forms@0.5.11 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\forms
+npm error extraneous: @tailwindcss/node@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\node
+npm error extraneous: @tailwindcss/oxide-win32-x64-msvc@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\oxide-win32-x64-msvc
+npm error extraneous: @tailwindcss/oxide@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\oxide
+npm error extraneous: @tailwindcss/postcss@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\postcss
+npm error extraneous: @tailwindcss/typography@0.5.20 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\typography
+npm error extraneous: @tanstack/query-core@5.101.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tanstack\query-core
+npm error extraneous: @tanstack/react-query@5.101.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tanstack\react-query
+npm error extraneous: @tanstack/react-virtual@3.14.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tanstack\react-virtual
+npm error extraneous: @tanstack/virtual-core@3.17.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tanstack\virtual-core
+npm error extraneous: @tippyjs/react@4.2.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tippyjs\react
+npm error extraneous: @ts-morph/common@0.27.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common
+npm error extraneous: @tybys/wasm-util@0.10.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tybys\wasm-util
+npm error extraneous: @types/estree@1.0.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\estree
+npm error extraneous: @types/json-schema@7.0.15 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\json-schema
+npm error extraneous: @types/json5@0.0.29 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\json5
+npm error extraneous: @types/node@20.19.43 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\node
+npm error extraneous: @types/parse-json@4.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\parse-json
+npm error extraneous: @types/react-dom@19.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\react-dom
+npm error extraneous: @types/react-transition-group@4.4.12 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\react-transition-group
+npm error extraneous: @types/use-sync-external-store@0.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\use-sync-external-store
+npm error extraneous: @types/validate-npm-package-name@4.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@types\validate-npm-package-name
+npm error extraneous: @typescript-eslint/eslint-plugin@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\eslint-plugin
+npm error extraneous: @typescript-eslint/parser@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\parser
+npm error extraneous: @typescript-eslint/project-service@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\project-service
+npm error extraneous: @typescript-eslint/scope-manager@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\scope-manager
+npm error extraneous: @typescript-eslint/tsconfig-utils@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\tsconfig-utils
+npm error extraneous: @typescript-eslint/type-utils@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\type-utils
+npm error extraneous: @typescript-eslint/types@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\types
+npm error extraneous: @typescript-eslint/typescript-estree@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\typescript-estree
+npm error extraneous: @typescript-eslint/utils@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\utils
+npm error extraneous: @typescript-eslint/visitor-keys@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\visitor-keys
+npm error extraneous: @unrs/resolver-binding-win32-x64-msvc@1.12.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@unrs\resolver-binding-win32-x64-msvc
+npm error extraneous: accepts@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\accepts
+npm error extraneous: acorn-jsx@5.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\acorn-jsx
+npm error extraneous: acorn@8.17.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\acorn
+npm error extraneous: agent-base@7.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\agent-base
+npm error extraneous: ajv-formats@3.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ajv-formats
+npm error extraneous: ajv@6.15.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ajv
+npm error extraneous: ansi-colors@4.1.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ansi-colors
+npm error extraneous: ansi-regex@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ansi-regex
+npm error extraneous: ansi-styles@4.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ansi-styles
+npm error extraneous: apexcharts@5.15.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\apexcharts
+npm error extraneous: argparse@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\argparse
+npm error extraneous: aria-hidden@1.2.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\aria-hidden
+npm error extraneous: aria-query@5.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\aria-query
+npm error extraneous: array-buffer-byte-length@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array-buffer-byte-length
+npm error extraneous: array-includes@3.1.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array-includes
+npm error extraneous: array.prototype.findlast@1.2.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array.prototype.findlast
+npm error extraneous: array.prototype.findlastindex@1.2.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array.prototype.findlastindex
+npm error extraneous: array.prototype.flat@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array.prototype.flat
+npm error extraneous: array.prototype.flatmap@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array.prototype.flatmap
+npm error extraneous: array.prototype.tosorted@1.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\array.prototype.tosorted
+npm error extraneous: arraybuffer.prototype.slice@1.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\arraybuffer.prototype.slice
+npm error extraneous: ast-types-flow@0.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ast-types-flow
+npm error extraneous: ast-types@0.16.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ast-types
+npm error extraneous: async-function@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\async-function
+npm error extraneous: atomically@1.7.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\atomically
+npm error extraneous: available-typed-arrays@1.0.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\available-typed-arrays
+npm error extraneous: axe-core@4.12.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\axe-core
+npm error extraneous: axobject-query@4.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\axobject-query
+npm error extraneous: babel-plugin-macros@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\babel-plugin-macros
+npm error extraneous: balanced-match@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\balanced-match
+npm error extraneous: baseline-browser-mapping@2.10.38 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\baseline-browser-mapping
+npm error extraneous: body-parser@2.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\body-parser
+npm error extraneous: brace-expansion@1.1.15 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\brace-expansion
+npm error extraneous: braces@3.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\braces
+npm error extraneous: browserslist@4.28.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\browserslist
+npm error extraneous: bundle-name@4.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\bundle-name
+npm error extraneous: bytes@3.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\bytes
+npm error extraneous: call-bind-apply-helpers@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\call-bind-apply-helpers
+npm error extraneous: call-bind@1.0.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\call-bind
+npm error extraneous: call-bound@1.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\call-bound
+npm error extraneous: callsites@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\callsites
+npm error extraneous: caniuse-lite@1.0.30001799 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\caniuse-lite
+npm error extraneous: chalk@4.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\chalk
+npm error extraneous: class-variance-authority@0.7.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\class-variance-authority
+npm error extraneous: cli-cursor@5.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cli-cursor
+npm error extraneous: cli-spinners@2.9.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cli-spinners
+npm error extraneous: client-only@0.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\client-only
+npm error extraneous: clsx@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\clsx
+npm error extraneous: code-block-writer@13.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\code-block-writer
+npm error extraneous: color-convert@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\color-convert
+npm error extraneous: color-name@1.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\color-name
+npm error extraneous: commander@14.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\commander
+npm error extraneous: concat-map@0.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\concat-map
+npm error extraneous: conf@10.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf
+npm error extraneous: content-disposition@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\content-disposition
+npm error extraneous: content-type@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\content-type
+npm error extraneous: convert-source-map@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\convert-source-map
+npm error extraneous: cookie-signature@1.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cookie-signature
+npm error extraneous: cookie@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cookie
+npm error extraneous: cors@2.8.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cors
+npm error extraneous: cosmiconfig@9.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cosmiconfig
+npm error extraneous: cross-spawn@7.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cross-spawn
+npm error extraneous: cssesc@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\cssesc
+npm error extraneous: damerau-levenshtein@1.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\damerau-levenshtein
+npm error extraneous: data-uri-to-buffer@4.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\data-uri-to-buffer
+npm error extraneous: data-view-buffer@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\data-view-buffer
+npm error extraneous: data-view-byte-length@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\data-view-byte-length
+npm error extraneous: data-view-byte-offset@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\data-view-byte-offset
+npm error extraneous: date-fns@4.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\date-fns
+npm error extraneous: debounce-fn@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\debounce-fn
+npm error extraneous: debug@4.4.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\debug
+npm error extraneous: dedent@1.7.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\dedent
+npm error extraneous: deep-is@0.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\deep-is
+npm error extraneous: deepmerge@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\deepmerge
+npm error extraneous: default-browser-id@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\default-browser-id
+npm error extraneous: default-browser@5.5.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\default-browser
+npm error extraneous: define-data-property@1.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\define-data-property
+npm error extraneous: define-lazy-prop@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\define-lazy-prop
+npm error extraneous: define-properties@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\define-properties
+npm error extraneous: depd@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\depd
+npm error extraneous: detect-libc@2.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\detect-libc
+npm error extraneous: diff@8.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\diff
+npm error extraneous: doctrine@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\doctrine
+npm error extraneous: dom-helpers@5.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\dom-helpers
+npm error extraneous: dot-prop@6.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\dot-prop
+npm error extraneous: dotenv@17.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\dotenv
+npm error extraneous: dunder-proto@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\dunder-proto
+npm error extraneous: eciesjs@0.4.18 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eciesjs
+npm error extraneous: ee-first@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ee-first
+npm error extraneous: electron-to-chromium@1.5.376 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\electron-to-chromium
+npm error extraneous: emoji-regex@9.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\emoji-regex
+npm error extraneous: encodeurl@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\encodeurl
+npm error extraneous: enhanced-resolve@5.21.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\enhanced-resolve
+npm error extraneous: enquirer@2.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\enquirer
+npm error extraneous: env-paths@2.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\env-paths
+npm error extraneous: error-ex@1.3.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\error-ex
+npm error extraneous: es-abstract-get@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-abstract-get
+npm error extraneous: es-abstract@1.24.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-abstract
+npm error extraneous: es-define-property@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-define-property
+npm error extraneous: es-errors@1.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-errors
+npm error extraneous: es-iterator-helpers@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-iterator-helpers
+npm error extraneous: es-object-atoms@1.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-object-atoms
+npm error extraneous: es-set-tostringtag@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-set-tostringtag
+npm error extraneous: es-shim-unscopables@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-shim-unscopables
+npm error extraneous: es-to-primitive@1.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\es-to-primitive
+npm error extraneous: escalade@3.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\escalade
+npm error extraneous: escape-html@1.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\escape-html
+npm error extraneous: escape-string-regexp@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\escape-string-regexp
+npm error extraneous: eslint-config-next@16.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-config-next
+npm error extraneous: eslint-import-resolver-node@0.3.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-import-resolver-node
+npm error extraneous: eslint-import-resolver-typescript@3.10.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-import-resolver-typescript
+npm error extraneous: eslint-module-utils@2.13.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-module-utils
+npm error extraneous: eslint-plugin-import@2.32.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-plugin-import
+npm error extraneous: eslint-plugin-jsx-a11y@6.10.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-plugin-jsx-a11y
+npm error extraneous: eslint-plugin-react-hooks@7.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-plugin-react-hooks
+npm error extraneous: eslint-plugin-react@7.37.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-plugin-react
+npm error extraneous: eslint-scope@8.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-scope
+npm error extraneous: eslint-visitor-keys@4.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-visitor-keys
+npm error extraneous: eslint@9.39.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint
+npm error extraneous: espree@10.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\espree
+npm error extraneous: esprima@4.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\esprima
+npm error extraneous: esquery@1.7.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\esquery
+npm error extraneous: esrecurse@4.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\esrecurse
+npm error extraneous: estraverse@5.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\estraverse
+npm error extraneous: esutils@2.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\esutils
+npm error extraneous: etag@1.8.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\etag
+npm error extraneous: eventsource-parser@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eventsource-parser
+npm error extraneous: eventsource@3.0.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eventsource
+npm error extraneous: execa@9.6.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\execa
+npm error extraneous: express-rate-limit@8.5.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\express-rate-limit
+npm error extraneous: express@5.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\express
+npm error extraneous: fast-deep-equal@3.1.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-deep-equal
+npm error extraneous: fast-glob@3.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-glob
+npm error extraneous: fast-json-stable-stringify@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-json-stable-stringify
+npm error extraneous: fast-levenshtein@2.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-levenshtein
+npm error extraneous: fast-uri@3.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-uri
+npm error extraneous: fastq@1.20.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fastq
+npm error extraneous: fetch-blob@3.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fetch-blob
+npm error extraneous: figures@6.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\figures
+npm error extraneous: file-entry-cache@8.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\file-entry-cache
+npm error extraneous: fill-range@7.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fill-range
+npm error extraneous: finalhandler@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\finalhandler
+npm error extraneous: find-root@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\find-root
+npm error extraneous: find-up@5.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\find-up
+npm error extraneous: flat-cache@4.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\flat-cache
+npm error extraneous: flatpickr@4.6.13 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\flatpickr
+npm error extraneous: flatted@3.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\flatted
+npm error extraneous: for-each@0.3.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\for-each
+npm error extraneous: formdata-polyfill@4.0.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\formdata-polyfill
+npm error extraneous: forwarded@0.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\forwarded
+npm error extraneous: framer-motion@12.40.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\framer-motion
+npm error extraneous: fresh@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fresh
+npm error extraneous: fs-extra@11.3.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fs-extra
+npm error extraneous: function-bind@1.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\function-bind
+npm error extraneous: function.prototype.name@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\function.prototype.name
+npm error extraneous: functions-have-names@1.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\functions-have-names
+npm error extraneous: fuzzysort@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fuzzysort
+npm error extraneous: generator-function@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\generator-function
+npm error extraneous: gensync@1.0.0-beta.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\gensync
+npm error extraneous: get-east-asian-width@1.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-east-asian-width
+npm error extraneous: get-intrinsic@1.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-intrinsic
+npm error extraneous: get-own-enumerable-keys@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-own-enumerable-keys
+npm error extraneous: get-proto@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-proto
+npm error extraneous: get-stream@9.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-stream
+npm error extraneous: get-symbol-description@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-symbol-description
+npm error extraneous: get-tsconfig@4.14.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\get-tsconfig
+npm error extraneous: glob-parent@6.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\glob-parent
+npm error extraneous: globals@14.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\globals
+npm error extraneous: globalthis@1.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\globalthis
+npm error extraneous: goober@2.1.19 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\goober
+npm error extraneous: gopd@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\gopd
+npm error extraneous: graceful-fs@4.2.11 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\graceful-fs
+npm error extraneous: has-bigints@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-bigints
+npm error extraneous: has-flag@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-flag
+npm error extraneous: has-property-descriptors@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-property-descriptors
+npm error extraneous: has-proto@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-proto
+npm error extraneous: has-symbols@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-symbols
+npm error extraneous: has-tostringtag@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\has-tostringtag
+npm error extraneous: hasown@2.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\hasown
+npm error extraneous: hermes-estree@0.25.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\hermes-estree
+npm error extraneous: hermes-parser@0.25.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\hermes-parser
+npm error extraneous: hoist-non-react-statics@3.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\hoist-non-react-statics
+npm error extraneous: hono@4.12.26 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\hono
+npm error extraneous: http-errors@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\http-errors
+npm error extraneous: https-proxy-agent@7.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\https-proxy-agent
+npm error extraneous: human-signals@8.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\human-signals
+npm error extraneous: iceberg-js@0.8.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\iceberg-js
+npm error extraneous: iconv-lite@0.7.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\iconv-lite
+npm error extraneous: ignore@5.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ignore
+npm error extraneous: immer@11.1.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\immer
+npm error extraneous: import-fresh@3.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\import-fresh
+npm error extraneous: imurmurhash@0.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\imurmurhash
+npm error extraneous: inherits@2.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\inherits
+npm error extraneous: internal-slot@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\internal-slot
+npm error extraneous: ip-address@10.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ip-address
+npm error extraneous: ipaddr.js@1.9.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ipaddr.js
+npm error extraneous: is-array-buffer@3.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-array-buffer
+npm error extraneous: is-arrayish@0.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-arrayish
+npm error extraneous: is-async-function@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-async-function
+npm error extraneous: is-bigint@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-bigint
+npm error extraneous: is-boolean-object@1.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-boolean-object
+npm error extraneous: is-bun-module@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-bun-module
+npm error extraneous: is-callable@1.2.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-callable
+npm error extraneous: is-core-module@2.16.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-core-module
+npm error extraneous: is-data-view@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-data-view
+npm error extraneous: is-date-object@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-date-object
+npm error extraneous: is-docker@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-docker
+npm error extraneous: is-document.all@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-document.all
+npm error extraneous: is-extglob@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-extglob
+npm error extraneous: is-finalizationregistry@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-finalizationregistry
+npm error extraneous: is-generator-function@1.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-generator-function
+npm error extraneous: is-glob@4.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-glob
+npm error extraneous: is-in-ssh@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-in-ssh
+npm error extraneous: is-inside-container@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-inside-container
+npm error extraneous: is-interactive@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-interactive
+npm error extraneous: is-map@2.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-map
+npm error extraneous: is-negative-zero@2.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-negative-zero
+npm error extraneous: is-number-object@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-number-object
+npm error extraneous: is-number@7.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-number
+npm error extraneous: is-obj@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-obj
+npm error extraneous: is-plain-obj@4.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-plain-obj
+npm error extraneous: is-promise@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-promise
+npm error extraneous: is-regex@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-regex
+npm error extraneous: is-regexp@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-regexp
+npm error extraneous: is-set@2.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-set
+npm error extraneous: is-shared-array-buffer@1.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-shared-array-buffer
+npm error extraneous: is-stream@4.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-stream
+npm error extraneous: is-string@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-string
+npm error extraneous: is-symbol@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-symbol
+npm error extraneous: is-typed-array@1.1.15 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-typed-array
+npm error extraneous: is-unicode-supported@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-unicode-supported
+npm error extraneous: is-weakmap@2.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-weakmap
+npm error extraneous: is-weakref@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-weakref
+npm error extraneous: is-weakset@2.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-weakset
+npm error extraneous: is-wsl@3.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-wsl
+npm error extraneous: isarray@2.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\isarray
+npm error extraneous: isexe@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\isexe
+npm error extraneous: iterator.prototype@1.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\iterator.prototype
+npm error extraneous: jiti@2.7.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\jiti
+npm error extraneous: jose@6.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\jose
+npm error extraneous: js-tokens@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\js-tokens
+npm error extraneous: js-yaml@4.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\js-yaml
+npm error extraneous: jsesc@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\jsesc
+npm error extraneous: json-buffer@3.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json-buffer
+npm error extraneous: json-parse-even-better-errors@2.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json-parse-even-better-errors
+npm error extraneous: json-schema-traverse@0.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json-schema-traverse
+npm error extraneous: json-schema-typed@8.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json-schema-typed
+npm error extraneous: json-stable-stringify-without-jsonify@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json-stable-stringify-without-jsonify
+npm error extraneous: json5@2.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\json5
+npm error extraneous: jsonfile@6.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\jsonfile
+npm error extraneous: jsx-ast-utils@3.3.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\jsx-ast-utils
+npm error extraneous: keyv@4.5.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\keyv
+npm error extraneous: kleur@4.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\kleur
+npm error extraneous: language-subtag-registry@0.3.23 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\language-subtag-registry
+npm error extraneous: language-tags@1.0.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\language-tags
+npm error extraneous: levn@0.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\levn
+npm error extraneous: lightningcss-win32-x64-msvc@1.32.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lightningcss-win32-x64-msvc
+npm error extraneous: lightningcss@1.32.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lightningcss
+npm error extraneous: lines-and-columns@1.2.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lines-and-columns
+npm error extraneous: locate-path@6.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\locate-path
+npm error extraneous: lodash.merge@4.6.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lodash.merge
+npm error extraneous: log-symbols@6.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\log-symbols
+npm error extraneous: loose-envify@1.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\loose-envify
+npm error extraneous: lru-cache@5.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lru-cache
+npm error extraneous: lucide-react@1.21.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\lucide-react
+npm error extraneous: magic-string@0.30.21 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\magic-string
+npm error extraneous: math-intrinsics@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\math-intrinsics
+npm error extraneous: memoize-one@6.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\memoize-one
+npm error extraneous: merge-descriptors@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\merge-descriptors
+npm error extraneous: merge-stream@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\merge-stream
+npm error extraneous: merge2@1.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\merge2
+npm error extraneous: micromatch@4.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\micromatch
+npm error extraneous: mime-db@1.54.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\mime-db
+npm error extraneous: mime-types@3.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\mime-types
+npm error extraneous: mimic-fn@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\mimic-fn
+npm error extraneous: mimic-function@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\mimic-function
+npm error extraneous: mini-svg-data-uri@1.4.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\mini-svg-data-uri
+npm error extraneous: minimatch@3.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\minimatch
+npm error extraneous: minimist@1.2.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\minimist
+npm error extraneous: motion-dom@12.40.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\motion-dom
+npm error extraneous: motion-utils@12.39.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\motion-utils
+npm error extraneous: motion@12.40.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\motion
+npm error extraneous: ms@2.1.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ms
+npm error extraneous: nanoid@3.3.13 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\nanoid
+npm error extraneous: napi-postinstall@0.3.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\napi-postinstall
+npm error extraneous: natural-compare@1.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\natural-compare
+npm error extraneous: negotiator@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\negotiator
+npm error extraneous: next@16.2.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\next
+npm error extraneous: node-domexception@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\node-domexception
+npm error extraneous: node-exports-info@1.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\node-exports-info
+npm error extraneous: node-fetch@3.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\node-fetch
+npm error extraneous: node-releases@2.0.48 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\node-releases
+npm error extraneous: npm-run-path@6.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\npm-run-path
+npm error extraneous: object-assign@4.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object-assign
+npm error extraneous: object-inspect@1.13.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object-inspect
+npm error extraneous: object-keys@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object-keys
+npm error extraneous: object-treeify@1.1.33 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object-treeify
+npm error extraneous: object.assign@4.1.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object.assign
+npm error extraneous: object.entries@1.1.9 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object.entries
+npm error extraneous: object.fromentries@2.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object.fromentries
+npm error extraneous: object.groupby@1.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object.groupby
+npm error extraneous: object.values@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\object.values
+npm error extraneous: on-finished@2.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\on-finished
+npm error extraneous: once@1.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\once
+npm error extraneous: onetime@5.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\onetime
+npm error extraneous: open@11.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\open
+npm error extraneous: optionator@0.9.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\optionator
+npm error extraneous: ora@8.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora
+npm error extraneous: own-keys@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\own-keys
+npm error extraneous: p-limit@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\p-limit
+npm error extraneous: p-locate@5.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\p-locate
+npm error extraneous: p-try@2.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\p-try
+npm error extraneous: parent-module@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\parent-module
+npm error extraneous: parse-json@5.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\parse-json
+npm error extraneous: parse-ms@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\parse-ms
+npm error extraneous: parseurl@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\parseurl
+npm error extraneous: path-browserify@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-browserify
+npm error extraneous: path-exists@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-exists
+npm error extraneous: path-key@3.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-key
+npm error extraneous: path-parse@1.0.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-parse
+npm error extraneous: path-to-regexp@8.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-to-regexp
+npm error extraneous: path-type@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\path-type
+npm error extraneous: perfect-scrollbar@1.5.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\perfect-scrollbar
+npm error extraneous: picocolors@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\picocolors
+npm error extraneous: picomatch@2.3.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\picomatch
+npm error extraneous: pkce-challenge@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkce-challenge
+npm error extraneous: pkg-up@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up
+npm error extraneous: possible-typed-array-names@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\possible-typed-array-names
+npm error extraneous: postcss-selector-parser@7.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\postcss-selector-parser
+npm error extraneous: postcss@8.5.15 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\postcss
+npm error extraneous: powershell-utils@0.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\powershell-utils
+npm error extraneous: prelude-ls@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\prelude-ls
+npm error extraneous: pretty-ms@9.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pretty-ms
+npm error extraneous: prompts@2.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\prompts
+npm error extraneous: prop-types@15.8.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\prop-types
+npm error extraneous: proxy-addr@2.0.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\proxy-addr
+npm error extraneous: punycode@2.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\punycode
+npm error extraneous: qs@6.15.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\qs
+npm error extraneous: queue-microtask@1.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\queue-microtask
+npm error extraneous: range-parser@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\range-parser
+npm error extraneous: raw-body@3.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\raw-body
+npm error extraneous: react-animate-height@3.2.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-animate-height
+npm error extraneous: react-apexcharts@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-apexcharts
+npm error extraneous: react-aria@3.50.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-aria
+npm error extraneous: react-fast-compare@3.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-fast-compare
+npm error extraneous: react-flatpickr@4.0.11 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-flatpickr
+npm error extraneous: react-hot-toast@2.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-hot-toast
+npm error extraneous: react-is@16.13.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-is
+npm error extraneous: react-perfect-scrollbar@1.5.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-perfect-scrollbar
+npm error extraneous: react-popper@2.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-popper
+npm error extraneous: react-redux@9.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-redux
+npm error extraneous: react-select@5.10.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-select
+npm error extraneous: react-stately@3.48.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-stately
+npm error extraneous: react-transition-group@4.4.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-transition-group
+npm error extraneous: recast@0.23.11 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\recast
+npm error extraneous: redux-thunk@3.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\redux-thunk
+npm error extraneous: redux@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\redux
+npm error extraneous: reflect.getprototypeof@1.0.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\reflect.getprototypeof
+npm error extraneous: regexp.prototype.flags@1.5.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\regexp.prototype.flags
+npm error extraneous: require-from-string@2.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\require-from-string
+npm error extraneous: reselect@5.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\reselect
+npm error extraneous: resolve-from@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\resolve-from
+npm error extraneous: resolve-pkg-maps@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\resolve-pkg-maps
+npm error extraneous: resolve@2.0.0-next.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\resolve
+npm error extraneous: restore-cursor@5.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\restore-cursor
+npm error extraneous: reusify@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\reusify
+npm error extraneous: router@2.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\router
+npm error extraneous: run-applescript@7.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\run-applescript
+npm error extraneous: run-parallel@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\run-parallel
+npm error extraneous: safe-array-concat@1.1.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\safe-array-concat
+npm error extraneous: safe-push-apply@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\safe-push-apply
+npm error extraneous: safe-regex-test@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\safe-regex-test
+npm error extraneous: safer-buffer@2.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\safer-buffer
+npm error extraneous: semver@6.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\semver
+npm error extraneous: send@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\send
+npm error extraneous: serve-static@2.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\serve-static
+npm error extraneous: set-function-length@1.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\set-function-length
+npm error extraneous: set-function-name@2.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\set-function-name
+npm error extraneous: set-proto@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\set-proto
+npm error extraneous: setprototypeof@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\setprototypeof
+npm error extraneous: shadcn@4.11.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shadcn
+npm error extraneous: sharp@0.34.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\sharp
+npm error extraneous: shebang-command@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shebang-command
+npm error extraneous: shebang-regex@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shebang-regex
+npm error extraneous: side-channel-list@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\side-channel-list
+npm error extraneous: side-channel-map@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\side-channel-map
+npm error extraneous: side-channel-weakmap@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\side-channel-weakmap
+npm error extraneous: side-channel@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\side-channel
+npm error extraneous: signal-exit@4.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\signal-exit
+npm error extraneous: sisteransi@1.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\sisteransi
+npm error extraneous: source-map-js@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\source-map-js
+npm error extraneous: source-map@0.6.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\source-map
+npm error extraneous: stable-hash@0.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stable-hash
+npm error extraneous: statuses@2.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\statuses
+npm error extraneous: stdin-discarder@0.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stdin-discarder
+npm error extraneous: stop-iteration-iterator@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stop-iteration-iterator
+npm error extraneous: string.prototype.includes@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.includes
+npm error extraneous: string.prototype.matchall@4.0.12 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.matchall
+npm error extraneous: string.prototype.repeat@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.repeat
+npm error extraneous: string.prototype.trim@1.2.11 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.trim
+npm error extraneous: string.prototype.trimend@1.0.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.trimend
+npm error extraneous: string.prototype.trimstart@1.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\string.prototype.trimstart
+npm error extraneous: stringify-object@5.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stringify-object
+npm error extraneous: strip-ansi@6.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\strip-ansi
+npm error extraneous: strip-bom@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\strip-bom
+npm error extraneous: strip-final-newline@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\strip-final-newline
+npm error extraneous: strip-json-comments@3.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\strip-json-comments
+npm error extraneous: styled-jsx@5.1.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\styled-jsx
+npm error extraneous: stylis@4.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stylis
+npm error extraneous: supports-color@7.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\supports-color
+npm error extraneous: supports-preserve-symlinks-flag@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\supports-preserve-symlinks-flag
+npm error extraneous: sweetalert2-react-content@5.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\sweetalert2-react-content
+npm error extraneous: sweetalert2@11.26.25 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\sweetalert2
+npm error extraneous: systeminformation@5.31.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\systeminformation
+npm error extraneous: tabbable@6.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tabbable
+npm error extraneous: tailwind-merge@3.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tailwind-merge
+npm error extraneous: tailwindcss@4.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tailwindcss
+npm error extraneous: tapable@2.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tapable
+npm error extraneous: tiny-invariant@1.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tiny-invariant
+npm error extraneous: tinyglobby@0.2.17 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tinyglobby
+npm error extraneous: tippy.js@6.3.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tippy.js
+npm error extraneous: to-regex-range@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\to-regex-range
+npm error extraneous: toidentifier@1.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\toidentifier
+npm error extraneous: ts-api-utils@2.5.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ts-api-utils
+npm error extraneous: ts-morph@26.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ts-morph
+npm error extraneous: tsconfig-paths@3.15.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tsconfig-paths
+npm error extraneous: tslib@2.8.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tslib
+npm error extraneous: tw-animate-css@1.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tw-animate-css
+npm error extraneous: type-check@0.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\type-check
+npm error extraneous: type-is@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\type-is
+npm error extraneous: typed-array-buffer@1.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typed-array-buffer
+npm error extraneous: typed-array-byte-length@1.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typed-array-byte-length
+npm error extraneous: typed-array-byte-offset@1.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typed-array-byte-offset
+npm error extraneous: typed-array-length@1.0.8 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typed-array-length
+npm error extraneous: typescript-eslint@8.61.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typescript-eslint
+npm error extraneous: typescript@5.9.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\typescript
+npm error extraneous: unbox-primitive@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\unbox-primitive
+npm error extraneous: undici-types@6.21.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\undici-types
+npm error extraneous: undici@7.28.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\undici
+npm error extraneous: unicorn-magic@0.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\unicorn-magic
+npm error extraneous: universal-cookie@8.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\universal-cookie
+npm error extraneous: universalify@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\universalify
+npm error extraneous: unpipe@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\unpipe
+npm error extraneous: unrs-resolver@1.12.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\unrs-resolver
+npm error extraneous: update-browserslist-db@1.2.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\update-browserslist-db
+npm error extraneous: uri-js@4.4.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\uri-js
+npm error extraneous: use-isomorphic-layout-effect@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\use-isomorphic-layout-effect
+npm error extraneous: util-deprecate@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\util-deprecate
+npm error extraneous: validate-npm-package-name@7.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\validate-npm-package-name
+npm error extraneous: vary@1.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\vary
+npm error extraneous: warning@4.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\warning
+npm error extraneous: web-streams-polyfill@3.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\web-streams-polyfill
+npm error invalid: web@ C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\web
+npm error extraneous: which-boxed-primitive@1.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\which-boxed-primitive
+npm error extraneous: which-builtin-type@1.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\which-builtin-type
+npm error extraneous: which-collection@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\which-collection
+npm error extraneous: which-typed-array@1.1.22 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\which-typed-array
+npm error extraneous: which@2.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\which
+npm error extraneous: word-wrap@1.2.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\word-wrap
+npm error extraneous: wrappy@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\wrappy
+npm error extraneous: wsl-utils@0.3.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\wsl-utils
+npm error extraneous: yallist@3.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\yallist
+npm error extraneous: yaml@1.10.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\yaml
+npm error extraneous: yocto-queue@0.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\yocto-queue
+npm error extraneous: yocto-spinner@1.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\yocto-spinner
+npm error extraneous: yoctocolors@2.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\yoctocolors
+npm error extraneous: zod-to-json-schema@3.25.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\zod-to-json-schema
+npm error extraneous: zod-validation-error@4.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\zod-validation-error
+npm error extraneous: zod@4.4.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\zod
+npm error invalid: react-dom@19.2.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react-dom
+npm error invalid: react@19.2.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\react
+npm error extraneous: commander@11.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\commander
+npm error extraneous: define-lazy-prop@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\define-lazy-prop
+npm error extraneous: execa@5.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\execa
+npm error extraneous: fdir@6.5.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\fdir
+npm error extraneous: get-stream@6.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\get-stream
+npm error extraneous: human-signals@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\human-signals
+npm error extraneous: is-docker@2.2.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\is-docker
+npm error extraneous: is-stream@2.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\is-stream
+npm error extraneous: is-wsl@2.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\is-wsl
+npm error extraneous: isexe@3.1.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\isexe
+npm error extraneous: npm-run-path@4.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\npm-run-path
+npm error extraneous: open@8.4.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\open
+npm error extraneous: picomatch@4.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\picomatch
+npm error extraneous: signal-exit@3.0.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\signal-exit
+npm error extraneous: strip-final-newline@2.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\strip-final-newline
+npm error extraneous: which@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@dotenvx\dotenvx\node_modules\which
+npm error extraneous: convert-source-map@1.9.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\babel-plugin\node_modules\convert-source-map
+npm error extraneous: source-map@0.5.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@emotion\babel-plugin\node_modules\source-map
+npm error extraneous: eslint-visitor-keys@3.4.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@eslint-community\eslint-utils\node_modules\eslint-visitor-keys
+npm error extraneous: ajv@8.20.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@modelcontextprotocol\sdk\node_modules\ajv
+npm error extraneous: content-type@1.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@modelcontextprotocol\sdk\node_modules\content-type
+npm error extraneous: json-schema-traverse@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@modelcontextprotocol\sdk\node_modules\json-schema-traverse
+npm error extraneous: postcss-selector-parser@6.0.10 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@tailwindcss\typography\node_modules\postcss-selector-parser
+npm error extraneous: balanced-match@4.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common\node_modules\balanced-match
+npm error extraneous: brace-expansion@5.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common\node_modules\brace-expansion
+npm error extraneous: fast-glob@3.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common\node_modules\fast-glob
+npm error extraneous: glob-parent@5.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common\node_modules\glob-parent
+npm error extraneous: minimatch@10.2.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@ts-morph\common\node_modules\minimatch
+npm error extraneous: ignore@7.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\eslint-plugin\node_modules\ignore
+npm error extraneous: balanced-match@4.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\typescript-estree\node_modules\balanced-match
+npm error extraneous: brace-expansion@5.0.6 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\typescript-estree\node_modules\brace-expansion
+npm error extraneous: minimatch@10.2.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\typescript-estree\node_modules\minimatch
+npm error extraneous: semver@7.8.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\typescript-estree\node_modules\semver
+npm error extraneous: eslint-visitor-keys@5.0.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\@typescript-eslint\visitor-keys\node_modules\eslint-visitor-keys
+npm error extraneous: ajv@8.20.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ajv-formats\node_modules\ajv
+npm error extraneous: json-schema-traverse@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ajv-formats\node_modules\json-schema-traverse
+npm error extraneous: cosmiconfig@7.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\babel-plugin-macros\node_modules\cosmiconfig
+npm error extraneous: resolve@1.22.12 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\babel-plugin-macros\node_modules\resolve
+npm error extraneous: ajv-formats@2.1.1 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf\node_modules\ajv-formats
+npm error extraneous: ajv@8.20.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf\node_modules\ajv
+npm error extraneous: json-schema-traverse@1.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf\node_modules\json-schema-traverse
+npm error extraneous: json-schema-typed@7.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf\node_modules\json-schema-typed
+npm error extraneous: semver@7.8.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\conf\node_modules\semver
+npm error extraneous: globals@16.4.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-config-next\node_modules\globals
+npm error extraneous: debug@3.2.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-import-resolver-node\node_modules\debug
+npm error extraneous: debug@3.2.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-module-utils\node_modules\debug
+npm error extraneous: debug@3.2.7 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\eslint-plugin-import\node_modules\debug
+npm error extraneous: content-type@1.0.5 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\express\node_modules\content-type
+npm error extraneous: cookie@0.7.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\express\node_modules\cookie
+npm error extraneous: glob-parent@5.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\fast-glob\node_modules\glob-parent
+npm error extraneous: semver@7.8.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\is-bun-module\node_modules\semver
+npm error extraneous: chalk@5.6.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\log-symbols\node_modules\chalk
+npm error extraneous: is-unicode-supported@1.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\log-symbols\node_modules\is-unicode-supported
+npm error extraneous: postcss@8.4.31 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\next\node_modules\postcss
+npm error extraneous: path-key@4.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\npm-run-path\node_modules\path-key
+npm error extraneous: mimic-fn@2.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\onetime\node_modules\mimic-fn
+npm error extraneous: ansi-regex@6.2.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora\node_modules\ansi-regex
+npm error extraneous: chalk@5.6.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora\node_modules\chalk
+npm error extraneous: emoji-regex@10.6.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora\node_modules\emoji-regex
+npm error extraneous: string-width@7.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora\node_modules\string-width
+npm error extraneous: strip-ansi@7.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\ora\node_modules\strip-ansi
+npm error extraneous: find-up@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up\node_modules\find-up
+npm error extraneous: locate-path@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up\node_modules\locate-path
+npm error extraneous: p-limit@2.3.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up\node_modules\p-limit
+npm error extraneous: p-locate@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up\node_modules\p-locate
+npm error extraneous: path-exists@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\pkg-up\node_modules\path-exists
+npm error extraneous: kleur@3.0.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\prompts\node_modules\kleur
+npm error extraneous: onetime@7.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\restore-cursor\node_modules\onetime
+npm error extraneous: fast-glob@3.3.3 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shadcn\node_modules\fast-glob
+npm error extraneous: glob-parent@5.1.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shadcn\node_modules\glob-parent
+npm error extraneous: tsconfig-paths@4.2.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shadcn\node_modules\tsconfig-paths
+npm error extraneous: zod@3.25.76 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\shadcn\node_modules\zod
+npm error extraneous: semver@7.8.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\sharp\node_modules\semver
+npm error extraneous: is-obj@3.0.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\stringify-object\node_modules\is-obj
+npm error extraneous: fdir@6.5.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tinyglobby\node_modules\fdir
+npm error extraneous: picomatch@4.0.4 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tinyglobby\node_modules\picomatch
+npm error extraneous: json5@1.0.2 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\tsconfig-paths\node_modules\json5
+npm error extraneous: media-typer@1.1.0 C:\Users\Julio\OneDrive\Desktop\NAVIER\masivos\node_modules\type-is\node_modules\media-typer
+npm error A complete log of this run can be found in: C:\Users\Julio\AppData\Local\npm-cache\_logs\2026-07-24T15_23_44_717Z-debug-0.log

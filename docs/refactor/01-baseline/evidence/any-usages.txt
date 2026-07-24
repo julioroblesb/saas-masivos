@@ -1,0 +1,166 @@
+apps\web\src\i18n.ts:19:const langObj: any = { en, ae, da, de, el, es, fr, hu, it, ja, pl, pt, ru, sv, tr, zh };
+apps\web\src\i18n.ts:35:const data: any = langObj[lang || 'en'];
+apps\web\src\app\admin\actions.ts:92:} catch (err: any) {
+apps\web\src\app\admin\actions.ts:104:export async function updateTenantSubscription(companyId: string, data: any) {
+apps\web\src\app\admin\actions.ts:148:} catch (err: any) {
+apps\web\src\app\admin\actions.ts:188:} catch (err: any) {
+apps\web\src\app\admin\EditTenantModal.tsx:109:onChange={(option: any) => handlePlanChange(option.value)}
+apps\web\src\app\admin\EditTenantModal.tsx:126:onChange={(option: any) => setStatus(option.value)}
+apps\web\src\app\admin\TenantTable.tsx:10:export function TenantTable({ companies }: { companies: any[] }) {
+apps\web\src\app\admin\TenantTable.tsx:11:const [editingCompany, setEditingCompany] = useState<any | null>(null);
+apps\web\src\app\admin\TenantTable.tsx:27:const getEffectiveBadge = (company: any) => {
+apps\web\src\app\api\cron\cleanup-demos\route.ts:40:} catch (globalError: any) {
+apps\web\src\app\api\cron\process-queue\route.ts:62:const results: PromiseSettledResult<any>[] = [];
+apps\web\src\app\api\cron\process-queue\route.ts:79:} catch (globalError: any) {
+apps\web\src\app\api\cron\process-queue\route.ts:143:let nextItem: any = null;
+apps\web\src\app\api\cron\process-queue\route.ts:195:const companySettings = (nextItem.companies as any)?.settings || {};
+apps\web\src\app\api\cron\process-queue\route.ts:251:} catch (err: any) {
+apps\web\src\app\api\debug-messages\route.ts:36:} catch (error: any) {
+apps\web\src\app\api\debug-schedule\route.ts:66:.replace(/\{\{nombre\}\}/gi, ((visit.crm_marketing_contacts as any) as any)?.name || '')
+apps\web\src\app\api\debug-schedule\route.ts:67:.replace(/\{\{servicio\}\}/gi, (visit.spa_services as any)?.name || '')
+apps\web\src\app\api\debug-schedule\route.ts:68:.replace(/\{\{dias\}\}/gi, (visit.spa_services as any)?.duration_days?.toString() || '0');
+apps\web\src\app\api\debug-schedule\route.ts:77:contact_id: (visit.crm_marketing_contacts as any)?.id,
+apps\web\src\app\api\debug-schedule\route.ts:78:phone: (visit.crm_marketing_contacts as any)?.phone,
+apps\web\src\app\api\debug-schedule\route.ts:84:if ((visit.spa_services as any)?.care_instructions || (visit.spa_services as any)?.care_image_url) {
+apps\web\src\app\api\debug-schedule\route.ts:88:contact_id: ((visit.crm_marketing_contacts as any) as any)?.id,
+apps\web\src\app\api\debug-schedule\route.ts:89:phone: ((visit.crm_marketing_contacts as any) as any)?.phone,
+apps\web\src\app\api\debug-schedule\route.ts:90:message: (visit.spa_services as any)?.care_instructions || 'Instrucciones de cuidado',
+apps\web\src\app\api\debug-schedule\route.ts:91:media_url: (visit.spa_services as any)?.care_image_url || null,
+apps\web\src\app\api\debug-schedule\route.ts:98:if (autoMsgs.followUpEnabled && autoMsgs.followUpTemplate && (visit.spa_services as any)?.duration_days > 0) {
+apps\web\src\app\api\debug-schedule\route.ts:100:scheduledDate.setDate(scheduledDate.getDate() + (visit.spa_services as any).duration_days);
+apps\web\src\app\api\debug-schedule\route.ts:105:contact_id: (visit.crm_marketing_contacts as any)?.id,
+apps\web\src\app\api\debug-schedule\route.ts:106:phone: (visit.crm_marketing_contacts as any)?.phone,
+apps\web\src\app\api\debug-schedule\route.ts:128:} catch (error: any) {
+apps\web\src\app\api\debug-test-queue\route.ts:56:} catch (error: any) {
+apps\web\src\app\api\demo\start\route.ts:50:} catch (error: any) {
+apps\web\src\app\api\settings\company\route.ts:16:} catch (error: any) {
+apps\web\src\app\api\settings\company\route.ts:52:const updateData: any = { };
+apps\web\src\app\api\settings\company\route.ts:78:} catch (error: any) {
+apps\web\src\app\api\wa\disconnect\route.ts:37:} catch (e: any) {
+apps\web\src\app\api\wa\disconnect\route.ts:58:} catch (error: any) {
+apps\web\src\app\api\wa\instance\route.ts:63:} catch (createErr: any) {
+apps\web\src\app\api\wa\instance\route.ts:99:} catch (error: any) {
+apps\web\src\app\api\wa\status\route.ts:109:const updateData: any = {
+apps\web\src\app\api\wa\status\route.ts:131:} catch (error: any) {
+apps\web\src\app\api\wa\webhook\route.ts:102:} catch (error: any) {
+apps\web\src\app\dashboard\agenda\actions.ts:30:} catch (err: any) {
+apps\web\src\app\dashboard\agenda\actions.ts:80:} catch (error: any) {
+apps\web\src\app\dashboard\agenda\actions.ts:152:} catch (error: any) {
+apps\web\src\app\dashboard\agenda\AgendaView.tsx:36:initialVisits: any[];
+apps\web\src\app\dashboard\agenda\AgendaView.tsx:38:contacts: any[];
+apps\web\src\app\dashboard\agenda\AgendaView.tsx:39:staffList: any[];
+apps\web\src\app\dashboard\agenda\AgendaView.tsx:48:const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
+apps\web\src\app\dashboard\agenda\DayVisitsModal.tsx:9:visits: any[];
+apps\web\src\app\dashboard\agenda\DayVisitsModal.tsx:11:onVisitClick: (visit: any) => void;
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:16:contacts: any[];
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:17:services: any[];
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:18:staffList: any[];
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:33:const [availability, setAvailability] = useState<any>(null);
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:84:const parsedBlocks = availability.blocks.map((b: any) => ({
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:90:const parsedVisits = availability.visits.map((v: any) => {
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:105:const collidesWithBlock = parsedBlocks.some((b: any) =>
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:110:const collidesWithVisit = parsedVisits.some((v: any) =>
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:247:onChange={(opt: any) => setForm({...form, contact_id: opt ? opt.value : ''})}
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:263:onChange={(opt: any) => {
+apps\web\src\app\dashboard\agenda\NewBookingModal.tsx:279:onChange={(opt: any) => setForm({...form, staff_id: opt ? opt.value : ''})}
+apps\web\src\app\dashboard\agenda\VisitDetailsModal.tsx:7:visit: any;
+apps\web\src\app\dashboard\agenda\VisitDetailsModal.tsx:8:staffList: any[];
+apps\web\src\app\dashboard\atenciones\actions.ts:58:services: staffServices?.filter((ss: any) => ss.staff_id === s.id).map((ss: any) => ss.service_id) || []
+apps\web\src\app\dashboard\atenciones\actions.ts:76:visits: visits?.map((v: any) => ({
+apps\web\src\app\dashboard\atenciones\actions.ts:89:async function scheduleAutoMessages(visitId: string, supabase: any) {
+apps\web\src\app\dashboard\atenciones\actions.ts:121:const replaceVars = (text: string, extraVars?: any) => {
+apps\web\src\app\dashboard\atenciones\actions.ts:182:} catch (error: any) {
+apps\web\src\app\dashboard\atenciones\actions.ts:520:} catch (err: any) {
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:21:initialVisits: any[];
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:22:services: any[];
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:23:contacts: any[];
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:24:staffList?: any[];
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:56:const [completeVisit, setCompleteVisit] = useState<any>(null);
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:63:const [paymentVisit, setPaymentVisit] = useState<any>(null);
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:93:const [selectedVisit, setSelectedVisit] = useState<any>(null);
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:94:const [noAsistioVisit, setNoAsistioVisit] = useState<any>(null);
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:106:const handleEditClick = (visit: any) => {
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:294:.reduce((acc: any, visit: any) => {
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:303:.reduce((acc: any, visit: any) => {
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:434:{groupedVisits[date].map((visit: any) => (
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:454:<span className="flex items-center gap-1"><User size={12}/> {staffList.find((s: any) => s.id === visit.staff_id)?.name}</span>
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:536:{groupedFutureVisits[date].map((visit: any) => (
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:556:<span className="flex items-center gap-1"><User size={12}/> {staffList.find((s: any) => s.id === visit.staff_id)?.name}</span>
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:630:{paginatedHistory.map((visit: any) => (
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:651:{visit.staff_id && staffList ? staffList.find((s: any) => s.id === visit.staff_id)?.name || '-' : '-'}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:775:onChange={(selected: any) => setForm(prev => ({ ...prev, contact_id: selected ? selected.value : '' }))}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:788:onChange={(selected: any) => handleServiceChange(selected ? selected.value : '')}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:798:options={staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:799:value={form.staff_id && staffList ? { value: form.staff_id, label: staffList.find((s: any) => s.id === form.staff_id)?.name || 'Seleccionada' } : null}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:800:onChange={(selected: any) => setForm(prev => ({ ...prev, staff_id: selected ? selected.value : '' }))}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:932:onChange={(selected: any) => setCompleteMethod(selected ? selected.value : defaultMethod)}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1031:onChange={(selected: any) => setPaymentMethod(selected ? selected.value : defaultMethod)}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1081:onChange={(selected: any) => setEditForm(prev => ({ ...prev, service_id: selected ? selected.value : '' }))}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1090:options={staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1091:value={editForm.staff_id && staffList ? { value: editForm.staff_id, label: staffList.find((s: any) => s.id === editForm.staff_id)?.name || '' } : null}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1092:onChange={(selected: any) => setEditForm(prev => ({ ...prev, staff_id: selected ? selected.value : '' }))}
+apps\web\src\app\dashboard\atenciones\AtencionesManager.tsx:1134:onChange={(selected: any) => setEditForm(prev => ({ ...prev, status: selected ? selected.value : 'completado' }))}
+apps\web\src\app\dashboard\cobranza\CobranzaManager.tsx:9:export default function CobranzaManager({ debts }: { debts: any[] }) {
+apps\web\src\app\dashboard\cobranza\CobranzaManager.tsx:14:const [paymentVisit, setPaymentVisit] = useState<any>(null);
+apps\web\src\app\dashboard\cobranza\CobranzaManager.tsx:85:{filteredDebts.map((debt: any) => {
+apps\web\src\app\dashboard\cobranza\CobranzaManager.tsx:185:onChange={(selected: any) => setPaymentMethod(selected ? selected.value : 'efectivo')}
+apps\web\src\app\dashboard\cobranza\page.tsx:48:const debts = (rawVisits || []).map((v: any) => {
+apps\web\src\app\dashboard\cobranza\page.tsx:49:const vPayments = (payments || []).filter((p: any) => p.visit_id === v.id);
+apps\web\src\app\dashboard\cobranza\page.tsx:50:const amount_paid = vPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+apps\web\src\app\dashboard\configuracion\actions.ts:29:} catch (err: any) {
+apps\web\src\app\dashboard\configuracion\AutoMessagesConfig.tsx:13:export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: string, initialSettings: any }) {
+apps\web\src\app\dashboard\configuracion\AutoMessagesConfig.tsx:96:} catch (error: any) {
+apps\web\src\app\dashboard\configuracion\page.tsx:19:const [fullSettingsObj, setFullSettingsObj] = useState<any>({});
+apps\web\src\app\dashboard\configuracion\page.tsx:94:} catch (error: any) {
+apps\web\src\app\dashboard\productos\page.tsx:71:} catch (error: any) {
+apps\web\src\app\dashboard\productos\page.tsx:124:} catch (error: any) {
+apps\web\src\app\dashboard\productos\page.tsx:138:} catch (error: any) {
+apps\web\src\app\dashboard\servicios\page.tsx:71:} catch (error: any) {
+apps\web\src\app\dashboard\servicios\page.tsx:128:} catch (error: any) {
+apps\web\src\app\dashboard\servicios\page.tsx:142:} catch (error: any) {
+apps\web\src\app\dashboard\trabajadoras\actions.ts:32:return staff.map((member: any) => ({
+apps\web\src\app\dashboard\trabajadoras\actions.ts:39:.filter((ss: any) => ss.staff_id === member.id)
+apps\web\src\app\dashboard\trabajadoras\actions.ts:40:.map((ss: any) => ss.service_id)
+apps\web\src\app\dashboard\trabajadoras\actions.ts:88:staffId = (data as any)?.id;
+apps\web\src\app\dashboard\trabajadoras\actions.ts:148:export async function upsertStaffSchedulesAction(staffId: string, schedules: any[]) {
+apps\web\src\app\dashboard\trabajadoras\ScheduleConfigModal.tsx:53:const updateSchedule = (dayId: number, field: keyof SpaStaffSchedule, value: any) => {
+apps\web\src\app\demo\page.tsx:42:} catch (err: any) {
+apps\web\src\components\demo-tour.tsx:56:const steps: any[] = [
+apps\web\src\components\dropdown.tsx:5:const Dropdown = (props: any, forwardedRef: any) => {
+apps\web\src\components\dropdown.tsx:6:const [visibility, setVisibility] = useState<any>(false);
+apps\web\src\components\dropdown.tsx:8:const referenceRef = useRef<any>(null);
+apps\web\src\components\dropdown.tsx:9:const popperRef = useRef<any>(null);
+apps\web\src\components\dropdown.tsx:23:const handleDocumentClick = (event: any) => {
+apps\web\src\components\language-dropdown.tsx:52:{themeConfig.languageList.map((item: any) => {
+apps\web\src\components\layouts\sidebar.tsx:68:const ul: any = selector.closest('ul.sub-menu');
+apps\web\src\components\layouts\sidebar.tsx:70:let ele: any = ul.closest('li.menu').querySelectorAll('.nav-link') || [];
+apps\web\src\components\ui\CustomDatePicker.tsx:15:export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, enableTime = false, ...props }, ref) => {
+apps\web\src\components\ui\CustomSelect.tsx:5:const customStyles: StylesConfig<any, boolean> = {
+apps\web\src\components\ui\CustomSelect.tsx:56:export function CustomSelect(props: SelectProps<any, boolean>) {
+apps\web\src\hooks\queries\useMarketingContacts.ts:53:const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload as any);
+apps\web\src\integrations\evolution\client.ts:13:const data = payload as Record<string, any>;
+apps\web\src\integrations\evolution\client.ts:41:async function request(endpoint: string, options: RequestInit = {}): Promise<any> {
+apps\web\src\integrations\evolution\client.ts:73:} catch (error: any) {
+apps\web\src\integrations\evolution\client.ts:151:} catch (e: any) {
+apps\web\src\integrations\evolution\client.ts:160:} catch (e: any) {
+apps\web\src\modules\campaigns\components\CampaignSender.tsx:62:const count = campaigns?.reduce((acc: number, curr: any) => acc + (curr.sent_count || 0), 0) || 0;
+apps\web\src\modules\campaigns\components\Campaign\SegmentConfig.tsx:181:onChange={(option: any) => setServiceFilter(option.value)}
+apps\web\src\modules\campaigns\components\Campaign\SequenceEditor.tsx:51:onChange={(option: any) => handleTypeChange(msg.id, option.value as SequenceItem['type'])}
+apps\web\src\modules\dashboard\SpaDashboard.tsx:84:const categories = chartData.map((d: any) => {
+apps\web\src\modules\dashboard\SpaDashboard.tsx:88:const revenueSeries = chartData.map((d: any) => parseFloat(d.revenue) || 0);
+apps\web\src\modules\dashboard\SpaDashboard.tsx:90:const chartOptions: any = {
+apps\web\src\modules\dashboard\TenantDashboard.tsx:27:const chartOptions: any = {
+apps\web\src\modules\mensajeria\MensajeriaView.tsx:10:const [messages, setMessages] = useState<any[]>([]);
+apps\web\src\modules\mensajeria\MensajeriaView.tsx:37:} catch (err: any) {
+apps\web\src\modules\mensajeria\MensajeriaView.tsx:49:const handleEditClick = (msg: any) => {
+apps\web\src\modules\mensajeria\MensajeriaView.tsx:69:} catch (err: any) {
+apps\web\src\modules\mensajeria\MensajeriaView.tsx:136:{messages.map((msg: any) => (
+apps\web\src\modules\whatsapp\WhatsappConnection.tsx:141:} catch (err: any) {
+apps\web\src\modules\whatsapp\WhatsappConnection.tsx:163:} catch (err: any) {
+apps\web\src\services\crmMappers.ts:4:export type DBMarketingContactRow = any;
+apps\web\src\services\crmMappers.ts:5:export type DBWaCampaignRow = any;
+apps\web\src\services\crmMappers.ts:6:export type DBWaQueueItemRow = any;
+apps\web\src\services\crmMappers.ts:35:status: row.status as any,
+apps\web\src\services\crmMappers.ts:53:status: row.status as any,
+apps\web\src\types\crm.ts:22:messageTemplate: any;
+apps\web\src\types\crm.ts:28:sequence?: any[]; // JSONb array of messages

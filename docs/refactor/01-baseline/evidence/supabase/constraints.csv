@@ -1,0 +1,13 @@
+constraint_name,table_name,constraint_type,definition
+companies_pkey,companies,PRIMARY KEY,PRIMARY KEY (id)
+profiles_pkey,profiles,PRIMARY KEY,PRIMARY KEY (id)
+crm_marketing_contacts_pkey,crm_marketing_contacts,PRIMARY KEY,PRIMARY KEY (id)
+crm_wa_campaigns_pkey,crm_wa_campaigns,PRIMARY KEY,PRIMARY KEY (id)
+crm_wa_queue_pkey,crm_wa_queue,PRIMARY KEY,PRIMARY KEY (id)
+wa_sessions_pkey,wa_sessions,PRIMARY KEY,PRIMARY KEY (id)
+spa_services_pkey,spa_services,PRIMARY KEY,PRIMARY KEY (id)
+spa_staff_pkey,spa_staff,PRIMARY KEY,PRIMARY KEY (id)
+spa_visits_pkey,spa_visits,PRIMARY KEY,PRIMARY KEY (id)
+spa_payments_pkey,spa_payments,PRIMARY KEY,PRIMARY KEY (id)
+spa_follow_ups_pkey,spa_follow_ups,PRIMARY KEY,PRIMARY KEY (id)
+companies_status_check,companies,CHECK,"CHECK (status IN ('activa', 'suspendida', 'cancelada'))"

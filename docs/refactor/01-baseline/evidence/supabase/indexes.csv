@@ -1,0 +1,22 @@
+index_name,table_name,is_unique,is_primary,definition
+idx_crm_marketing_contacts_company,crm_marketing_contacts,NO,NO,company_id
+idx_crm_marketing_contacts_tags,crm_marketing_contacts,NO,NO,tags
+idx_crm_wa_queue_campaign_status,crm_wa_queue,NO,NO,"campaign_id, status"
+idx_crm_wa_queue_company_status,crm_wa_queue,NO,NO,"company_id, status"
+crm_wa_queue_company_phone_sent_idx,crm_wa_queue,NO,NO,"company_id, phone, sent_at desc"
+idx_spa_services_company,spa_services,NO,NO,company_id
+idx_spa_products_company,spa_products,NO,NO,company_id
+idx_spa_visits_company,spa_visits,NO,NO,company_id
+idx_spa_visits_contact,spa_visits,NO,NO,contact_id
+idx_spa_visits_status,spa_visits,NO,NO,"company_id, status"
+idx_spa_follow_ups_pending,spa_follow_ups,NO,NO,"company_id, status, scheduled_for"
+idx_spa_follow_ups_type,spa_follow_ups,NO,NO,"type, status"
+idx_spa_staff_company,spa_staff,NO,NO,company_id
+idx_spa_payments_company,spa_payments,NO,NO,company_id
+idx_spa_payments_visit,spa_payments,NO,NO,visit_id
+idx_spa_payments_date,spa_payments,NO,NO,payment_date
+idx_spa_visits_payment_status,spa_visits,NO,NO,"payment_status) WHERE payment_status IN ('pendiente', 'parcial'"
+idx_spa_staff_schedules_company,spa_staff_schedules,NO,NO,company_id
+idx_spa_staff_schedules_staff,spa_staff_schedules,NO,NO,staff_id
+idx_spa_staff_blocks_company,spa_staff_blocks,NO,NO,company_id
+idx_spa_staff_blocks_staff_date,spa_staff_blocks,NO,NO,"staff_id, block_date"

@@ -1,0 +1,2 @@
+Package        Current  Wanted  Latest  Location                    Depended by
+react-joyride    3.1.0   3.2.0   3.2.0  node_modules/react-joyride  masivos

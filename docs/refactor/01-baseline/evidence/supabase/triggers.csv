@@ -1,0 +1,2 @@
+trigger_name,table_name,event,action
+on_auth_user_created,auth.users,AFTER INSERT,EXECUTE PROCEDURE handle_new_user()
