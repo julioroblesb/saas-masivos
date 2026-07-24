@@ -1,26 +1,26 @@
 oid,schema_name,function_name,identity_arguments,full_arguments,return_type,security_definer,owner,proconfig,anon_can_execute,authenticated_can_execute
-17916,public,auth_company_id,,(),uuid,false,postgres,search_path=public,true,true
-17290,public,current_tenant_id,,(),uuid,false,postgres,search_path=public,true,true
-18999,public,check_visit_overlap,"p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid","(p_staff_id uuid, p_visit_date timestamptz, p_duration_minutes integer, p_exclude_visit_id uuid DEFAULT NULL::uuid)",boolean,true,postgres,,true,true
-18066,public,increment_campaign_sent,p_campaign_id uuid,(p_campaign_id uuid),void,true,postgres,,true,true
-18067,public,increment_campaign_failed,p_campaign_id uuid,(p_campaign_id uuid),void,true,postgres,,true,true
-18712,public,rpc_archive_contacts,"p_contact_ids uuid[], p_archive boolean","(p_contact_ids uuid[], p_archive boolean DEFAULT true)",void,true,postgres,,true,true
-18713,public,rpc_batch_insert_marketing_contacts,p_contacts jsonb,(p_contacts jsonb),jsonb,true,postgres,,true,true
-18068,public,rpc_cancel_campaign,p_campaign_id uuid,(p_campaign_id uuid),jsonb,true,postgres,,true,true
-18069,public,rpc_cleanup_demo_companies,,(),jsonb,false,postgres,,true,true
-18070,public,rpc_clone_demo_company,p_template_company_id uuid,(p_template_company_id uuid),jsonb,true,postgres,,true,true
-18997,public,rpc_complete_visit,p_visit_id uuid,(p_visit_id uuid),jsonb,true,postgres,,true,true
-18715,public,rpc_count_contacts_by_tag,p_tag text,(p_tag text),jsonb,true,postgres,,true,true
-18065,public,rpc_create_campaign,"p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid","(p_name text, p_target_tag text DEFAULT NULL::text, p_sequence jsonb DEFAULT '[]'::jsonb, p_contacts jsonb DEFAULT '[]'::jsonb, p_min_delay_sec integer DEFAULT 10, p_max_delay_sec integer DEFAULT 30, p_created_by uuid DEFAULT NULL::uuid)",jsonb,true,postgres,,true,true
-18485,public,rpc_create_campaign,"p_name text, p_sequence jsonb, p_contacts jsonb","(p_name text, p_sequence jsonb, p_contacts jsonb)",jsonb,true,postgres,,true,true
-18716,public,rpc_delete_marketing_contact,p_contact_id uuid,(p_contact_id uuid),jsonb,true,postgres,,true,true
-18717,public,rpc_delete_marketing_contacts_by_tag,p_tag text,(p_tag text),jsonb,true,postgres,,true,true
-18071,public,rpc_get_clients_metrics,,(),jsonb,false,postgres,,true,true
-18072,public,rpc_get_spa_dashboard,,(),jsonb,false,postgres,,true,true
-18718,public,rpc_get_unique_tags,,(),jsonb,true,postgres,,true,true
-18719,public,rpc_recalculate_customer_segment,p_contact_id uuid,(p_contact_id uuid),jsonb,true,postgres,,true,true
-18073,public,rpc_update_company_settings,"p_name text, p_settings jsonb","(p_name text, p_settings jsonb)",jsonb,true,postgres,,true,true
-18998,public,rpc_upsert_marketing_contact,p_contact jsonb,(p_contact jsonb),jsonb,true,postgres,,true,true
-18714,public,rpc_upsert_marketing_contact,"p_contact jsonb, p_company_id uuid","(p_contact jsonb, p_company_id uuid)",jsonb,true,postgres,,true,true
-18484,public,search_contacts,"p_company_id uuid, p_query text, p_limit integer, p_offset integer","(p_company_id uuid, p_query text, p_limit integer DEFAULT 50, p_offset integer DEFAULT 0)",SETOF crm_marketing_contacts,true,postgres,,true,true
-18720,public,search_contacts,search_term text,(search_term text),SETOF crm_marketing_contacts,true,postgres,,true,true
+17916,public,auth_company_id,,,uuid,false,postgres,,true,true
+18999,public,check_visit_overlap,"p_staff_id uuid, p_visit_date timestamp with time zone, p_duration_minutes integer, p_exclude_visit_id uuid","p_staff_id uuid, p_visit_date timestamp with time zone, p_duration_minutes integer, p_exclude_visit_id uuid DEFAULT NULL::uuid",boolean,true,postgres,"search_path=public, pg_temp",true,true
+17290,public,current_tenant_id,,,uuid,false,postgres,,true,true
+18727,public,increment_campaign_failed,p_campaign_id uuid,p_campaign_id uuid,void,false,postgres,"search_path=public, pg_temp",true,true
+18726,public,increment_campaign_sent,p_campaign_id uuid,p_campaign_id uuid,void,false,postgres,"search_path=public, pg_temp",true,true
+18490,public,rpc_archive_contacts,"p_contact_ids uuid[], p_archive boolean","p_contact_ids uuid[], p_archive boolean",void,true,postgres,"search_path=public, pg_temp",true,true
+18482,public,rpc_batch_insert_marketing_contacts,p_contacts jsonb,p_contacts jsonb,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18486,public,rpc_cancel_campaign,p_campaign_id uuid,p_campaign_id uuid,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18798,public,rpc_cleanup_demo_companies,,,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18797,public,rpc_clone_demo_company,p_template_company_id uuid,p_template_company_id uuid,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18651,public,rpc_complete_visit,p_visit_id uuid,p_visit_id uuid,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18366,public,rpc_count_contacts_by_tag,p_target_tag text,p_target_tag text,integer,true,postgres,"search_path=public, pg_temp",true,true
+18065,public,rpc_create_campaign,"p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid","p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid",jsonb,true,postgres,,true,true
+18485,public,rpc_create_campaign,"p_name text, p_target_tag text, p_sequence jsonb, p_min_delay_sec integer, p_max_delay_sec integer","p_name text, p_target_tag text, p_sequence jsonb, p_min_delay_sec integer, p_max_delay_sec integer",jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18483,public,rpc_delete_marketing_contact,p_contact_id uuid,p_contact_id uuid,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18064,public,rpc_delete_marketing_contacts_by_tag,p_tag text,p_tag text,void,true,postgres,,true,true
+18930,public,rpc_get_clients_metrics,,,"TABLE(id uuid, phone text, name text, email text, birthday text, allergies_and_conditions text, preferences text, internal_notes text, is_archived boolean, created_at timestamp with time zone, campaigns_count bigint, last_message_sent_at timestamp with time zone, last_reply_at timestamp with time zone, total_visits bigint, total_spent numeric, customer_segment text, last_visit_at timestamp with time zone, last_service_name text)",true,postgres,"search_path=public, pg_temp",true,true
+18784,public,rpc_get_spa_dashboard,,,jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18367,public,rpc_get_unique_tags,,,text[],true,postgres,"search_path=public, pg_temp",true,true
+18923,public,rpc_recalculate_customer_segment,p_contact_id uuid,p_contact_id uuid,text,true,postgres,,true,true
+18729,public,rpc_update_company_settings,"p_name text, p_settings jsonb","p_name text DEFAULT NULL::text, p_settings jsonb DEFAULT NULL::jsonb",jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18714,public,rpc_upsert_marketing_contact,"p_phone text, p_name text, p_tags text[], p_opt_in_source text, p_email text, p_birthday text, p_notes text","p_phone text, p_name text, p_tags text[], p_opt_in_source text DEFAULT NULL::text, p_email text DEFAULT NULL::text, p_birthday text DEFAULT NULL::text, p_notes text DEFAULT NULL::text",jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18998,public,rpc_upsert_marketing_contact,"p_phone text, p_name text, p_tags text[], p_opt_in_source text, p_email text, p_birthday date, p_allergies_and_conditions text, p_preferences text, p_internal_notes text, p_document_number text","p_phone text, p_name text, p_tags text[], p_opt_in_source text DEFAULT NULL::text, p_email text DEFAULT NULL::text, p_birthday date DEFAULT NULL::date, p_allergies_and_conditions text DEFAULT NULL::text, p_preferences text DEFAULT NULL::text, p_internal_notes text DEFAULT NULL::text, p_document_number text DEFAULT NULL::text",jsonb,true,postgres,"search_path=public, pg_temp",true,true
+18484,public,search_contacts,"p_company_id uuid, p_query text, p_limit integer, p_offset integer","p_company_id uuid, p_query text, p_limit integer DEFAULT 50, p_offset integer DEFAULT 0",SETOF crm_marketing_contacts,true,postgres,"search_path=public, pg_temp",true,true
+18720,public,search_contacts,search_term text,search_term text,SETOF crm_marketing_contacts,false,postgres,,true,true
