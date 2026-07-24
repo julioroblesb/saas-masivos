@@ -1,0 +1,24 @@
+[
+  {
+    "lint_name": "unindexed_foreign_keys",
+    "level": "INFO",
+    "object": "public.crm_wa_queue.campaign_id",
+    "signature": "crm_wa_queue_campaign_id_fkey",
+    "affected_role": "postgres",
+    "description": "Foreign key campaign_id on crm_wa_queue is not indexed.",
+    "remediation": "CREATE INDEX idx_crm_wa_queue_campaign_id ON public.crm_wa_queue(campaign_id);",
+    "official_doc": "https://supabase.com/docs/guides/database/database-advisors?lint=0005_unindexed_foreign_keys",
+    "future_stage": "Etapa 02"
+  },
+  {
+    "lint_name": "unindexed_foreign_keys",
+    "level": "INFO",
+    "object": "public.spa_visits.staff_id",
+    "signature": "spa_visits_staff_id_fkey",
+    "affected_role": "postgres",
+    "description": "Foreign key staff_id on spa_visits is not indexed.",
+    "remediation": "CREATE INDEX idx_spa_visits_staff_id ON public.spa_visits(staff_id);",
+    "official_doc": "https://supabase.com/docs/guides/database/database-advisors?lint=0005_unindexed_foreign_keys",
+    "future_stage": "Etapa 02"
+  }
+]

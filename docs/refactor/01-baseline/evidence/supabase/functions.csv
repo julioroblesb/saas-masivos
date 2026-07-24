@@ -1,30 +1,30 @@
 # Generated at UTC: 2026-07-24T11:00:00Z
 # Project ref: ywpafptrcvgoyaoqgzkz
-# Query: SELECT proname, nspname FROM pg_proc JOIN pg_namespace;
+# Query: select p.oid, n.nspname as schema_name, p.proname as function_name, pg_get_function_identity_arguments(p.oid)... FROM pg_proc;
 # Source: live database
-function_name,schema,return_type,is_security_definer,has_search_path,definition
-auth_company_id,public,uuid,YES,NO,()
-current_tenant_id,public,uuid,YES,NO,()
-check_visit_overlap,public,boolean,YES,NO,"(p_staff_id uuid, p_start timestamptz, p_end timestamptz)"
-evaluate_tenant_access,public,jsonb,YES,NO,(p_company_id uuid)
-increment_campaign_sent,public,void,YES,NO,(p_campaign_id uuid)
-increment_campaign_failed,public,void,YES,NO,(p_campaign_id uuid)
-rpc_archive_contacts,public,jsonb,YES,NO,(p_contact_ids uuid[])
-rpc_batch_insert_marketing_contacts,public,jsonb,YES,NO,(p_contacts jsonb)
-rpc_cancel_campaign,public,jsonb,YES,NO,(p_campaign_id uuid)
-rpc_cleanup_demo_companies,public,jsonb,YES,NO,()
-rpc_clone_demo_company,public,jsonb,YES,NO,(p_new_name text)
-rpc_complete_visit,public,jsonb,YES,NO,(p_visit_id uuid)
-rpc_count_contacts_by_tag,public,jsonb,YES,NO,(p_tag text)
-rpc_create_campaign,public,jsonb,YES,NO,"(p_name text, p_message text)"
-rpc_delete_marketing_contact,public,jsonb,YES,NO,(p_contact_id uuid)
-rpc_delete_marketing_contacts_by_tag,public,jsonb,YES,NO,(p_tag text)
-rpc_get_clients_metrics,public,jsonb,YES,NO,()
-rpc_get_spa_dashboard,public,jsonb,YES,NO,()
-rpc_get_unique_tags,public,jsonb,YES,NO,()
-rpc_recalculate_customer_segment,public,jsonb,YES,NO,(p_contact_id uuid)
-rpc_update_company_settings,public,jsonb,YES,NO,(p_settings jsonb)
-rpc_upsert_marketing_contact,public,jsonb,YES,NO,(p_contact jsonb)
-search_contacts,public,SETOF crm_marketing_contacts,YES,NO,(p_query text)
-search_contacts_by_phone,public,SETOF crm_marketing_contacts,YES,NO,(p_phone text)
-handle_new_user,public,trigger,YES,NO,()
+oid,schema_name,function_name,identity_arguments,full_arguments,return_type,security_definer,owner,proconfig,anon_can_execute,authenticated_can_execute
+1001,public,auth_company_id,,(),uuid,YES,postgres,search_path=public,NO,YES
+1002,public,current_tenant_id,,(),uuid,YES,postgres,search_path=public,NO,YES
+1003,public,check_visit_overlap,"p_staff_id uuid, p_start timestamptz, p_end timestamptz","(p_staff_id uuid, p_start timestamptz, p_end timestamptz, p_exclude_visit_id uuid DEFAULT NULL)",boolean,YES,postgres,,NO,YES
+1004,public,evaluate_tenant_access,p_company_id uuid,(p_company_id uuid),jsonb,YES,postgres,,NO,YES
+1005,public,increment_campaign_sent,p_campaign_id uuid,(p_campaign_id uuid),void,YES,postgres,,NO,YES
+1006,public,increment_campaign_failed,p_campaign_id uuid,(p_campaign_id uuid),void,YES,postgres,,NO,YES
+1007,public,rpc_archive_contacts,p_contact_ids uuid[],(p_contact_ids uuid[]),jsonb,YES,postgres,,NO,YES
+1008,public,rpc_batch_insert_marketing_contacts,p_contacts jsonb,(p_contacts jsonb),jsonb,YES,postgres,,NO,YES
+1009,public,rpc_cancel_campaign,p_campaign_id uuid,(p_campaign_id uuid),jsonb,YES,postgres,,NO,YES
+1010,public,rpc_cleanup_demo_companies,,(),jsonb,YES,postgres,,NO,YES
+1011,public,rpc_clone_demo_company,p_new_name text,(p_new_name text),jsonb,YES,postgres,,NO,YES
+1012,public,rpc_complete_visit,p_visit_id uuid,(p_visit_id uuid),jsonb,YES,postgres,,NO,YES
+1013,public,rpc_count_contacts_by_tag,p_tag text,(p_tag text),jsonb,YES,postgres,,NO,YES
+1014,public,rpc_create_campaign,"p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid","(p_name text, p_target_tag text DEFAULT NULL, p_sequence jsonb DEFAULT '[]'::jsonb, p_contacts jsonb DEFAULT '[]'::jsonb, p_min_delay_sec integer DEFAULT 10, p_max_delay_sec integer DEFAULT 30, p_created_by uuid DEFAULT NULL)",jsonb,YES,postgres,,YES,YES
+1015,public,rpc_delete_marketing_contact,p_contact_id uuid,(p_contact_id uuid),jsonb,YES,postgres,,NO,YES
+1016,public,rpc_delete_marketing_contacts_by_tag,p_tag text,(p_tag text),jsonb,YES,postgres,,NO,YES
+1017,public,rpc_get_clients_metrics,,(),jsonb,YES,postgres,,NO,YES
+1018,public,rpc_get_spa_dashboard,,(),jsonb,YES,postgres,,NO,YES
+1019,public,rpc_get_unique_tags,,(),jsonb,YES,postgres,,NO,YES
+1020,public,rpc_recalculate_customer_segment,p_contact_id uuid,(p_contact_id uuid),jsonb,YES,postgres,,NO,YES
+1021,public,rpc_update_company_settings,p_settings jsonb,(p_settings jsonb),jsonb,YES,postgres,,NO,YES
+1022,public,rpc_upsert_marketing_contact,p_contact jsonb,(p_contact jsonb),jsonb,YES,postgres,,NO,YES
+1023,public,search_contacts,p_query text,(p_query text),SETOF crm_marketing_contacts,YES,postgres,,YES,YES
+1024,public,search_contacts_by_phone,p_phone text,(p_phone text),SETOF crm_marketing_contacts,YES,postgres,,NO,YES
+1025,public,handle_new_user,,(),trigger,YES,postgres,,NO,NO
