@@ -1,33 +1,23 @@
-# Inventario del Repositorio y Dependencias
+# Inventario del Repositorio y Métricas de Código (Fuente Autoritativa: git ls-files)
 
-## 1. Estructura Clasificada de Directorios
+## 1. Métricas de Archivos Versionados
 
-| Área / Directorio | Función que cumple |
-| :--- | :--- |
-| `apps/web/src/app` | Rutas de Next.js App Router (Dashboard, Admin, CRM, Agenda, WhatsApp, API routes). |
-| `apps/web/src/components` | Componentes de UI reutilizables (Botones, Modales, Seleccionadores de fecha, Selects). |
-| `apps/web/src/modules` | Módulos funcionales frontend (`whatsapp`, `contacts`, `campaigns`, `appointments`). |
-| `apps/web/src/integrations` | Integraciones HTTP externas (`evolution/client.ts`). |
-| `apps/web/src/domain` | Lógica de dominio pura (`subscriptions/evaluate-tenant-access.ts`). |
-| `apps/web/src/config` | Módulo de validación de entorno (`env.ts`). |
-| `apps/web/src/utils` | Utilidades auxiliares y creadores de clientes de Supabase (`supabase/server.ts`, `supabase/admin.ts`). |
-| `supabase/migrations` | Conjunto de 34 archivos SQL de migraciones históricas. |
-| `scripts/debug` | Scripts auxiliares de diagnóstico fuera del bundle de aplicación (`test-db.js`). |
+| Categoría | Cantidad de Archivos | Descripción |
+| :--- | :---: | :--- |
+| **Archivos Versionados Totales (`git ls-files`)** | **896** | Total de archivos rastreados por Git en la rama actual. |
+| **Archivos Fuente Reales de Aplicación** | **325** | Código fuente activo de aplicación (`src`, `migrations`, `scripts`). |
+| - *Frontend TypeScript / TSX (`apps/web/src`)* | 292 | Componentes, páginas, hooks, dominio e integraciones. |
+| - *Migraciones SQL (`supabase/migrations`)* | 32 | Archivos de migraciones históricas en el repositorio. |
+| - *Scripts de Automatización (`scripts/`)* | 1 | Runner de auditorías de aislamiento multi-tenant. |
+| **Documentación (`docs/`)** | 35 | Documentos de arquitectura e inventarios de refactorización. |
+| **Configuración del Proyecto** | 4 | `package.json`, `package-lock.json`, `tsconfig.json`, `.gitignore`. |
+
+*(Nota: Los directorios de tooling de agentes como `.gemini` y dependencias `node_modules` son excluidos estrictamente del conteo de código fuente del SaaS).*
 
 ---
 
-## 2. Diagnóstico de Workspaces y Dependencias
+## 2. Diagnóstico de Workspaces y Lockfile
 
 * **Entorno Runtime**: Node.js `v22.11.0`, npm `10.9.0`.
-* **Workspace Raíz**: Declara únicamente `apps/*`.
-* **Inconsistencia de Lockfile**: `package-lock.json` registra una entrada `extraneous` correspondiente a un antiguo paquete `apps/wa-service` que ya no existe en el sistema de archivos.
-
-### Dependencias Principales (`apps/web/package.json`)
-* **Core & Framework**: Next.js `16.2.9`, React `19.2.4`, React DOM `19.2.4`, TypeScript `^5`.
-* **Base de Datos & Auth**: `@supabase/supabase-js` (`^2.108.2`), `@supabase/ssr` (`^0.12.0`).
-* **UI & Estilos**: TailwindCSS `^4`, `@headlessui/react` (`^2.2.10`), `clsx`, `tailwind-merge`, `lucide-react`, `motion` (`^12.40.0`).
-* **Formularios & Validación**: `zod` (`^4.4.3`), `react-flatpickr`, `react-select`.
-
-### hallazgos de Dependencias
-* **Dependencias de Visualización Pesadas**: `apexcharts` (`^5.15.2`) y `react-apexcharts` (`^2.1.1`) cargan paquetes gráficos pesados en el cliente.
-* **Redundancia en Librerías de Estado/Galletas**: `universal-cookie`, `@reduxjs/toolkit` y `@tanstack/react-query` coexisten con el estado local de React.
+* **Workspace Raíz**: Declara `apps/*`.
+* **Inconsistencia Registrada**: `package-lock.json` conserva una entrada `extraneous` correspondiente al módulo legacy `apps/wa-service`.

@@ -1,0 +1,32 @@
+{
+  "npm-ci": {
+    "command": "npm ci",
+    "exitCode": 4294963221,
+    "durationSeconds": 153.98,
+    "status": "FAILED"
+  },
+  "lint": {
+    "command": "npm run lint --workspace=apps/web",
+    "exitCode": 1,
+    "durationSeconds": 0.85,
+    "status": "FAILED"
+  },
+  "typecheck": {
+    "command": "npx tsc --noEmit --project apps/web/tsconfig.json",
+    "exitCode": 1,
+    "durationSeconds": 3.78,
+    "status": "FAILED"
+  },
+  "test-characterization": {
+    "command": "npm run test:characterization --workspace=apps/web",
+    "exitCode": 1,
+    "durationSeconds": 1.21,
+    "status": "FAILED"
+  },
+  "build": {
+    "command": "npm run build --workspace=apps/web",
+    "exitCode": 1,
+    "durationSeconds": 1.07,
+    "status": "FAILED"
+  }
+}

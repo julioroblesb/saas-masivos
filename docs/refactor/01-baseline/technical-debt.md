@@ -1,64 +1,54 @@
-# Registro de Deuda Técnica (Technical Debt Register)
+# Registro de Deuda Técnica (Technical Debt Register - Actualizado)
 
-## TD-001 — RPC `SECURITY DEFINER` ejecutables por `anon`
+## TD-001 — 20 Funciones `SECURITY DEFINER` sin `search_path` Fijo y Ejecutables por Roles Inadecuados
 - **Severidad**: P0
 - **Dominio**: Supabase / Seguridad
-- **Evidencia**: `rpc_create_campaign` y `search_contacts` no restringen `EXECUTE ON FUNCTION` al rol `authenticated`.
-- **Archivo/Tabla/Función**: `supabase/migrations/20260619000002_campaign_rpc.sql`, `20260619000005_search_contacts_rpc.sql`
-- **Impacto actual**: Usuarios no autenticados podrían invocar RPCs administrativas.
-- **Riesgo de no corregir**: Exposición de datos o creación no autorizada de recursos.
-- **Solución propuesta**: Revocar permisos a `anon` e incluir `SET search_path = public`.
+- **Evidencia**: Registrado en `functions.csv`. 20 funciones `SECURITY DEFINER` (incluyendo `rpc_create_campaign`, `search_contacts`) omiten `SET search_path = public`.
+- **Impacto actual**: Riesgo de hijacking de esquema y ejecución no autorizada por usuarios anónimos o clientes desautenticados.
+- **Solución propuesta**: Incluir `SET search_path = public` y revocar `EXECUTE` a `anon` en funciones no públicas.
 - **Etapa recomendada**: Etapa 02
-- **Esfuerzo estimado**: S
-
----
-
-## TD-002 — Referencia `extraneous` en `package-lock.json`
-- **Severidad**: P2
-- **Dominio**: Tooling / Repositorio
-- **Evidencia**: `package-lock.json` contiene la clave `"apps/wa-service": { "extraneous": true }`.
-- **Archivo/Tabla/Función**: `package-lock.json`
-- **Impacto actual**: Descalce entre el árbol de archivos y el lockfile de dependencias.
-- **Riesgo de no corregir**: Advertencias constantes durante `npm ci` e inconsistencias en CI.
-- **Solución propuesta**: Regenerar/sanear el lockfile (`npm install`) tras autorización.
-- **Etapa recomendada**: Etapa 02
-- **Esfuerzo estimado**: S
-
----
-
-## TD-003 — 166 usos explícitos de `any` en TypeScript
-- **Severidad**: P2
-- **Dominio**: Frontend / Backend
-- **Evidencia**: Registrados en `docs/refactor/01-baseline/evidence/any-usages.txt`.
-- **Archivo/Tabla/Función**: Múltiples componentes y API routes.
-- **Impacto actual**: Pérdida de verificación estática de tipos en tiempo de compilación.
-- **Riesgo de no corregir**: Errores runtime `TypeError: Cannot read properties of undefined`.
-- **Solución propuesta**: Generar tipos automáticos con `supabase gen types typescript` y schemas Zod.
-- **Etapa recomendada**: Etapa 03 / 04
-- **Esfuerzo estimado**: L
-
----
-
-## TD-004 — Invocaciones directas de Service Role en API Routes
-- **Severidad**: P1
-- **Dominio**: Backend / API
-- **Evidencia**: `getSupabaseAdmin()` utilizado en 66 puntos del código fuente.
-- **Archivo/Tabla/Función**: `apps/web/src/app/api/...`
-- **Impacto actual**: Bypass total de RLS confiando únicamente en la lógica de aplicación.
-- **Riesgo de no corregir**: Si una ruta omite el filtro de tenant, se permite acceso cruzado a datos.
-- **Solución propuesta**: Restringir service-role únicamente a tareas administrativas del superadmin y workers.
-- **Etapa recomendada**: Etapa 03
 - **Esfuerzo estimado**: M
 
 ---
 
-## TD-005 — Procesador de Colas Cron Monolítico en Serverless
+## TD-002 — Vista `SECURITY DEFINER` (`view_crm_profiles`)
 - **Severidad**: P1
-- **Dominio**: Procesamiento de Envíos / Infraestructura
-- **Evidencia**: `/api/cron/process-queue/route.ts` (286 líneas) ejecuta loops activos en Vercel.
-- **Archivo/Tabla/Función**: `apps/web/src/app/api/cron/process-queue/route.ts`
-- **Impacto actual**: timeouts en Vercel y dependencia de un cron HTTP.
-- **Riesgo de no corregir**: Cancelación abrupta de envíos masivos.
-- **Solución propuesta**: Migrar el procesamiento de colas a un Daemon/Worker 24/7 en `servidor-julio`.
-- **Etapa recomendada**: Etapa 05
-- **Esfuerzo estimado**: L
+- **Dominio**: Supabase / Seguridad
+- **Evidencia**: `views.csv`. La vista `view_crm_profiles` opera con privilegios elevados omitiendo RLS estricto por `company_id`.
+- **Impacto actual**: Exposición potencial de perfiles entre tenants.
+- **Solución propuesta**: Convertir en vista normal o asegurar aislamiento RLS explícito.
+- **Etapa recomendada**: Etapa 02
+- **Esfuerzo estimado**: S
+
+---
+
+## TD-003 — Bucket de Storage Público Listable (`spa-media`)
+- **Severidad**: P2
+- **Dominio**: Supabase Storage
+- **Evidencia**: `storage-buckets.csv`. Bucket `spa-media` es público y permite listado de archivos.
+- **Impacto actual**: Posible descubrimiento de archivos cargados por otros tenants.
+- **Solución propuesta**: Desactivar listado público y restringir RLS por path `company_id`.
+- **Etapa recomendada**: Etapa 02
+- **Esfuerzo estimado**: S
+
+---
+
+## TD-004 — Foreign Keys sin Índices en Base de Datos Desplegada
+- **Severidad**: P2
+- **Dominio**: Rendimiento de Base de Datos
+- **Evidencia**: `crm_wa_queue.campaign_id` y `spa_visits.staff_id` carecen de índices explícitos.
+- **Impacto actual**: Consultas JOIN y borrados en cascada degradan rendimiento.
+- **Solución propuesta**: Crear índices `CREATE INDEX` para foreign keys no indexadas.
+- **Etapa recomendada**: Etapa 02
+- **Esfuerzo estimado**: S
+
+---
+
+## TD-005 — Salida de `npm run lint` y `npm run build` con Exit Code 1
+- **Severidad**: P1
+- **Dominio**: Calidad y Build
+- **Evidencia**: Registrado en `evidence/build/timings.json` y `lint.log`.
+- **Impacto actual**: Fallos en automatización de integración continua (CI).
+- **Solución propuesta**: Corregir reglas de linter y vincular el binario de Next.js en workspace scripts.
+- **Etapa recomendada**: Etapa 02
+- **Esfuerzo estimado**: S

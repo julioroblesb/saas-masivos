@@ -1,18 +1,26 @@
 # Matriz de Pruebas y Caracterización
 
-## Matriz de Cobertura de Casos de Caracterización
+## 1. Pruebas Unitarias de Caracterización (Runner: Vitest)
 
-| ID | Dominio | Caso de Prueba | Tipo de Prueba | Automatizado | Estado Actual | Evidencia / Referencia |
-| :--- | :--- | :--- | :--- | :---: | :---: | :--- |
-| **AUTH-001** | Autenticación | Login de usuario tenant válido | Manual E2E | No | PASS | Inicio de sesión redirige a `/dashboard`. |
-| **AUTH-002** | Autenticación | Login de SuperAdmin | Manual E2E | No | PASS | Redirige a `/admin`. |
-| **TEN-001** | Tenant / RLS | Aislamiento de contactos (Tenant A no ve B) | Integración BD | Sí | PASS | `docs/refactor/01-baseline/supabase-security.md` |
-| **TEN-002** | Tenant / RLS | Aislamiento de visitas (Tenant A no ve B) | Integración BD | Sí | PASS | `docs/refactor/01-baseline/supabase-security.md` |
-| **TEN-003** | Tenant / RLS | Aislamiento de pagos (Tenant A no ve B) | Integración BD | Sí | PASS | `docs/refactor/01-baseline/supabase-security.md` |
-| **SUB-001** | Suscripciones | Evaluación de tenant activo con fecha futura | Dominio Unit | Sí | PASS | `evaluateTenantAccess` allowed = true |
-| **SUB-002** | Suscripciones | Evaluación de tenant con fecha vencida | Dominio Unit | Sí | PASS | `evaluateTenantAccess` allowed = false (reason = expired) |
-| **SUB-003** | Suscripciones | Evaluación de tenant suspendido | Dominio Unit | Sí | PASS | `evaluateTenantAccess` allowed = false (reason = suspended) |
-| **WA-001** | WhatsApp | Generación de nombre inmutable `company_<UUID>` | Integración API | Sí | PASS | `instance/route.ts` conserva UUID sin guiones |
-| **WA-002** | WhatsApp | Estado `generando_qr` vs `esperando_qr` | Integración API | Sí | PASS | `status/route.ts` separa según disponibilidad de QR |
-| **WA-003** | WhatsApp | Polling controlado a 60s max timeout | Frontend Unit | Sí | PASS | `WhatsappConnection.tsx` detiene polling a 20 intentos |
-| **CRON-001**| Cola Cron | Reclamación atómica de mensajes pendientes | Integración BD | Sí | PASS | `process-queue/route.ts` actualiza a `enviando` |
+Comando de ejecución: `npm run test:characterization --workspace=apps/web` (Configuración en `apps/web/vitest.config.mts` y suite en `apps/web/src/domain/characterization.characterization.test.ts`).
+
+| ID | Función Importable | Comportamiento Probado | Tipo de Prueba | Estado | Resultado / Evidencia |
+| :--- | :--- | :--- | :---: | :---: | :--- |
+| **UNIT-001** | `evaluateTenantAccess` | Acceso a tenant activo con fecha futura | Unitaria | PASS | Retorna `allowed: true, reason: 'active'` |
+| **UNIT-002** | `evaluateTenantAccess` | Denegación a tenant vencido | Unitaria | PASS | Retorna `allowed: false, reason: 'expired'` |
+| **UNIT-003** | `evaluateTenantAccess` | Denegación a tenant suspendido | Unitaria | PASS | Retorna `allowed: false, reason: 'suspended'` |
+| **UNIT-004** | `extractEvolutionQr` | Extracción de QR en base64 de primer nivel | Unitaria | PASS | Retorna string base64 |
+| **UNIT-005** | `extractEvolutionQr` | Extracción de QR en objeto anidado `qrcode` | Unitaria | PASS | Retorna string base64 anidado |
+| **UNIT-006** | `extractEvolutionQr` | Retorno null en payload inválido/nulo | Unitaria | PASS | Retorna `null` |
+| **UNIT-007** | `resolveSpintax` | Resolución de spintax `{Hola|Buenos dias}` | Unitaria | PASS | Reemplaza aleatoriamente por variante |
+| **UNIT-008** | Lógica `instanceName` | Formateo inmutable `company_<uuid_sin_guiones>` | Unitaria | PASS | Retorna `company_3c3cb849...` |
+| **UNIT-009** | Normalización teléfono | Limpieza regex y código de país 51 | Unitaria | PASS | Retorna `51987654321` |
+| **UNIT-010** | Mapeo estados Evolution| Mapeo de `open` a `conectado` | Unitaria | PASS | Retorna `conectado` |
+| **UNIT-011** | Validación Webhook | Verificación de igualdad de token Bearer | Unitaria | PASS | Compara token correctamente |
+| **INTEG-001**| Procesamiento de cola | Reclamación atómica e iteración de cola | Integración | `NO AUTOMATIZABLE EN ESTADO ACTUAL` | Acoplamiento directo con Supabase Service Role Client y Vercel Cron handler en `/api/cron/process-queue`. |
+
+---
+
+## 2. Pruebas de Auditoría de Aislamiento Multi-Tenant (`scripts/audit/test-tenant-isolation.mjs`)
+
+Consulte la evidencia completa en `docs/refactor/01-baseline/evidence/rls-test-results.json`.

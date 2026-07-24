@@ -1,0 +1,51 @@
+=== DATE ===
+2026-07-24T11:05:59-05:00
+=== UPTIME ===
+ 11:05:59 up  1:36,  3 users,  load average: 0,30, 0,26, 0,20
+=== MEMORY ===
+               total        used        free      shared  buff/cache   available
+Mem:           3,4Gi       822Mi       1,9Gi        15Mi       927Mi       2,6Gi
+Swap:          3,7Gi          0B       3,7Gi
+=== DISK ===
+Filesystem                         Size  Used Avail Use% Mounted on
+/dev/mapper/ubuntu--vg-ubuntu--lv   98G   13G   81G  14% /
+/dev/mapper/ubuntu--vg-srv--lv     787G   53M  747G   1% /srv
+=== SENSORS ===
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +42.0C  (high = +100.0C, crit = +100.0C)
+Core 0:        +36.0C  (high = +100.0C, crit = +100.0C)
+Core 1:        +42.0C  (high = +100.0C, crit = +100.0C)
+
+BAT0-acpi-0
+Adapter: ACPI interface
+in0:          11.06 V  
+curr1:            N/A  
+
+hp-isa-0000
+Adapter: ISA adapter
+pwm1:             N/A
+
+pch_skylake-virtual-0
+Adapter: Virtual device
+temp1:        +32.0C  
+
+acpitz-acpi-0
+Adapter: ACPI interface
+temp1:        +35.0C  
+temp2:         +0.0C  
+
+=== DOCKER STATS ===
+NAME                 MEM USAGE / LIMIT     CPU %     PIDS
+evolution_api        262.8MiB / 1.562GiB   0.00%     27
+evolution_postgres   52.82MiB / 512MiB     0.01%     10
+evolution_redis      13.11MiB / 256MiB     1.60%     6
+=== DOCKER PS ===
+NAMES                IMAGE                              STATUS                 PORTS
+evolution_api        evoapicloud/evolution-api:v2.3.7   Up 2 hours (healthy)   127.0.0.1:8080->8080/tcp
+evolution_postgres   postgres:15-alpine                 Up 2 hours (healthy)   5432/tcp
+evolution_redis      redis:7-alpine                     Up 2 hours (healthy)   6379/tcp
+=== SYSTEMCTL SERVICES ===
+active
+activating
+active
