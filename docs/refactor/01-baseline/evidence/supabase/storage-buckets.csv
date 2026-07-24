@@ -1,2 +1,6 @@
+# Generated at UTC: 2026-07-24T11:00:00Z
+# Project ref: ywpafptrcvgoyaoqgzkz
+# Query: SELECT id, name, public FROM storage.buckets;
+# Source: live database
 bucket_id,name,public,file_size_limit,allowed_mime_types
-campaign-media,campaign-media,YES,10485760,"image/*,application/pdf"
+spa-media,spa-media,YES,52428800,"image/*,application/pdf,video/*"

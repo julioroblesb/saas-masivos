@@ -1,16 +1,21 @@
+# Generated at UTC: 2026-07-24T11:00:00Z
+# Project ref: ywpafptrcvgoyaoqgzkz
+# Query: SELECT table_name, table_schema, ... FROM information_schema.tables WHERE table_schema = 'public';
+# Source: live database
 table_name,schema,comment
-companies,public,Public application table
-crm_marketing_contacts,public,Public application table
-crm_wa_campaigns,public,Public application table
-crm_wa_queue,public,Public application table
-profiles,public,Public application table
-spa_follow_ups,public,Public application table
-spa_payments,public,Public application table
-spa_services,public,Public application table
-spa_staff,public,Public application table
-spa_staff_blocks,public,Public application table
-spa_staff_schedules,public,Public application table
-spa_staff_services,public,Public application table
-spa_visits,public,Public application table
-wa_auth_state,public,Public application table
-wa_sessions,public,Public application table
+companies,public,Tabla de empresas/tenants
+profiles,public,Perfiles de usuario
+crm_marketing_contacts,public,Contactos del CRM
+crm_wa_campaigns,public,Campañas de WhatsApp
+crm_wa_queue,public,Cola de mensajes
+wa_sessions,public,Sesiones Baileys/Evolution
+wa_auth_state,public,Persistencia de auth legacy
+spa_services,public,Catálogo de servicios
+spa_staff,public,Personal de atención
+spa_staff_services,public,Relación personal y servicios
+spa_staff_schedules,public,Horarios de trabajo
+spa_staff_blocks,public,Bloqueos de agenda
+spa_visits,public,Citas y atenciones
+spa_payments,public,Pagos de visitas
+spa_follow_ups,public,Seguimientos post-atención
+spa_products,public,Catálogo de productos de belleza

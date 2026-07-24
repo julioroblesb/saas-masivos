@@ -1,16 +1,21 @@
+# Generated at UTC: 2026-07-24T11:00:00Z
+# Project ref: ywpafptrcvgoyaoqgzkz
+# Query: SELECT relname, n_live_tup FROM pg_stat_user_tables WHERE schemaname = 'public';
+# Source: live database
 table_name,estimated_row_count
-companies,3
-profiles,3
-crm_marketing_contacts,12
-crm_wa_campaigns,2
-crm_wa_queue,5
-wa_sessions,1
+companies,18
+profiles,19
+crm_marketing_contacts,1120
+crm_wa_campaigns,10
+crm_wa_queue,41
+wa_sessions,18
 wa_auth_state,0
-spa_services,8
-spa_staff,4
-spa_staff_services,8
-spa_staff_schedules,20
+spa_services,147
+spa_staff,51
+spa_staff_services,432
+spa_staff_schedules,112
 spa_staff_blocks,0
-spa_visits,6
-spa_payments,6
-spa_follow_ups,4
+spa_visits,3187
+spa_payments,2783
+spa_follow_ups,0
+spa_products,91

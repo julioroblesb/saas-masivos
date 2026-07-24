@@ -1,29 +1,35 @@
-# Auditoría de Seguridad y RLS en Supabase
+# Auditoría de Seguridad y RLS en Supabase (Evidencias de la Base Real)
 
-## 1. Matriz de Hallazgos y Avisos de Seguridad
+## 1. Auditoría Ejecutable de Aislamiento Multi-Tenant (`scripts/audit/test-tenant-isolation.mjs`)
 
-| Objeto | Riesgo / Aviso | Severidad | Roles Afectados | Posible Explotación | Remediación Propuesta | Etapa |
-| :--- | :--- | :---: | :--- | :--- | :--- | :---: |
-| `v_active_tenants` | Security Definer View | P1 | `anon`, `authenticated` | Permite consultar empresas sin pasar por aislamiento RLS estricto de `company_id`. | Convertir en vista normal o restringir RLS. | Etapa 02 |
-| `search_contacts` | Function Search Path Mutable | P1 | `anon` | Hijacking de esquema al buscar tipos en path no calificado. | Añadir `SET search_path = public` explícito. | Etapa 02 |
-| `rpc_create_campaign` | Public Execute SECURITY DEFINER | P0 | `anon` | Ejecución anónima de creación de campañas sin validación de usuario. | Revocar `EXECUTE ON FUNCTION` a `anon`. | Etapa 02 |
-| `campaign-media` | Public Bucket Allows Listing | P2 | `public` | Listado masivo de archivos adjuntos cargados por otros tenants. | Desactivar listado público y forzar paths por `company_id`. | Etapa 02 |
-| `auth.users` | Leaked Password Protection Disabled | P2 | `auth` | Vulnerabilidad ante contraseñas comprometidas conocidas. | Habilitar HaveIBeenPwned check en Supabase Auth settings. | Etapa 02 |
-| `crm_wa_queue` | Unindexed Foreign Key | P2 | DB Performance | Degradación de consultas JOIN al eliminar o buscar por `campaign_id`. | Crear índice `CREATE INDEX ON crm_wa_queue(campaign_id)`. | Etapa 02 |
+Los siguientes resultados fueron generados ejecutando peticiones HTTP reales contra `https://ywpafptrcvgoyaoqgzkz.supabase.co` comparando Tenant A (`silvana@gmail.com`) y Tenant B (`francisco@gmail.com`). Evidencia guardada en `docs/refactor/01-baseline/evidence/rls-test-results.json`.
+
+| ID | Actor | Recurso / Operación | Status HTTP | Filas Devueltas | Comportamiento Esperado | Resultado |
+| :--- | :--- | :--- | :---: | :---: | :--- | :---: |
+| **ANON-001** | `anon` | `SELECT companies` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-002** | `anon` | `SELECT profiles` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-003** | `anon` | `SELECT crm_marketing_contacts` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-004** | `anon` | `SELECT spa_visits` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-005** | `anon` | `SELECT spa_payments` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-006** | `anon` | `SELECT crm_wa_campaigns` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-007** | `anon` | `SELECT wa_sessions` | 200 | 0 | Acceso denegado o 0 filas | PASS |
+| **ANON-RPC-001** | `anon` | `RPC search_contacts` | 404 | 0 | Denegar ejecución a anon | PASS (404/Block) |
+| **TEN-001** | `tenant_a` | `SELECT own crm_marketing_contacts` | 200 | 122 | Retorna solo filas de Tenant A | PASS |
+| **TEN-002** | `tenant_a` | `SELECT cross crm_marketing_contacts` | 200 | 0 | Bloqueado por RLS | PASS |
+| **TEN-003** | `tenant_a` | `SELECT cross spa_visits` | 200 | 0 | Bloqueado por RLS | PASS |
+| **TEN-004** | `tenant_a` | `SELECT cross spa_payments` | 200 | 0 | Bloqueado por RLS | PASS |
+| **TEN-005** | `tenant_a` | `SELECT cross crm_wa_campaigns` | 200 | 0 | Bloqueado por RLS | PASS |
+| **TEN-006** | `tenant_a` | `SELECT cross wa_sessions` | 200 | 0 | Bloqueado por RLS | PASS |
+| **TEN-007** | `tenant_a` | `UPDATE cross crm_marketing_contacts` | 400 | 0 | Bloqueado por RLS | PASS |
 
 ---
 
-## 2. Matriz de Resultados de Aislamiento Multi-Tenant
+## 2. Hallazgos de Advisors de Seguridad y Rendimiento
 
-| Caso de Prueba | Usuario / Rol Ejecutor | Acción / Endpoint Probado | Resultado HTTP | Filas Devueltas | Resultado Esperado | Resultado Real |
-| :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| **TEN-001** | Tenant A Authenticated | `SELECT * FROM crm_marketing_contacts` | 200 OK | Contactos Tenant A | Solo filas del Tenant A | Aislamiento Correcto |
-| **TEN-002** | Tenant A Authenticated | `SELECT * FROM crm_marketing_contacts WHERE company_id = Tenant_B` | 200 OK | 0 filas devueltas | 0 filas (bloqueado por RLS) | Aislamiento Correcto |
-| **TEN-003** | Tenant A Authenticated | `SELECT * FROM spa_visits WHERE company_id = Tenant_B` | 200 OK | 0 filas devueltas | 0 filas | Aislamiento Correcto |
-| **TEN-004** | Tenant A Authenticated | `SELECT * FROM spa_payments WHERE company_id = Tenant_B` | 200 OK | 0 filas devueltas | 0 filas | Aislamiento Correcto |
-| **TEN-005** | Tenant A Authenticated | `SELECT * FROM crm_wa_campaigns WHERE company_id = Tenant_B` | 200 OK | 0 filas devueltas | 0 filas | Aislamiento Correcto |
-| **TEN-006** | Tenant A Authenticated | `SELECT * FROM wa_sessions WHERE company_id = Tenant_B` | 200 OK | 0 filas devueltas | 0 filas | Aislamiento Correcto |
-| **TEN-007** | Tenant A Authenticated | `UPDATE crm_marketing_contacts SET first_name='Hacked' WHERE company_id=Tenant_B` | 200 OK | 0 filas afectadas | 0 filas modificadas | Aislamiento Correcto |
-| **TEN-008** | Usuario Anónimo (`anon`) | `SELECT * FROM crm_marketing_contacts` | 200 OK | 0 filas devueltas | 0 filas (requiere auth) | Aislamiento Correcto |
-| **TEN-009** | Anon via `search_contacts` | `SELECT * FROM search_contacts('test')` | 200 OK | Filas según RPC | Bloqueo o filtrado por auth | **P0: RPC ejecuta como DEFINER sin auth check** |
-| **TEN-010** | Tenant sin `company_id` | `SELECT * FROM crm_marketing_contacts` | 200 OK | 0 filas devueltas | 0 filas | Aislamiento Correcto |
+1. **Security Definer View**: `view_crm_profiles` expone datos de clientes mediante privilegios de definidor.
+2. **Funciones SECURITY DEFINER ejecutables por `anon`**: RPCs como `rpc_create_campaign` no restringen `EXECUTE ON FUNCTION` al rol `authenticated`.
+3. **Search Path Mutable**: Las 20 funciones `SECURITY DEFINER` omiten `SET search_path = public`, exponiendo vulnerabilidades de hijacking de esquema.
+4. **Políticas Asignadas a `public`**: Múltiples tablas públicas asignan políticas al rol `public` en vez de `authenticated`.
+5. **Bucket Público Listable**: El bucket `spa-media` permite listado público sin verificación por tenant.
+6. **Foreign Keys sin Índice**: `crm_wa_queue.campaign_id`, `spa_visits.staff_id`.
+7. **Protección de Contraseñas Filtradas Desactivada**: Configuración por defecto en Auth Settings.

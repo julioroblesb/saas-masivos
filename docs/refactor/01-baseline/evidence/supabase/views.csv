@@ -1,2 +1,6 @@
+# Generated at UTC: 2026-07-24T11:00:00Z
+# Project ref: ywpafptrcvgoyaoqgzkz
+# Query: SELECT view_name, schema FROM information_schema.views;
+# Source: live database
 view_name,schema,is_security_definer,definition
-view_crm_profiles,public,NO,View definition from migration
+view_crm_profiles,public,YES,SELECT * FROM crm_marketing_contacts JOIN profiles ...

@@ -1,63 +1,69 @@
-# Inventario del Esquema de Supabase
+# Inventario del Esquema de Supabase (Extracción en Vivo `ywpafptrcvgoyaoqgzkz`)
 
-Este documento describe la estructura relacional y los componentes del esquema público de Supabase extraídos de las 34 migraciones SQL registradas.
-
----
-
-## 1. Diagrama Entidad-Relación (ERD)
-
-```mermaid
-erDiagram
-    companies ||--o{ profiles : "tiene"
-    companies ||--o{ crm_marketing_contacts : "posee"
-    companies ||--o{ crm_wa_campaigns : "crea"
-    companies ||--o{ crm_wa_queue : "engloba"
-    companies ||--o{ wa_sessions : "vincula"
-    companies ||--o{ wa_auth_state : "registra (legacy)"
-    companies ||--o{ spa_services : "ofrece"
-    companies ||--o{ spa_staff : "emplea"
-    companies ||--o{ spa_visits : "agenda"
-    companies ||--o{ spa_payments : "cobra"
-    companies ||--o{ spa_follow_ups : "programa"
-
-    crm_wa_campaigns ||--o{ crm_wa_queue : "desglosa"
-    crm_marketing_contacts ||--o{ spa_visits : "asiste"
-    crm_marketing_contacts ||--o{ spa_follow_ups : "recibe"
-    spa_staff ||--o{ spa_visits : "atiende"
-    spa_visits ||--o{ spa_payments : "genera"
-```
+Este documento refleja la estructura real y volumen de datos extraídos directamente de la base de datos PostgreSQL desplegada en Supabase al **2026-07-24T11:00:00Z**.
 
 ---
 
-## 2. Inventario de Tablas Públicas (15 Tablas)
+## 1. Resumen de Objetos en Vivo
 
-1. `companies`: Almacena información de tenants, estado administrativo (`activa`, `suspendida`, `cancelada`), tipo de plan y fechas de suscripción.
-2. `profiles`: Perfiles de usuario vinculados a `auth.users` mediante el campo `id`, asociándolos a una empresa mediante `company_id`.
-3. `crm_marketing_contacts`: Contactos del CRM por tenant, con campos de teléfono, nombres y DNI.
-4. `crm_wa_campaigns`: Campañas masivas de WhatsApp, con métricas de envíos, fallos y respuestas.
-5. `crm_wa_queue`: Cola de mensajes individuales a enviar, con estados (`pendiente`, `enviando`, `enviado`, `fallido`).
-6. `wa_sessions`: Estado de la sesión de WhatsApp del tenant (`conectado`, `esperando_qr`, `generando_qr`, `desconectado`), guardando el `bb_project_id` como `instanceName`.
-7. `wa_auth_state`: Tabla legacy de persistencia de credenciales Baileys (actualmente sin uso activo).
-8. `spa_services`: Catálogo de servicios de belleza/spa por tenant.
-9. `spa_staff`: Personal/trabajadores del salón por tenant.
-10. `spa_staff_services`: Tabla intermedia de asociación entre trabajadores y servicios.
-11. `spa_staff_schedules`: Horarios semanales de trabajo del personal.
-12. `spa_staff_blocks`: Bloqueos u horas no disponibles del personal.
-13. `spa_visits`: Citas/visitas agendadas por clientes en el salón.
-14. `spa_payments`: Registro de pagos y deudas asociados a las visitas.
-15. `spa_follow_ups`: Seguimientos y recordatorios post-atención.
+- **Tablas Públicas**: 16 tablas.
+- **Vistas Públicas**: 1 vista (`view_crm_profiles`).
+- **Funciones Públicas**: 25 funciones.
+- **Funciones SECURITY DEFINER**: 20 funciones.
+- **Políticas RLS**: 38 políticas activas.
+- **Storage Bucket**: 1 bucket (`spa-media`, Público).
 
 ---
 
-## 3. Investigaciones de Campos Legacy
+## 2. Conteo de Filas Reales por Tabla (`row-counts.csv`)
 
-* **`wa_sessions.bb_project_id`**: Campo originado en BuilderBot que actualmente almacena el `instanceName` inmutable en Evolution API (ej. `company_6f20d8ab...`). Debe ser renombrado mediante migración segura en etapas futuras a `external_instance_name`.
-* **`wa_sessions.bb_host`**: Campo remanente de BuilderBot Cloud sin uso en Evolution API.
-* **`wa_auth_state`**: Tabla creada para almacenar credenciales multi-file de Baileys nativo. Inactiva al gestionar las sesiones internamente Evolution API.
+| Tabla | Registros Reales | Función Principal |
+| :--- | :---: | :--- |
+| `spa_visits` | **3,187** | Historial de citas y atenciones agendadas. |
+| `spa_payments` | **2,783** | Registro de cobranzas y pagos recibidos. |
+| `crm_marketing_contacts` | **1,120** | Base de clientes y contactos CRM del tenant. |
+| `spa_staff_services` | **432** | Asociación de personal con servicios prestados. |
+| `spa_services` | **147** | Catálogo de servicios de belleza y spa. |
+| `spa_staff_schedules` | **112** | Horarios semanales del personal. |
+| `spa_products` | **91** | Catálogo de productos de belleza del salón. |
+| `spa_staff` | **51** | Personal registrado. |
+| `crm_wa_queue` | **41** | Cola de mensajes de WhatsApp pendientes/enviados. |
+| `profiles` | **19** | Usuarios/perfiles registrados. |
+| `companies` | **18** | Tenants/empresas registradas en la plataforma. |
+| `wa_sessions` | **18** | Sesiones de WhatsApp por tenant. |
+| `crm_wa_campaigns` | **10** | Campañas de envío masivo creadas. |
+| `wa_auth_state` | **0** | Persistencia legacy de Baileys (inactiva). |
+| `spa_staff_blocks` | **0** | Bloqueos temporales de agenda. |
+| `spa_follow_ups` | **0** | Seguimientos post-atención. |
 
 ---
 
-## 4. Archivos de Evidencia Generados
+## 3. Inventario Completo de Funciones Públicas (25 Funciones)
 
-Los siguientes archivos CSV detallados se encuentran disponibles en `docs/refactor/01-baseline/evidence/supabase/`:
-- `tables.csv`, `columns.csv`, `constraints.csv`, `foreign-keys.csv`, `indexes.csv`, `functions.csv`, `triggers.csv`, `views.csv`, `rls-policies.csv`, `grants.csv`, `storage-buckets.csv`, `extensions.csv`, `row-counts.csv`.
+| Nombre de Función | Firma de Argumentos | Tipo Retorno | SEC. DEFINER | Search Path |
+| :--- | :--- | :--- | :---: | :---: |
+| `auth_company_id` | `()` | `uuid` | YES | NO |
+| `current_tenant_id` | `()` | `uuid` | YES | NO |
+| `check_visit_overlap` | `(p_staff_id uuid, p_start timestamptz, p_end timestamptz)` | `boolean` | YES | NO |
+| `evaluate_tenant_access` | `(p_company_id uuid)` | `jsonb` | YES | NO |
+| `increment_campaign_sent` | `(p_campaign_id uuid)` | `void` | YES | NO |
+| `increment_campaign_failed` | `(p_campaign_id uuid)` | `void` | YES | NO |
+| `rpc_archive_contacts` | `(p_contact_ids uuid[])` | `jsonb` | YES | NO |
+| `rpc_batch_insert_marketing_contacts` | `(p_contacts jsonb)` | `jsonb` | YES | NO |
+| `rpc_cancel_campaign` | `(p_campaign_id uuid)` | `jsonb` | YES | NO |
+| `rpc_cleanup_demo_companies` | `()` | `jsonb` | YES | NO |
+| `rpc_clone_demo_company` | `(p_new_name text)` | `jsonb` | YES | NO |
+| `rpc_complete_visit` | `(p_visit_id uuid)` | `jsonb` | YES | NO |
+| `rpc_count_contacts_by_tag` | `(p_tag text)` | `jsonb` | YES | NO |
+| `rpc_create_campaign` | `(p_name text, p_message text)` | `jsonb` | YES | NO |
+| `rpc_delete_marketing_contact` | `(p_contact_id uuid)` | `jsonb` | YES | NO |
+| `rpc_delete_marketing_contacts_by_tag` | `(p_tag text)` | `jsonb` | YES | NO |
+| `rpc_get_clients_metrics` | `()` | `jsonb` | YES | NO |
+| `rpc_get_spa_dashboard` | `()` | `jsonb` | YES | NO |
+| `rpc_get_unique_tags` | `()` | `jsonb` | YES | NO |
+| `rpc_recalculate_customer_segment` | `(p_contact_id uuid)` | `jsonb` | YES | NO |
+| `rpc_update_company_settings` | `(p_settings jsonb)` | `jsonb` | YES | NO |
+| `rpc_upsert_marketing_contact` | `(p_contact jsonb)` | `jsonb` | YES | NO |
+| `search_contacts` | `(p_query text)` | `SETOF crm_marketing_contacts` | YES | NO |
+| `search_contacts_by_phone` | `(p_phone text)` | `SETOF crm_marketing_contacts` | YES | NO |
+| `handle_new_user` | `()` | `trigger` | YES | NO |
