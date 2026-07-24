@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { evolution } from '@/integrations/evolution/client';
+import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
 
 export async function GET(req: Request) {
   try {
@@ -25,11 +26,20 @@ export async function GET(req: Request) {
     // @ts-ignore
     const company = Array.isArray(profile.companies) ? profile.companies[0] : profile.companies;
     
-    if (company?.status !== 'activa') {
-      return NextResponse.json({ error: 'Cuenta suspendida o inactiva.' }, { status: 403 });
-    }
-    if (company?.subscription_end_at && new Date(company.subscription_end_at) < new Date()) {
-      return NextResponse.json({ error: 'Suscripción vencida.' }, { status: 403 });
+    const access = evaluateTenantAccess(company);
+    if (!access.allowed) {
+      const messages = {
+        expired: 'Suscripción vencida.',
+        suspended: 'Cuenta suspendida.',
+        cancelled: 'Cuenta cancelada.',
+        subscription_not_configured: 'Suscripción no configurada.',
+        invalid_status: 'Estado administrativo inválido.',
+      } as const;
+
+      return NextResponse.json({ 
+        error: messages[access.reason as keyof typeof messages] || 'Acceso bloqueado por suscripción.',
+        code: access.reason
+      }, { status: 403 });
     }
 
     const { data: session } = await supabase
@@ -62,7 +72,6 @@ export async function GET(req: Request) {
       dbStatus = 'desconectado';
     }
 
-    // Si está conectando o esperando QR, intentar obtener el QR en base64
     if (evoState === 'connecting' || evoState === 'close' || dbStatus === 'esperando_qr') {
       try {
         const qrData = await evolution.getQr(instanceName);
@@ -73,7 +82,6 @@ export async function GET(req: Request) {
       } catch (qrErr) {}
     }
 
-    // Actualizar BD si cambió de estado, o si está conectado pero no tiene connection_started_at
     const needsStartedAtUpdate = (dbStatus === 'conectado' && !session.connection_started_at);
 
     if (dbStatus !== session.status || needsStartedAtUpdate) {

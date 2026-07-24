@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { CreateTenantForm } from './CreateTenantForm';
 import { TenantTable } from './TenantTable';
 import { Building2, Users, Activity, UserPlus } from 'lucide-react';
+import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +38,7 @@ export default async function AdminPage() {
     console.error('Error fetching companies:', error);
   }
 
-  const activeCompanies = companies?.filter(c => c.status === 'active')?.length || 0;
+  const activeCompanies = companies?.filter(c => evaluateTenantAccess(c).allowed)?.length || 0;
   const totalCompanies = companies?.length || 0;
 
   return (

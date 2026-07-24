@@ -47,8 +47,7 @@ export async function GET(req: Request) {
     const { data: sessions, error: sessionsError } = await supabaseAdmin
       .from('wa_sessions')
       .select('company_id, bb_project_id, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, consecutive_errors, companies!inner(status, subscription_end_at)')
-      .eq('status', 'conectando')
-      .or('status.eq.conectado')
+      .eq('status', 'conectado')
       .eq('companies.status', 'activa')
       .gte('companies.subscription_end_at', new Date().toISOString());
 

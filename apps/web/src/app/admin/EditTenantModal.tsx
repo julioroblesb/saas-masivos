@@ -26,7 +26,6 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
   const [planType, setPlanType] = useState(company.plan_type || 'prueba');
   const [status, setStatus] = useState(company.status || 'activa');
   
-  // Extraemos YYYY-MM-DD para el input type="date"
   const formatDateForInput = (isoDate: string) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
@@ -47,17 +46,19 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
   const handlePlanChange = (newPlan: string) => {
     setPlanType(newPlan);
     
-    // Auto calcular la fecha de término basada en la fecha de inicio o en "hoy"
-    const startDate = new Date(company.subscription_start_at || new Date().toISOString());
-    const newEndDate = new Date(startDate);
+    // Base de cálculo: max(ahora, vencimiento_actual)
+    const now = new Date();
+    const currentEnd = company.subscription_end_at ? new Date(company.subscription_end_at) : now;
+    const baseDate = (!Number.isNaN(currentEnd.getTime()) && currentEnd > now) ? currentEnd : now;
+    const newEndDate = new Date(baseDate);
 
     switch (newPlan) {
-      case 'prueba': newEndDate.setDate(startDate.getDate() + 7); break; // 7 días de prueba default
-      case 'mensual': newEndDate.setMonth(startDate.getMonth() + 1); break;
-      case 'bimestral': newEndDate.setMonth(startDate.getMonth() + 2); break;
-      case 'trimestral': newEndDate.setMonth(startDate.getMonth() + 3); break;
-      case 'semestral': newEndDate.setMonth(startDate.getMonth() + 6); break;
-      case 'anual': newEndDate.setFullYear(startDate.getFullYear() + 1); break;
+      case 'prueba': newEndDate.setDate(baseDate.getDate() + 7); break;
+      case 'mensual': newEndDate.setMonth(baseDate.getMonth() + 1); break;
+      case 'bimestral': newEndDate.setMonth(baseDate.getMonth() + 2); break;
+      case 'trimestral': newEndDate.setMonth(baseDate.getMonth() + 3); break;
+      case 'semestral': newEndDate.setMonth(baseDate.getMonth() + 6); break;
+      case 'anual': newEndDate.setFullYear(baseDate.getFullYear() + 1); break;
     }
     setEndDate(newEndDate.toISOString().split('T')[0]);
   };
@@ -66,11 +67,13 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
     e.preventDefault();
     setLoading(true);
 
+    // Ajustar expiración a las 23:59:59.999 hora Perú (-05:00)
+    const expirationIso = new Date(`${endDate}T23:59:59.999-05:00`).toISOString();
+
     const data = {
       plan_type: planType,
       status: status,
-      subscription_start_at: company.subscription_start_at || new Date().toISOString(),
-      subscription_end_at: new Date(endDate).toISOString()
+      subscription_end_at: expirationIso
     };
 
     const res = await updateTenantSubscription(company.id, data);
@@ -98,7 +101,6 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           
-          {/* Plan y Estado */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="text-sm font-semibold text-black dark:text-white mb-2 block">Tipo de Plan</label>
@@ -132,7 +134,6 @@ export function EditTenantModal({ company, isOpen, onClose }: EditTenantModalPro
             </div>
           </div>
 
-          {/* Fechas */}
           <div>
             <label className="text-sm font-semibold text-black dark:text-white mb-2 block">Fecha de Vencimiento</label>
             <div className="relative">
