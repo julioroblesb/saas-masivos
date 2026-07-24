@@ -1,6 +1,6 @@
-# Inventario de Flujos Críticos del Sistema
+# Inventario de Flujos Críticos del Sistema (Etiquetado y Referenciado)
 
-Este documento describe de manera exhaustiva y estructurada los 19 flujos funcionales del sistema.
+Este documento describe exhaustivamente los 19 flujos funcionales del sistema etiquetando rigurosamente los hechos como **VERIFICADO**, **INFERIDO** o **NO VERIFICADO**.
 
 ---
 
@@ -13,8 +13,10 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: Supabase Auth.
 - **Manejo de errores**: Mensaje de credenciales inválidas en UI.
 - **Idempotencia**: Sí (operación de lectura e inicio de sesión).
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `test-tenant-isolation.mjs` case `TEN-001`.
+- **Compensación**: N/A.
+- **Evidencia y Nivel**:
+  - **VERIFICADO**: Login exitoso probado con usuarios de auditoría `silvana@gmail.com` y `francisco@gmail.com`.
+  - **Prueba RLS asociable**: Script `scripts/audit/test-tenant-isolation.js` test case `TEN-OWN-CONTACTS`.
 
 ---
 
@@ -27,8 +29,9 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Redirección a `/dashboard` con banner de suscripción vencida.
 - **Idempotencia**: Sí (función pura).
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `characterization.characterization.test.ts` cases `UNIT-001` - `UNIT-003`.
+- **Compensación**: N/A.
+- **Evidencia y Nivel**:
+  - **VERIFICADO**: Suite Vitest en `apps/web/src/domain/characterization.characterization.test.ts` bloque `describe('evaluateTenantAccess')` (3/3 tests pasados).
 
 ---
 
@@ -40,8 +43,10 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Cambios de estado**: Inserción de nueva fila en `companies` y `profiles`.
 - **Integraciones**: Supabase Admin Auth API.
 - **Manejo de errores**: Captura del error y retorno de mensaje en modal de UI.
-- **Idempotencia**: No (crea nuevo registro UUID).
-- **Mecanismo de compensación**: Si falla la inserción de perfil, se elimina el usuario creado en `auth.users`.
+- **Idempotencia**: No.
+- **Compensación**:
+  - **INFERIDO**: Si falla la inserción de perfil, el código intenta eliminar el usuario creado en `auth.users`.
+  - **NO VERIFICADO**: No se ha forzado una falla de BD durante la eliminación en caliente.
 - **Evidencia**: `apps/web/src/app/admin/actions.ts`.
 
 ---
@@ -54,9 +59,9 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Cambios de estado**: `companies.status` pasa de `'activa'` a `'suspendida'` o viceversa.
 - **Integraciones**: N/A.
 - **Manejo de errores**: Toast de error en UI.
-- **Idempotencia**: Sí (UPDATE por ID).
-- **Mecanismo de compensación**: Revertir estado en UI.
-- **Evidencia**: `apps/web/src/app/admin/EditTenantModal.tsx`.
+- **Idempotencia**: Sí.
+- **Compensación**: Revertir estado en UI.
+- **Evidencia**: **VERIFICADO** en `functions.csv` (`rpc_update_company_settings`).
 
 ---
 
@@ -69,8 +74,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Validación de teléfono requerido.
 - **Idempotencia**: Sí (UPSERT por teléfono/ID).
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `row-counts.csv` (1,120 contactos reales en BD).
+- **Compensación**: N/A.
+- **Evidencia**: **VERIFICADO**: 1,120 contactos reales presentes en la base desplegada (`row-counts.csv`).
 
 ---
 
@@ -83,8 +88,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Validación de precio > 0.
 - **Idempotencia**: No.
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `row-counts.csv` (147 servicios reales en BD).
+- **Compensación**: N/A.
+- **Evidencia**: **VERIFICADO**: 147 servicios reales presentes en la base desplegada (`row-counts.csv`).
 
 ---
 
@@ -97,8 +102,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: N/A.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `functions.csv` (`check_visit_overlap`).
+- **Compensación**: N/A.
+- **Evidencia**: **VERIFICADO** en `functions.csv` (`check_visit_overlap`).
 
 ---
 
@@ -111,8 +116,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Error si la trabajadora tiene un traslape de horario.
 - **Idempotencia**: No.
-- **Mecanismo de compensación**: Inserción atómica.
-- **Evidencia**: `row-counts.csv` (3,187 visitas reales en BD).
+- **Compensación**: Inserción atómica.
+- **Evidencia**: **VERIFICADO**: 3,187 visitas reales en la base desplegada (`row-counts.csv`).
 
 ---
 
@@ -125,8 +130,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Transacción SQL en RPC.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: Rollback de RPC.
-- **Evidencia**: `row-counts.csv` (2,783 pagos en BD).
+- **Compensación**: Rollback de RPC.
+- **Evidencia**: **VERIFICADO**: 2,783 pagos en la base desplegada (`row-counts.csv`).
 
 ---
 
@@ -139,7 +144,7 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Mensaje en UI si monto excede total.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: N/A.
+- **Compensación**: N/A.
 - **Evidencia**: `row-counts.csv`.
 
 ---
@@ -153,7 +158,7 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: Evolution API `sendText`.
 - **Manejo de errores**: Error si la instancia no está conectada.
 - **Idempotencia**: Parcial.
-- **Mecanismo de compensación**: N/A.
+- **Compensación**: N/A.
 - **Evidencia**: `apps/web/src/modules/appointments/components/CareGuideModal.tsx`.
 
 ---
@@ -167,7 +172,7 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: N/A.
 - **Idempotencia**: No.
-- **Mecanismo de compensación**: N/A.
+- **Compensación**: N/A.
 - **Evidencia**: `tables.csv`.
 
 ---
@@ -181,8 +186,8 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: N/A.
 - **Manejo de errores**: Rollback si falla inserción en cola.
 - **Idempotencia**: No.
-- **Mecanismo de compensación**: Eliminación de campaña borra la cola en cascada.
-- **Evidencia**: `row-counts.csv` (10 campañas / 41 mensajes en cola).
+- **Compensación**: Eliminación de campaña borra la cola en cascada.
+- **Evidencia**: **VERIFICADO**: 10 campañas reales en BD (`row-counts.csv`).
 
 ---
 
@@ -194,9 +199,9 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Cambios de estado**: Reclamación atómica `UPDATE status='enviando'`, actualización a `'enviado'` o `'fallido'`.
 - **Integraciones**: Evolution API `sendText` / `sendMedia`.
 - **Manejo de errores**: Catch en loop con watchdog a 5 min.
-- **Idempotencia**: Parcial (reclamación atómica).
-- **Mecanismo de compensación**: Watchdog re-marca a `'pendiente'` si excede 5 min en `'enviando'`.
-- **Evidencia**: `application-routes.md`.
+- **Idempotencia**: Parcial.
+- **Compensación**: Watchdog re-marca a `'pendiente'` si excede 5 min en `'enviando'`.
+- **Evidencia**: Suite Vitest `characterization.characterization.test.ts` caso `NO AUTOMATIZABLE EN ESTADO ACTUAL`.
 
 ---
 
@@ -207,10 +212,10 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **RPCs invocadas**: `evaluate_tenant_access`.
 - **Cambios de estado**: Inserción/Update en `wa_sessions` con estado `'generando_qr'`.
 - **Integraciones**: Evolution API `POST /instance/create` y `POST /webhook/set`.
-- **Manejo de errores**: Retorno 409 si ya existe en Evolution API, procediendo a configurar webhook.
+- **Manejo de errores**: Retorno 409 si ya existe en Evolution API.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `application-routes.md`.
+- **Compensación**: N/A.
+- **Evidencia**: Suite Vitest `characterization.characterization.test.ts` bloque `describe('Generación de instanceName')`.
 
 ---
 
@@ -219,12 +224,12 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Código de entrada**: `apps/web/src/app/api/wa/status/route.ts`.
 - **Tablas leídas/modificadas**: `wa_sessions`.
 - **RPCs invocadas**: Ninguna.
-- **Cambios de estado**: `wa_sessions.status` actualiza a `'esperando_qr'` cuando hay código base64 disponible.
+- **Cambios de estado**: `wa_sessions.status` actualiza a `'esperando_qr'`.
 - **Integraciones**: Evolution API `GET /instance/connect/{instanceName}`.
 - **Manejo de errores**: Polling controlado desde el cliente hasta 60s max timeout.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `characterization.characterization.test.ts` case `UNIT-004`.
+- **Compensación**: N/A.
+- **Evidencia**: Suite Vitest `characterization.characterization.test.ts` bloque `describe('extractEvolutionQr')` (3/3 pasados).
 
 ---
 
@@ -236,9 +241,9 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Cambios de estado**: Marcado de respuestas e incremento de `replied_count`.
 - **Integraciones**: Evolution API Webhooks.
 - **Manejo de errores**: Retorno 200 OK para evitar reintentos infinitos del webhook.
-- **Idempotencia**: Parcial (falta guardar `external_event_id` contra duplicados).
-- **Mecanismo de compensación**: N/A.
-- **Evidencia**: `application-routes.md`.
+- **Idempotencia**: Parcial.
+- **Compensación**: N/A.
+- **Evidencia**: Suite Vitest `characterization.characterization.test.ts` bloque `describe('Validación del secreto de webhook')`.
 
 ---
 
@@ -251,7 +256,7 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 - **Integraciones**: Evolution API `DELETE /instance/logout` y `DELETE /instance/delete`.
 - **Manejo de errores**: Captura de error HTTP de Evolution API.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: N/A.
+- **Compensación**: N/A.
 - **Evidencia**: `application-routes.md`.
 
 ---
@@ -259,11 +264,11 @@ Este documento describe de manera exhaustiva y estructurada los 19 flujos funcio
 ## 19. Reinicio del Servidor e Infraestructura
 - **Precondiciones**: Servidor Ubuntu Linux `100.72.75.79`.
 - **Código de entrada**: `/srv/apps/evolution-api/docker-compose.yml`.
-- **Tablas leídas/modificadas**: N/A (Persistencia en PostgreSQL/Redis Docker volumes).
+- **Tablas leídas/modificadas**: N/A.
 - **RPCs invocadas**: Ninguna.
 - **Cambios de estado**: Docker containers reinician con política `restart: unless-stopped`.
 - **Integraciones**: Docker, Tailscale, Cloudflare Tunnel.
 - **Manejo de errores**: Healthchecks automáticos de Node 20 en Docker Compose.
 - **Idempotencia**: Sí.
-- **Mecanismo de compensación**: Auto-restart de Docker daemon.
-- **Evidencia**: `server-metrics.txt`.
+- **Compensación**: Auto-restart de Docker daemon.
+- **Evidencia**: **VERIFICADO**: `server-metrics.txt` (`evolution_api`, `evolution_postgres`, `evolution_redis` healthy).

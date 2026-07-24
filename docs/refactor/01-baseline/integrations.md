@@ -1,23 +1,25 @@
-# Inventario de Integraciones Externas
+# Inventario de Integraciones Externas e Infraestructura
 
-## 1. Integraciones Activas en el Sistema
+## 1. Versiones Reales de la Infraestructura en Vivo (`servidor-julio` @ `100.72.75.79`)
 
-### 1. Evolution API v2.2.3
-* **Función**: Motor de conexión WhatsApp basado en Baileys desplegado en el servidor Linux doméstico (`servidor-julio`).
-* **Cliente**: Centralizado en `src/integrations/evolution/client.ts`.
-* **Endpoints HTTP invocados**:
-  - `POST /instance/create`: Inicialización de instancia (`syncFullHistory: false`, `integration: 'WHATSAPP-BAILEYS'`).
-  - `POST /webhook/set/{instanceName}`: Registro del webhook con objeto wrapper `{ webhook: { enabled, url, headers, events } }`.
-  - `GET /instance/connectionState/{instanceName}`: Consulta de estado de socket Baileys.
-  - `GET /instance/connect/{instanceName}`: Obtención de código QR en base64.
-  - `POST /message/sendText/{instanceName}`: Envío de mensaje de texto `{ number, text, delay }`.
-  - `POST /message/sendMedia/{instanceName}`: Envío de archivo multimedia `{ number, mediatype: 'image', media, caption, delay }`.
-  - `DELETE /instance/logout/{instanceName}`: Desconexión de sesión Baileys.
-  - `DELETE /instance/delete/{instanceName}`: Destrucción de instancia.
+- **VERIFICADO**: **Evolution API Engine**: `evoapicloud/evolution-api:v2.3.7` (Contenedor Docker `evolution_api`, 262.8MiB RAM, 27 PIDs, `healthy`).
+- **VERIFICADO**: **Evolution PostgreSQL**: `postgres:15-alpine` (Contenedor Docker `evolution_postgres`, 52.82MiB RAM, 10 PIDs, `healthy`).
+- **VERIFICADO**: **Evolution Redis**: `redis:7-alpine` (Contenedor Docker `evolution_redis`, 13.11MiB RAM, 6 PIDs, `healthy`).
+- **VERIFICADO**: **Estado de Servicios de Sistema (`systemctl is-active`)**:
+  - `docker`: **active**
+  - `cloudflared`: **activating** *(servicio tunnel en proceso de reconexión/inicio)*
+  - `tailscaled`: **active**
 
-### 2. Cloudflare Access & Cloudflare Tunnel
-* **Función**: Exposición segura y cifrada del servicio `127.0.0.1:8080` de la laptop hacia Vercel (`https://evolution.dominio.com`).
-* **Autenticación Service Auth**: Cabeceras `CF-Access-Client-Id` y `CF-Access-Client-Secret`.
+---
 
-### 3. Vercel Cron
-* **Función**: Disparador programado invocando `/api/cron/process-queue` mediante cabecera Bearer `CRON_SECRET`.
+## 2. Abstracción HTTP de Evolution API v2.3.7 (`src/integrations/evolution/client.ts`)
+
+Endpoints invocados con payload estructurado plano para la v2.3.7:
+- `POST /instance/create`: `{ instanceName, syncFullHistory: false, integration: 'WHATSAPP-BAILEYS' }`.
+- `POST /webhook/set/{instanceName}`: `{ webhook: { enabled: true, url, headers, events } }`.
+- `GET /instance/connectionState/{instanceName}`.
+- `GET /instance/connect/{instanceName}`.
+- `POST /message/sendText/{instanceName}`: Body plano `{ number, text, delay }`.
+- `POST /message/sendMedia/{instanceName}`: `{ number, mediatype, media, caption, delay }`.
+- `DELETE /instance/logout/{instanceName}`.
+- `DELETE /instance/delete/{instanceName}`.

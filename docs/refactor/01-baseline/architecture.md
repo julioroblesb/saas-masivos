@@ -1,16 +1,16 @@
-# Mapa de Arquitectura Actual
+# Mapa de Arquitectura Actual (Etiquetado con Nivel de Verificación)
 
 ## 1. Diagrama de Despliegue Actual
 
 ```mermaid
 graph TD
     Client[Navegador del Usuario] -->|HTTPS / Next.js| Vercel[Vercel Serverless Platform]
-    Vercel -->|Auth & Database Queries| Supabase[Supabase Cloud PostgreSQL + Auth]
+    Vercel -->|Auth & Database Queries| Supabase[Supabase Cloud PostgreSQL ywpafptrcvgoyaoqgzkz]
     Vercel -->|HTTPS via Cloudflare Access| CFTunnel[Cloudflare Tunnel]
-    CFTunnel -->|Red Privada Tailscale / Local| Laptop[Laptop Servidor Dedicated HP Ubuntu 26.04]
+    CFTunnel -->|Red Privada Tailscale / Local| Laptop[Laptop Servidor HP Ubuntu 26.04]
     
     subgraph LaptopServidor [Laptop HP - 4GB RAM - Docker Stack]
-        EvoAPI[Evolution API v2.2.3 / Node 20]
+        EvoAPI[Evolution API v2.3.7 / Node 20]
         EvoPG[(PostgreSQL 15 Alpine)]
         EvoRedis[(Redis 7 Alpine)]
         
@@ -24,44 +24,15 @@ graph TD
 
 ---
 
-## 2. Diagrama de Zonas de Confianza
+## 2. Clasificación de Verificación de Arquitectura
 
-```mermaid
-graph LR
-    subgraph ZonaPublica [Zona Pública Internet]
-        Users[Navegador Usuario]
-        Webhooks[Webhooks Entrantes Evolution]
-    end
+- **VERIFICADO**:
+  - Supabase Cloud (`Project ref: ywpafptrcvgoyaoqgzkz`) gestiona 16 tablas públicas (`spa_products`, `spa_visits`, etc.) y 1,120 contactos reales.
+  - El servidor doméstico `servidor-julio` ejecuta Docker Compose con `evolution-api:v2.3.7`, `postgres:15-alpine` y `redis:7-alpine` de manera saludable (`healthy`).
+  - La red Tailscale (`100.72.75.79`) y Docker están activos (`active`).
 
-    subgraph ZonaApp [Zona Aplicación Next.js Vercel]
-        AppAuth[Next.js App Router - Auth Cookie]
-        CronJob[Next.js API Cron - Bearer Token]
-    end
+- **INFERIDO**:
+  - Cloudflare Tunnel gestiona las cabeceras `CF-Access-Client-Id` y `CF-Access-Client-Secret` enviadas desde `evolution/client.ts`. El servicio `cloudflared` aparece como `activating` en el servidor y parece reintentar la conexión de tunelado.
 
-    subgraph ZonaDatos [Zona de Datos Protegidos]
-        SupaAuth[Supabase Auth]
-        SupaDB[(Supabase DB RLS)]
-        ServiceRole[Service Role Admin Engine]
-    end
-
-    subgraph ZonaServidorLocal [Servidor Doméstico Dedicado]
-        EvoContainer[Evolution API Container 127.0.0.1:8080]
-        PostgresLocal[(PostgreSQL Local)]
-        RedisLocal[(Redis Local)]
-    end
-
-    Users -->|Cookie Auth| AppAuth
-    AppAuth -->|Anon / User Token| SupaDB
-    CronJob -->|Service Role Key| ServiceRole
-    ServiceRole -->|Bypass RLS| SupaDB
-    AppAuth -->|Cloudflare Service Auth + APIKey| EvoContainer
-    EvoContainer --> PostgresLocal
-    EvoContainer --> RedisLocal
-```
-
----
-
-## 3. Propiedad de Datos por Componente
-
-* **Supabase Cloud**: Propietario de `companies`, `profiles`, `crm_marketing_contacts`, `crm_wa_campaigns`, `crm_wa_queue`, `spa_visits`, `spa_payments`, `spa_services`, `spa_staff`.
-* **Evolution API (PostgreSQL Local)**: Propietario del estado interno de las sesiones Baileys, claves criptográficas de WhatsApp, tokens de sesión de dispositivo y caché Redis.
+- **NO VERIFICADO**:
+  - No se ha ejecutado una simulación de fallo de red de Vercel durante el envío activo de un chunk de la cola masiva para medir el comportamiento de reconexión.
