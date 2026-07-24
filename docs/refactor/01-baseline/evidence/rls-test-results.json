@@ -1,0 +1,152 @@
+[
+  {
+    "id": "ANON-001",
+    "actor": "anon",
+    "resource": "companies",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-002",
+    "actor": "anon",
+    "resource": "profiles",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-003",
+    "actor": "anon",
+    "resource": "crm_marketing_contacts",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-004",
+    "actor": "anon",
+    "resource": "spa_visits",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-005",
+    "actor": "anon",
+    "resource": "spa_payments",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-006",
+    "actor": "anon",
+    "resource": "crm_wa_campaigns",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-007",
+    "actor": "anon",
+    "resource": "wa_sessions",
+    "operation": "select",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "ANON-RPC-001",
+    "actor": "anon",
+    "resource": "search_contacts",
+    "operation": "rpc_execute",
+    "httpStatus": 404,
+    "returnedRows": 0,
+    "expected": "deny_access",
+    "passed": true
+  },
+  {
+    "id": "TEN-001",
+    "actor": "tenant_a",
+    "resource": "crm_marketing_contacts",
+    "operation": "select_own_tenant",
+    "httpStatus": 200,
+    "returnedRows": 122,
+    "expected": "allow_own_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-002",
+    "actor": "tenant_a",
+    "resource": "crm_marketing_contacts",
+    "operation": "select_cross_tenant",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-003",
+    "actor": "tenant_a",
+    "resource": "spa_visits",
+    "operation": "select_cross_tenant",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-004",
+    "actor": "tenant_a",
+    "resource": "spa_payments",
+    "operation": "select_cross_tenant",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-005",
+    "actor": "tenant_a",
+    "resource": "crm_wa_campaigns",
+    "operation": "select_cross_tenant",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-006",
+    "actor": "tenant_a",
+    "resource": "wa_sessions",
+    "operation": "select_cross_tenant",
+    "httpStatus": 200,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  },
+  {
+    "id": "TEN-007",
+    "actor": "tenant_a",
+    "resource": "crm_marketing_contacts",
+    "operation": "update_cross_tenant",
+    "httpStatus": 400,
+    "returnedRows": 0,
+    "expected": "deny_or_zero_rows",
+    "passed": true
+  }
+]
