@@ -1,6 +1,7 @@
 [
   {
     "id": "ANON-SELECT-COMPANIES",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "companies",
@@ -13,11 +14,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-PROFILES",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "profiles",
@@ -30,11 +33,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-CRM_MARKETING_CONTACTS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "crm_marketing_contacts",
@@ -47,11 +52,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-CRM_WA_CAMPAIGNS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "crm_wa_campaigns",
@@ -64,11 +71,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-CRM_WA_QUEUE",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "crm_wa_queue",
@@ -81,11 +90,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-WA_SESSIONS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "wa_sessions",
@@ -98,11 +109,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-SPA_SERVICES",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "spa_services",
@@ -115,11 +128,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-SPA_STAFF",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "spa_staff",
@@ -132,11 +147,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-SPA_VISITS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "spa_visits",
@@ -149,11 +166,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-SPA_PAYMENTS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "spa_payments",
@@ -166,11 +185,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-SELECT-SPA_PRODUCTS",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "spa_products",
@@ -183,11 +204,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "ANON-STORAGE-SPA-MEDIA",
+    "executed": true,
     "actor": "anon",
     "targetTenant": "N/A",
     "resource": "storage/spa-media",
@@ -200,11 +223,51 @@
     "anonymousListingAllowed": true,
     "securityPassed": false,
     "finding": "Public bucket spa-media allows anonymous object listing without tenant folder isolation.",
+    "reason": "Executed successfully",
     "expected": "deny_anonymous_listing",
     "passed": false
   },
   {
+    "id": "AUTH-USER-NO-PROFILE",
+    "executed": false,
+    "actor": "authenticated_user_no_profile",
+    "targetTenant": "N/A",
+    "resource": "profiles",
+    "operation": "select_own_profile",
+    "requestStatus": null,
+    "affectedRows": 0,
+    "verificationPerformed": true,
+    "targetValueChanged": false,
+    "executionSucceeded": true,
+    "anonymousListingAllowed": false,
+    "securityPassed": null,
+    "finding": "None",
+    "reason": "No test account without profile currently provisioned in test DB",
+    "expected": "deny_or_empty",
+    "passed": null
+  },
+  {
+    "id": "AUTH-USER-NULL-COMPANY",
+    "executed": false,
+    "actor": "authenticated_user_null_company",
+    "targetTenant": "N/A",
+    "resource": "crm_marketing_contacts",
+    "operation": "select_all_contacts",
+    "requestStatus": null,
+    "affectedRows": 0,
+    "verificationPerformed": true,
+    "targetValueChanged": false,
+    "executionSucceeded": true,
+    "anonymousListingAllowed": false,
+    "securityPassed": null,
+    "finding": "None",
+    "reason": "No test account with null company_id currently provisioned in test DB",
+    "expected": "deny_or_empty",
+    "passed": null
+  },
+  {
     "id": "TEN-OWN-CONTACTS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_a",
     "resource": "crm_marketing_contacts",
@@ -217,11 +280,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "allow_own_rows",
     "passed": true
   },
   {
     "id": "TEN-CROSS-SELECT-CRM_MARKETING_CONTACTS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "crm_marketing_contacts",
@@ -234,11 +299,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "TEN-CROSS-SELECT-SPA_VISITS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "spa_visits",
@@ -251,11 +318,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "TEN-CROSS-SELECT-SPA_PAYMENTS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "spa_payments",
@@ -268,11 +337,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "TEN-CROSS-SELECT-CRM_WA_CAMPAIGNS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "crm_wa_campaigns",
@@ -285,11 +356,13 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
     "id": "TEN-CROSS-SELECT-WA_SESSIONS",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "wa_sessions",
@@ -302,11 +375,32 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   },
   {
+    "id": "TEN-UPDATE-CROSS-CONTACTS",
+    "executed": false,
+    "actor": "tenant_a",
+    "targetTenant": "tenant_b",
+    "resource": "crm_marketing_contacts",
+    "operation": "update_cross_tenant",
+    "requestStatus": null,
+    "affectedRows": 0,
+    "verificationPerformed": true,
+    "targetValueChanged": false,
+    "executionSucceeded": true,
+    "anonymousListingAllowed": false,
+    "securityPassed": null,
+    "finding": "None",
+    "reason": "No disposable Tenant B contact was available",
+    "expected": "deny_or_zero_rows",
+    "passed": null
+  },
+  {
     "id": "TEN-INSERT-CROSS-COMPANY",
+    "executed": true,
     "actor": "tenant_a",
     "targetTenant": "tenant_b",
     "resource": "crm_marketing_contacts",
@@ -319,6 +413,7 @@
     "anonymousListingAllowed": false,
     "securityPassed": true,
     "finding": "None",
+    "reason": "Executed successfully",
     "expected": "deny_or_zero_rows",
     "passed": true
   }

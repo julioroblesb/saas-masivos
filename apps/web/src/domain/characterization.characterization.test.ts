@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evaluateTenantAccess } from './subscriptions/evaluate-tenant-access';
 import { extractEvolutionQr } from '../integrations/evolution/client';
-import { resolveSpintax } from '@/shared/utils/spintax';
+import { resolveSpintax } from '../shared/utils/spintax';
 
 describe('Pruebas de Caracterización de Código Productivo Importable', () => {
 

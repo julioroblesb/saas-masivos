@@ -1,42 +1,49 @@
-[
-  {
-    "id": "sec_001",
-    "lint_name": "security_definer_view",
-    "level": "WARN",
-    "target": "public.view_crm_profiles",
-    "remediation": "ALTER VIEW public.view_crm_profiles SET (security_barrier=true); or convert to SECURITY INVOKER.",
-    "future_stage": "Etapa 02"
-  },
-  {
-    "id": "sec_002",
-    "lint_name": "function_search_path_mutable",
-    "level": "WARN",
-    "target": "public.rpc_create_campaign",
-    "remediation": "ALTER FUNCTION public.rpc_create_campaign(...) SET search_path = public;",
-    "future_stage": "Etapa 02"
-  },
-  {
-    "id": "sec_003",
-    "lint_name": "function_search_path_mutable",
-    "level": "WARN",
-    "target": "public.search_contacts",
-    "remediation": "ALTER FUNCTION public.search_contacts(text) SET search_path = public;",
-    "future_stage": "Etapa 02"
-  },
-  {
-    "id": "sec_004",
-    "lint_name": "rls_disabled_in_public",
-    "level": "ERROR",
-    "target": "public.wa_auth_state",
-    "remediation": "ALTER TABLE public.wa_auth_state ENABLE ROW LEVEL SECURITY;",
-    "future_stage": "Etapa 02"
-  },
-  {
-    "id": "sec_005",
-    "lint_name": "public_bucket_listable",
-    "level": "WARN",
-    "target": "storage.spa-media",
-    "remediation": "Set public = false on bucket spa-media or configure row level policies.",
-    "future_stage": "Etapa 02"
-  }
-]
+{
+  "source": "Supabase Security Advisor Inspection",
+  "project_ref": "ywpafptrcvgoyaoqgzkz",
+  "type": "security",
+  "declaration": "Resumen manual, no respuesta cruda del advisor.",
+  "findings_count": 5,
+  "findings": [
+    {
+      "name": "security_definer_view",
+      "level": "WARN",
+      "schema": "public",
+      "entity": "view_crm_profiles",
+      "description": "La vista de perfiles CRM se ejecuta con privilegios de definidor omitiendo el contexto de RLS del invocador.",
+      "remediation": "Convertir a SECURITY INVOKER o a\u00f1adir filtro expl\u00edcito de company_id."
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "schema": "public",
+      "entity": "rpc_create_campaign",
+      "description": "Funci\u00f3n SECURITY DEFINER sin par\u00e1metro search_path = public.",
+      "remediation": "ALTER FUNCTION public.rpc_create_campaign(...) SET search_path = public;"
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "schema": "public",
+      "entity": "search_contacts",
+      "description": "Funci\u00f3n SECURITY DEFINER sin par\u00e1metro search_path = public.",
+      "remediation": "ALTER FUNCTION public.search_contacts(...) SET search_path = public;"
+    },
+    {
+      "name": "rls_disabled_in_public",
+      "level": "ERROR",
+      "schema": "public",
+      "entity": "wa_auth_state",
+      "description": "Tabla wa_auth_state en el esquema p\u00fablico sin RLS habilitado.",
+      "remediation": "ALTER TABLE public.wa_auth_state ENABLE ROW LEVEL SECURITY;"
+    },
+    {
+      "name": "public_bucket_listable",
+      "level": "WARN",
+      "schema": "storage",
+      "entity": "spa-media",
+      "description": "Bucket spa-media es p\u00fablico y permite el listado an\u00f3nimo de objetos.",
+      "remediation": "Establecer public = false o restringir el listado mediante pol\u00edticas RLS en storage.objects."
+    }
+  ]
+}

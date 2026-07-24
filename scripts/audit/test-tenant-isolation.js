@@ -13,23 +13,25 @@ const TENANT_B_PASSWORD = process.env.TENANT_B_PASSWORD || 'Skyrote';
 
 const results = [];
 
-function recordResult({ id, actor, targetTenant, resource, operation, requestStatus, affectedRows, verificationPerformed, targetValueChanged, executionSucceeded, anonymousListingAllowed, securityPassed, finding, expected, passed }) {
+function recordResult({ id, actor, targetTenant, resource, operation, requestStatus, affectedRows, verificationPerformed, targetValueChanged, executionSucceeded, anonymousListingAllowed, securityPassed, finding, executed, reason, expected, passed }) {
   results.push({
     id,
+    executed: executed ?? true,
     actor,
     targetTenant: targetTenant || 'N/A',
     resource,
     operation,
-    requestStatus,
-    affectedRows,
+    requestStatus: requestStatus ?? null,
+    affectedRows: affectedRows ?? 0,
     verificationPerformed: verificationPerformed ?? true,
     targetValueChanged: targetValueChanged ?? false,
     executionSucceeded: executionSucceeded ?? true,
     anonymousListingAllowed: anonymousListingAllowed ?? false,
     securityPassed: securityPassed ?? passed,
     finding: finding || 'None',
-    expected,
-    passed
+    reason: reason || 'Executed successfully',
+    expected: expected || 'N/A',
+    passed: passed ?? null
   });
 }
 
@@ -52,6 +54,7 @@ async function runAudit() {
     const passed = rows === 0 || error !== null;
     recordResult({
       id: `ANON-SELECT-${table.toUpperCase()}`,
+      executed: true,
       actor: 'anon',
       resource: table,
       operation: 'select',
@@ -62,15 +65,14 @@ async function runAudit() {
     });
   }
 
-  // Storage Bucket list evaluation (separate execution, listing allowed, and security evaluation)
+  // Storage Bucket list evaluation
   const { data: bData, error: bErr } = await anonClient.storage.from('spa-media').list();
   const execSuccess = bErr === null;
   const listingAllowed = execSuccess && bData !== null;
-  // Security control fails because public buckets should not allow unauthenticated listing of all tenant files
-  const bucketSecPassed = false;
 
   recordResult({
     id: 'ANON-STORAGE-SPA-MEDIA',
+    executed: true,
     actor: 'anon',
     resource: 'storage/spa-media',
     operation: 'list_bucket',
@@ -78,10 +80,34 @@ async function runAudit() {
     affectedRows: bData ? bData.length : 0,
     executionSucceeded: execSuccess,
     anonymousListingAllowed: listingAllowed,
-    securityPassed: bucketSecPassed,
+    securityPassed: false,
     finding: 'Public bucket spa-media allows anonymous object listing without tenant folder isolation.',
     expected: 'deny_anonymous_listing',
-    passed: false // Classified as security advisor finding to fix in Etapa 02
+    passed: false
+  });
+
+  // Explicit registration for User without profile
+  recordResult({
+    id: 'AUTH-USER-NO-PROFILE',
+    executed: false,
+    actor: 'authenticated_user_no_profile',
+    resource: 'profiles',
+    operation: 'select_own_profile',
+    reason: 'No test account without profile currently provisioned in test DB',
+    expected: 'deny_or_empty',
+    passed: null
+  });
+
+  // Explicit registration for User with profile and company_id = null
+  recordResult({
+    id: 'AUTH-USER-NULL-COMPANY',
+    executed: false,
+    actor: 'authenticated_user_null_company',
+    resource: 'crm_marketing_contacts',
+    operation: 'select_all_contacts',
+    reason: 'No test account with null company_id currently provisioned in test DB',
+    expected: 'deny_or_empty',
+    passed: null
   });
 
   // 2. Tenant A Authentication & Profile Resolution
@@ -95,7 +121,6 @@ async function runAudit() {
     throw new Error(`Tenant A authentication failed: ${authAErr.message}`);
   }
 
-  // Dynamically resolve company_id from Tenant A's profile
   const { data: profileA, error: pAErr } = await tenantAClient.from('profiles').select('company_id').eq('id', authA.user.id).single();
   if (pAErr || !profileA?.company_id) {
     throw new Error(`Failed to resolve Tenant A profile/company_id: ${pAErr?.message}`);
@@ -113,7 +138,6 @@ async function runAudit() {
     throw new Error(`Tenant B authentication failed: ${authBErr.message}`);
   }
 
-  // Dynamically resolve company_id from Tenant B's profile
   const { data: profileB, error: pBErr } = await tenantBClient.from('profiles').select('company_id').eq('id', authB.user.id).single();
   if (pBErr || !profileB?.company_id) {
     throw new Error(`Failed to resolve Tenant B profile/company_id: ${pBErr?.message}`);
@@ -127,6 +151,7 @@ async function runAudit() {
   const { data: ownContacts, status: sOwn } = await tenantAClient.from('crm_marketing_contacts').select('*').eq('company_id', tenantA_companyId);
   recordResult({
     id: 'TEN-OWN-CONTACTS',
+    executed: true,
     actor: 'tenant_a',
     targetTenant: 'tenant_a',
     resource: 'crm_marketing_contacts',
@@ -143,6 +168,7 @@ async function runAudit() {
     const rows = data ? data.length : 0;
     recordResult({
       id: `TEN-CROSS-SELECT-${table.toUpperCase()}`,
+      executed: true,
       actor: 'tenant_a',
       targetTenant: 'tenant_b',
       resource: table,
@@ -169,12 +195,12 @@ async function runAudit() {
 
     const affected = upData ? upData.length : 0;
 
-    // Verify value via service role
     const { data: verifyB } = await serviceRoleClient.from('crm_marketing_contacts').select('first_name').eq('id', targetId).single();
     const valueChanged = verifyB ? verifyB.first_name !== originalName : false;
 
     recordResult({
       id: 'TEN-UPDATE-CROSS-CONTACTS',
+      executed: true,
       actor: 'tenant_a',
       targetTenant: 'tenant_b',
       resource: 'crm_marketing_contacts',
@@ -185,6 +211,18 @@ async function runAudit() {
       targetValueChanged: valueChanged,
       expected: 'deny_or_zero_rows',
       passed: affected === 0 && !valueChanged
+    });
+  } else {
+    recordResult({
+      id: 'TEN-UPDATE-CROSS-CONTACTS',
+      executed: false,
+      actor: 'tenant_a',
+      targetTenant: 'tenant_b',
+      resource: 'crm_marketing_contacts',
+      operation: 'update_cross_tenant',
+      reason: 'No disposable Tenant B contact was available',
+      expected: 'deny_or_zero_rows',
+      passed: null
     });
   }
 
@@ -201,6 +239,7 @@ async function runAudit() {
   const insAffected = insData ? insData.length : 0;
   recordResult({
     id: 'TEN-INSERT-CROSS-COMPANY',
+    executed: true,
     actor: 'tenant_a',
     targetTenant: 'tenant_b',
     resource: 'crm_marketing_contacts',
@@ -218,7 +257,9 @@ async function runAudit() {
   fs.mkdirSync(evidenceDir, { recursive: true });
   fs.writeFileSync(path.join(evidenceDir, 'rls-test-results.json'), JSON.stringify(results, null, 2));
 
-  console.log(`RLS Isolation Audit completed! Tested ${results.length} cases.`);
+  const executedCases = results.filter(r => r.executed).length;
+  const unexecutedCases = results.filter(r => !r.executed).length;
+  console.log(`RLS Isolation Audit completed! Executed: ${executedCases}, Unexecuted: ${unexecutedCases}, Total: ${results.length}`);
 }
 
 runAudit();

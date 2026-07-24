@@ -7,7 +7,7 @@
     "build": "npx next build",
     "start": "next start",
     "lint": "eslint",
-    "test:characterization": "vitest run",
+    "test:characterization": "npx vitest run --config vitest.config.mts",
     "test:characterization:watch": "vitest"
   },
   "dependencies": {

@@ -1,8 +1,6 @@
-# Línea Base e Inventario Técnico del Sistema (Etapa 01 - Corregido y Auditado)
+# Línea Base e Inventario Técnico del Sistema (Etapa 01 - Cierre de Observaciones Bloqueantes)
 
-Este directorio contiene la caracterización integral, el inventario técnico real y la matriz de evidencias del sistema extraídos directamente del proyecto Supabase en vivo (**Ref:** `ywpafptrcvgoyaoqgzkz`), la suite de pruebas unitarias Vitest (7 pruebas reales pasadas) y la infraestructura del servidor Linux (`servidor-julio`).
-
-> **Declaración de Reconocimiento de Desviaciones**: El inventario inicial fue inferido desde migraciones locales. En esta entrega corregida, fue sustituido al 100% por una extracción reproducible y verificada ejecutada directamente contra la base de datos PostgreSQL desplegada en vivo (`Project ref: ywpafptrcvgoyaoqgzkz`).
+Este directorio contiene la caracterización integral, el inventario técnico real y la matriz de evidencias del sistema extraídos directamente del proyecto Supabase en vivo (**Ref:** `ywpafptrcvgoyaoqgzkz`), la suite de pruebas unitarias Vitest (7 pruebas reales pasadas con Exit Code 0) y la infraestructura del servidor Linux (`servidor-julio`).
 
 ---
 
@@ -25,16 +23,23 @@ Este directorio contiene la caracterización integral, el inventario técnico re
 
 ---
 
+## Estado de Comandos de Verificación
+
+- **`npm ci`**: exit code 0 (Instalación limpia en 77.05s).
+- **`npx tsc`**: exit code 0 (Verificación de tipos en 23.91s).
+- **`npm run test:characterization`**: exit code 0 (7/7 pruebas reales pasadas).
+- **`npm run build`**: exit code 0 (Compilado en 53.39s).
+- **`ESLint`**: exit code 1 por errores heredados de calidad de código, principalmente no-explicit-any, set-state-in-effect, no-require-imports, ban-ts-comment y variables no utilizadas. La corrección queda programada para la Etapa 02.
+
+---
+
 ## Evidencias Reproducibles Versionadas en Git
 
-- **Consultas SQL Reproducibles**: `docs/refactor/01-baseline/evidence/supabase/sql/` (`01_tables.sql` a `15_advisors-reference.md`).
+- **Consulta SQL Oficial de Exportación de Funciones**: `docs/refactor/01-baseline/evidence/supabase/sql/06_functions_export.sql`.
 - **CSVs de Base de Datos Real**: `docs/refactor/01-baseline/evidence/supabase/` (`tables.csv`, `columns.csv`, `constraints.csv`, `foreign-keys.csv`, `indexes.csv`, `functions.csv`, `function-grants.csv`, `views.csv`, `triggers.csv`, `rls-policies.csv`, `grants.csv`, `storage-buckets.csv`, `extensions.csv`, `row-counts.csv`).
-- **Advisors Crudos y Resúmenes Supabase**:
-  - `docs/refactor/01-baseline/evidence/supabase/security-advisors.raw.json`
-  - `docs/refactor/01-baseline/evidence/supabase/performance-advisors.raw.json`
-  - `docs/refactor/01-baseline/evidence/supabase/security-advisors-summary.json`
-  - `docs/refactor/01-baseline/evidence/supabase/performance-advisors-summary.json`
-- **Auditoría Multi-Tenant RLS**: `docs/refactor/01-baseline/evidence/rls-test-results.json` (19 casos probados con derivación dinámica de `company_id`).
-- **Pruebas de Caracterización Vitest**: `apps/web/vitest.config.mts` y `apps/web/src/domain/characterization.characterization.test.ts` (7/7 pruebas reales de código productivo pasadas).
-- **Métricas del Servidor Real**: `docs/refactor/01-baseline/evidence/server-metrics.txt` (`servidor-julio`).
-- **Logs Completos de Build y Limpieza en Git**: `docs/refactor/01-baseline/evidence/build/` (`npm-ci.log`, `lint.log`, `typecheck.log`, `test-characterization.log`, `build.log`, `timings.json`).
+- **Resúmenes de Advisors Declarados**:
+  - `docs/refactor/01-baseline/evidence/supabase/security-advisors-summary.json` (Resumen manual, no respuesta cruda del advisor).
+  - `docs/refactor/01-baseline/evidence/supabase/performance-advisors-summary.json` (Resumen manual, no respuesta cruda del advisor).
+- **Auditoría Multi-Tenant RLS**: `docs/refactor/01-baseline/evidence/rls-test-results.json` (19 casos probados registrando desglosadamente los casos ejecutados y no ejecutados).
+- **Pruebas de Caracterización Vitest**: `apps/web/vitest.config.mts` y `apps/web/src/domain/characterization.characterization.test.ts` (7/7 pruebas reales pasadas).
+- **Logs Versionados en Git**: `docs/refactor/01-baseline/evidence/build/` (`npm-ci.log`, `lint.log`, `typecheck.log`, `test-characterization.log`, `build.log`, `timings.json`).

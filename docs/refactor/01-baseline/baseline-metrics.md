@@ -1,4 +1,4 @@
-# Métricas de Línea Base del Sistema (Corregido)
+# Métricas de Línea Base del Sistema (Etapa 01 - Cierre de Observaciones Bloqueantes)
 
 ## 1. Métricas del Repositorio de Código (`git ls-files`)
 
@@ -18,7 +18,7 @@
 | Métrica | Valor Registrado | Detalle |
 | :--- | :---: | :--- |
 | **Tests Reales de Código Productivo** | **7** | `evaluateTenantAccess` (3), `extractEvolutionQr` (3), `resolveSpintax` (1) |
-| **Tests Reales Pasados** | **7 (100%)** | `apps/web/src/domain/characterization.characterization.test.ts` |
+| **Tests Reales Pasados** | **7 (100%)** | `apps/web/src/domain/characterization.characterization.test.ts` (Exit Code 0) |
 | **Casos No Automatizables sin Refactorización** | **5** | Clasificados en `test-matrix.md` |
 
 ---
@@ -29,7 +29,7 @@
 | :--- | :---: | :--- |
 | **Tablas Públicas** | 16 | `tables.csv` (incluye `spa_products`) |
 | **Vistas Públicas** | 1 | `views.csv` (`view_crm_profiles`) |
-| **Funciones / RPCs** | 25 | `functions.csv` |
+| **Funciones / RPCs Total** | 25 | `functions.csv` (con sobrecargas reales en `rpc_create_campaign`, `rpc_upsert_marketing_contact`, `search_contacts`) |
 | **Funciones SECURITY DEFINER** | 20 | `functions.csv` |
 | **Funciones Ejecutables por Anon** | 25 | `functions.csv` |
 | **Funciones Ejecutables por Authenticated** | 25 | `functions.csv` |
@@ -43,12 +43,12 @@
 
 ## 4. Tiempos y Resultados del Build Limpio en PowerShell (`evidence/build/`)
 
-| Comando | Duración | Exit Code Real | Estado de Línea Base |
+| Comando | Duración | Exit Code Real | Estado de Línea Base y Descripción |
 | :--- | :---: | :---: | :--- |
 | `npm ci` | 77.05s | **0** | **SUCCESS (Instalación limpia completa)** |
-| `npm run lint --workspace=apps/web` | 33.80s | **1** | FAILED (Warnings de deprecación ESLint en motor) |
+| `npm run lint --workspace=apps/web` | 33.80s | **1** | ESLint: exit code 1 por errores heredados de calidad de código, principalmente no-explicit-any, set-state-in-effect, no-require-imports, ban-ts-comment y variables no utilizadas. La corrección queda programada para la Etapa 02. |
 | `npx tsc --noEmit --project apps/web/tsconfig.json` | 23.91s | **0** | **SUCCESS (Verificación estática de tipos limpia)** |
-| `npm run test:characterization --workspace=apps/web` | 3.46s | **0** | **SUCCESS (7/7 Pruebas reales pasadas)** |
+| `npm run test:characterization --workspace=apps/web` | 1.15s | **0** | **SUCCESS (7/7 Pruebas reales pasadas con Exit Code 0)** |
 | `npm run build --workspace=apps/web` | 53.39s | **0** | **SUCCESS (Compilado en 53.39s con npx next build)** |
 
 ---

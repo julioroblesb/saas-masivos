@@ -20,7 +20,7 @@
   "test-characterization": {
     "command": "npm run test:characterization --workspace=apps/web",
     "exitCode": 0,
-    "durationSeconds": 3.46,
+    "durationSeconds": 1.15,
     "status": "SUCCESS"
   },
   "build": {
