@@ -1,32 +1,32 @@
 {
   "npm-ci": {
     "command": "npm ci",
-    "exitCode": 4294963221,
-    "durationSeconds": 153.98,
-    "status": "FAILED"
+    "exitCode": 0,
+    "durationSeconds": 77.05,
+    "status": "SUCCESS"
   },
   "lint": {
     "command": "npm run lint --workspace=apps/web",
     "exitCode": 1,
-    "durationSeconds": 0.85,
+    "durationSeconds": 33.8,
     "status": "FAILED"
   },
   "typecheck": {
     "command": "npx tsc --noEmit --project apps/web/tsconfig.json",
-    "exitCode": 1,
-    "durationSeconds": 3.78,
-    "status": "FAILED"
+    "exitCode": 0,
+    "durationSeconds": 23.91,
+    "status": "SUCCESS"
   },
   "test-characterization": {
     "command": "npm run test:characterization --workspace=apps/web",
-    "exitCode": 1,
-    "durationSeconds": 1.21,
-    "status": "FAILED"
+    "exitCode": 0,
+    "durationSeconds": 3.46,
+    "status": "SUCCESS"
   },
   "build": {
     "command": "npm run build --workspace=apps/web",
-    "exitCode": 1,
-    "durationSeconds": 1.07,
-    "status": "FAILED"
+    "exitCode": 0,
+    "durationSeconds": 53.39,
+    "status": "SUCCESS"
   }
 }

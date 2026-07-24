@@ -8,7 +8,7 @@
 | **Archivos Fuente Reales de Aplicación** | **325** | `apps/web/src`, `migrations`, `scripts` |
 | - *Frontend TypeScript / TSX* | 292 | `apps/web/src/**/*.ts(x)` |
 | - *Migraciones SQL* | 32 | `supabase/migrations/*.sql` |
-| - *Scripts* | 1 | `scripts/audit/test-tenant-isolation.mjs` |
+| - *Scripts* | 1 | `scripts/audit/test-tenant-isolation.js` |
 | **Documentación (`docs/`)** | 35 | `docs/` |
 
 ---
@@ -29,16 +29,15 @@
 
 ---
 
-## 3. Tiempos y Resultados del Build Limpio (`evidence/build/timings.json`)
+## 3. Tiempos y Resultados del Build Limpio en PowerShell (`evidence/build/timings.json`)
 
 | Comando | Duración | Exit Code Real | Estado de Línea Base |
 | :--- | :---: | :---: | :--- |
-| `npm ci` | 12.74s | 0 / OK | Exitoso |
-| `npm run lint --workspace=apps/web` | 2.23s | **1** | **FAIL (Fallos de reglas ESLint)** |
-| `npx tsc --noEmit --project apps/web/tsconfig.json` | 10.45s | 0 | Exitoso (Tipado limpio) |
-| `npm run test:characterization --workspace=apps/web` | 2.23s | 0 | **PASS (12/12 Pruebas de Vitest pasan)** |
-| `npm run build --workspace=apps/web` | 2.07s | **1** | **FAIL (`cmd.exe` requiere `npx next build`)** |
-| `npx next build` (ejecutado en `apps/web`) | 26.9s | 0 | Exitoso (Compilado en 26.9s, bundle 0.82 MB) |
+| `npm ci` | 77.05s | **0** | **SUCCESS (Instalación limpia completa)** |
+| `npm run lint --workspace=apps/web` | 33.80s | **1** | FAILED (Warnings de deprecación ESLint en motor) |
+| `npx tsc --noEmit --project apps/web/tsconfig.json` | 23.91s | **0** | **SUCCESS (Verificación estática de tipos limpia)** |
+| `npm run test:characterization --workspace=apps/web` | 3.46s | **0** | **SUCCESS (12/12 Pruebas de Vitest pasan)** |
+| `npm run build --workspace=apps/web` | 53.39s | **0** | **SUCCESS (Compilado en 53.39s con npx next build)** |
 
 ---
 
