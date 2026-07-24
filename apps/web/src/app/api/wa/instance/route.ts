@@ -40,12 +40,21 @@ export async function POST(req: Request) {
       .eq('company_id', profile.company_id)
       .maybeSingle();
 
-    // Nombre de instancia inmutable derivado del company_id limpio
-    const cleanCompanyId = profile.company_id.replace(/[^a-zA-Z0-9_]/g, '_');
+    // Nombre de instancia inmutable usando el UUID completo sin guiones para evitar colisiones
+    const cleanCompanyId = profile.company_id.replaceAll('-', '');
     const instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
     const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
     const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
     const webhookSecret = process.env.INTERNAL_TOKEN || 'masivos_webhook_secret_2026';
+
+    const evoHeaders: Record<string, string> = {
+      'apikey': EVO_KEY,
+      'Content-Type': 'application/json'
+    };
+    if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+      evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
+      evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+    }
 
     const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
     const host = req.headers.get('host');
@@ -68,7 +77,7 @@ export async function POST(req: Request) {
       enabled: true,
       url: webhookUrl,
       byEvents: false,
-      base64: false,
+      base64: true,
       headers: {
         'X-Evolution-Webhook-Secret': webhookSecret,
         'X-Company-ID': profile.company_id
@@ -80,18 +89,15 @@ export async function POST(req: Request) {
       ]
     };
 
-    // 2. Crear instancia en Evolution API v2
+    // 2. Crear instancia en Evolution API v2.2.3 con syncFullHistory: false
     const createRes = await fetch(`${EVO_API}/instance/create`, {
       method: 'POST',
-      headers: {
-        'apikey': EVO_KEY,
-        'Content-Type': 'application/json'
-      },
+      headers: evoHeaders,
       body: JSON.stringify({
         instanceName: instanceName,
         qrcode: true,
         integration: 'WHATSAPP-BAILEYS',
-        webhook: webhookConfig
+        syncFullHistory: false
       })
     });
 
@@ -99,17 +105,14 @@ export async function POST(req: Request) {
     if (createRes.ok) {
       const createData = await createRes.json();
       qr = createData.qrcode?.base64 || null;
-    } else {
-      // Si la instancia ya existía, actualizamos la configuración de su Webhook de forma segura
-      await fetch(`${EVO_API}/webhook/set/${instanceName}`, {
-        method: 'POST',
-        headers: {
-          'apikey': EVO_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ webhook: webhookConfig })
-      });
     }
+
+    // Configurar o actualizar el webhook en endpoint dedicado /webhook/set/{instanceName}
+    await fetch(`${EVO_API}/webhook/set/${instanceName}`, {
+      method: 'POST',
+      headers: evoHeaders,
+      body: JSON.stringify(webhookConfig)
+    });
 
     return NextResponse.json({ 
       message: 'Instancia inicializada en Evolution API', 

@@ -34,15 +34,21 @@ export async function POST(req: Request) {
       const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
       const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
 
+      const evoHeaders: Record<string, string> = { 'apikey': EVO_KEY };
+      if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+        evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
+        evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+      }
+
       try {
         // Logout y Delete en Evolution API
         await fetch(`${EVO_API}/instance/logout/${instanceName}`, {
           method: 'DELETE',
-          headers: { 'apikey': EVO_KEY }
+          headers: evoHeaders
         });
         await fetch(`${EVO_API}/instance/delete/${instanceName}`, {
           method: 'DELETE',
-          headers: { 'apikey': EVO_KEY }
+          headers: evoHeaders
         });
       } catch (e) {
         console.warn('Error al eliminar instancia en Evolution API:', e);

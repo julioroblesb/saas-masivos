@@ -220,28 +220,28 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
       const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
 
+      const evoHeaders: Record<string, string> = {
+        'apikey': EVO_KEY,
+        'Content-Type': 'application/json'
+      };
+      if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+        evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
+        evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+      }
+
       let evoEndpoint = `${EVO_API}/message/sendText/${bb_project_id}`;
       let evoBody: any = {
         number: phone,
-        textMessage: {
-          text: finalMessage
-        },
         text: finalMessage,
-        delay: 2000,
-        linkPreview: true
+        delay: 2000
       };
 
       if (media_url) {
         evoEndpoint = `${EVO_API}/message/sendMedia/${bb_project_id}`;
         evoBody = {
           number: phone,
-          mediaMessage: {
-            mediatype: 'image',
-            media: media_url,
-            caption: finalMessage
-          },
-          media: media_url,
           mediatype: 'image',
+          media: media_url,
           caption: finalMessage,
           delay: 2000
         };
@@ -249,10 +249,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
       const evoRes = await fetch(evoEndpoint, {
         method: 'POST',
-        headers: {
-          'apikey': EVO_KEY,
-          'Content-Type': 'application/json',
-        },
+        headers: evoHeaders,
         body: JSON.stringify(evoBody),
       });
 

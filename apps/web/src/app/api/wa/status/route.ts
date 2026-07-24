@@ -45,9 +45,15 @@ export async function GET(req: Request) {
     const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
     const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
 
+    const evoHeaders: Record<string, string> = { 'apikey': EVO_KEY };
+    if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+      evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
+      evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+    }
+
     // Consultar el estado real en Evolution API v2
     const statusRes = await fetch(`${EVO_API}/instance/connectionState/${instanceName}`, {
-      headers: { 'apikey': EVO_KEY }
+      headers: evoHeaders
     });
     
     let dbStatus = session.status;
@@ -70,7 +76,7 @@ export async function GET(req: Request) {
     // Si está conectando o esperando QR, intentar obtener el QR en base64
     if (evoState === 'connecting' || evoState === 'close' || dbStatus === 'esperando_qr') {
       const qrRes = await fetch(`${EVO_API}/instance/connect/${instanceName}`, {
-        headers: { 'apikey': EVO_KEY }
+        headers: evoHeaders
       });
       if (qrRes.ok) {
         const qrData = await qrRes.json();
