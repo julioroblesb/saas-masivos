@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { resolveSpintax } from '../../../../shared/utils/spintax';
+import { evolution } from '@/integrations/evolution/client';
 
 // Jitter Gaussiano (Box-Muller Transform) para simular pausas humanas reales
 function randomDelayMs(min: number, max: number) {
@@ -11,7 +12,7 @@ function randomDelayMs(min: number, max: number) {
   while (v === 0) v = Math.random();
   let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   num = num / 10.0 + 0.5; // Translate to 0 -> 1
-  if (num > 1 || num < 0) num = Math.random(); // resample between 0 and 1
+  if (num > 1 || num < 0) num = Math.random();
   return min + num * (max - min);
 }
 
@@ -46,7 +47,8 @@ export async function GET(req: Request) {
     const { data: sessions, error: sessionsError } = await supabaseAdmin
       .from('wa_sessions')
       .select('company_id, bb_project_id, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, consecutive_errors, companies!inner(status, subscription_end_at)')
-      .eq('status', 'conectado')
+      .eq('status', 'conectando')
+      .or('status.eq.conectado')
       .eq('companies.status', 'activa')
       .gte('companies.subscription_end_at', new Date().toISOString());
 
@@ -57,7 +59,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'No hay sesiones activas' });
     }
 
-    // 2. Procesar en lotes (chunks) para no ahogar los sockets y la RAM (Escalabilidad)
     const CHUNK_SIZE = 5;
     const results: PromiseSettledResult<any>[] = [];
     
@@ -103,13 +104,11 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
   if (!bb_project_id) return { skipped: 'sin bb_project_id' };
 
-  // 1. Obtenemos hora actual (para restringir campañas masivas después)
   const now = new Date();
   const limaTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Lima' });
   const limaTime = new Date(limaTimeStr);
   const currentHour = limaTime.getHours();
 
-  // 2. Warm-up & Límites Diarios
   let currentDailyCount = daily_sent_count || 0;
   let currentResetAt = daily_reset_at ? new Date(daily_reset_at) : new Date(0);
 
@@ -130,17 +129,14 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
   const runStartTime = Date.now();
   let processedCount = 0;
 
-  // Lazo para procesar la cola. Máximo 45 segundos para evitar el timeout de Vercel.
   while (Date.now() - runStartTime < 45000) {
     const loopNow = new Date();
 
     if (localNextAllowedSendAt > loopNow) {
       const waitMs = localNextAllowedSendAt.getTime() - loopNow.getTime();
       if (waitMs > 8000) {
-        // Si el delay es mayor a 8 segundos, mejor dejamos que el próximo cron (en 1 min) lo procese
         break;
       } else {
-        // Si es un delay corto (ej. secuencia de 3s), esperamos aquí mismo
         await new Promise(r => setTimeout(r, waitMs));
       }
     }
@@ -150,7 +146,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
     // Primero intentamos sacar un mensaje automático pendiente (campaign_id IS NULL)
     const { data: automatedItem } = await supabaseAdmin
       .from('crm_wa_queue')
-      .select('id, phone, message, delay_after_ms, companies(settings)')
+      .select('id, phone, message, media_url, delay_after_ms, companies(settings)')
       .eq('company_id', company_id)
       .eq('status', 'pendiente')
       .is('campaign_id', null)
@@ -163,24 +159,21 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       nextItem = {
         ...automatedItem,
         campaign_id: null,
-        media_url: null,
-        crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 } // Delays predeterminados para automáticos
+        crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 }
       };
     } else {
-      // Si no hay automáticos, verificamos límites y horario antes de sacar masivos
       if (currentDailyCount >= maxDailyLimit) {
-        break; // Límite diario alcanzado para campañas masivas
+        break;
       }
       if (currentHour < 8 || currentHour >= 20) {
-        break; // Fuera de horario comercial para campañas masivas (08:00-20:00 PET)
+        break;
       }
 
-      // Si estamos en horario, sacamos de la cola de campañas masivas
       const { data: queueItem } = await supabaseAdmin
         .from('crm_wa_queue')
         .select(`
-          id, campaign_id, phone, message, delay_after_ms,
-          crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec),
+          id, campaign_id, phone, message, media_url, delay_after_ms,
+          crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec, media_url),
           companies(settings)
         `)
         .eq('company_id', company_id)
@@ -196,64 +189,40 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
     if (!nextItem) break;
 
-    const { id, campaign_id, phone, message, delay_after_ms, media_url } = nextItem;
+    const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
+    const finalMediaUrl = nextItem.media_url || campaignData?.media_url || null;
+    const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
     
     const companySettings = (nextItem.companies as any)?.settings || {};
-    const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
     const minDelaySec = campaignData?.min_delay_sec || 45;
     const maxDelaySec = campaignData?.max_delay_sec || 90;
 
     let nextLockDelayMs = 0;
-    let isSequence = false;
     if (delay_after_ms !== null && delay_after_ms !== undefined) {
       nextLockDelayMs = delay_after_ms; 
-      isSequence = true;
     } else {
       nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000); 
     }
 
     try {
-      await supabaseAdmin.from('crm_wa_queue').update({ status: 'enviando', processing_started_at: new Date().toISOString() }).eq('id', id);
+      // Reclamación atómica
+      const { data: claim } = await supabaseAdmin
+        .from('crm_wa_queue')
+        .update({ status: 'enviando', processing_started_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('status', 'pendiente')
+        .select('id')
+        .maybeSingle();
+
+      if (!claim) continue; // Si ya fue reclamado por otra ejecución concurrente, saltar
 
       const finalMessage = resolveSpintax(message, companySettings);
 
-      const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
-      const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
-
-      const evoHeaders: Record<string, string> = {
-        'apikey': EVO_KEY,
-        'Content-Type': 'application/json'
-      };
-      if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
-        evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
-        evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+      if (finalMediaUrl) {
+        await evolution.sendMedia(bb_project_id, phone, finalMediaUrl, finalMessage);
+      } else {
+        await evolution.sendText(bb_project_id, phone, finalMessage);
       }
-
-      let evoEndpoint = `${EVO_API}/message/sendText/${bb_project_id}`;
-      let evoBody: any = {
-        number: phone,
-        text: finalMessage,
-        delay: 2000
-      };
-
-      if (media_url) {
-        evoEndpoint = `${EVO_API}/message/sendMedia/${bb_project_id}`;
-        evoBody = {
-          number: phone,
-          mediatype: 'image',
-          media: media_url,
-          caption: finalMessage,
-          delay: 2000
-        };
-      }
-
-      const evoRes = await fetch(evoEndpoint, {
-        method: 'POST',
-        headers: evoHeaders,
-        body: JSON.stringify(evoBody),
-      });
-
-      if (!evoRes.ok) throw new Error(`Evolution API error: ${evoRes.statusText}`);
 
       await supabaseAdmin
         .from('crm_wa_queue')
@@ -267,7 +236,6 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       processedCount++;
       currentDailyCount++;
 
-      // Configurar el tiempo para el siguiente mensaje
       localNextAllowedSendAt = new Date(Date.now() + nextLockDelayMs);
       
       await supabaseAdmin
@@ -309,7 +277,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         })
         .eq('company_id', company_id);
 
-      break; // Detener el loop si hay error
+      break;
     }
   }
 

@@ -1,33 +1,47 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getEnv } from '@/config/env';
 
-// Webhook endpoint sin protección de NextAuth porque será llamado por Evolution API
 export async function POST(req: Request) {
   try {
-    const url = new URL(req.url);
-    const body = await req.json();
-
-    // Extraer secreto desde cabecera o query param
-    const receivedSecret = req.headers.get('x-evolution-webhook-secret') || url.searchParams.get('token');
-    const internalToken = process.env.INTERNAL_TOKEN || 'masivos_webhook_secret_2026';
+    const env = getEnv();
+    const receivedSecret = req.headers.get('x-evolution-webhook-secret');
     
-    if (receivedSecret !== internalToken) {
+    if (receivedSecret !== env.INTERNAL_TOKEN) {
       return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
-    // Extraer companyId desde cabecera, query param o instancia del body (ej. company_123)
-    let companyId = req.headers.get('x-company-id') || url.searchParams.get('company_id');
-    if (!companyId && body.instance?.startsWith('company_')) {
-      companyId = body.instance.replace('company_', '');
-    }
-
-    if (!companyId) {
-      return NextResponse.json({ error: 'company_id missing in webhook' }, { status: 400 });
-    }
+    const body = await req.json();
 
     // Ignorar si el mensaje fue enviado por el propio usuario (fromMe)
     if (body.data?.key?.fromMe) {
       return NextResponse.json({ message: 'Ignoring outgoing message' });
+    }
+
+    const instanceName = body.instance || req.headers.get('x-instance-name');
+    let companyId = req.headers.get('x-company-id');
+
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
+
+    // Buscar company_id en wa_sessions por match exacto de instanceName si no viene en cabecera
+    if (!companyId && instanceName) {
+      const { data: session } = await supabaseAdmin
+        .from('wa_sessions')
+        .select('company_id')
+        .eq('bb_project_id', instanceName)
+        .maybeSingle();
+
+      if (session) {
+        companyId = session.company_id;
+      }
+    }
+
+    if (!companyId) {
+      return NextResponse.json({ error: 'Tenant not resolved for webhook instance' }, { status: 400 });
     }
 
     // Extraer número de teléfono del webhook de Evolution API / Baileys
@@ -48,13 +62,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'No phone number found in payload, ignoring' });
     }
 
-    // Inicializar supabase admin para bypassear RLS
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
-    );
-
     // Buscar si a este número se le envió un mensaje de campaña en las últimas 48 horas
     const twoDaysAgo = new Date();
     twoDaysAgo.setHours(twoDaysAgo.getHours() - 48);
@@ -69,19 +76,14 @@ export async function POST(req: Request) {
       .gte('sent_at', twoDaysAgo.toISOString())
       .order('sent_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (queueItem) {
-      // 1. Marcar el mensaje en cola como respondido
       await supabaseAdmin
         .from('crm_wa_queue')
         .update({ replied: true })
         .eq('id', queueItem.id);
 
-      // 2. Incrementar la tasa de respuesta en la campaña
-      // Supabase RPC function could be used here for safe atomic increment
-      // For now, doing it simple by reading and adding (since it's an edge case of concurrency)
-      // Or we can create an RPC. Let's use an RPC if we had one, otherwise a simple increment.
       const { data: campaign } = await supabaseAdmin
         .from('crm_wa_campaigns')
         .select('replied_count')
@@ -99,6 +101,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error processing webhook:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Error en webhook' }, { status: 500 });
   }
 }

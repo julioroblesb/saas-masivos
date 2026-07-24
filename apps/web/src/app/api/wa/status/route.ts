@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { evolution } from '@/integrations/evolution/client';
 
 export async function GET(req: Request) {
   try {
@@ -35,34 +36,20 @@ export async function GET(req: Request) {
       .from('wa_sessions')
       .select('bb_project_id, status, connection_started_at')
       .eq('company_id', profile.company_id)
-      .single();
+      .maybeSingle();
 
     if (!session || !session.bb_project_id) {
       return NextResponse.json({ status: 'desconectado' });
     }
 
     const instanceName = session.bb_project_id;
-    const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
-    const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
-
-    const evoHeaders: Record<string, string> = { 'apikey': EVO_KEY };
-    if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
-      evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
-      evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
-    }
-
-    // Consultar el estado real en Evolution API v2
-    const statusRes = await fetch(`${EVO_API}/instance/connectionState/${instanceName}`, {
-      headers: evoHeaders
-    });
-    
     let dbStatus = session.status;
     let qr = null;
     let evoState = 'close';
 
-    if (statusRes.ok) {
-      const statusData = await statusRes.json();
-      evoState = statusData.instance?.state || 'close';
+    try {
+      const statusData = await evolution.getConnectionState(instanceName);
+      evoState = statusData?.instance?.state || 'close';
 
       if (evoState === 'open') {
         dbStatus = 'conectado';
@@ -71,20 +58,19 @@ export async function GET(req: Request) {
       } else {
         dbStatus = 'desconectado';
       }
+    } catch (err) {
+      dbStatus = 'desconectado';
     }
 
     // Si está conectando o esperando QR, intentar obtener el QR en base64
     if (evoState === 'connecting' || evoState === 'close' || dbStatus === 'esperando_qr') {
-      const qrRes = await fetch(`${EVO_API}/instance/connect/${instanceName}`, {
-        headers: evoHeaders
-      });
-      if (qrRes.ok) {
-        const qrData = await qrRes.json();
-        qr = qrData.base64 || qrData.code || qrData.qr || null;
+      try {
+        const qrData = await evolution.getQr(instanceName);
+        qr = qrData?.base64 || qrData?.code || qrData?.qr || null;
         if (qr) {
           dbStatus = 'esperando_qr';
         }
-      }
+      } catch (qrErr) {}
     }
 
     // Actualizar BD si cambió de estado, o si está conectado pero no tiene connection_started_at
@@ -117,7 +103,6 @@ export async function GET(req: Request) {
 
   } catch (error: any) {
     console.error('Error fetching Evolution API status:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Error al obtener estado' }, { status: 500 });
   }
 }
-

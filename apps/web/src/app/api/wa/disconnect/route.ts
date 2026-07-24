@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { evolution } from '@/integrations/evolution/client';
 
 export async function POST(req: Request) {
   try {
@@ -31,27 +32,11 @@ export async function POST(req: Request) {
     const instanceName = session?.bb_project_id;
 
     if (instanceName) {
-      const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
-      const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
-
-      const evoHeaders: Record<string, string> = { 'apikey': EVO_KEY };
-      if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
-        evoHeaders['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
-        evoHeaders['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
-      }
-
       try {
-        // Logout y Delete en Evolution API
-        await fetch(`${EVO_API}/instance/logout/${instanceName}`, {
-          method: 'DELETE',
-          headers: evoHeaders
-        });
-        await fetch(`${EVO_API}/instance/delete/${instanceName}`, {
-          method: 'DELETE',
-          headers: evoHeaders
-        });
-      } catch (e) {
-        console.warn('Error al eliminar instancia en Evolution API:', e);
+        await evolution.logoutInstance(instanceName);
+        await evolution.deleteInstance(instanceName);
+      } catch (e: any) {
+        console.warn('Advertencia al eliminar instancia en Evolution API:', e.message);
       }
     }
 
@@ -61,6 +46,7 @@ export async function POST(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { persistSession: false } }
     );
+    
     await supabaseAdmin.from('wa_sessions').update({
       bb_project_id: null,
       status: 'desconectado',
@@ -72,7 +58,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'WhatsApp desvinculado' });
   } catch (error: any) {
     console.error('Error al desvincular WhatsApp:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Error al desvincular' }, { status: 500 });
   }
 }
-
