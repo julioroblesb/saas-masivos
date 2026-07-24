@@ -1,0 +1,27 @@
+{
+  "_AVISO": "NO VERIFICADO COMO INVENTARIO COMPLETO. Muestra manual parcial. La fuente oficial sigue siendo el Supabase Advisor en https://supabase.com/dashboard/project/ywpafptrcvgoyaoqgzkz/advisors/performance",
+  "_FUENTE": "Identificación manual basada en consultas SQL directas al catálogo PostgreSQL (pg_stat_user_indexes, pg_constraint, pg_class). No exportado desde la UI de Supabase Advisor.",
+  "_ALCANCE": "Representa hallazgos representativos identificados durante la auditoría de la Etapa 01. Puede no incluir todos los hallazgos que el Advisor de Supabase reporta.",
+  "findings": [
+    {
+      "name": "unindexed_foreign_keys",
+      "title": "Claves foráneas sin índice de cobertura",
+      "level": "INFO",
+      "schema": "public",
+      "entity": "Múltiples tablas con FK sin índice",
+      "detail": "Relaciones de clave foránea identificadas en el esquema que podrían no tener índices de cobertura, lo que genera escaneos secuenciales en JOINs y operaciones de cascada.",
+      "remediation": "Crear índices en las columnas de FK frecuentemente usadas en JOINs y filtros WHERE.",
+      "metadata": {"verified_via": "pg_constraint + pg_index", "sample_tables": ["crm_wa_queue", "spa_visits"]}
+    },
+    {
+      "name": "unused_indexes",
+      "title": "Índices secundarios sin escaneos registrados",
+      "level": "INFO",
+      "schema": "public",
+      "entity": "Índices con pg_stat_user_indexes.idx_scan = 0",
+      "detail": "Algunos índices no han registrado escaneos en las estadísticas de PostgreSQL. Estos índices consumen espacio de almacenamiento y ralentizan las escrituras sin beneficiar las lecturas.",
+      "remediation": "Monitorear uso de índices en producción durante al menos 30 días antes de eliminar. Considerar DROP INDEX CONCURRENTLY para índices confirmados sin uso.",
+      "metadata": {"verified_via": "pg_stat_user_indexes.idx_scan"}
+    }
+  ]
+}

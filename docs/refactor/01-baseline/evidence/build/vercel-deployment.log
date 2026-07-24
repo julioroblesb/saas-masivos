@@ -1,0 +1,52 @@
+=== VERCEL DEPLOYMENT INSPECTION LOG ===
+Deployment ID: dpl_E73cRBJBceJFDnSWNHReF5CCeoHk
+Project: julioroblesb13-5690s-projects / saas-masivos
+Branch: refactor/01-inventory-baseline
+Commit: 62b6df7
+
+2026-07-24T16:54:35.567Z  Running build in Washington, D.C., USA (East) – iad1
+2026-07-24T16:54:35.568Z  Build machine configuration: 2 cores, 8 GB
+2026-07-24T16:54:35.737Z  Cloning github.com/julioroblesb/saas-masivos (Branch: refactor/01-inventory-baseline, Commit: 62b6df7)
+2026-07-24T16:54:37.214Z  Warning: Failed to fetch one or more git submodules
+2026-07-24T16:54:37.216Z  Cloning completed: 1.478s
+2026-07-24T16:54:37.556Z  Restored build cache from previous deployment (ZAxSyvNvWr1YMHwYjcxutEjVGXUo)
+2026-07-24T16:54:37.755Z  Running "vercel build"
+2026-07-24T16:54:37.772Z  Vercel CLI 56.5.0
+2026-07-24T16:54:38.033Z  Running "install" command: `npm install --prefix=../..`...
+2026-07-24T16:54:41.950Z  up to date, audited 762 packages in 4s
+2026-07-24T16:54:42.111Z  Detected Next.js version: 16.2.9
+2026-07-24T16:54:42.117Z  Running "npm run build"
+2026-07-24T16:54:42.246Z  > web@0.1.0 build
+2026-07-24T16:54:42.246Z  > npx next build
+2026-07-24T16:54:43.318Z  ▲ Next.js 16.2.9 (Turbopack)
+2026-07-24T16:55:06.645Z  ✓ Compiled successfully in 22.9s
+2026-07-24T16:55:06.660Z  Running TypeScript ...
+2026-07-24T16:55:20.128Z  Finished TypeScript in 13.5s ...
+2026-07-24T16:55:20.132Z  Collecting page data using 1 worker ...
+2026-07-24T16:55:21.195Z  ✓ Generating static pages using 1 worker (27/27) in 407ms
+2026-07-24T16:55:22.192Z  Build Completed in /vercel/output [44s]
+2026-07-24T16:55:22.682Z  Deploying outputs...
+status	● Error
+
+=== DIAGNOSIS (REVISADA) ===
+
+VERIFICADO:
+  El deployment del commit 62b6df7 compiló exitosamente (27/27 páginas,
+  Turbopack en 22.9s, TypeScript en 13.5s). El build terminó correctamente
+  y Vercel generó el output en /vercel/output [44s].
+  El deployment actual del commit final (c48e8c7 / refactoring branch)
+  terminó correctamente con estado verde en Vercel.
+
+INFERIDO:
+  El gitlink accidental (modo 160000) para tmp/builderbot pudo haber
+  contribuido al aviso "Warning: Failed to fetch one or more git submodules"
+  que aparece en los logs del deployment fallido anterior (commit 62b6df7).
+  El aviso ocurre durante la fase de cloning, antes de que el build inicie.
+
+NO VERIFICADO:
+  No existe evidencia suficiente para afirmar que ese warning fue la causa
+  exacta del deployment fallido anterior. El log registra "status: Error"
+  durante la fase "Deploying outputs...", que ocurre DESPUÉS del build
+  exitoso. La relación causal entre el warning de submódulos y el fallo
+  final de deployment no está confirmada directamente.
+  No es necesario volver a investigar el despliegue anterior.

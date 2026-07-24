@@ -1,0 +1,47 @@
+{
+  "_AVISO": "NO VERIFICADO COMO INVENTARIO COMPLETO. Muestra manual parcial. La fuente oficial sigue siendo el Supabase Advisor en https://supabase.com/dashboard/project/ywpafptrcvgoyaoqgzkz/advisors/security",
+  "_FUENTE": "Identificación manual basada en consultas SQL directas al catálogo PostgreSQL (pg_proc, pg_class). No exportado desde la UI de Supabase Advisor.",
+  "_ALCANCE": "Representa hallazgos representativos identificados durante la auditoría de la Etapa 01. Puede no incluir todos los hallazgos que el Advisor de Supabase reporta.",
+  "findings": [
+    {
+      "name": "function_anon_executable",
+      "title": "Funciones ejecutables por el rol anon",
+      "level": "WARN",
+      "schema": "public",
+      "entity": "25 funciones públicas",
+      "detail": "Las 25 funciones del esquema public tienen permisos de ejecución concedidos al rol anónimo (anon) o vía PUBLIC. Confirmado mediante consulta directa a information_schema.role_routine_grants.",
+      "remediation": "Revisar qué funciones realmente necesitan acceso anónimo y revocar las que no lo requieran.",
+      "metadata": {"role": "anon", "count": 25, "verified_via": "information_schema.role_routine_grants"}
+    },
+    {
+      "name": "function_search_path_mutable",
+      "title": "search_path mutable en funciones SECURITY DEFINER",
+      "level": "WARN",
+      "schema": "public",
+      "entity": "Múltiples funciones SECURITY DEFINER sin proconfig fijo",
+      "detail": "Funciones SECURITY DEFINER que no establecen un search_path fijo pueden ser vulnerables a ataques de schema injection. Solo auth_company_id y current_tenant_id tienen search_path=public configurado explícitamente.",
+      "remediation": "ALTER FUNCTION <nombre> SET search_path = public;",
+      "metadata": {"prosecdef": true, "verified_via": "pg_proc.proconfig"}
+    },
+    {
+      "name": "public_bucket_listable",
+      "title": "Bucket público con listado anónimo permitido",
+      "level": "WARN",
+      "schema": "storage",
+      "entity": "spa-media",
+      "detail": "El bucket spa-media es público (public=true) y permite el listado anónimo de objetos. Verificado mediante la API de Storage de Supabase en el script de auditoría RLS.",
+      "remediation": "Establecer public=false o aplicar políticas RLS estrictas en storage.objects para el bucket spa-media.",
+      "metadata": {"public": true, "verified_via": "storage.buckets API + RLS audit script"}
+    },
+    {
+      "name": "rls_disabled_in_public",
+      "title": "Tabla pública sin Row Level Security",
+      "level": "ERROR",
+      "schema": "public",
+      "entity": "wa_auth_state",
+      "detail": "La tabla wa_auth_state no tiene RLS activado. Cualquier usuario autenticado puede leer o modificar filas de otros tenants.",
+      "remediation": "ALTER TABLE public.wa_auth_state ENABLE ROW LEVEL SECURITY; CREATE POLICY ... USING (company_id = auth_company_id());",
+      "metadata": {"rowsecurity": false, "verified_via": "pg_class.relrowsecurity"}
+    }
+  ]
+}
