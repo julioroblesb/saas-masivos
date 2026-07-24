@@ -33,127 +33,93 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Suscripción vencida. Renueve su plan para continuar usando el servicio.' }, { status: 403 });
     }
 
-    // 1. Obtener la sesión actual para ver si ya tiene un proyecto de BuilderBot
+    // 1. Obtener la sesión actual para recuperar el ID de la instancia
     let { data: session } = await supabase
       .from('wa_sessions')
       .select('*')
       .eq('company_id', profile.company_id)
-      .single();
+      .maybeSingle();
 
-    let projectId = session?.bb_project_id;
-    const BB_API = process.env.BUILDERBOT_API_URL || 'https://app.builderbot.cloud/api/v1';
-    const BB_KEY = process.env.BUILDERBOT_API_KEY;
+    // Nombre de instancia inmutable derivado del company_id limpio
+    const cleanCompanyId = profile.company_id.replace(/[^a-zA-Z0-9_]/g, '_');
+    const instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
+    const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
+    const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
+    const webhookSecret = process.env.INTERNAL_TOKEN || 'masivos_webhook_secret_2026';
 
-    if (!BB_KEY) throw new Error('API Key de BuilderBot no configurada');
+    const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
+    const host = req.headers.get('host');
+    const webhookUrl = `${protocol}://${host}/api/wa/webhook`;
 
-    if (!projectId) {
-      // 2. Crear proyecto en BuilderBot
-      const createProjRes = await fetch(`${BB_API}/manager/project`, {
-        method: 'POST',
-        headers: {
-          'x-api-builderbot': BB_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: companyName, shareable: false })
-      });
-      if (!createProjRes.ok) throw new Error('Error creando proyecto en BuilderBot');
-      const projData = await createProjRes.json();
-      projectId = projData.project.uuid;
+    // Guardar o actualizar la sesión en Supabase
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
+    await supabaseAdmin.from('wa_sessions').upsert({
+      company_id: profile.company_id,
+      bb_project_id: instanceName,
+      status: 'conectando',
+      updated_at: new Date().toISOString()
+    });
 
-      // Guardar el bb_project_id en wa_sessions
-      const supabaseAdmin = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { persistSession: false } }
-      );
-      await supabaseAdmin.from('wa_sessions').upsert({
-        company_id: profile.company_id,
-        bb_project_id: projectId,
-        status: 'conectando',
-        updated_at: new Date().toISOString()
-      });
+    const webhookConfig = {
+      enabled: true,
+      url: webhookUrl,
+      byEvents: false,
+      base64: false,
+      headers: {
+        'X-Evolution-Webhook-Secret': webhookSecret,
+        'X-Company-ID': profile.company_id
+      },
+      events: [
+        'MESSAGES_UPSERT',
+        'CONNECTION_UPDATE',
+        'QRCODE_UPDATED'
+      ]
+    };
 
-      // 2.5 Configurar el proyecto (Motor Baileys y API Key para que el cron pueda enviarle POSTs)
-      const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
-      const host = req.headers.get('host');
-      const tokenParam = process.env.INTERNAL_TOKEN ? `&token=${process.env.INTERNAL_TOKEN}` : '';
-      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}${tokenParam}`;
+    // 2. Crear instancia en Evolution API v2
+    const createRes = await fetch(`${EVO_API}/instance/create`, {
+      method: 'POST',
+      headers: {
+        'apikey': EVO_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        instanceName: instanceName,
+        qrcode: true,
+        integration: 'WHATSAPP-BAILEYS',
+        webhook: webhookConfig
+      })
+    });
 
-      await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
-        method: 'PUT',
-        headers: {
-          'x-api-builderbot': BB_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          provider: 'baileys',
-          apiKey: BB_KEY, // Usamos la misma global key para no enredarnos
-          showRecordingEvents: true,
-          showTypingEvents: true,
-          webhookUrl: webhookUrl,
-          webhook: webhookUrl
-        })
-      });
-
-      // 3. Iniciar el Deploy
-      const deployRes = await fetch(`${BB_API}/manager/deploys`, {
-        method: 'POST',
-        headers: {
-          'x-api-builderbot': BB_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ projectId })
-      });
-      if (!deployRes.ok && deployRes.status !== 409) {
-        // 409 significa que ya existe un deploy en curso, lo ignoramos
-        throw new Error('Error iniciando deploy en BuilderBot');
-      }
+    let qr = null;
+    if (createRes.ok) {
+      const createData = await createRes.json();
+      qr = createData.qrcode?.base64 || null;
     } else {
-      // Si ya existía, sincronizamos el nombre del proyecto con el de la empresa
-      await fetch(`${BB_API}/manager/project/${projectId}`, {
-        method: 'PUT',
-        headers: {
-          'x-api-builderbot': BB_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: companyName })
-      });
-
-      const protocol = req.headers.get('x-forwarded-proto') || (req.headers.get('host')?.includes('localhost') ? 'http' : 'https');
-      const host = req.headers.get('host');
-      const tokenParam = process.env.INTERNAL_TOKEN ? `&token=${process.env.INTERNAL_TOKEN}` : '';
-      const webhookUrl = `${protocol}://${host}/api/wa/webhook?company_id=${profile.company_id}${tokenParam}`;
-
-      await fetch(`${BB_API}/manager/project/${projectId}/settings`, {
-        method: 'PUT',
-        headers: {
-          'x-api-builderbot': BB_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          provider: 'baileys',
-          apiKey: BB_KEY,
-          showRecordingEvents: true,
-          showTypingEvents: true,
-          webhookUrl: webhookUrl,
-          webhook: webhookUrl
-        })
-      });
-
-      // intentar reiniciarlo por si estaba caído
-      await fetch(`${BB_API}/manager/deploys/${projectId}/reboot`, {
+      // Si la instancia ya existía, actualizamos la configuración de su Webhook de forma segura
+      await fetch(`${EVO_API}/webhook/set/${instanceName}`, {
         method: 'POST',
-        headers: { 'x-api-builderbot': BB_KEY }
+        headers: {
+          'apikey': EVO_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ webhook: webhookConfig })
       });
     }
 
     return NextResponse.json({ 
-      message: 'Instancia inicializada en BuilderBot', 
-      projectId,
-      status: 'conectando' 
+      message: 'Instancia inicializada en Evolution API', 
+      instanceName,
+      status: 'conectando',
+      qr
     });
   } catch (error: any) {
-    console.error('Error al iniciar instancia en BuilderBot:', error);
+    console.error('Error al iniciar instancia en Evolution API:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

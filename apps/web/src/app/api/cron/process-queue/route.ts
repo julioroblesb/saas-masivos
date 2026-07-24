@@ -217,28 +217,46 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
       const finalMessage = resolveSpintax(message, companySettings);
 
-      const bbPayload: any = {
-        number: phone, 
-        options: { presence: 'composing', delay: 2000 }, // BuilderBot mostrará "escribiendo..." 2 segundos
-        messages: { content: finalMessage }, 
-        checkIfExists: true 
+      const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
+      const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
+
+      let evoEndpoint = `${EVO_API}/message/sendText/${bb_project_id}`;
+      let evoBody: any = {
+        number: phone,
+        textMessage: {
+          text: finalMessage
+        },
+        text: finalMessage,
+        delay: 2000,
+        linkPreview: true
       };
 
       if (media_url) {
-        bbPayload.urlMedia = media_url;
+        evoEndpoint = `${EVO_API}/message/sendMedia/${bb_project_id}`;
+        evoBody = {
+          number: phone,
+          mediaMessage: {
+            mediatype: 'image',
+            media: media_url,
+            caption: finalMessage
+          },
+          media: media_url,
+          mediatype: 'image',
+          caption: finalMessage,
+          delay: 2000
+        };
       }
 
-      // Usar options de BuilderBot para mostrar "Escribiendo..." y delay nativo
-      const bbRes = await fetch(`https://app.builderbot.cloud/api/v2/${bb_project_id}/messages`, {
+      const evoRes = await fetch(evoEndpoint, {
         method: 'POST',
         headers: {
-          'x-api-builderbot': process.env.BUILDERBOT_API_KEY!,
+          'apikey': EVO_KEY,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bbPayload),
+        body: JSON.stringify(evoBody),
       });
 
-      if (!bbRes.ok) throw new Error(`BuilderBot: ${bbRes.statusText}`);
+      if (!evoRes.ok) throw new Error(`Evolution API error: ${evoRes.statusText}`);
 
       await supabaseAdmin
         .from('crm_wa_queue')

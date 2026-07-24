@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
     const { data: session } = await supabase
       .from('wa_sessions')
-      .select('bb_project_id, status, bb_host, connection_started_at')
+      .select('bb_project_id, status, connection_started_at')
       .eq('company_id', profile.company_id)
       .single();
 
@@ -41,50 +41,44 @@ export async function GET(req: Request) {
       return NextResponse.json({ status: 'desconectado' });
     }
 
-    const projectId = session.bb_project_id;
-    const BB_API = process.env.BUILDERBOT_API_URL || 'https://app.builderbot.cloud/api/v1';
-    const BB_KEY = process.env.BUILDERBOT_API_KEY;
+    const instanceName = session.bb_project_id;
+    const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
+    const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
 
-    // Consultar el status real en BuilderBot Cloud
-    const statusRes = await fetch(`${BB_API}/manager/deploys/${projectId}/status`, {
-      headers: { 'x-api-builderbot': BB_KEY! }
+    // Consultar el estado real en Evolution API v2
+    const statusRes = await fetch(`${EVO_API}/instance/connectionState/${instanceName}`, {
+      headers: { 'apikey': EVO_KEY }
     });
     
-    if (!statusRes.ok) {
-      return NextResponse.json({ status: session.status });
-    }
-
-    const statusData = await statusRes.json();
-    const bbStatus = statusData.status; // ONLINE, OFFLINE, INITIALIZATION, READY_TO_SCAN, FAILED
-
     let dbStatus = session.status;
     let qr = null;
+    let evoState = 'close';
 
-    if (bbStatus === 'READY_TO_SCAN') {
-      dbStatus = 'esperando_qr';
-      // Obtener el QR
-      const qrRes = await fetch(`${BB_API}/manager/deploys/${projectId}/qr`, {
-        headers: { 'x-api-builderbot': BB_KEY! }
+    if (statusRes.ok) {
+      const statusData = await statusRes.json();
+      evoState = statusData.instance?.state || 'close';
+
+      if (evoState === 'open') {
+        dbStatus = 'conectado';
+      } else if (evoState === 'connecting') {
+        dbStatus = 'esperando_qr';
+      } else {
+        dbStatus = 'desconectado';
+      }
+    }
+
+    // Si está conectando o esperando QR, intentar obtener el QR en base64
+    if (evoState === 'connecting' || evoState === 'close' || dbStatus === 'esperando_qr') {
+      const qrRes = await fetch(`${EVO_API}/instance/connect/${instanceName}`, {
+        headers: { 'apikey': EVO_KEY }
       });
       if (qrRes.ok) {
-        // Asumiendo que la API devuelve una imagen directa o un JSON con el QR en base64
-        const contentType = qrRes.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-           const qrData = await qrRes.json();
-           qr = qrData.qr || qrData.url;
-        } else {
-           // Si devuelve la imagen binaria, la convertimos a base64
-           const buffer = await qrRes.arrayBuffer();
-           const base64 = Buffer.from(buffer).toString('base64');
-           qr = `data:${contentType};base64,${base64}`;
+        const qrData = await qrRes.json();
+        qr = qrData.base64 || qrData.code || qrData.qr || null;
+        if (qr) {
+          dbStatus = 'esperando_qr';
         }
       }
-    } else if (bbStatus === 'ONLINE') {
-      dbStatus = 'conectado';
-    } else if (bbStatus === 'FAILED' || bbStatus === 'OFFLINE') {
-      dbStatus = 'error';
-    } else {
-      dbStatus = 'conectando'; // INITIALIZATION u otros
     }
 
     // Actualizar BD si cambió de estado, o si está conectado pero no tiene connection_started_at
@@ -111,12 +105,13 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ 
       status: dbStatus,
-      bb_status: bbStatus,
+      evo_state: evoState,
       qr 
     });
 
   } catch (error: any) {
-    console.error('Error fetching BuilderBot status:', error);
+    console.error('Error fetching Evolution API status:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

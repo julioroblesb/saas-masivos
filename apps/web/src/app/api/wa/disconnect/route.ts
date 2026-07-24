@@ -21,32 +21,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
     }
 
-    // Obtener bb_project_id
+    // Obtener la instancia de Evolution API
     const { data: session } = await supabase
       .from('wa_sessions')
       .select('bb_project_id')
       .eq('company_id', profile.company_id)
       .maybeSingle();
 
-    const projectId = session?.bb_project_id;
+    const instanceName = session?.bb_project_id;
 
-    if (projectId) {
-      const BB_API = process.env.BUILDERBOT_API_URL || 'https://app.builderbot.cloud/api/v1';
-      const BB_KEY = process.env.BUILDERBOT_API_KEY;
+    if (instanceName) {
+      const EVO_API = process.env.EVOLUTION_API_URL || 'http://100.72.75.79:8080';
+      const EVO_KEY = process.env.EVOLUTION_API_KEY || 'masivos_evolution_secret_key_2026';
 
-      if (BB_KEY) {
-        // Eliminar el proyecto de BuilderBot Cloud de forma permanente
-        // Esto automáticamente elimina los deploys y libera la memoria en su nube
-        const res = await fetch(`${BB_API}/manager/project/${projectId}`, {
+      try {
+        // Logout y Delete en Evolution API
+        await fetch(`${EVO_API}/instance/logout/${instanceName}`, {
           method: 'DELETE',
-          headers: {
-            'x-api-builderbot': BB_KEY
-          }
+          headers: { 'apikey': EVO_KEY }
         });
-        
-        if (!res.ok) {
-          console.warn('Error al borrar proyecto en BuilderBot, pero continuaremos desvinculando localmente:', await res.text());
-        }
+        await fetch(`${EVO_API}/instance/delete/${instanceName}`, {
+          method: 'DELETE',
+          headers: { 'apikey': EVO_KEY }
+        });
+      } catch (e) {
+        console.warn('Error al eliminar instancia en Evolution API:', e);
       }
     }
 
@@ -64,12 +63,10 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString()
     }).eq('company_id', profile.company_id);
 
-    // Opcional: Pausar campañas que estaban 'running'? 
-    // Por ahora lo dejamos igual.
-
     return NextResponse.json({ message: 'WhatsApp desvinculado' });
   } catch (error: any) {
     console.error('Error al desvincular WhatsApp:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

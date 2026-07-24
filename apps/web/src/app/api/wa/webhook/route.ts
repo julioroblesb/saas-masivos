@@ -1,39 +1,45 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Webhook endpoint sin protección de NextAuth porque será llamado por BuilderBot
+// Webhook endpoint sin protección de NextAuth porque será llamado por Evolution API
 export async function POST(req: Request) {
   try {
     const url = new URL(req.url);
-    const companyId = url.searchParams.get('company_id');
-    const token = url.searchParams.get('token');
+    const body = await req.json();
 
-    if (!companyId) {
-      return NextResponse.json({ error: 'company_id missing in query params' }, { status: 400 });
-    }
-
-    // Hacer obligatorio INTERNAL_TOKEN
-    const internalToken = process.env.INTERNAL_TOKEN;
-    if (!internalToken) {
-      console.warn('CRITICAL WARNING: INTERNAL_TOKEN no está configurado en las variables de entorno.');
-      return NextResponse.json({ error: 'System misconfiguration. Webhooks disabled.' }, { status: 500 });
-    }
+    // Extraer secreto desde cabecera o query param
+    const receivedSecret = req.headers.get('x-evolution-webhook-secret') || url.searchParams.get('token');
+    const internalToken = process.env.INTERNAL_TOKEN || 'masivos_webhook_secret_2026';
     
-    if (token !== internalToken) {
+    if (receivedSecret !== internalToken) {
       return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
-    const body = await req.json();
+    // Extraer companyId desde cabecera, query param o instancia del body (ej. company_123)
+    let companyId = req.headers.get('x-company-id') || url.searchParams.get('company_id');
+    if (!companyId && body.instance?.startsWith('company_')) {
+      companyId = body.instance.replace('company_', '');
+    }
 
-    // Extraer número de teléfono del webhook (Depende del formato del payload de Builderbot / Baileys)
-    // Usualmente envían un payload con { from: '...', body: '...' } o { messages: [...] }
+    if (!companyId) {
+      return NextResponse.json({ error: 'company_id missing in webhook' }, { status: 400 });
+    }
+
+    // Ignorar si el mensaje fue enviado por el propio usuario (fromMe)
+    if (body.data?.key?.fromMe) {
+      return NextResponse.json({ message: 'Ignoring outgoing message' });
+    }
+
+    // Extraer número de teléfono del webhook de Evolution API / Baileys
     let phoneNumber = '';
     
-    // Tratamos de buscar de diferentes formas comunes de webhooks
-    if (body.from) {
-      phoneNumber = body.from.replace('@s.whatsapp.net', '');
+    if (body.data?.key?.remoteJid) {
+      phoneNumber = body.data.key.remoteJid.split('@')[0];
+    } else if (body.from) {
+      phoneNumber = body.from.split('@')[0];
     } else if (body.messages && body.messages.length > 0) {
-      phoneNumber = body.messages[0].from?.replace('@s.whatsapp.net', '') || body.messages[0].key?.remoteJid?.replace('@s.whatsapp.net', '');
+      const rawJid = body.messages[0].from || body.messages[0].key?.remoteJid;
+      phoneNumber = rawJid ? rawJid.split('@')[0] : '';
     } else if (body.phone) {
       phoneNumber = body.phone;
     }
