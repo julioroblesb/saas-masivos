@@ -4,7 +4,7 @@ import { evolution } from '@/integrations/evolution/client';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const supabase = await createClient();
     const {
@@ -45,8 +45,10 @@ export async function POST(req: Request) {
       try {
         await evolution.logoutInstance(instanceName);
         await evolution.deleteInstance(instanceName);
-      } catch (e: any) {
-        console.warn('Advertencia al eliminar instancia en Evolution API:', e.message);
+      } catch (error: unknown) {
+        console.warn('Advertencia al eliminar instancia en Evolution API:', {
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
@@ -65,8 +67,13 @@ export async function POST(req: Request) {
       .eq('company_id', profile.company_id);
 
     return NextResponse.json({ message: 'WhatsApp desvinculado' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al desvincular WhatsApp:', error);
-    return NextResponse.json({ error: error.message || 'Error al desvincular' }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : 'Error al desvincular',
+      },
+      { status: 500 },
+    );
   }
 }

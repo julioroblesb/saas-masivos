@@ -930,6 +930,50 @@ export type Database = {
           },
         ];
       };
+      wa_webhook_events: {
+        Row: {
+          company_id: string;
+          event_id: string;
+          event_type: string;
+          expires_at: string;
+          id: number;
+          payload_sha256: string;
+          processed_at: string | null;
+          provider: string;
+          received_at: string;
+        };
+        Insert: {
+          company_id: string;
+          event_id: string;
+          event_type: string;
+          expires_at?: string;
+          id?: never;
+          payload_sha256: string;
+          processed_at?: string | null;
+          provider?: string;
+          received_at?: string;
+        };
+        Update: {
+          company_id?: string;
+          event_id?: string;
+          event_type?: string;
+          expires_at?: string;
+          id?: never;
+          payload_sha256?: string;
+          processed_at?: string | null;
+          provider?: string;
+          received_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'wa_webhook_events_company_id_fkey';
+            columns: ['company_id'];
+            isOneToOne: false;
+            referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       wa_auth_state: {
         Row: {
           company_id: string;
@@ -1115,10 +1159,23 @@ export type Database = {
         Returns: Json;
       };
       rpc_cancel_campaign: { Args: { p_campaign_id: string }; Returns: Json };
+      rpc_claim_evolution_webhook: {
+        Args: {
+          p_company_id: string;
+          p_event_id: string;
+          p_event_type: string;
+          p_payload_sha256: string;
+        };
+        Returns: boolean;
+      };
       rpc_cleanup_demo_companies: { Args: never; Returns: Json };
       rpc_clone_demo_company: {
         Args: { p_template_company_id: string };
         Returns: Json;
+      };
+      rpc_complete_evolution_webhook: {
+        Args: { p_company_id: string; p_event_id: string };
+        Returns: undefined;
       };
       rpc_complete_visit: { Args: { p_visit_id: string }; Returns: Json };
       rpc_count_contacts_by_tag: {

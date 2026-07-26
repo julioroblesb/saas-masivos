@@ -1,23 +1,15 @@
-import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
-import "./globals.css";
-import ProviderComponent from "@/components/layouts/provider-component";
-import { Providers } from "@/components/providers";
-
-const outfit = Outfit({
-  weight: ['300', '400', '500', '600', '700', '800'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-outfit',
-});
+import type { Metadata } from 'next';
+import './globals.css';
+import ProviderComponent from '@/components/layouts/provider-component';
+import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
   title: {
-    default: "Renova CRM",
-    template: "%s | Renova CRM",
+    default: 'Renova CRM',
+    template: '%s | Renova CRM',
   },
-  description: "Gestión de clientes, agenda y automatización para spas y salones.",
-  applicationName: "Renova CRM",
+  description: 'Gestión de clientes, agenda y automatización para spas y salones.',
+  applicationName: 'Renova CRM',
   robots: {
     index: false,
     follow: false,
@@ -31,11 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${outfit.variable} font-outfit antialiased`}>
+      <body className="font-outfit antialiased">
         <ProviderComponent>
-          <Providers>
-            {children}
-          </Providers>
+          <Providers>{children}</Providers>
         </ProviderComponent>
       </body>
     </html>

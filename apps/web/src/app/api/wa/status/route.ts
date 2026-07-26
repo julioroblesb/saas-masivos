@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { evolution, extractEvolutionQr } from '@/integrations/evolution/client';
+import { evolution } from '@/integrations/evolution/client';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const {
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
 
     try {
       const statusData = await evolution.getConnectionState(instanceName);
-      evoState = statusData?.instance?.state || 'close';
+      evoState = statusData.state;
     } catch (err) {
       console.error('Evolution connectionState fetch failed', {
         instanceName,
@@ -69,8 +69,8 @@ export async function GET(req: Request) {
     // Intentar obtener QR si no está completamente abierto
     if (evoState !== 'open') {
       try {
-        const qrData = await evolution.getQr(instanceName);
-        qr = extractEvolutionQr(qrData);
+        const qrData = await evolution.getQrCode(instanceName);
+        qr = qrData.qrCode;
       } catch (err) {
         console.error('Evolution QR fetch failed', {
           instanceName,
@@ -100,7 +100,11 @@ export async function GET(req: Request) {
 
     const supabaseAdmin = getSupabaseAdmin();
 
-    const updateData: any = {
+    const updateData: {
+      status: string;
+      updated_at: string;
+      connection_started_at?: string | null;
+    } = {
       status: dbStatus,
       updated_at: new Date().toISOString(),
     };
@@ -126,10 +130,13 @@ export async function GET(req: Request) {
             : 'OK',
       qr,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in status GET endpoint:', error);
     return NextResponse.json(
-      { error: error.message || 'Error interno', code: 'INTERNAL_ERROR' },
+      {
+        error: error instanceof Error ? error.message : 'Error interno',
+        code: 'INTERNAL_ERROR',
+      },
       { status: 500 },
     );
   }

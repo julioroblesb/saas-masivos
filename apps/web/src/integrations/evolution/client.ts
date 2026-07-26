@@ -1,165 +1,466 @@
+import { z, type ZodType } from 'zod';
 import { getEnv } from '@/config/env';
+import type {
+  WhatsAppConnectionState,
+  WhatsAppMessageReceipt,
+  WhatsAppProvider,
+  WhatsAppQrCode,
+} from '@/integrations/whatsapp/provider';
+
+export const EVOLUTION_COMPATIBLE_VERSION = '2.3.7';
+
+const instanceNameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(120)
+  .regex(/^[a-zA-Z0-9_-]+$/);
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{8,20}$/);
+const qrPayloadSchema = z
+  .object({
+    base64: z.string().optional(),
+    code: z.string().optional(),
+    qr: z.string().optional(),
+    qrcode: z
+      .object({
+        base64: z.string().optional(),
+        code: z.string().optional(),
+        qr: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const connectionPayloadSchema = z
+  .object({
+    state: z.string().optional(),
+    instance: z
+      .object({
+        state: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const messagePayloadSchema = z
+  .object({
+    key: z
+      .object({
+        id: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    messageId: z.string().optional(),
+    id: z.string().optional(),
+  })
+  .passthrough()
+  .refine((payload) => Boolean(payload.key?.id ?? payload.messageId ?? payload.id), {
+    message: 'Evolution response is missing a message id',
+  });
+
+type EvolutionErrorCode =
+  | 'CIRCUIT_OPEN'
+  | 'CONFLICT'
+  | 'INVALID_CONFIGURATION'
+  | 'INVALID_INPUT'
+  | 'INVALID_RESPONSE'
+  | 'NETWORK_ERROR'
+  | 'NOT_FOUND'
+  | 'RATE_LIMITED'
+  | 'TIMEOUT'
+  | 'UNAVAILABLE';
 
 export class EvolutionApiError extends Error {
-  constructor(message: string, public status?: number) {
-    super(message);
+  constructor(
+    message: string,
+    readonly code: EvolutionErrorCode,
+    readonly status?: number,
+    readonly retryable = false,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
     this.name = 'EvolutionApiError';
   }
 }
 
-export function extractEvolutionQr(payload: unknown): string | null {
-  if (!payload || typeof payload !== 'object') return null;
+interface EvolutionConfig {
+  apiUrl: string;
+  apiKey: string;
+  cloudflareClientId?: string;
+  cloudflareClientSecret?: string;
+}
 
-  const data = payload as Record<string, any>;
+interface EvolutionProviderOptions {
+  fetcher?: typeof fetch;
+  loadConfig?: () => EvolutionConfig;
+  maxReadAttempts?: number;
+  now?: () => number;
+  sleep?: (durationMs: number) => Promise<void>;
+  timeoutMs?: number;
+}
+
+interface RequestOptions<T> {
+  init?: RequestInit;
+  retryRead?: boolean;
+  schema?: ZodType<T>;
+}
+
+export function extractEvolutionQr(payload: unknown): string | null {
+  const parsed = qrPayloadSchema.safeParse(payload);
+  if (!parsed.success) return null;
 
   return (
-    data.base64 ??
-    data.code ??
-    data.qr ??
-    data.qrcode?.base64 ??
-    data.qrcode?.code ??
-    data.qrcode?.qr ??
+    parsed.data.base64 ??
+    parsed.data.code ??
+    parsed.data.qr ??
+    parsed.data.qrcode?.base64 ??
+    parsed.data.qrcode?.code ??
+    parsed.data.qrcode?.qr ??
     null
   );
 }
 
-function getHeaders(): Record<string, string> {
-  const env = getEnv();
-  const headers: Record<string, string> = {
-    'apikey': env.EVOLUTION_API_KEY,
-    'Content-Type': 'application/json',
-  };
+export class EvolutionWhatsAppProvider implements WhatsAppProvider {
+  private readonly fetcher: typeof fetch;
+  private readonly loadConfig: () => EvolutionConfig;
+  private readonly maxReadAttempts: number;
+  private readonly now: () => number;
+  private readonly sleep: (durationMs: number) => Promise<void>;
+  private readonly timeoutMs: number;
+  private consecutiveFailures = 0;
+  private circuitOpenUntil = 0;
 
-  if (env.CF_ACCESS_CLIENT_ID && env.CF_ACCESS_CLIENT_SECRET) {
-    headers['CF-Access-Client-Id'] = env.CF_ACCESS_CLIENT_ID;
-    headers['CF-Access-Client-Secret'] = env.CF_ACCESS_CLIENT_SECRET;
+  constructor(options: EvolutionProviderOptions = {}) {
+    this.fetcher = options.fetcher ?? fetch;
+    this.loadConfig = options.loadConfig ?? loadEvolutionConfig;
+    this.maxReadAttempts = options.maxReadAttempts ?? 3;
+    this.now = options.now ?? Date.now;
+    this.sleep =
+      options.sleep ?? ((durationMs) => new Promise((resolve) => setTimeout(resolve, durationMs)));
+    this.timeoutMs = options.timeoutMs ?? 15_000;
   }
 
-  return headers;
-}
-
-async function request(endpoint: string, options: RequestInit = {}): Promise<any> {
-  const env = getEnv();
-  const url = `${env.EVOLUTION_API_URL}${endpoint}`;
-  const headers = { ...getHeaders(), ...(options.headers || {}) };
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      signal: controller.signal,
+  async createInstance(instanceName: string): Promise<WhatsAppQrCode> {
+    const validInstanceName = parseInstanceName(instanceName);
+    const payload = await this.request('/instance/create', {
+      init: {
+        method: 'POST',
+        body: JSON.stringify({
+          instanceName: validInstanceName,
+          qrcode: true,
+          integration: 'WHATSAPP-BAILEYS',
+          syncFullHistory: false,
+        }),
+      },
+      schema: qrPayloadSchema,
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = response.statusText;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorMessage = errorJson.message || errorJson.error || errorMessage;
-      } catch {}
-      throw new EvolutionApiError(errorMessage, response.status);
-    }
-
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
-    }
-    return await response.text();
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (error instanceof EvolutionApiError) throw error;
-    throw new EvolutionApiError(error.message || 'Error de red en Evolution API');
+    return { qrCode: extractEvolutionQr(payload) };
   }
-}
 
-export const evolution = {
-  async createInstance(instanceName: string) {
-    return request('/instance/create', {
-      method: 'POST',
-      body: JSON.stringify({
-        instanceName,
-        qrcode: true,
-        integration: 'WHATSAPP-BAILEYS',
-        syncFullHistory: false,
-      }),
-    });
-  },
+  async configureWebhook(
+    instanceName: string,
+    webhookUrl: string,
+    secret: string,
+    companyId: string,
+  ): Promise<void> {
+    const validInstanceName = parseInstanceName(instanceName);
+    const validWebhookUrl = z.string().url().parse(webhookUrl);
+    const validCompanyId = z.string().uuid().parse(companyId);
+    if (secret.length < 32) {
+      throw invalidInput('El secreto del webhook no es válido');
+    }
 
-  async setWebhook(instanceName: string, webhookUrl: string, secret: string, companyId: string) {
-    return request(`/webhook/set/${instanceName}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        webhook: {
-          enabled: true,
-          url: webhookUrl,
-          byEvents: false,
-          base64: false,
-          headers: {
-            'X-Evolution-Webhook-Secret': secret,
-            'X-Company-ID': companyId,
+    await this.request(`/webhook/set/${encodeURIComponent(validInstanceName)}`, {
+      init: {
+        method: 'POST',
+        body: JSON.stringify({
+          webhook: {
+            enabled: true,
+            url: validWebhookUrl,
+            byEvents: false,
+            base64: false,
+            headers: {
+              'X-Evolution-Webhook-Secret': secret,
+              'X-Company-ID': validCompanyId,
+            },
+            events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
           },
-          events: [
-            'MESSAGES_UPSERT',
-            'CONNECTION_UPDATE',
-            'QRCODE_UPDATED',
-          ],
+        }),
+      },
+    });
+  }
+
+  async getConnectionState(instanceName: string): Promise<WhatsAppConnectionState> {
+    const payload = await this.request(
+      `/instance/connectionState/${encodeURIComponent(parseInstanceName(instanceName))}`,
+      {
+        init: { method: 'GET' },
+        retryRead: true,
+        schema: connectionPayloadSchema,
+      },
+    );
+
+    return { state: payload.instance?.state ?? payload.state ?? 'close' };
+  }
+
+  async getQrCode(instanceName: string): Promise<WhatsAppQrCode> {
+    const payload = await this.request(
+      `/instance/connect/${encodeURIComponent(parseInstanceName(instanceName))}`,
+      {
+        init: { method: 'GET' },
+        retryRead: true,
+        schema: qrPayloadSchema,
+      },
+    );
+
+    return { qrCode: extractEvolutionQr(payload) };
+  }
+
+  async sendText(
+    instanceName: string,
+    number: string,
+    text: string,
+  ): Promise<WhatsAppMessageReceipt> {
+    const payload = await this.request(
+      `/message/sendText/${encodeURIComponent(parseInstanceName(instanceName))}`,
+      {
+        init: {
+          method: 'POST',
+          body: JSON.stringify({
+            number: phoneSchema.parse(number),
+            text: z.string().min(1).max(65_536).parse(text),
+            delay: 2_000,
+          }),
         },
-      }),
-    });
-  },
+        schema: messagePayloadSchema,
+      },
+    );
 
-  async getConnectionState(instanceName: string) {
-    return request(`/instance/connectionState/${instanceName}`, { method: 'GET' });
-  },
+    return { providerMessageId: messageId(payload) };
+  }
 
-  async getQr(instanceName: string) {
-    return request(`/instance/connect/${instanceName}`, { method: 'GET' });
-  },
+  async sendMedia(
+    instanceName: string,
+    number: string,
+    mediaUrl: string,
+    caption: string,
+  ): Promise<WhatsAppMessageReceipt> {
+    const payload = await this.request(
+      `/message/sendMedia/${encodeURIComponent(parseInstanceName(instanceName))}`,
+      {
+        init: {
+          method: 'POST',
+          body: JSON.stringify({
+            number: phoneSchema.parse(number),
+            mediatype: 'image',
+            media: z.string().url().parse(mediaUrl),
+            caption: z.string().max(65_536).parse(caption),
+            delay: 2_000,
+          }),
+        },
+        schema: messagePayloadSchema,
+      },
+    );
 
-  async sendText(instanceName: string, number: string, text: string) {
-    return request(`/message/sendText/${instanceName}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        number,
-        text,
-        delay: 2000,
-      }),
-    });
-  },
+    return { providerMessageId: messageId(payload) };
+  }
 
-  async sendMedia(instanceName: string, number: string, mediaUrl: string, caption: string) {
-    return request(`/message/sendMedia/${instanceName}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        number,
-        mediatype: 'image',
-        media: mediaUrl,
-        caption,
-        delay: 2000,
-      }),
-    });
-  },
+  async logoutInstance(instanceName: string): Promise<void> {
+    await this.deleteLikeRequest(
+      `/instance/logout/${encodeURIComponent(parseInstanceName(instanceName))}`,
+    );
+  }
 
-  async logoutInstance(instanceName: string) {
+  async deleteInstance(instanceName: string): Promise<void> {
+    await this.deleteLikeRequest(
+      `/instance/delete/${encodeURIComponent(parseInstanceName(instanceName))}`,
+    );
+  }
+
+  private async deleteLikeRequest(endpoint: string): Promise<void> {
     try {
-      return await request(`/instance/logout/${instanceName}`, { method: 'DELETE' });
-    } catch (e: any) {
-      if (e.status === 404) return { status: 'NOT_FOUND' };
-      throw e;
+      await this.request(endpoint, { init: { method: 'DELETE' } });
+    } catch (error: unknown) {
+      if (error instanceof EvolutionApiError && error.status === 404) return;
+      throw error;
     }
-  },
+  }
 
-  async deleteInstance(instanceName: string) {
-    try {
-      return await request(`/instance/delete/${instanceName}`, { method: 'DELETE' });
-    } catch (e: any) {
-      if (e.status === 404) return { status: 'NOT_FOUND' };
-      throw e;
+  private async request<T = unknown>(endpoint: string, options: RequestOptions<T>): Promise<T> {
+    if (this.circuitOpenUntil > this.now()) {
+      throw new EvolutionApiError(
+        'Evolution API no está disponible temporalmente',
+        'CIRCUIT_OPEN',
+        503,
+        true,
+      );
     }
-  },
-};
+
+    const attempts = options.retryRead ? this.maxReadAttempts : 1;
+    let lastError: EvolutionApiError | undefined;
+
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      try {
+        const result = await this.executeRequest(endpoint, options);
+        this.consecutiveFailures = 0;
+        this.circuitOpenUntil = 0;
+        return result;
+      } catch (error: unknown) {
+        const providerError = normalizeEvolutionError(error);
+        lastError = providerError;
+        this.recordFailure(providerError);
+
+        if (!providerError.retryable || attempt === attempts) {
+          throw providerError;
+        }
+
+        const backoffMs = 200 * 2 ** (attempt - 1) + Math.floor(Math.random() * 100);
+        await this.sleep(backoffMs);
+      }
+    }
+
+    throw lastError ?? new EvolutionApiError('Evolution API no disponible', 'UNAVAILABLE');
+  }
+
+  private async executeRequest<T>(endpoint: string, options: RequestOptions<T>): Promise<T> {
+    const config = this.loadConfig();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      const response = await this.fetcher(`${config.apiUrl}${endpoint}`, {
+        ...options.init,
+        headers: {
+          apikey: config.apiKey,
+          'content-type': 'application/json',
+          ...(config.cloudflareClientId && config.cloudflareClientSecret
+            ? {
+                'CF-Access-Client-Id': config.cloudflareClientId,
+                'CF-Access-Client-Secret': config.cloudflareClientSecret,
+              }
+            : {}),
+          ...options.init?.headers,
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw errorFromStatus(response.status);
+      }
+
+      if (!options.schema) {
+        return undefined as T;
+      }
+
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!contentType.includes('application/json')) {
+        throw new EvolutionApiError(
+          'Evolution API devolvió una respuesta no válida',
+          'INVALID_RESPONSE',
+          502,
+        );
+      }
+
+      const parsed = options.schema.safeParse(await response.json());
+      if (!parsed.success) {
+        throw new EvolutionApiError(
+          'Evolution API devolvió una respuesta incompatible',
+          'INVALID_RESPONSE',
+          502,
+        );
+      }
+
+      return parsed.data;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  private recordFailure(error: EvolutionApiError): void {
+    if (!error.retryable) return;
+
+    this.consecutiveFailures += 1;
+    if (this.consecutiveFailures >= 5) {
+      this.circuitOpenUntil = this.now() + 30_000;
+    }
+  }
+}
+
+function loadEvolutionConfig(): EvolutionConfig {
+  const env = getEnv();
+  return {
+    apiUrl: env.EVOLUTION_API_URL.replace(/\/$/, ''),
+    apiKey: env.EVOLUTION_API_KEY,
+    cloudflareClientId: env.CF_ACCESS_CLIENT_ID,
+    cloudflareClientSecret: env.CF_ACCESS_CLIENT_SECRET,
+  };
+}
+
+function parseInstanceName(value: string): string {
+  const parsed = instanceNameSchema.safeParse(value);
+  if (!parsed.success) throw invalidInput('El nombre de instancia no es válido');
+  return parsed.data;
+}
+
+function invalidInput(message: string): EvolutionApiError {
+  return new EvolutionApiError(message, 'INVALID_INPUT', 400);
+}
+
+function messageId(payload: z.infer<typeof messagePayloadSchema>): string | null {
+  return payload.key?.id ?? payload.messageId ?? payload.id ?? null;
+}
+
+function errorFromStatus(status: number): EvolutionApiError {
+  if (status === 401 || status === 403) {
+    return new EvolutionApiError(
+      'Evolution API rechazó las credenciales',
+      'INVALID_CONFIGURATION',
+      status,
+    );
+  }
+  if (status === 404) {
+    return new EvolutionApiError('Recurso no encontrado', 'NOT_FOUND', status);
+  }
+  if (status === 409) {
+    return new EvolutionApiError('La instancia ya existe', 'CONFLICT', status);
+  }
+  if (status === 429) {
+    return new EvolutionApiError(
+      'Evolution API limitó temporalmente la solicitud',
+      'RATE_LIMITED',
+      status,
+      true,
+    );
+  }
+  return new EvolutionApiError(
+    'Evolution API no está disponible',
+    'UNAVAILABLE',
+    status,
+    status >= 500,
+  );
+}
+
+function normalizeEvolutionError(error: unknown): EvolutionApiError {
+  if (error instanceof EvolutionApiError) return error;
+  if (error instanceof z.ZodError) {
+    return invalidInput('Los datos enviados a Evolution API no son válidos');
+  }
+  if (error instanceof Error && error.name === 'AbortError') {
+    return new EvolutionApiError('Evolution API agotó el tiempo de espera', 'TIMEOUT', 504, true, {
+      cause: error,
+    });
+  }
+  return new EvolutionApiError(
+    'No se pudo conectar con Evolution API',
+    'NETWORK_ERROR',
+    502,
+    true,
+    { cause: error },
+  );
+}
+
+export const evolution: WhatsAppProvider = new EvolutionWhatsAppProvider();

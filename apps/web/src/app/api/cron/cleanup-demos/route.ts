@@ -26,13 +26,26 @@ export async function GET(req: Request) {
       throw error;
     }
 
+    const { error: webhookCleanupError } = await supabaseAdmin
+      .from('wa_webhook_events')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+    if (webhookCleanupError) {
+      throw webhookCleanupError;
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Limpieza completada',
       details: data,
     });
-  } catch (globalError: any) {
+  } catch (globalError: unknown) {
     console.error('Error fatal en cron de limpieza:', globalError);
-    return NextResponse.json({ error: globalError.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: globalError instanceof Error ? globalError.message : 'Error interno de limpieza',
+      },
+      { status: 500 },
+    );
   }
 }

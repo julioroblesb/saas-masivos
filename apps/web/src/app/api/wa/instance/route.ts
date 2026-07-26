@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { evolution, EvolutionApiError, extractEvolutionQr } from '@/integrations/evolution/client';
+import {
+  evolution,
+  EVOLUTION_COMPATIBLE_VERSION,
+  EvolutionApiError,
+} from '@/integrations/evolution/client';
 import { getEnv } from '@/config/env';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const supabase = await createClient();
     const {
@@ -50,14 +54,19 @@ export async function POST(req: Request) {
     let qr = null;
     try {
       const createData = await evolution.createInstance(instanceName);
-      qr = extractEvolutionQr(createData);
-    } catch (createErr: any) {
+      qr = createData.qrCode;
+    } catch (createErr: unknown) {
       if (createErr instanceof EvolutionApiError && createErr.status !== 409) {
         throw createErr;
       }
     }
 
-    await evolution.setWebhook(instanceName, webhookUrl, env.INTERNAL_TOKEN, profile.company_id);
+    await evolution.configureWebhook(
+      instanceName,
+      webhookUrl,
+      env.INTERNAL_TOKEN,
+      profile.company_id,
+    );
 
     const supabaseAdmin = getSupabaseAdmin();
 
@@ -77,19 +86,19 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      message: 'Instancia inicializada en Evolution API v2.2.3',
+      message: `Instancia inicializada en Evolution API ${EVOLUTION_COMPATIBLE_VERSION}`,
       instanceName,
       status: initialStatus,
       code: qr ? 'QR_READY' : 'QR_NOT_READY',
       qr,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al iniciar instancia en Evolution API:', {
       message: error instanceof Error ? error.message : String(error),
     });
     return NextResponse.json(
       {
-        error: error.message || 'Error al iniciar instancia',
+        error: error instanceof Error ? error.message : 'Error al iniciar instancia',
         code: 'INSTANCE_INIT_FAILED',
       },
       { status: 500 },
