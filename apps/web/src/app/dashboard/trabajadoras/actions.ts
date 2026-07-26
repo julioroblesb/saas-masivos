@@ -6,13 +6,13 @@ import { revalidatePath } from 'next/cache';
 
 export async function getStaffListAction(): Promise<SpaStaff[]> {
   const supabase = await createClient();
-  
+
   // Obtenemos los trabajadores
   const { data: staff, error: staffError } = await supabase
     .from('spa_staff')
     .select('*')
     .order('name', { ascending: true });
-    
+
   if (staffError) {
     console.error('Error fetching staff:', staffError);
     return [];
@@ -22,7 +22,7 @@ export async function getStaffListAction(): Promise<SpaStaff[]> {
   const { data: staffServices, error: servicesError } = await supabase
     .from('spa_staff_services')
     .select('staff_id, service_id');
-    
+
   if (servicesError) {
     console.error('Error fetching staff services:', servicesError);
     return staff; // Devolvemos el staff aunque falten los servicios
@@ -37,7 +37,7 @@ export async function getStaffListAction(): Promise<SpaStaff[]> {
     isActive: member.is_active,
     services: staffServices
       .filter((ss: any) => ss.staff_id === member.id)
-      .map((ss: any) => ss.service_id)
+      .map((ss: any) => ss.service_id),
   }));
 }
 
@@ -50,7 +50,7 @@ export async function upsertStaffAction(payload: {
   services: string[];
 }) {
   const supabase = await createClient();
-  
+
   // 1. Obtener el company_id actual
   const { data: profile } = await supabase.from('profiles').select('company_id').single();
   if (!profile?.company_id) return { error: 'No autorizado' };
@@ -66,10 +66,10 @@ export async function upsertStaffAction(payload: {
         birthday: payload.birthday || null,
         role: payload.role || null,
         is_active: payload.isActive,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', staffId);
-      
+
     if (error) return { error: 'Error actualizando trabajadora: ' + error.message };
   } else {
     const { data, error } = await supabase
@@ -79,22 +79,22 @@ export async function upsertStaffAction(payload: {
         name: payload.name,
         birthday: payload.birthday || null,
         role: payload.role || null,
-        is_active: payload.isActive
+        is_active: payload.isActive,
       })
       .select('id')
       .single();
-      
+
     if (error) return { error: 'Error creando trabajadora: ' + error.message };
     staffId = (data as any)?.id;
 
     // 2.5 Insertar horario por defecto (Lunes a Viernes de 09:00 a 18:00)
-    const defaultSchedules = [1, 2, 3, 4, 5, 6, 0].map(day => ({
+    const defaultSchedules = [1, 2, 3, 4, 5, 6, 0].map((day) => ({
       company_id: profile.company_id,
       staff_id: staffId,
       day_of_week: day,
       start_time: '09:00:00',
       end_time: '18:00:00',
-      is_working: day >= 1 && day <= 5
+      is_working: day >= 1 && day <= 5,
     }));
     await supabase.from('spa_staff_schedules').insert(defaultSchedules);
   }
@@ -103,17 +103,18 @@ export async function upsertStaffAction(payload: {
 
   // 3. Actualizar servicios (borrar y volver a insertar)
   await supabase.from('spa_staff_services').delete().eq('staff_id', staffId);
-  
+
   if (payload.services.length > 0) {
-    const servicesToInsert = payload.services.map(serviceId => ({
+    const servicesToInsert = payload.services.map((serviceId) => ({
+      company_id: profile.company_id,
       staff_id: staffId,
-      service_id: serviceId
+      service_id: serviceId,
     }));
-    
+
     const { error: servicesError } = await supabase
       .from('spa_staff_services')
       .insert(servicesToInsert);
-      
+
     if (servicesError) return { error: 'Error asignando servicios: ' + servicesError.message };
   }
 
@@ -125,7 +126,7 @@ export async function deleteStaffAction(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from('spa_staff').delete().eq('id', id);
   if (error) return { error: 'Error eliminando trabajadora: ' + error.message };
-  
+
   revalidatePath('/dashboard/trabajadoras');
   return { success: true };
 }
@@ -137,7 +138,7 @@ export async function getStaffSchedulesAction(staffId: string) {
     .select('*')
     .eq('staff_id', staffId)
     .order('day_of_week', { ascending: true });
-    
+
   if (error) {
     console.error('Error fetching staff schedules:', error);
     return [];
@@ -155,13 +156,13 @@ export async function upsertStaffSchedulesAction(staffId: string, schedules: any
 
   // Insertar los nuevos
   if (schedules.length > 0) {
-    const schedulesToInsert = schedules.map(sch => ({
+    const schedulesToInsert = schedules.map((sch) => ({
       company_id: profile.company_id,
       staff_id: staffId,
       day_of_week: sch.day_of_week,
       start_time: sch.start_time,
       end_time: sch.end_time,
-      is_working: sch.is_working
+      is_working: sch.is_working,
     }));
 
     const { error } = await supabase.from('spa_staff_schedules').insert(schedulesToInsert);

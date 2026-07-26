@@ -5,21 +5,23 @@ import { SpaVisit, SpaService } from '@/types/spa';
 
 export async function getAtencionesData(startDate?: string, endDate?: string) {
   const supabase = await createClient();
-  
+
   // Get active services
   const { data: services, error: sErr } = await supabase
     .from('spa_services')
     .select('*')
     .eq('is_active', true)
     .order('name');
-    
+
   let visitsQuery = supabase
     .from('spa_visits')
-    .select(`
+    .select(
+      `
       *,
       crm_marketing_contacts ( name, phone ),
       spa_services ( name, price )
-    `)
+    `,
+    )
     .order('visit_date', { ascending: false });
 
   if (startDate) {
@@ -30,15 +32,15 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   } else if (!startDate && !endDate) {
     visitsQuery = visitsQuery.limit(50);
   }
-  
+
   const { data: visits, error: vErr } = await visitsQuery;
-    
+
   // Get contacts
   const { data: contacts, error: cErr } = await supabase
     .from('crm_marketing_contacts')
     .select('id, name, phone, email, document_number')
     .order('name');
-    
+
   // Get active staff
   const { data: staff, error: staffErr } = await supabase
     .from('spa_staff')
@@ -50,39 +52,53 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     .from('spa_staff_services')
     .select('staff_id, service_id');
 
-  const staffWithServices = staff?.map(s => ({
-    id: s.id,
-    name: s.name,
-    role: s.role,
-    isActive: s.is_active,
-    services: staffServices?.filter((ss: any) => ss.staff_id === s.id).map((ss: any) => ss.service_id) || []
-  })) || [];
+  const staffWithServices =
+    staff?.map((s) => ({
+      id: s.id,
+      name: s.name,
+      role: s.role,
+      isActive: s.is_active,
+      services:
+        staffServices?.filter((ss: any) => ss.staff_id === s.id).map((ss: any) => ss.service_id) ||
+        [],
+    })) || [];
 
   // Get payment methods from company settings
   let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
     if (profile?.company_id) {
-      const { data: company } = await supabase.from('companies').select('settings').eq('id', profile.company_id).single();
+      const { data: company } = await supabase
+        .from('companies')
+        .select('settings')
+        .eq('id', profile.company_id)
+        .single();
       if (company?.settings?.payment_methods && company.settings.payment_methods.length > 0) {
         paymentMethods = company.settings.payment_methods;
       }
     }
   }
 
-  return { 
-    services: services || [], 
-    visits: visits?.map((v: any) => ({
-      ...v,
-      contact_name: v.crm_marketing_contacts?.name,
-      contact_phone: v.crm_marketing_contacts?.phone,
-      service_name: v.spa_services?.name,
-    })) || [],
+  return {
+    services: services || [],
+    visits:
+      visits?.map((v: any) => ({
+        ...v,
+        contact_name: v.crm_marketing_contacts?.name,
+        contact_phone: v.crm_marketing_contacts?.phone,
+        service_name: v.spa_services?.name,
+      })) || [],
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
-    error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message
+    error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
   };
 }
 
@@ -90,12 +106,14 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
   try {
     const { data: visit, error: visitErr } = await supabase
       .from('spa_visits')
-      .select(`
+      .select(
+        `
         company_id,
         visit_date,
         spa_services ( name, duration_days, care_instructions, care_image_url ),
         crm_marketing_contacts ( id, phone, name )
-      `)
+      `,
+      )
       .eq('id', visitId)
       .single();
 
@@ -107,15 +125,18 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
       .eq('id', visit.company_id)
       .single();
 
-    const DEFAULT_CARE_TEMPLATE = "Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!";
-    const DEFAULT_FOLLOWUP_TEMPLATE = "Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!";
+    const DEFAULT_CARE_TEMPLATE =
+      'Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!';
+    const DEFAULT_FOLLOWUP_TEMPLATE =
+      'Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!';
 
     const autoMsgs = company?.settings?.auto_messages || {
       careEnabled: true,
       careTemplate: DEFAULT_CARE_TEMPLATE,
-      careInstructionsTemplate: "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}",
+      careInstructionsTemplate:
+        'Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}',
       followUpEnabled: true,
-      followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE
+      followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE,
     };
 
     const replaceVars = (text: string, extraVars?: any) => {
@@ -124,7 +145,7 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
         .replace(/\{\{nombre\}\}/gi, visit.crm_marketing_contacts?.name || '')
         .replace(/\{\{servicio\}\}/gi, visit.spa_services?.name || '')
         .replace(/\{\{dias\}\}/gi, visit.spa_services?.duration_days?.toString() || '0');
-        
+
       if (extraVars?.cuidados) {
         res = res.replace(/\{\{cuidados\}\}/gi, extraVars.cuidados);
       }
@@ -150,7 +171,13 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
           visit_id: visitId,
           contact_id: visit.crm_marketing_contacts?.id,
           phone: visit.crm_marketing_contacts?.phone,
-          message: visit.spa_services?.care_instructions ? replaceVars(autoMsgs.careInstructionsTemplate || "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}", { cuidados: visit.spa_services.care_instructions }) : 'Instrucciones de cuidado',
+          message: visit.spa_services?.care_instructions
+            ? replaceVars(
+                autoMsgs.careInstructionsTemplate ||
+                  'Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}',
+                { cuidados: visit.spa_services.care_instructions },
+              )
+            : 'Instrucciones de cuidado',
           media_url: visit.spa_services.care_image_url || null,
           status: 'pendiente',
           scheduled_for: new Date(Date.now() + 5000).toISOString(), // 5 seconds after to ensure it arrives second
@@ -158,7 +185,11 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
       }
     }
 
-    if (autoMsgs.followUpEnabled && autoMsgs.followUpTemplate && visit.spa_services?.duration_days > 0) {
+    if (
+      autoMsgs.followUpEnabled &&
+      autoMsgs.followUpTemplate &&
+      visit.spa_services?.duration_days > 0
+    ) {
       const scheduledDate = new Date();
       scheduledDate.setDate(scheduledDate.getDate() + visit.spa_services.duration_days);
 
@@ -189,55 +220,62 @@ export async function createVisitAction(payload: {
   contact_id?: string;
   new_contact?: { name: string; phone: string };
   service_id: string;
-  status: 'en_curso' | 'completado' | 'cancelado' | 'agendada';
+  status: 'en_curso' | 'completado' | 'cancelado' | 'agendado';
   price_charged: number;
   scheduled_date: string;
   notes?: string;
   staff_id?: string;
 }) {
   const supabase = await createClient();
-  
+
   // Get user's company_id
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
-  
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('company_id')
     .eq('id', user.id)
     .single();
-    
+
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
-  
+
   let final_contact_id = payload.contact_id;
   // Create new contact if requested
   if (payload.new_contact && payload.new_contact.phone) {
-    const { data: contactData, error: contactError } = await supabase.rpc('rpc_upsert_marketing_contact', {
-      p_phone: payload.new_contact.phone,
-      p_name: payload.new_contact.name || '',
-      p_tags: ['cliente'],
-      p_opt_in_source: null,
-      p_email: null,
-      p_birthday: null,
-      p_allergies_and_conditions: null,
-      p_preferences: null,
-      p_internal_notes: null,
-      p_document_number: null
-    });
+    const { data: contactData, error: contactError } = await supabase.rpc(
+      'rpc_upsert_marketing_contact',
+      {
+        p_phone: payload.new_contact.phone,
+        p_name: payload.new_contact.name || '',
+        p_tags: ['cliente'],
+        p_opt_in_source: null,
+        p_email: null,
+        p_birthday: null,
+        p_allergies_and_conditions: null,
+        p_preferences: null,
+        p_internal_notes: null,
+        p_document_number: null,
+      },
+    );
 
     if (contactError || !contactData) {
-      return { error: 'Error al registrar nuevo paciente: ' + (contactError?.message || 'ID nulo') };
+      return {
+        error: 'Error al registrar nuevo paciente: ' + (contactError?.message || 'ID nulo'),
+      };
     }
-    
+
     final_contact_id = contactData.id;
   }
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };
-  
-  // Logica de Status basada en fecha: 
+
+  // Logica de Status basada en fecha:
   // Si scheduled_date es hoy, es en_curso, si es futuro agendada.
   // Pero lo manejamos en el frontend o respetamos lo enviado.
-  
+
   // scheduled_date viene del datetime-local, así que ya tiene hora, pero asume timezone local.
   // Es mejor usarlo directo. Si el usuario seleccionó "hoy", el frontend manda status='en_curso'.
   // Y si es cita futura status='agendada'.
@@ -251,13 +289,16 @@ export async function createVisitAction(payload: {
     const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
       p_staff_id: payload.staff_id,
       p_visit_date: visit_timestamp,
-      p_duration_minutes: 60
+      p_duration_minutes: 60,
     });
-    
+
     if (overlapError) {
       console.error('Overlap check failed:', overlapError);
     } else if (hasOverlap) {
-      return { error: 'El especialista seleccionado ya tiene una cita agendada en ese horario. Por favor, selecciona otro especialista u otro horario.' };
+      return {
+        error:
+          'El especialista seleccionado ya tiene una cita agendada en ese horario. Por favor, selecciona otro especialista u otro horario.',
+      };
     }
   }
 
@@ -274,124 +315,153 @@ export async function createVisitAction(payload: {
       price_charged: payload.price_charged,
       payment_status,
       notes: payload.notes,
-      staff_id: payload.staff_id || null
+      staff_id: payload.staff_id || null,
     })
     .select()
     .single();
-    
+
   if (error) {
     return { error: error.message };
   }
-  
+
   // If status is 'completado', schedule auto messages
   if (payload.status === 'completado') {
     const { error: scheduleError } = await scheduleAutoMessages(data.id, supabase);
     if (scheduleError) {
       console.error('Error scheduling auto messages:', scheduleError);
-      return { error: 'Visita creada, pero hubo un error al programar los mensajes: ' + scheduleError };
+      return {
+        error: 'Visita creada, pero hubo un error al programar los mensajes: ' + scheduleError,
+      };
     }
   }
-  
+
   return { success: true, data };
 }
 
-export async function updateVisitStatusAction(visitId: string, status: 'completado' | 'cancelado' | 'no_asistio') {
+export async function updateVisitStatusAction(
+  visitId: string,
+  status: 'completado' | 'cancelado' | 'no_asistio',
+) {
   const supabase = await createClient();
-  
-  const { error } = await supabase
-    .from('spa_visits')
-    .update({ status })
-    .eq('id', visitId);
-    
+
+  const { error } = await supabase.from('spa_visits').update({ status }).eq('id', visitId);
+
   if (error) {
     return { error: error.message };
   }
-  
+
   if (status === 'completado') {
     const { error: scheduleError } = await scheduleAutoMessages(visitId, supabase);
     if (scheduleError) {
       console.error('Error scheduling auto messages:', scheduleError);
-      return { error: 'Estado actualizado, pero hubo un error al programar los mensajes: ' + scheduleError };
+      return {
+        error: 'Estado actualizado, pero hubo un error al programar los mensajes: ' + scheduleError,
+      };
     }
   }
-  
+
   return { success: true };
 }
 
 export async function addPaymentAction(visitId: string, amount: number, paymentMethod: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('company_id')
+    .eq('id', user.id)
+    .single();
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
   // Insert payment
-  const { error: paymentError } = await supabase
-    .from('spa_payments')
-    .insert({
-      company_id: profile.company_id,
-      visit_id: visitId,
-      amount: amount,
-      payment_method: paymentMethod,
-      payment_date: new Date().toISOString()
-    });
+  const { error: paymentError } = await supabase.from('spa_payments').insert({
+    company_id: profile.company_id,
+    visit_id: visitId,
+    amount: amount,
+    payment_method: paymentMethod,
+    payment_date: new Date().toISOString(),
+  });
 
   if (paymentError) {
     return { error: paymentError.message };
   }
 
   // Check total paid and update visit status
-  const { data: payments } = await supabase.from('spa_payments').select('amount').eq('visit_id', visitId);
+  const { data: payments } = await supabase
+    .from('spa_payments')
+    .select('amount')
+    .eq('visit_id', visitId);
   const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  
-  const { data: visit } = await supabase.from('spa_visits').select('price_charged').eq('id', visitId).single();
-  
+
+  const { data: visit } = await supabase
+    .from('spa_visits')
+    .select('price_charged')
+    .eq('id', visitId)
+    .single();
+
   if (visit) {
     let payment_status = 'parcial';
     if (totalPaid >= visit.price_charged) payment_status = 'pagado';
-    
+
     await supabase.from('spa_visits').update({ payment_status }).eq('id', visitId);
   }
 
   return { success: true };
 }
 
-export async function completeAndPayVisitAction(visitId: string, payload: {
-  payment_method?: string;
-  is_credit: boolean;
-  initial_payment: number;
-  debt_due_date?: string;
-  notes?: string;
-}) {
+export async function completeAndPayVisitAction(
+  visitId: string,
+  payload: {
+    payment_method?: string;
+    is_credit: boolean;
+    initial_payment: number;
+    debt_due_date?: string;
+    notes?: string;
+  },
+) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('company_id')
+    .eq('id', user.id)
+    .single();
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
-  const { data: visit } = await supabase.from('spa_visits').select('price_charged').eq('id', visitId).single();
+  const { data: visit } = await supabase
+    .from('spa_visits')
+    .select('price_charged')
+    .eq('id', visitId)
+    .single();
   if (!visit) return { error: 'Atención no encontrada' };
 
   // Register payment if amount > 0
   if (payload.initial_payment > 0 && payload.payment_method) {
-    const { error: paymentError } = await supabase
-      .from('spa_payments')
-      .insert({
-        company_id: profile.company_id,
-        visit_id: visitId,
-        amount: payload.initial_payment,
-        payment_method: payload.payment_method,
-        payment_date: new Date().toISOString()
-      });
+    const { error: paymentError } = await supabase.from('spa_payments').insert({
+      company_id: profile.company_id,
+      visit_id: visitId,
+      amount: payload.initial_payment,
+      payment_method: payload.payment_method,
+      payment_date: new Date().toISOString(),
+    });
     if (paymentError) return { error: 'Error registrando abono: ' + paymentError.message };
   }
 
   // Calculate new total paid
-  const { data: payments } = await supabase.from('spa_payments').select('amount').eq('visit_id', visitId);
+  const { data: payments } = await supabase
+    .from('spa_payments')
+    .select('amount')
+    .eq('visit_id', visitId);
   const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  
+
   let payment_status = 'pendiente';
   if (totalPaid >= visit.price_charged) payment_status = 'pagado';
   else if (totalPaid > 0) payment_status = 'parcial';
@@ -404,12 +474,12 @@ export async function completeAndPayVisitAction(visitId: string, payload: {
 
   const { error: updateError } = await supabase
     .from('spa_visits')
-    .update({ 
+    .update({
       status: 'completado',
       completed_at: new Date().toISOString(),
       payment_status,
       debt_due_date: debtDate,
-      notes: payload.notes
+      notes: payload.notes,
     })
     .eq('id', visitId);
 
@@ -418,7 +488,7 @@ export async function completeAndPayVisitAction(visitId: string, payload: {
   // Trigger followups logic since it is completado
   try {
     await scheduleAutoMessages(visitId, supabase);
-  } catch(e) {
+  } catch (e) {
     console.error('Failed to trigger followups', e);
   }
 
@@ -427,7 +497,9 @@ export async function completeAndPayVisitAction(visitId: string, payload: {
 
 export async function deleteVisitAction(visitId: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
   // Eliminar abonos primero si existieran (la base de datos podría tener ON DELETE CASCADE, pero aseguramos)
@@ -439,16 +511,21 @@ export async function deleteVisitAction(visitId: string) {
   return { success: true };
 }
 
-export async function editVisitAction(visitId: string, payload: {
-  service_id: string;
-  staff_id?: string;
-  scheduled_date: string;
-  price_charged: number;
-  status: string;
-  notes?: string;
-}) {
+export async function editVisitAction(
+  visitId: string,
+  payload: {
+    service_id: string;
+    staff_id?: string;
+    scheduled_date: string;
+    price_charged: number;
+    status: string;
+    notes?: string;
+  },
+) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
   const { error } = await supabase
@@ -460,7 +537,7 @@ export async function editVisitAction(visitId: string, payload: {
       visit_date: new Date(payload.scheduled_date).toISOString(),
       price_charged: payload.price_charged,
       status: payload.status,
-      notes: payload.notes
+      notes: payload.notes,
     })
     .eq('id', visitId);
 
@@ -471,10 +548,16 @@ export async function editVisitAction(visitId: string, payload: {
 export async function rescheduleVisitAction(visitId: string, newDate: string) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return { error: 'No autorizado' };
 
-    const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
     if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
     // 1. Get original visit
@@ -489,9 +572,9 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
     // 2. Mark old visit as cancelled with note
     const { error: cancelErr } = await supabase
       .from('spa_visits')
-      .update({ 
+      .update({
         status: 'cancelado',
-        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${new Date(newDate).toLocaleString('es-PE')}]`
+        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${new Date(newDate).toLocaleString('es-PE')}]`,
       })
       .eq('id', visitId);
 
@@ -507,12 +590,10 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
       notes: oldVisit.notes,
       visit_date: new Date(newDate).toISOString(),
       scheduled_date: new Date(newDate).toISOString(),
-      status: 'agendada' // Automatically becomes en_curso based on date via trigger or frontend
+      status: 'agendada', // Automatically becomes en_curso based on date via trigger or frontend
     };
 
-    const { error: insertErr } = await supabase
-      .from('spa_visits')
-      .insert([newVisitData]);
+    const { error: insertErr } = await supabase.from('spa_visits').insert([newVisitData]);
 
     if (insertErr) return { error: insertErr.message };
 

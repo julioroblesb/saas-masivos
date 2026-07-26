@@ -1,6 +1,3 @@
-// Generated from Supabase project ywpafptrcvgoyaoqgzkz. Do not edit manually.
-// Regenerate after every schema migration.
-
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -64,6 +61,7 @@ export type Database = {
           notes: string | null;
           opt_in_source: string | null;
           phone: string;
+          phone_normalized: string | null;
           preferences: string | null;
           tags: string[] | null;
           total_spent: number | null;
@@ -86,6 +84,7 @@ export type Database = {
           notes?: string | null;
           opt_in_source?: string | null;
           phone: string;
+          phone_normalized?: string | null;
           preferences?: string | null;
           tags?: string[] | null;
           total_spent?: number | null;
@@ -108,6 +107,7 @@ export type Database = {
           notes?: string | null;
           opt_in_source?: string | null;
           phone?: string;
+          phone_normalized?: string | null;
           preferences?: string | null;
           tags?: string[] | null;
           total_spent?: number | null;
@@ -242,6 +242,34 @@ export type Database = {
           visit_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'crm_queue_campaign_tenant_fkey';
+            columns: ['campaign_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_wa_campaigns';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'crm_queue_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_marketing_contacts';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'crm_queue_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'view_crm_profiles';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'crm_queue_visit_tenant_fkey';
+            columns: ['visit_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_visits';
+            referencedColumns: ['id', 'company_id'];
+          },
           {
             foreignKeyName: 'crm_wa_queue_campaign_id_fkey';
             columns: ['campaign_id'];
@@ -383,6 +411,27 @@ export type Database = {
             referencedRelation: 'spa_visits';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'spa_followups_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_marketing_contacts';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'spa_followups_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'view_crm_profiles';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'spa_followups_visit_tenant_fkey';
+            columns: ['visit_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_visits';
+            referencedColumns: ['id', 'company_id'];
+          },
         ];
       };
       spa_payments: {
@@ -430,6 +479,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'spa_visits';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spa_payments_visit_tenant_fkey';
+            columns: ['visit_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_visits';
+            referencedColumns: ['id', 'company_id'];
           },
         ];
       };
@@ -626,6 +682,13 @@ export type Database = {
             referencedRelation: 'spa_staff';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'spa_staff_blocks_staff_tenant_fkey';
+            columns: ['staff_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_staff';
+            referencedColumns: ['id', 'company_id'];
+          },
         ];
       };
       spa_staff_schedules: {
@@ -677,22 +740,39 @@ export type Database = {
             referencedRelation: 'spa_staff';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'spa_staff_schedules_staff_tenant_fkey';
+            columns: ['staff_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_staff';
+            referencedColumns: ['id', 'company_id'];
+          },
         ];
       };
       spa_staff_services: {
         Row: {
+          company_id: string;
           service_id: string;
           staff_id: string;
         };
         Insert: {
+          company_id: string;
           service_id: string;
           staff_id: string;
         };
         Update: {
+          company_id?: string;
           service_id?: string;
           staff_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'spa_staff_services_company_fkey';
+            columns: ['company_id'];
+            isOneToOne: false;
+            referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'spa_staff_services_service_id_fkey';
             columns: ['service_id'];
@@ -701,11 +781,25 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'spa_staff_services_service_tenant_fkey';
+            columns: ['service_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_services';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
             foreignKeyName: 'spa_staff_services_staff_id_fkey';
             columns: ['staff_id'];
             isOneToOne: false;
             referencedRelation: 'spa_staff';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spa_staff_services_staff_tenant_fkey';
+            columns: ['staff_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_staff';
+            referencedColumns: ['id', 'company_id'];
           },
         ];
       };
@@ -793,6 +887,20 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'spa_visits_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_marketing_contacts';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
+            foreignKeyName: 'spa_visits_contact_tenant_fkey';
+            columns: ['contact_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'view_crm_profiles';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
             foreignKeyName: 'spa_visits_service_id_fkey';
             columns: ['service_id'];
             isOneToOne: false;
@@ -800,11 +908,25 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'spa_visits_service_tenant_fkey';
+            columns: ['service_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_services';
+            referencedColumns: ['id', 'company_id'];
+          },
+          {
             foreignKeyName: 'spa_visits_staff_id_fkey';
             columns: ['staff_id'];
             isOneToOne: false;
             referencedRelation: 'spa_staff';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spa_visits_staff_tenant_fkey';
+            columns: ['staff_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_staff';
+            referencedColumns: ['id', 'company_id'];
           },
         ];
       };
@@ -1086,6 +1208,7 @@ export type Database = {
           notes: string | null;
           opt_in_source: string | null;
           phone: string;
+          phone_normalized: string | null;
           preferences: string | null;
           tags: string[] | null;
           total_spent: number | null;

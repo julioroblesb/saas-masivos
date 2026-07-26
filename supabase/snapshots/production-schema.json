@@ -69,9 +69,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "crm_wa_campaigns_company_id_fkey",
@@ -185,9 +183,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "profiles_id_fkey",
@@ -304,9 +300,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "company_id"
-      ],
+      "primary_keys": ["company_id"],
       "foreign_keys": [
         {
           "name": "wa_sessions_company_id_fkey",
@@ -458,11 +452,16 @@
           "nullable": true,
           "default": null,
           "check": null
+        },
+        {
+          "name": "phone_normalized",
+          "type": "text",
+          "nullable": true,
+          "default": "regexp_replace(phone, '[^0-9]'::text, ''::text, 'g'::text)",
+          "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "crm_marketing_contacts_company_id_fkey",
@@ -596,9 +595,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "crm_wa_campaigns_company_id_fkey",
@@ -729,9 +726,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "crm_wa_queue_campaign_id_fkey",
@@ -788,9 +783,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "company_id"
-      ],
+      "primary_keys": ["company_id"],
       "foreign_keys": [
         {
           "name": "wa_auth_state_company_id_fkey",
@@ -895,9 +888,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_staff_services_service_id_fkey",
@@ -991,9 +982,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_products_company_id_fkey",
@@ -1029,6 +1018,13 @@
         },
         {
           "name": "service_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "company_id",
           "type": "uuid",
           "nullable": false,
           "default": null,
@@ -1133,9 +1129,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "crm_wa_queue_visit_id_fkey",
@@ -1263,9 +1257,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_follow_ups_contact_id_fkey",
@@ -1345,9 +1337,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_staff_schedules_staff_id_fkey",
@@ -1395,10 +1385,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "staff_id",
-        "service_id"
-      ],
+      "primary_keys": ["staff_id", "service_id"],
       "foreign_keys": [
         {
           "name": "spa_staff_services_staff_id_fkey",
@@ -1473,9 +1460,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_payments_company_id_fkey",
@@ -1557,9 +1542,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_staff_schedules_staff_id_fkey",
@@ -1641,9 +1624,7 @@
           "check": null
         }
       ],
-      "primary_keys": [
-        "id"
-      ],
+      "primary_keys": ["id"],
       "foreign_keys": [
         {
           "name": "spa_staff_blocks_staff_id_fkey",

@@ -7,6 +7,56 @@
     },
     {
       "kind": "constraint",
+      "name": "companies_plan_type_valid",
+      "fingerprint": "e7b7e22e27006a68a381a5c249c0d1be"
+    },
+    {
+      "kind": "constraint",
+      "name": "companies_status_valid",
+      "fingerprint": "c2b83afb58b9cc67a9a2ec392f266516"
+    },
+    {
+      "kind": "constraint",
+      "name": "companies_subscription_dates_valid",
+      "fingerprint": "ad0a8d604304e30aa077b02647dd7558"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_campaigns_counts_valid",
+      "fingerprint": "8734950cfe4e248debe3745eab60d12b"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_campaigns_delays_valid",
+      "fingerprint": "5b1d98b8d10f49ef64820f1fbcd2261c"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_campaigns_id_company_key",
+      "fingerprint": "50936e90f1cdd305674f16ace51d4903"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_campaigns_status_valid",
+      "fingerprint": "ca1fafdd3a0a941c6fd77a0cce003698"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_contacts_id_company_key",
+      "fingerprint": "50936e90f1cdd305674f16ace51d4903"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_contacts_phone_valid",
+      "fingerprint": "e225c30dfe5c67c78be21468b85102cc"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_contacts_totals_valid",
+      "fingerprint": "ca4628c53dbabe1c2ee0c261c390ca37"
+    },
+    {
+      "kind": "constraint",
       "name": "crm_marketing_contacts_company_id_fkey",
       "fingerprint": "328812a102e31a76daec694eff6a78d7"
     },
@@ -14,6 +64,31 @@
       "kind": "constraint",
       "name": "crm_marketing_contacts_pkey",
       "fingerprint": "4c6419b3704337bbfe50f018842a9ad3"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_queue_campaign_tenant_fkey",
+      "fingerprint": "5ca4dd11f668e2f4bd8af870baa0133c"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_queue_contact_tenant_fkey",
+      "fingerprint": "686dde9f3203cb0df2ec43d9353946fe"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_queue_delay_valid",
+      "fingerprint": "43dee42b761973ae84f2a37960791e0b"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_queue_status_valid",
+      "fingerprint": "f5b2b15fe23b92a345e5ebc927ac8802"
+    },
+    {
+      "kind": "constraint",
+      "name": "crm_queue_visit_tenant_fkey",
+      "fingerprint": "2f1f9baac8a1b36cf8499ec0a86b1226"
     },
     {
       "kind": "constraint",
@@ -92,6 +167,21 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_followups_contact_tenant_fkey",
+      "fingerprint": "01898ba8407961981c3852a4a2b904e8"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_followups_visit_tenant_fkey",
+      "fingerprint": "7d5138fec6ea3869d2f839def67a5c6e"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_payments_amount_valid",
+      "fingerprint": "fd705b9b303538976b56c35414d5897a"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_payments_company_id_fkey",
       "fingerprint": "328812a102e31a76daec694eff6a78d7"
     },
@@ -107,6 +197,11 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_payments_visit_tenant_fkey",
+      "fingerprint": "7d5138fec6ea3869d2f839def67a5c6e"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_products_company_id_fkey",
       "fingerprint": "328812a102e31a76daec694eff6a78d7"
     },
@@ -117,13 +212,28 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_products_values_valid",
+      "fingerprint": "7012707af3de9e5095013ba34031ca6f"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_services_company_id_fkey",
       "fingerprint": "328812a102e31a76daec694eff6a78d7"
     },
     {
       "kind": "constraint",
+      "name": "spa_services_id_company_key",
+      "fingerprint": "50936e90f1cdd305674f16ace51d4903"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_services_pkey",
       "fingerprint": "4c6419b3704337bbfe50f018842a9ad3"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_services_values_valid",
+      "fingerprint": "8fedcaf91a8f89326f92d1bd69c8618c"
     },
     {
       "kind": "constraint",
@@ -142,8 +252,23 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_staff_blocks_staff_tenant_fkey",
+      "fingerprint": "a1cc68152a317c672b16f5b97a97bdd3"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_staff_blocks_times_valid",
+      "fingerprint": "4131a37563a6b0db8604e08d49871bf5"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_staff_company_id_fkey",
       "fingerprint": "328812a102e31a76daec694eff6a78d7"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_staff_id_company_key",
+      "fingerprint": "50936e90f1cdd305674f16ace51d4903"
     },
     {
       "kind": "constraint",
@@ -177,6 +302,21 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_staff_schedules_staff_tenant_fkey",
+      "fingerprint": "a1cc68152a317c672b16f5b97a97bdd3"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_staff_schedules_times_valid",
+      "fingerprint": "e66e90e60240c304d5171ef0915474ce"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_staff_services_company_fkey",
+      "fingerprint": "328812a102e31a76daec694eff6a78d7"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_staff_services_pkey",
       "fingerprint": "35e3013bacf98135ec883b6bcc75cb79"
     },
@@ -187,8 +327,18 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_staff_services_service_tenant_fkey",
+      "fingerprint": "5880733c0e9e2635e238ce31777e9be5"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_staff_services_staff_id_fkey",
       "fingerprint": "a7ea97315791476c6d90a49d20e8df72"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_staff_services_staff_tenant_fkey",
+      "fingerprint": "a1cc68152a317c672b16f5b97a97bdd3"
     },
     {
       "kind": "constraint",
@@ -202,6 +352,21 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_visits_contact_tenant_fkey",
+      "fingerprint": "01898ba8407961981c3852a4a2b904e8"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_visits_id_company_key",
+      "fingerprint": "50936e90f1cdd305674f16ace51d4903"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_visits_payment_status_valid",
+      "fingerprint": "ec62c8b6b777e27b2202b3435a851e94"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_visits_pkey",
       "fingerprint": "4c6419b3704337bbfe50f018842a9ad3"
     },
@@ -212,13 +377,28 @@
     },
     {
       "kind": "constraint",
+      "name": "spa_visits_service_tenant_fkey",
+      "fingerprint": "a1f91cb55d5cca77c1cfe1845f17d865"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_visits_staff_id_fkey",
       "fingerprint": "38fab3383884bb2f9592e80227b7bc72"
     },
     {
       "kind": "constraint",
+      "name": "spa_visits_staff_tenant_fkey",
+      "fingerprint": "f85cf32252939e31186fd7bced76e92c"
+    },
+    {
+      "kind": "constraint",
       "name": "spa_visits_status_check",
       "fingerprint": "c8eb1c7c3dbc5bb7c8eafff575fd7404"
+    },
+    {
+      "kind": "constraint",
+      "name": "spa_visits_values_valid",
+      "fingerprint": "21f70632abe28c86305e24b005426156"
     },
     {
       "kind": "constraint",
@@ -242,8 +422,18 @@
     },
     {
       "kind": "constraint",
+      "name": "wa_sessions_daily_count_valid",
+      "fingerprint": "0a6e5fd7042127bcf238c844796954cc"
+    },
+    {
+      "kind": "constraint",
       "name": "wa_sessions_pkey",
       "fingerprint": "8c7bb1129276d4f785394d684102d35e"
+    },
+    {
+      "kind": "constraint",
+      "name": "wa_sessions_status_valid",
+      "fingerprint": "3ab24569c34b49f8017ff373cb446905"
     },
     {
       "kind": "function",
@@ -354,6 +544,21 @@
       "kind": "index",
       "name": "companies_pkey",
       "fingerprint": "5432bdbc84f521fbeb2451145455865c"
+    },
+    {
+      "kind": "index",
+      "name": "crm_campaigns_id_company_key",
+      "fingerprint": "dfde35613722f323721e65e58c8ef9a9"
+    },
+    {
+      "kind": "index",
+      "name": "crm_contacts_company_phone_normalized_uidx",
+      "fingerprint": "2fb9a5c59732840368bd7978cd43ed12"
+    },
+    {
+      "kind": "index",
+      "name": "crm_contacts_id_company_key",
+      "fingerprint": "a2a4e27231f3715e16d7a53af45b9392"
     },
     {
       "kind": "index",
@@ -527,6 +732,11 @@
     },
     {
       "kind": "index",
+      "name": "spa_services_id_company_key",
+      "fingerprint": "60d8747f17f66284abf4fa481ccbf622"
+    },
+    {
+      "kind": "index",
       "name": "spa_services_pkey",
       "fingerprint": "7eda140541c52a19f01e21b552c36697"
     },
@@ -539,6 +749,11 @@
       "kind": "index",
       "name": "spa_staff_company_id_idx",
       "fingerprint": "f38d13a7dca9145d899c8ec5ddce1a8e"
+    },
+    {
+      "kind": "index",
+      "name": "spa_staff_id_company_key",
+      "fingerprint": "6f614bc89f77a8d5d52db50271a07a40"
     },
     {
       "kind": "index",
@@ -564,6 +779,11 @@
       "kind": "index",
       "name": "spa_staff_services_service_id_idx",
       "fingerprint": "4770ada827467232cb6e9ad607b23f82"
+    },
+    {
+      "kind": "index",
+      "name": "spa_visits_id_company_key",
+      "fingerprint": "98469c1ab40ca6e1dea9327ca5ed0317"
     },
     {
       "kind": "index",
@@ -788,7 +1008,7 @@
     {
       "kind": "table",
       "name": "crm_marketing_contacts",
-      "fingerprint": "44d2dbf587c4ab9fb709febb9163816b"
+      "fingerprint": "6d6eac46a0694a29a172cb432d38c9b1"
     },
     {
       "kind": "table",
@@ -843,7 +1063,7 @@
     {
       "kind": "table",
       "name": "spa_staff_services",
-      "fingerprint": "cabb008f8be8323f825bdf06957ebdb0"
+      "fingerprint": "df8ca113073529542939eccab5b8f19b"
     },
     {
       "kind": "table",
@@ -867,6 +1087,6 @@
     }
   ],
   "project_ref": "ywpafptrcvgoyaoqgzkz",
-  "object_count": 173,
+  "object_count": 217,
   "postgres_version": "17.6"
 }
