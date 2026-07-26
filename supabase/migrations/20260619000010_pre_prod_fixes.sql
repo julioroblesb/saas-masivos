@@ -3,6 +3,7 @@ ALTER TABLE crm_wa_queue ADD COLUMN IF NOT EXISTS processing_started_at timestam
 
 -- 2. RLS Security for wa_sessions (Select Only)
 DROP POLICY IF EXISTS "tenant_isolation_all_sessions" ON wa_sessions;
+DROP POLICY IF EXISTS "tenant_isolation_select_sessions" ON wa_sessions;
 CREATE POLICY "tenant_isolation_select_sessions" ON wa_sessions
   FOR SELECT USING (company_id = auth_company_id());
 
@@ -92,6 +93,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- upsert contact
+DROP FUNCTION IF EXISTS rpc_upsert_marketing_contact(text, text, text[]);
 CREATE OR REPLACE FUNCTION rpc_upsert_marketing_contact(
     p_phone text,
     p_name text,
@@ -121,6 +123,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- batch insert: limit to 1000
+DROP FUNCTION IF EXISTS rpc_batch_insert_marketing_contacts(jsonb);
 CREATE OR REPLACE FUNCTION rpc_batch_insert_marketing_contacts(p_contacts jsonb) RETURNS jsonb 
 SET search_path = public, pg_temp
 AS $$
@@ -161,6 +164,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- delete contact
+DROP FUNCTION IF EXISTS rpc_delete_marketing_contact(uuid);
 CREATE OR REPLACE FUNCTION rpc_delete_marketing_contact(p_contact_id uuid) RETURNS jsonb 
 SET search_path = public, pg_temp
 AS $$
@@ -180,6 +184,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- delete by tag
+DROP FUNCTION IF EXISTS rpc_delete_marketing_contacts_by_tag(text);
 CREATE OR REPLACE FUNCTION rpc_delete_marketing_contacts_by_tag(p_tag text) RETURNS jsonb 
 SET search_path = public, pg_temp
 AS $$

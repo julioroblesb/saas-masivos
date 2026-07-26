@@ -1,0 +1,1661 @@
+{
+  "project_ref": "ywpafptrcvgoyaoqgzkz",
+  "tables": [
+    {
+      "name": "companies",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": "'activa'::text",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "settings",
+          "type": "jsonb",
+          "nullable": true,
+          "default": "'{}'::jsonb",
+          "check": null
+        },
+        {
+          "name": "plan_type",
+          "type": "text",
+          "nullable": true,
+          "default": "'prueba'::text",
+          "check": null
+        },
+        {
+          "name": "subscription_start_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "subscription_end_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "(now() + '3 days'::interval)",
+          "check": null
+        },
+        {
+          "name": "is_demo",
+          "type": "bool",
+          "nullable": true,
+          "default": "false",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "crm_wa_campaigns_company_id_fkey",
+          "source": "public.crm_wa_campaigns.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_staff_schedules_company_id_fkey",
+          "source": "public.spa_staff_schedules.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_staff_blocks_company_id_fkey",
+          "source": "public.spa_staff_blocks.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "profiles_company_id_fkey",
+          "source": "public.profiles.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "wa_sessions_company_id_fkey",
+          "source": "public.wa_sessions.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "crm_marketing_contacts_company_id_fkey",
+          "source": "public.crm_marketing_contacts.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "crm_wa_queue_company_id_fkey",
+          "source": "public.crm_wa_queue.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "wa_auth_state_company_id_fkey",
+          "source": "public.wa_auth_state.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_services_company_id_fkey",
+          "source": "public.spa_services.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_products_company_id_fkey",
+          "source": "public.spa_products.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_visits_company_id_fkey",
+          "source": "public.spa_visits.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_follow_ups_company_id_fkey",
+          "source": "public.spa_follow_ups.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_staff_company_id_fkey",
+          "source": "public.spa_staff.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_payments_company_id_fkey",
+          "source": "public.spa_payments.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "profiles",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": "role = ANY (ARRAY['super_admin'::text, 'tenant'::text])"
+        },
+        {
+          "name": "full_name",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "profiles_id_fkey",
+          "source": "public.profiles.id",
+          "target": "auth.users.id"
+        },
+        {
+          "name": "profiles_company_id_fkey",
+          "source": "public.profiles.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "wa_sessions",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": "'desconectado'::text",
+          "check": null
+        },
+        {
+          "name": "phone_number",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "last_connected_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "last_disconnect_reason",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "bb_project_id",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "bb_host",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "next_allowed_send_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "last_message_sent_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "connection_started_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "daily_sent_count",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "daily_reset_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "consecutive_errors",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "company_id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "wa_sessions_company_id_fkey",
+          "source": "public.wa_sessions.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "crm_marketing_contacts",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "tags",
+          "type": "_text",
+          "nullable": true,
+          "default": "'{}'::text[]",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "opt_in_source",
+          "type": "varchar",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "is_archived",
+          "type": "bool",
+          "nullable": true,
+          "default": "false",
+          "check": null
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "birthday",
+          "type": "date",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "allergies_and_conditions",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "preferences",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "internal_notes",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "total_spent",
+          "type": "numeric",
+          "nullable": true,
+          "default": "0.00",
+          "check": null
+        },
+        {
+          "name": "total_visits",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "last_visit_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "customer_segment",
+          "type": "text",
+          "nullable": true,
+          "default": "'Nuevo'::text",
+          "check": null
+        },
+        {
+          "name": "document_number",
+          "type": "varchar",
+          "nullable": true,
+          "default": null,
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "crm_marketing_contacts_company_id_fkey",
+          "source": "public.crm_marketing_contacts.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_visits_contact_id_fkey",
+          "source": "public.spa_visits.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        },
+        {
+          "name": "spa_follow_ups_contact_id_fkey",
+          "source": "public.spa_follow_ups.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        },
+        {
+          "name": "crm_wa_queue_contact_id_fkey",
+          "source": "public.crm_wa_queue.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        }
+      ]
+    },
+    {
+      "name": "crm_wa_campaigns",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "message_template",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": "'borrador'::text",
+          "check": null
+        },
+        {
+          "name": "total_contacts",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "sent_count",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "failed_count",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "started_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "sequence",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "min_delay_sec",
+          "type": "int4",
+          "nullable": true,
+          "default": "45",
+          "check": null
+        },
+        {
+          "name": "max_delay_sec",
+          "type": "int4",
+          "nullable": true,
+          "default": "90",
+          "check": null
+        },
+        {
+          "name": "replied_count",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "crm_wa_campaigns_company_id_fkey",
+          "source": "public.crm_wa_campaigns.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "crm_wa_queue_campaign_id_fkey",
+          "source": "public.crm_wa_queue.campaign_id",
+          "target": "public.crm_wa_campaigns.id"
+        }
+      ]
+    },
+    {
+      "name": "crm_wa_queue",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "campaign_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": "'pendiente'::text",
+          "check": null
+        },
+        {
+          "name": "error_message",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "sent_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "scheduled_for",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "processing_started_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "replied",
+          "type": "bool",
+          "nullable": true,
+          "default": "false",
+          "check": null
+        },
+        {
+          "name": "delay_after_ms",
+          "type": "int4",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "media_url",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "crm_wa_queue_campaign_id_fkey",
+          "source": "public.crm_wa_queue.campaign_id",
+          "target": "public.crm_wa_campaigns.id"
+        },
+        {
+          "name": "crm_wa_queue_company_id_fkey",
+          "source": "public.crm_wa_queue.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "crm_wa_queue_visit_id_fkey",
+          "source": "public.crm_wa_queue.visit_id",
+          "target": "public.spa_visits.id"
+        },
+        {
+          "name": "crm_wa_queue_contact_id_fkey",
+          "source": "public.crm_wa_queue.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        }
+      ]
+    },
+    {
+      "name": "wa_auth_state",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "creds",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "keys",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "company_id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "wa_auth_state_company_id_fkey",
+          "source": "public.wa_auth_state.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_services",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "price",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "min_price",
+          "type": "numeric",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "promo_price",
+          "type": "numeric",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "duration_days",
+          "type": "int4",
+          "nullable": false,
+          "default": "30",
+          "check": null
+        },
+        {
+          "name": "care_instructions",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "care_image_url",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "nullable": true,
+          "default": "true",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_staff_services_service_id_fkey",
+          "source": "public.spa_staff_services.service_id",
+          "target": "public.spa_services.id"
+        },
+        {
+          "name": "spa_visits_service_id_fkey",
+          "source": "public.spa_visits.service_id",
+          "target": "public.spa_services.id"
+        },
+        {
+          "name": "spa_services_company_id_fkey",
+          "source": "public.spa_services.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_products",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "price",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "image_url",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "stock",
+          "type": "int4",
+          "nullable": true,
+          "default": "0",
+          "check": null
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "nullable": true,
+          "default": "true",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_products_company_id_fkey",
+          "source": "public.spa_products.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_visits",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "service_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": "'en_curso'::text",
+          "check": "status = ANY (ARRAY['agendado'::text, 'en_curso'::text, 'completado'::text, 'cancelado'::text, 'no_asistio'::text])"
+        },
+        {
+          "name": "visit_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "price_charged",
+          "type": "numeric",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "follow_up_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "follow_up_sent",
+          "type": "bool",
+          "nullable": true,
+          "default": "false",
+          "check": null
+        },
+        {
+          "name": "care_sent",
+          "type": "bool",
+          "nullable": true,
+          "default": "false",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "staff_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "payment_status",
+          "type": "text",
+          "nullable": true,
+          "default": "'pendiente'::text",
+          "check": null
+        },
+        {
+          "name": "scheduled_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "debt_due_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "duration_minutes",
+          "type": "int4",
+          "nullable": true,
+          "default": "60",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "crm_wa_queue_visit_id_fkey",
+          "source": "public.crm_wa_queue.visit_id",
+          "target": "public.spa_visits.id"
+        },
+        {
+          "name": "spa_visits_company_id_fkey",
+          "source": "public.spa_visits.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_visits_staff_id_fkey",
+          "source": "public.spa_visits.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_visits_contact_id_fkey",
+          "source": "public.spa_visits.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        },
+        {
+          "name": "spa_visits_service_id_fkey",
+          "source": "public.spa_visits.service_id",
+          "target": "public.spa_services.id"
+        },
+        {
+          "name": "spa_payments_visit_id_fkey",
+          "source": "public.spa_payments.visit_id",
+          "target": "public.spa_visits.id"
+        },
+        {
+          "name": "spa_follow_ups_visit_id_fkey",
+          "source": "public.spa_follow_ups.visit_id",
+          "target": "public.spa_visits.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_follow_ups",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "contact_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "media_url",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "scheduled_for",
+          "type": "timestamptz",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": true,
+          "default": "'pendiente'::text",
+          "check": null
+        },
+        {
+          "name": "sent_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_follow_ups_contact_id_fkey",
+          "source": "public.spa_follow_ups.contact_id",
+          "target": "public.crm_marketing_contacts.id"
+        },
+        {
+          "name": "spa_follow_ups_company_id_fkey",
+          "source": "public.spa_follow_ups.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_follow_ups_visit_id_fkey",
+          "source": "public.spa_follow_ups.visit_id",
+          "target": "public.spa_visits.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_staff",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "extensions.uuid_generate_v4()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "birthday",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "nullable": true,
+          "default": "true",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_staff_schedules_staff_id_fkey",
+          "source": "public.spa_staff_schedules.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_visits_staff_id_fkey",
+          "source": "public.spa_visits.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_staff_blocks_staff_id_fkey",
+          "source": "public.spa_staff_blocks.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_staff_company_id_fkey",
+          "source": "public.spa_staff.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_staff_services_staff_id_fkey",
+          "source": "public.spa_staff_services.staff_id",
+          "target": "public.spa_staff.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_staff_services",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "staff_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "service_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "staff_id",
+        "service_id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_staff_services_staff_id_fkey",
+          "source": "public.spa_staff_services.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_staff_services_service_id_fkey",
+          "source": "public.spa_staff_services.service_id",
+          "target": "public.spa_services.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_payments",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "amount",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "payment_method",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "payment_date",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_payments_company_id_fkey",
+          "source": "public.spa_payments.company_id",
+          "target": "public.companies.id"
+        },
+        {
+          "name": "spa_payments_visit_id_fkey",
+          "source": "public.spa_payments.visit_id",
+          "target": "public.spa_visits.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_staff_schedules",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "staff_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "day_of_week",
+          "type": "int4",
+          "nullable": false,
+          "default": null,
+          "check": "day_of_week >= 0 AND day_of_week <= 6"
+        },
+        {
+          "name": "start_time",
+          "type": "time",
+          "nullable": false,
+          "default": "'09:00:00'::time without time zone",
+          "check": null
+        },
+        {
+          "name": "end_time",
+          "type": "time",
+          "nullable": false,
+          "default": "'18:00:00'::time without time zone",
+          "check": null
+        },
+        {
+          "name": "is_working",
+          "type": "bool",
+          "nullable": true,
+          "default": "true",
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_staff_schedules_staff_id_fkey",
+          "source": "public.spa_staff_schedules.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_staff_schedules_company_id_fkey",
+          "source": "public.spa_staff_schedules.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    },
+    {
+      "name": "spa_staff_blocks",
+      "rls_enabled": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "check": null
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "staff_id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "block_date",
+          "type": "date",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "start_time",
+          "type": "time",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "end_time",
+          "type": "time",
+          "nullable": false,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": true,
+          "default": null,
+          "check": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": true,
+          "default": "now()",
+          "check": null
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "name": "spa_staff_blocks_staff_id_fkey",
+          "source": "public.spa_staff_blocks.staff_id",
+          "target": "public.spa_staff.id"
+        },
+        {
+          "name": "spa_staff_blocks_company_id_fkey",
+          "source": "public.spa_staff_blocks.company_id",
+          "target": "public.companies.id"
+        }
+      ]
+    }
+  ]
+}

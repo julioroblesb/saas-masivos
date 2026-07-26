@@ -17,6 +17,7 @@
     "test:integration": "npm run test:integration --workspace=web",
     "test:e2e": "npm run test:e2e --workspace=web",
     "build": "npm run build --workspace=web",
+    "db:coverage": "node scripts/check-schema-coverage.mjs",
     "format": "prettier --write \"*.{json,md}\" \".github/**/*.yml\" \"docs/**/*.{json,md}\" \"apps/web/*.{json,md,mjs}\"",
     "format:check": "prettier --check \"*.{json,md}\" \".github/**/*.yml\" \"docs/**/*.{json,md}\" \"apps/web/*.{json,md,mjs}\"",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
