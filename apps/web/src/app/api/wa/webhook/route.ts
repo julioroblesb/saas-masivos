@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       .select('id, campaign_id')
       .eq('company_id', companyId)
       .eq('phone', phoneNumber)
-      .eq('status', 'enviado')
+      .eq('status', 'sent')
       .eq('replied', false)
       .gte('sent_at', twoDaysAgo.toISOString())
       .order('sent_at', { ascending: false })

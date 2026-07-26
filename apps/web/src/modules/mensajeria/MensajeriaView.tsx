@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Calendar, Clock, Phone, Send, AlertTriangle, CheckCircle, Edit, Save, X, Trash2 } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Phone,
+  Send,
+  AlertTriangle,
+  CheckCircle,
+  Edit,
+  Save,
+  X,
+  Trash2,
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
@@ -20,7 +31,8 @@ export default function MensajeriaView() {
     try {
       const { data, error } = await supabase
         .from('crm_wa_queue')
-        .select(`
+        .select(
+          `
           id, 
           phone, 
           message, 
@@ -28,7 +40,8 @@ export default function MensajeriaView() {
           scheduled_for, 
           created_at,
           crm_marketing_contacts (name)
-        `)
+        `,
+        )
         .order('scheduled_for', { ascending: false })
         .limit(100);
 
@@ -58,13 +71,23 @@ export default function MensajeriaView() {
     try {
       const { error } = await supabase
         .from('crm_wa_queue')
-        .update({ message: editContent, scheduled_for: new Date(editDate).toISOString() })
+        .update({
+          message: editContent,
+          scheduled_for: new Date(editDate).toISOString(),
+          next_attempt_at: new Date(editDate).toISOString(),
+        })
         .eq('id', editingId);
-        
+
       if (error) throw error;
-      
+
       toast.success('Mensaje actualizado exitosamente');
-      setMessages(messages.map(m => m.id === editingId ? { ...m, message: editContent, scheduled_for: new Date(editDate).toISOString() } : m));
+      setMessages(
+        messages.map((m) =>
+          m.id === editingId
+            ? { ...m, message: editContent, scheduled_for: new Date(editDate).toISOString() }
+            : m,
+        ),
+      );
       setEditingId(null);
     } catch (err: any) {
       console.error('Error updating message:', err);
@@ -77,10 +100,22 @@ export default function MensajeriaView() {
   const handleDelete = async (id: string) => {
     if (!confirm('¿Seguro que deseas eliminar este mensaje?')) return;
     try {
-      const { error } = await supabase.from('crm_wa_queue').delete().eq('id', id);
+      const { error } = await supabase
+        .from('crm_wa_queue')
+        .update({
+          status: 'cancelled',
+          last_error_code: 'USER_CANCELLED',
+          last_error_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .in('status', ['queued', 'retry_scheduled']);
       if (error) throw error;
-      toast.success('Mensaje eliminado');
-      setMessages(messages.filter(m => m.id !== id));
+      toast.success('Mensaje cancelado');
+      setMessages(
+        messages.map((message) =>
+          message.id === id ? { ...message, status: 'cancelled' } : message,
+        ),
+      );
     } catch (err) {
       console.error(err);
       toast.error('Error al eliminar el mensaje');
@@ -89,14 +124,40 @@ export default function MensajeriaView() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pendiente':
-        return <span className="badge bg-warning/10 text-warning flex items-center gap-1 w-max"><Clock size={12} /> Pendiente</span>;
-      case 'enviando':
-        return <span className="badge bg-info/10 text-info flex items-center gap-1 w-max"><Send size={12} /> Enviando</span>;
-      case 'enviado':
-        return <span className="badge bg-success/10 text-success flex items-center gap-1 w-max"><CheckCircle size={12} /> Enviado</span>;
-      case 'fallido':
-        return <span className="badge bg-danger/10 text-danger flex items-center gap-1 w-max"><AlertTriangle size={12} /> Fallido</span>;
+      case 'queued':
+        return (
+          <span className="badge bg-warning/10 text-warning flex items-center gap-1 w-max">
+            <Clock size={12} /> Pendiente
+          </span>
+        );
+      case 'leased':
+      case 'processing':
+        return (
+          <span className="badge bg-info/10 text-info flex items-center gap-1 w-max">
+            <Send size={12} /> Enviando
+          </span>
+        );
+      case 'sent':
+        return (
+          <span className="badge bg-success/10 text-success flex items-center gap-1 w-max">
+            <CheckCircle size={12} /> Enviado
+          </span>
+        );
+      case 'retry_scheduled':
+        return (
+          <span className="badge bg-warning/10 text-warning flex items-center gap-1 w-max">
+            <Clock size={12} /> Reintentando
+          </span>
+        );
+      case 'failed':
+      case 'dead_letter':
+        return (
+          <span className="badge bg-danger/10 text-danger flex items-center gap-1 w-max">
+            <AlertTriangle size={12} /> Fallido
+          </span>
+        );
+      case 'cancelled':
+        return <span className="badge bg-zinc-100 text-zinc-500 w-max">Cancelado</span>;
       default:
         return <span className="badge bg-zinc-100 text-zinc-500 w-max">{status}</span>;
     }
@@ -113,7 +174,9 @@ export default function MensajeriaView() {
   return (
     <div className="panel p-0 overflow-hidden">
       <div className="flex items-center justify-between p-5 border-b border-black-light/50 dark:border-dark-light">
-        <h5 className="font-semibold text-lg dark:text-white-light">Mensajes Programados y Sistema</h5>
+        <h5 className="font-semibold text-lg dark:text-white-light">
+          Mensajes Programados y Sistema
+        </h5>
         <button className="btn btn-sm btn-outline-primary" onClick={fetchMessages}>
           Actualizar
         </button>
@@ -134,7 +197,10 @@ export default function MensajeriaView() {
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {messages.map((msg: any) => (
-                <tr key={msg.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                <tr
+                  key={msg.id}
+                  className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
+                >
                   <td className="p-4 align-top">
                     {editingId === msg.id ? (
                       <div className="min-w-[180px]">
@@ -147,7 +213,10 @@ export default function MensajeriaView() {
                     ) : (
                       <div className="flex items-center gap-2 text-black dark:text-white font-medium">
                         <Calendar size={14} className="text-zinc-400 shrink-0" />
-                        {new Date(msg.scheduled_for || msg.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+                        {new Date(msg.scheduled_for || msg.created_at).toLocaleString('es-ES', {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })}
                       </div>
                     )}
                   </td>
@@ -161,57 +230,59 @@ export default function MensajeriaView() {
                   </td>
                   <td className="p-4 align-top text-zinc-600 dark:text-zinc-300">
                     {editingId === msg.id ? (
-                      <textarea 
-                        className="form-textarea w-full text-sm min-h-[80px]" 
+                      <textarea
+                        className="form-textarea w-full text-sm min-h-[80px]"
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
                         disabled={isSaving}
                       />
                     ) : (
-                      <div className="whitespace-pre-wrap">
-                        {msg.message}
-                      </div>
+                      <div className="whitespace-pre-wrap">{msg.message}</div>
                     )}
                   </td>
-                  <td className="p-4 align-top">
-                    {getStatusBadge(msg.status)}
-                  </td>
+                  <td className="p-4 align-top">{getStatusBadge(msg.status)}</td>
                   <td className="p-4 align-top text-right">
                     {editingId === msg.id ? (
                       <div className="flex justify-end gap-2">
-                        <button 
-                          className="btn btn-sm btn-outline-danger p-1.5" 
+                        <button
+                          className="btn btn-sm btn-outline-danger p-1.5"
                           onClick={() => setEditingId(null)}
                           disabled={isSaving}
                         >
                           <X size={14} />
                         </button>
-                        <button 
-                          className="btn btn-sm btn-success p-1.5 text-white" 
+                        <button
+                          className="btn btn-sm btn-success p-1.5 text-white"
                           onClick={handleSaveEdit}
                           disabled={isSaving}
                         >
-                          {isSaving ? <span className="animate-spin border-2 border-white border-t-transparent w-3.5 h-3.5 rounded-full inline-block"></span> : <Save size={14} />}
+                          {isSaving ? (
+                            <span className="animate-spin border-2 border-white border-t-transparent w-3.5 h-3.5 rounded-full inline-block"></span>
+                          ) : (
+                            <Save size={14} />
+                          )}
                         </button>
                       </div>
                     ) : (
                       <div className="flex justify-end gap-2">
-                        {msg.status === 'pendiente' && (
-                          <button 
-                            className="btn btn-sm btn-outline-primary p-1.5" 
+                        {['queued', 'retry_scheduled'].includes(msg.status) && (
+                          <button
+                            className="btn btn-sm btn-outline-primary p-1.5"
                             onClick={() => handleEditClick(msg)}
                             title="Editar"
                           >
                             <Edit size={14} />
                           </button>
                         )}
-                        <button 
-                          className="btn btn-sm btn-outline-danger p-1.5" 
-                          onClick={() => handleDelete(msg.id)}
-                          title="Eliminar"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {['queued', 'retry_scheduled'].includes(msg.status) && (
+                          <button
+                            className="btn btn-sm btn-outline-danger p-1.5"
+                            onClick={() => handleDelete(msg.id)}
+                            title="Cancelar"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     )}
                   </td>

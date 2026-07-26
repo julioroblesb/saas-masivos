@@ -38,7 +38,15 @@ export interface WaQueueItem {
   contactId: string;
   phone: string;
   message: string;
-  status: 'pendiente' | 'processing' | 'enviado' | 'fallido' | 'pending' | 'sent' | 'failed';
+  status:
+    | 'queued'
+    | 'leased'
+    | 'processing'
+    | 'sent'
+    | 'retry_scheduled'
+    | 'failed'
+    | 'dead_letter'
+    | 'cancelled';
   errorMessage?: string;
   scheduledFor: string;
   sentAt?: string;

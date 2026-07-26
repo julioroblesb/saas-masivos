@@ -155,17 +155,23 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
     const queueInserts = [];
 
     if (autoMsgs.careEnabled && autoMsgs.careTemplate) {
+      const careScheduledFor = new Date().toISOString();
       queueInserts.push({
         company_id: visit.company_id,
         visit_id: visitId,
         contact_id: visit.crm_marketing_contacts?.id,
         phone: visit.crm_marketing_contacts?.phone,
         message: replaceVars(autoMsgs.careTemplate),
-        status: 'pendiente',
-        scheduled_for: new Date().toISOString(),
+        status: 'queued',
+        scheduled_for: careScheduledFor,
+        next_attempt_at: careScheduledFor,
+        idempotency_key: `visit:${visitId}:care`,
+        message_type: 'transactional',
+        priority: 200,
       });
 
       if (visit.spa_services?.care_instructions || visit.spa_services?.care_image_url) {
+        const instructionsScheduledFor = new Date(Date.now() + 5000).toISOString();
         queueInserts.push({
           company_id: visit.company_id,
           visit_id: visitId,
@@ -179,8 +185,12 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
               )
             : 'Instrucciones de cuidado',
           media_url: visit.spa_services.care_image_url || null,
-          status: 'pendiente',
-          scheduled_for: new Date(Date.now() + 5000).toISOString(), // 5 seconds after to ensure it arrives second
+          status: 'queued',
+          scheduled_for: instructionsScheduledFor,
+          next_attempt_at: instructionsScheduledFor,
+          idempotency_key: `visit:${visitId}:care-instructions`,
+          message_type: 'transactional',
+          priority: 200,
         });
       }
     }
@@ -199,13 +209,20 @@ async function scheduleAutoMessages(visitId: string, supabase: any) {
         contact_id: visit.crm_marketing_contacts?.id,
         phone: visit.crm_marketing_contacts?.phone,
         message: replaceVars(autoMsgs.followUpTemplate),
-        status: 'pendiente',
+        status: 'queued',
         scheduled_for: scheduledDate.toISOString(),
+        next_attempt_at: scheduledDate.toISOString(),
+        idempotency_key: `visit:${visitId}:follow-up`,
+        message_type: 'transactional',
+        priority: 200,
       });
     }
 
     if (queueInserts.length > 0) {
-      const { error: insertErr } = await supabase.from('crm_wa_queue').insert(queueInserts);
+      const { error: insertErr } = await supabase.from('crm_wa_queue').upsert(queueInserts, {
+        ignoreDuplicates: true,
+        onConflict: 'company_id,idempotency_key',
+      });
       if (insertErr) console.error('Error inserting auto messages:', insertErr);
     }
 

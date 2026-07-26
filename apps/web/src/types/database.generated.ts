@@ -188,6 +188,7 @@ export type Database = {
       };
       crm_wa_queue: {
         Row: {
+          attempt_count: number;
           campaign_id: string | null;
           company_id: string;
           contact_id: string | null;
@@ -195,10 +196,20 @@ export type Database = {
           delay_after_ms: number | null;
           error_message: string | null;
           id: string;
+          idempotency_key: string;
+          last_error_at: string | null;
+          last_error_code: string | null;
+          lease_expires_at: string | null;
+          lease_owner: string | null;
+          max_attempts: number;
           media_url: string | null;
           message: string;
+          message_type: string;
+          next_attempt_at: string;
           phone: string;
+          priority: number;
           processing_started_at: string | null;
+          provider_message_id: string | null;
           replied: boolean | null;
           scheduled_for: string | null;
           sent_at: string | null;
@@ -206,6 +217,7 @@ export type Database = {
           visit_id: string | null;
         };
         Insert: {
+          attempt_count?: number;
           campaign_id?: string | null;
           company_id: string;
           contact_id?: string | null;
@@ -213,10 +225,20 @@ export type Database = {
           delay_after_ms?: number | null;
           error_message?: string | null;
           id?: string;
+          idempotency_key?: string;
+          last_error_at?: string | null;
+          last_error_code?: string | null;
+          lease_expires_at?: string | null;
+          lease_owner?: string | null;
+          max_attempts?: number;
           media_url?: string | null;
           message: string;
+          message_type?: string;
+          next_attempt_at?: string;
           phone: string;
+          priority?: number;
           processing_started_at?: string | null;
+          provider_message_id?: string | null;
           replied?: boolean | null;
           scheduled_for?: string | null;
           sent_at?: string | null;
@@ -224,6 +246,7 @@ export type Database = {
           visit_id?: string | null;
         };
         Update: {
+          attempt_count?: number;
           campaign_id?: string | null;
           company_id?: string;
           contact_id?: string | null;
@@ -231,10 +254,20 @@ export type Database = {
           delay_after_ms?: number | null;
           error_message?: string | null;
           id?: string;
+          idempotency_key?: string;
+          last_error_at?: string | null;
+          last_error_code?: string | null;
+          lease_expires_at?: string | null;
+          lease_owner?: string | null;
+          max_attempts?: number;
           media_url?: string | null;
           message?: string;
+          message_type?: string;
+          next_attempt_at?: string;
           phone?: string;
+          priority?: number;
           processing_started_at?: string | null;
+          provider_message_id?: string | null;
           replied?: boolean | null;
           scheduled_for?: string | null;
           sent_at?: string | null;
@@ -1159,6 +1192,15 @@ export type Database = {
         Returns: Json;
       };
       rpc_cancel_campaign: { Args: { p_campaign_id: string }; Returns: Json };
+      rpc_claim_queue_item: {
+        Args: {
+          p_allow_campaign?: boolean;
+          p_company_id: string;
+          p_lease_seconds?: number;
+          p_worker_id: string;
+        };
+        Returns: Database['public']['Tables']['crm_wa_queue']['Row'][];
+      };
       rpc_claim_evolution_webhook: {
         Args: {
           p_company_id: string;
@@ -1176,6 +1218,14 @@ export type Database = {
       rpc_complete_evolution_webhook: {
         Args: { p_company_id: string; p_event_id: string };
         Returns: undefined;
+      };
+      rpc_complete_queue_item: {
+        Args: {
+          p_provider_message_id?: string;
+          p_queue_id: string;
+          p_worker_id: string;
+        };
+        Returns: boolean;
       };
       rpc_complete_visit: { Args: { p_visit_id: string }; Returns: Json };
       rpc_count_contacts_by_tag: {
@@ -1239,6 +1289,36 @@ export type Database = {
       };
       rpc_get_spa_dashboard: { Args: never; Returns: Json };
       rpc_get_unique_tags: { Args: never; Returns: string[] };
+      rpc_fail_queue_item: {
+        Args: {
+          p_base_delay_seconds?: number;
+          p_error_code: string;
+          p_error_message: string;
+          p_queue_id: string;
+          p_retryable: boolean;
+          p_worker_id: string;
+        };
+        Returns: string;
+      };
+      rpc_mark_queue_processing: {
+        Args: { p_queue_id: string; p_worker_id: string };
+        Returns: boolean;
+      };
+      rpc_record_queue_send_failure: {
+        Args: {
+          p_company_id: string;
+          p_next_allowed_send_at: string;
+          p_reason: string;
+        };
+        Returns: string;
+      };
+      rpc_record_queue_send_success: {
+        Args: {
+          p_company_id: string;
+          p_next_allowed_send_at: string;
+        };
+        Returns: undefined;
+      };
       rpc_recalculate_customer_segment: {
         Args: { p_contact_id: string };
         Returns: string;

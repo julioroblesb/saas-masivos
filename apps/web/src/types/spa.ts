@@ -78,7 +78,15 @@ export interface SpaFollowUp {
   message: string;
   media_url?: string;
   scheduled_for: string;
-  status: 'pendiente' | 'encolado' | 'enviado' | 'fallido';
+  status:
+    | 'queued'
+    | 'leased'
+    | 'processing'
+    | 'sent'
+    | 'retry_scheduled'
+    | 'failed'
+    | 'dead_letter'
+    | 'cancelled';
   sent_at?: string;
   created_at: string;
 }
