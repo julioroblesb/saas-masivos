@@ -1,7 +1,35 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { createClient } from '@/utils/supabase/server';
-import { SpaVisit, SpaService } from '@/types/spa';
+import { z } from 'zod';
+
+const completeVisitSchema = z
+  .object({
+    payment_method: z.string().trim().min(1).max(80).optional(),
+    is_credit: z.boolean(),
+    initial_payment: z.number().finite().min(0),
+    debt_due_date: z.string().date().optional(),
+    notes: z.string().trim().max(2000).optional(),
+  })
+  .refine(
+    (payload) =>
+      payload.initial_payment === 0 || payload.payment_method !== undefined,
+    { message: 'Selecciona un método de pago', path: ['payment_method'] },
+  )
+  .refine(
+    (payload) => !payload.is_credit || payload.debt_due_date !== undefined,
+    {
+      message: 'Selecciona la fecha de pago de la deuda',
+      path: ['debt_due_date'],
+    },
+  );
+
+const addPaymentSchema = z.object({
+  amount: z.number().finite().positive(),
+  paymentMethod: z.string().trim().min(1).max(80),
+  visitId: z.string().uuid(),
+});
 
 export async function getAtencionesData(startDate?: string, endDate?: string) {
   const supabase = await createClient();
@@ -100,137 +128,6 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     paymentMethods,
     error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
   };
-}
-
-async function scheduleAutoMessages(visitId: string, supabase: any) {
-  try {
-    const { data: visit, error: visitErr } = await supabase
-      .from('spa_visits')
-      .select(
-        `
-        company_id,
-        visit_date,
-        spa_services ( name, duration_days, care_instructions, care_image_url ),
-        crm_marketing_contacts ( id, phone, name )
-      `,
-      )
-      .eq('id', visitId)
-      .single();
-
-    if (!visit || visitErr) return { error: visitErr?.message };
-
-    const { data: company } = await supabase
-      .from('companies')
-      .select('settings')
-      .eq('id', visit.company_id)
-      .single();
-
-    const DEFAULT_CARE_TEMPLATE =
-      'Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!';
-    const DEFAULT_FOLLOWUP_TEMPLATE =
-      'Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!';
-
-    const autoMsgs = company?.settings?.auto_messages || {
-      careEnabled: true,
-      careTemplate: DEFAULT_CARE_TEMPLATE,
-      careInstructionsTemplate:
-        'Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}',
-      followUpEnabled: true,
-      followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE,
-    };
-
-    const replaceVars = (text: string, extraVars?: any) => {
-      if (!text) return '';
-      let res = text
-        .replace(/\{\{nombre\}\}/gi, visit.crm_marketing_contacts?.name || '')
-        .replace(/\{\{servicio\}\}/gi, visit.spa_services?.name || '')
-        .replace(/\{\{dias\}\}/gi, visit.spa_services?.duration_days?.toString() || '0');
-
-      if (extraVars?.cuidados) {
-        res = res.replace(/\{\{cuidados\}\}/gi, extraVars.cuidados);
-      }
-      return res;
-    };
-
-    const queueInserts = [];
-
-    if (autoMsgs.careEnabled && autoMsgs.careTemplate) {
-      const careScheduledFor = new Date().toISOString();
-      queueInserts.push({
-        company_id: visit.company_id,
-        visit_id: visitId,
-        contact_id: visit.crm_marketing_contacts?.id,
-        phone: visit.crm_marketing_contacts?.phone,
-        message: replaceVars(autoMsgs.careTemplate),
-        status: 'queued',
-        scheduled_for: careScheduledFor,
-        next_attempt_at: careScheduledFor,
-        idempotency_key: `visit:${visitId}:care`,
-        message_type: 'transactional',
-        priority: 200,
-      });
-
-      if (visit.spa_services?.care_instructions || visit.spa_services?.care_image_url) {
-        const instructionsScheduledFor = new Date(Date.now() + 5000).toISOString();
-        queueInserts.push({
-          company_id: visit.company_id,
-          visit_id: visitId,
-          contact_id: visit.crm_marketing_contacts?.id,
-          phone: visit.crm_marketing_contacts?.phone,
-          message: visit.spa_services?.care_instructions
-            ? replaceVars(
-                autoMsgs.careInstructionsTemplate ||
-                  'Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}',
-                { cuidados: visit.spa_services.care_instructions },
-              )
-            : 'Instrucciones de cuidado',
-          media_url: visit.spa_services.care_image_url || null,
-          status: 'queued',
-          scheduled_for: instructionsScheduledFor,
-          next_attempt_at: instructionsScheduledFor,
-          idempotency_key: `visit:${visitId}:care-instructions`,
-          message_type: 'transactional',
-          priority: 200,
-        });
-      }
-    }
-
-    if (
-      autoMsgs.followUpEnabled &&
-      autoMsgs.followUpTemplate &&
-      visit.spa_services?.duration_days > 0
-    ) {
-      const scheduledDate = new Date();
-      scheduledDate.setDate(scheduledDate.getDate() + visit.spa_services.duration_days);
-
-      queueInserts.push({
-        company_id: visit.company_id,
-        visit_id: visitId,
-        contact_id: visit.crm_marketing_contacts?.id,
-        phone: visit.crm_marketing_contacts?.phone,
-        message: replaceVars(autoMsgs.followUpTemplate),
-        status: 'queued',
-        scheduled_for: scheduledDate.toISOString(),
-        next_attempt_at: scheduledDate.toISOString(),
-        idempotency_key: `visit:${visitId}:follow-up`,
-        message_type: 'transactional',
-        priority: 200,
-      });
-    }
-
-    if (queueInserts.length > 0) {
-      const { error: insertErr } = await supabase.from('crm_wa_queue').upsert(queueInserts, {
-        ignoreDuplicates: true,
-        onConflict: 'company_id,idempotency_key',
-      });
-      if (insertErr) console.error('Error inserting auto messages:', insertErr);
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    console.error('Error scheduling auto messages:', error);
-    return { error: error.message };
-  }
 }
 
 export async function createVisitAction(payload: {
@@ -341,13 +238,17 @@ export async function createVisitAction(payload: {
     return { error: error.message };
   }
 
-  // If status is 'completado', schedule auto messages
+  // A completed visit must go through the transactional database workflow.
   if (payload.status === 'completado') {
-    const { error: scheduleError } = await scheduleAutoMessages(data.id, supabase);
-    if (scheduleError) {
-      console.error('Error scheduling auto messages:', scheduleError);
+    const { error: completeError } = await supabase.rpc(
+      'rpc_complete_visit',
+      { p_visit_id: data.id },
+    );
+    if (completeError) {
       return {
-        error: 'Visita creada, pero hubo un error al programar los mensajes: ' + scheduleError,
+        error:
+          'Visita creada, pero no se pudo completar: ' +
+          completeError.message,
       };
     }
   }
@@ -361,73 +262,43 @@ export async function updateVisitStatusAction(
 ) {
   const supabase = await createClient();
 
-  const { error } = await supabase.from('spa_visits').update({ status }).eq('id', visitId);
-
-  if (error) {
-    return { error: error.message };
+  if (status === 'completado') {
+    const { error } = await supabase.rpc('rpc_complete_visit', {
+      p_visit_id: visitId,
+    });
+    return error ? { error: error.message } : { success: true };
   }
 
-  if (status === 'completado') {
-    const { error: scheduleError } = await scheduleAutoMessages(visitId, supabase);
-    if (scheduleError) {
-      console.error('Error scheduling auto messages:', scheduleError);
-      return {
-        error: 'Estado actualizado, pero hubo un error al programar los mensajes: ' + scheduleError,
-      };
-    }
+  const { error } = await supabase.rpc('rpc_set_visit_outcome', {
+    p_status: status,
+    p_visit_id: visitId,
+  });
+  if (error) {
+    return { error: error.message };
   }
 
   return { success: true };
 }
 
 export async function addPaymentAction(visitId: string, amount: number, paymentMethod: string) {
+  const parsed = addPaymentSchema.safeParse({ amount, paymentMethod, visitId });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Datos de abono inválidos' };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id')
-    .eq('id', user.id)
-    .single();
-  if (!profile?.company_id) return { error: 'Empresa no encontrada' };
-
-  // Insert payment
-  const { error: paymentError } = await supabase.from('spa_payments').insert({
-    company_id: profile.company_id,
-    visit_id: visitId,
-    amount: amount,
-    payment_method: paymentMethod,
-    payment_date: new Date().toISOString(),
+  const { data, error } = await supabase.rpc('rpc_add_visit_payment', {
+    p_amount: parsed.data.amount,
+    p_idempotency_key: randomUUID(),
+    p_payment_method: parsed.data.paymentMethod,
+    p_visit_id: parsed.data.visitId,
   });
-
-  if (paymentError) {
-    return { error: paymentError.message };
-  }
-
-  // Check total paid and update visit status
-  const { data: payments } = await supabase
-    .from('spa_payments')
-    .select('amount')
-    .eq('visit_id', visitId);
-  const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-
-  const { data: visit } = await supabase
-    .from('spa_visits')
-    .select('price_charged')
-    .eq('id', visitId)
-    .single();
-
-  if (visit) {
-    let payment_status = 'parcial';
-    if (totalPaid >= visit.price_charged) payment_status = 'pagado';
-
-    await supabase.from('spa_visits').update({ payment_status }).eq('id', visitId);
-  }
-
-  return { success: true };
+  return error ? { error: error.message } : { success: true, data };
 }
 
 export async function completeAndPayVisitAction(
@@ -440,76 +311,34 @@ export async function completeAndPayVisitAction(
     notes?: string;
   },
 ) {
+  const parsed = completeVisitSchema.safeParse(payload);
+  if (!parsed.success) {
+    return {
+      error:
+        parsed.error.issues[0]?.message ??
+        'Los datos para completar la atención no son válidos',
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id')
-    .eq('id', user.id)
-    .single();
-  if (!profile?.company_id) return { error: 'Empresa no encontrada' };
-
-  const { data: visit } = await supabase
-    .from('spa_visits')
-    .select('price_charged')
-    .eq('id', visitId)
-    .single();
-  if (!visit) return { error: 'Atención no encontrada' };
-
-  // Register payment if amount > 0
-  if (payload.initial_payment > 0 && payload.payment_method) {
-    const { error: paymentError } = await supabase.from('spa_payments').insert({
-      company_id: profile.company_id,
-      visit_id: visitId,
-      amount: payload.initial_payment,
-      payment_method: payload.payment_method,
-      payment_date: new Date().toISOString(),
-    });
-    if (paymentError) return { error: 'Error registrando abono: ' + paymentError.message };
+  const { data, error } = await supabase.rpc('rpc_complete_visit', {
+    p_debt_due_date: parsed.data.debt_due_date,
+    p_initial_payment: parsed.data.initial_payment,
+    p_is_credit: parsed.data.is_credit,
+    p_notes: parsed.data.notes,
+    p_payment_method: parsed.data.payment_method,
+    p_visit_id: visitId,
+  });
+  if (error) {
+    return { error: 'Error finalizando atención: ' + error.message };
   }
 
-  // Calculate new total paid
-  const { data: payments } = await supabase
-    .from('spa_payments')
-    .select('amount')
-    .eq('visit_id', visitId);
-  const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-
-  let payment_status = 'pendiente';
-  if (totalPaid >= visit.price_charged) payment_status = 'pagado';
-  else if (totalPaid > 0) payment_status = 'parcial';
-
-  // Construct update payload
-  let debtDate = null;
-  if (payload.is_credit && payload.debt_due_date && payment_status !== 'pagado') {
-    debtDate = new Date(payload.debt_due_date).toISOString();
-  }
-
-  const { error: updateError } = await supabase
-    .from('spa_visits')
-    .update({
-      status: 'completado',
-      completed_at: new Date().toISOString(),
-      payment_status,
-      debt_due_date: debtDate,
-      notes: payload.notes,
-    })
-    .eq('id', visitId);
-
-  if (updateError) return { error: 'Error finalizando atención: ' + updateError.message };
-
-  // Trigger followups logic since it is completado
-  try {
-    await scheduleAutoMessages(visitId, supabase);
-  } catch (e) {
-    console.error('Failed to trigger followups', e);
-  }
-
-  return { success: true };
+  return { success: true, data };
 }
 
 export async function deleteVisitAction(visitId: string) {
@@ -519,10 +348,11 @@ export async function deleteVisitAction(visitId: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  // Eliminar abonos primero si existieran (la base de datos podría tener ON DELETE CASCADE, pero aseguramos)
-  await supabase.from('spa_payments').delete().eq('visit_id', visitId);
-
-  const { error } = await supabase.from('spa_visits').delete().eq('id', visitId);
+  // Preserve the visit, payments and audit trail.
+  const { error } = await supabase.rpc('rpc_set_visit_outcome', {
+    p_status: 'cancelado',
+    p_visit_id: visitId,
+  });
   if (error) return { error: error.message };
 
   return { success: true };

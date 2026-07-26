@@ -93,14 +93,14 @@ export function useDeleteMarketingContact() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { data, error } = await supabase.rpc('rpc_delete_marketing_contact', {
-        p_id: id
+        p_contact_id: id
       });
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-contacts'] });
-      crmToast.success('Contacto eliminado');
+      crmToast.success('Contacto archivado');
     },
     onError: (error: Error) => {
       console.error('[useDeleteMarketingContact]', error);

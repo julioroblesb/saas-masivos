@@ -106,41 +106,12 @@ export async function POST(request: Request) {
     claimedEvent = { companyId, eventId };
 
     const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1_000);
-    const { data: queueItem, error: queueError } = await supabaseAdmin
-      .from('crm_wa_queue')
-      .select('id, campaign_id')
-      .eq('company_id', companyId)
-      .eq('phone', phoneNumber)
-      .eq('status', 'sent')
-      .eq('replied', false)
-      .gte('sent_at', twoDaysAgo.toISOString())
-      .order('sent_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (queueError) throw queueError;
-
-    if (queueItem) {
-      const { error: repliedError } = await supabaseAdmin
-        .from('crm_wa_queue')
-        .update({ replied: true })
-        .eq('id', queueItem.id);
-      if (repliedError) throw repliedError;
-
-      if (queueItem.campaign_id) {
-        const { data: campaign, error: campaignError } = await supabaseAdmin
-          .from('crm_wa_campaigns')
-          .select('replied_count')
-          .eq('id', queueItem.campaign_id)
-          .single();
-        if (campaignError) throw campaignError;
-
-        const { error: updateCampaignError } = await supabaseAdmin
-          .from('crm_wa_campaigns')
-          .update({ replied_count: (campaign.replied_count ?? 0) + 1 })
-          .eq('id', queueItem.campaign_id);
-        if (updateCampaignError) throw updateCampaignError;
-      }
-    }
+    const { error: replyError } = await supabaseAdmin.rpc('rpc_mark_campaign_reply', {
+      p_company_id: companyId,
+      p_phone: phoneNumber,
+      p_since: twoDaysAgo.toISOString(),
+    });
+    if (replyError) throw replyError;
 
     const { error: completeError } = await supabaseAdmin.rpc('rpc_complete_evolution_webhook', {
       p_company_id: companyId,

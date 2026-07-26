@@ -467,15 +467,62 @@ export type Database = {
           },
         ];
       };
+      spa_visit_events: {
+        Row: {
+          actor_id: string | null;
+          company_id: string;
+          created_at: string;
+          event_type: string;
+          id: number;
+          payload: Json;
+          visit_id: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          company_id: string;
+          created_at?: string;
+          event_type: string;
+          id?: never;
+          payload?: Json;
+          visit_id: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          company_id?: string;
+          created_at?: string;
+          event_type?: string;
+          id?: never;
+          payload?: Json;
+          visit_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'spa_visit_events_company_id_fkey';
+            columns: ['company_id'];
+            isOneToOne: false;
+            referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'spa_visit_events_visit_tenant_fkey';
+            columns: ['visit_id', 'company_id'];
+            isOneToOne: false;
+            referencedRelation: 'spa_visits';
+            referencedColumns: ['id', 'company_id'];
+          },
+        ];
+      };
       spa_payments: {
         Row: {
           amount: number;
           company_id: string;
           created_at: string | null;
           id: string;
+          idempotency_key: string | null;
           notes: string | null;
           payment_date: string | null;
           payment_method: string;
+          source: string;
           visit_id: string;
         };
         Insert: {
@@ -483,9 +530,11 @@ export type Database = {
           company_id: string;
           created_at?: string | null;
           id?: string;
+          idempotency_key?: string | null;
           notes?: string | null;
           payment_date?: string | null;
           payment_method: string;
+          source?: string;
           visit_id: string;
         };
         Update: {
@@ -493,9 +542,11 @@ export type Database = {
           company_id?: string;
           created_at?: string | null;
           id?: string;
+          idempotency_key?: string | null;
           notes?: string | null;
           payment_date?: string | null;
           payment_method?: string;
+          source?: string;
           visit_id?: string;
         };
         Relationships: [
@@ -1187,6 +1238,15 @@ export type Database = {
         Args: { p_archive: boolean; p_contact_ids: string[] };
         Returns: undefined;
       };
+      rpc_add_visit_payment: {
+        Args: {
+          p_amount: number;
+          p_idempotency_key: string;
+          p_payment_method: string;
+          p_visit_id: string;
+        };
+        Returns: Json;
+      };
       rpc_batch_insert_marketing_contacts: {
         Args: { p_contacts: Json };
         Returns: Json;
@@ -1227,7 +1287,17 @@ export type Database = {
         };
         Returns: boolean;
       };
-      rpc_complete_visit: { Args: { p_visit_id: string }; Returns: Json };
+      rpc_complete_visit: {
+        Args: {
+          p_debt_due_date?: string;
+          p_initial_payment?: number;
+          p_is_credit?: boolean;
+          p_notes?: string;
+          p_payment_method?: string;
+          p_visit_id: string;
+        };
+        Returns: Json;
+      };
       rpc_count_contacts_by_tag: {
         Args: { p_target_tag: string };
         Returns: number;
@@ -1238,7 +1308,8 @@ export type Database = {
           p_min_delay_sec: number;
           p_name: string;
           p_sequence: Json;
-          p_target_tag: string;
+          p_target_contact_ids: string[];
+          p_target_raw_phones: string[];
         };
         Returns: Json;
       };
@@ -1249,6 +1320,18 @@ export type Database = {
       rpc_delete_marketing_contacts_by_tag: {
         Args: { p_tag: string };
         Returns: undefined;
+      };
+      rpc_mark_campaign_reply: {
+        Args: {
+          p_company_id: string;
+          p_phone: string;
+          p_since: string;
+        };
+        Returns: boolean;
+      };
+      rpc_set_visit_outcome: {
+        Args: { p_status: string; p_visit_id: string };
+        Returns: Json;
       };
       rpc_get_clients_metrics: {
         Args: never;
