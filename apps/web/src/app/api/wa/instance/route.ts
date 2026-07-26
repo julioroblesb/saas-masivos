@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import {
   evolution,
@@ -9,7 +9,7 @@ import { getEnv } from '@/config/env';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -49,7 +49,8 @@ export async function POST() {
     const instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
 
     const env = getEnv();
-    const webhookUrl = `${env.APP_PUBLIC_URL}/api/wa/webhook`;
+    const appPublicUrl = env.APP_PUBLIC_URL ?? request.nextUrl.origin;
+    const webhookUrl = `${appPublicUrl.replace(/\/$/, '')}/api/wa/webhook`;
 
     let qr = null;
     try {
@@ -96,12 +97,15 @@ export async function POST() {
     console.error('Error al iniciar instancia en Evolution API:', {
       message: error instanceof Error ? error.message : String(error),
     });
+    const isProviderError = error instanceof EvolutionApiError;
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Error al iniciar instancia',
-        code: 'INSTANCE_INIT_FAILED',
+        error: isProviderError
+          ? error.message
+          : 'No se pudo iniciar la conexión de WhatsApp. Inténtalo nuevamente.',
+        code: isProviderError ? error.code : 'INSTANCE_INIT_FAILED',
       },
-      { status: 500 },
+      { status: isProviderError && error.status ? error.status : 500 },
     );
   }
 }

@@ -3,7 +3,6 @@ import { createClient as createServerClient } from '@/utils/supabase/server';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { z } from 'zod';
 
-// TODO: Reemplazar por el ID real cuando el usuario lo provea
 const TEMPLATE_COMPANY_ID = '3c3cb849-06c8-4250-b4cf-9375422684a6';
 const cloneResultSchema = z.object({ new_company_id: z.string().uuid() });
 
@@ -19,12 +18,25 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!user.is_anonymous) {
+      return NextResponse.json({ error: 'La demo requiere una sesión temporal' }, { status: 403 });
+    }
+
     const userId = user.id;
 
     // Usar Service Role para bypass RLS al crear la empresa
     const supabaseAdmin = getSupabaseAdmin();
 
-    console.log('[Demo] Iniciando clonación para usuario anónimo:', userId);
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('company_id, companies!inner(is_demo)')
+      .eq('id', userId)
+      .eq('companies.is_demo', true)
+      .maybeSingle();
+
+    if (existingProfile?.company_id) {
+      return NextResponse.json({ success: true, company_id: existingProfile.company_id });
+    }
 
     // 1. Ejecutar RPC para clonar la plantilla
     const { data: cloneData, error: cloneError } = await supabaseAdmin.rpc(
@@ -38,7 +50,7 @@ export async function POST() {
 
     const parsedClone = cloneResultSchema.safeParse(cloneData);
     if (!parsedClone.success) {
-      return NextResponse.json({ error: 'Respuesta inválida al crear la demo' }, { status: 500 });
+      return NextResponse.json({ error: 'No se pudo preparar el entorno demo' }, { status: 500 });
     }
     const newCompanyId = parsedClone.data.new_company_id;
 
@@ -54,9 +66,11 @@ export async function POST() {
 
     return NextResponse.json({ success: true, company_id: newCompanyId });
   } catch (error: unknown) {
-    console.error('[Demo] Error al crear cuenta demo:', error);
+    console.error('[Demo] Error al crear cuenta demo:', {
+      message: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error interno' },
+      { error: 'No se pudo preparar el entorno demo. Inténtalo nuevamente.' },
       { status: 500 },
     );
   }
