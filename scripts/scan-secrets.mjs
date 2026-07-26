@@ -49,6 +49,7 @@ const allowedFragments = [
   'CHANGE_ME',
   'example-password',
   'localhost:5432',
+  '${EVOLUTION_POSTGRES_PASSWORD}',
 ];
 
 const findings = [];
