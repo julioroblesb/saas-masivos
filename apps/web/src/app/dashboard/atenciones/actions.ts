@@ -4,12 +4,21 @@ import { randomUUID } from 'node:crypto';
 import { createClient } from '@/utils/supabase/server';
 import { z } from 'zod';
 
+const emptyToUndefinedDate = z.preprocess((val) => {
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }
+  if (val === null) return undefined;
+  return val;
+}, z.string().date().optional());
+
 const completeVisitSchema = z
   .object({
     payment_method: z.string().trim().min(1).max(80).optional(),
     is_credit: z.boolean(),
     initial_payment: z.number().finite().min(0),
-    debt_due_date: z.string().date().optional(),
+    debt_due_date: emptyToUndefinedDate,
     notes: z.string().trim().max(2000).optional(),
   })
   .refine(
@@ -53,15 +62,39 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     .order('visit_date', { ascending: false });
 
   if (startDate) {
-    visitsQuery = visitsQuery.gte('visit_date', startDate);
+    const startBoundary = startDate.includes('T') ? startDate : `${startDate}T00:00:00-05:00`;
+    visitsQuery = visitsQuery.gte('visit_date', startBoundary);
   }
   if (endDate) {
-    visitsQuery = visitsQuery.lte('visit_date', endDate + 'T23:59:59.999Z');
+    const endBoundary = endDate.includes('T') ? endDate : `${endDate}T23:59:59.999-05:00`;
+    visitsQuery = visitsQuery.lte('visit_date', endBoundary);
   } else if (!startDate && !endDate) {
     visitsQuery = visitsQuery.limit(50);
   }
 
   const { data: visits, error: vErr } = await visitsQuery;
+
+  // Get payments for loaded visits to compute amount_paid per visit
+  const visitIds = visits?.map((v) => v.id) || [];
+  const paymentsByVisit: Record<string, number> = {};
+  let pErr: string | undefined = undefined;
+
+  if (visitIds.length > 0) {
+    const { data: payments, error: paymentsError } = await supabase
+      .from('spa_payments')
+      .select('visit_id, amount')
+      .in('visit_id', visitIds);
+
+    if (paymentsError) {
+      pErr = paymentsError.message;
+    } else if (payments) {
+      for (const p of payments) {
+        if (p.visit_id) {
+          paymentsByVisit[p.visit_id] = (paymentsByVisit[p.visit_id] || 0) + (p.amount || 0);
+        }
+      }
+    }
+  }
 
   // Get contacts
   const { data: contacts, error: cErr } = await supabase
@@ -122,11 +155,12 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
         contact_name: v.crm_marketing_contacts?.name,
         contact_phone: v.crm_marketing_contacts?.phone,
         service_name: v.spa_services?.name,
+        amount_paid: paymentsByVisit[v.id] || 0,
       })) || [],
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
-    error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
+    error: sErr?.message || vErr?.message || pErr || cErr?.message || staffErr?.message,
   };
 }
 
@@ -142,7 +176,6 @@ export async function createVisitAction(payload: {
 }) {
   const supabase = await createClient();
 
-  // Get user's company_id
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -157,7 +190,6 @@ export async function createVisitAction(payload: {
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
   let final_contact_id = payload.contact_id;
-  // Create new contact if requested
   if (payload.new_contact && payload.new_contact.phone) {
     const { data: contactData, error: contactError } = await supabase.rpc(
       'rpc_upsert_marketing_contact',
@@ -186,19 +218,9 @@ export async function createVisitAction(payload: {
 
   if (!final_contact_id) return { error: 'Debes seleccionar o crear un paciente' };
 
-  // Logica de Status basada en fecha:
-  // Si scheduled_date es hoy, es en_curso, si es futuro agendada.
-  // Pero lo manejamos en el frontend o respetamos lo enviado.
-
-  // scheduled_date viene del datetime-local, así que ya tiene hora, pero asume timezone local.
-  // Es mejor usarlo directo. Si el usuario seleccionó "hoy", el frontend manda status='en_curso'.
-  // Y si es cita futura status='agendada'.
   const visit_timestamp = new Date(payload.scheduled_date).toISOString();
-
-  // Determine payment status (siempre pendiente al inicio, no cobramos al crear)
   const payment_status = 'pendiente';
 
-  // Check overlap if staff is selected
   if (payload.staff_id) {
     const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
       p_staff_id: payload.staff_id,
@@ -216,14 +238,13 @@ export async function createVisitAction(payload: {
     }
   }
 
-  // Insert visit
   const { data, error } = await supabase
     .from('spa_visits')
     .insert({
       company_id: profile.company_id,
       contact_id: final_contact_id,
       service_id: payload.service_id,
-      visit_date: visit_timestamp, // Usamos la misma fecha como visit_date y scheduled_date para unificar
+      visit_date: visit_timestamp,
       scheduled_date: visit_timestamp,
       status: payload.status,
       price_charged: payload.price_charged,
@@ -238,7 +259,6 @@ export async function createVisitAction(payload: {
     return { error: error.message };
   }
 
-  // A completed visit must go through the transactional database workflow.
   if (payload.status === 'completado') {
     const { error: completeError } = await supabase.rpc(
       'rpc_complete_visit',
@@ -348,7 +368,6 @@ export async function deleteVisitAction(visitId: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  // Preserve the visit, payments and audit trail.
   const { error } = await supabase.rpc('rpc_set_visit_outcome', {
     p_status: 'cancelado',
     p_visit_id: visitId,
@@ -392,6 +411,7 @@ export async function editVisitAction(
 
   return { success: true };
 }
+
 export async function rescheduleVisitAction(visitId: string, newDate: string) {
   try {
     const supabase = await createClient();
@@ -407,7 +427,6 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
       .single();
     if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
-    // 1. Get original visit
     const { data: oldVisit, error: fetchErr } = await supabase
       .from('spa_visits')
       .select('*')
@@ -416,7 +435,6 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
 
     if (fetchErr || !oldVisit) return { error: 'Atención no encontrada' };
 
-    // 2. Mark old visit as cancelled with note
     const { error: cancelErr } = await supabase
       .from('spa_visits')
       .update({
@@ -427,7 +445,6 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
 
     if (cancelErr) return { error: cancelErr.message };
 
-    // 3. Create new visit
     const newVisitData = {
       company_id: oldVisit.company_id,
       contact_id: oldVisit.contact_id,
@@ -437,7 +454,7 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
       notes: oldVisit.notes,
       visit_date: new Date(newDate).toISOString(),
       scheduled_date: new Date(newDate).toISOString(),
-      status: 'agendada', // Automatically becomes en_curso based on date via trigger or frontend
+      status: 'agendado',
     };
 
     const { error: insertErr } = await supabase.from('spa_visits').insert([newVisitData]);

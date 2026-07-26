@@ -325,9 +325,14 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
 
       {/* Modal - CRUD Cliente */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
+        <div
+          className="fixed inset-0 z-[999] flex items-start sm:items-center justify-center p-4 py-4 sm:py-6 bg-black/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setIsModalOpen(false);
+          }}
+        >
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
               <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   {form.id ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
@@ -335,6 +340,8 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                 {form.id ? 'Editar Cliente' : 'Nuevo Cliente'}
               </h3>
               <button 
+                type="button"
+                aria-label="Cerrar formulario de cliente"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
                 onClick={() => setIsModalOpen(false)}
               >
@@ -342,7 +349,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               </button>
             </div>
             
-            <div className="p-6">
+            <div className="p-6 min-h-0 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="space-y-4">
@@ -450,7 +457,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
               </div>
             </div>
             
-            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
+            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border-t border-black-light dark:border-dark-light flex justify-end gap-3 shrink-0">
               <button 
                 type="button" 
                 className="btn btn-outline-danger rounded-xl px-6" 

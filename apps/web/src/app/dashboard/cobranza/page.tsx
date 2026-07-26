@@ -20,8 +20,8 @@ export default async function CobranzaPage() {
 
   if (!profile?.company_id) redirect('/login');
 
-  // Fetch only pending/partial visits
-  const { data: rawVisits } = await supabase
+  // Fetch completed visits with pending or partial payment status
+  const { data: rawVisits, error: visitsErr } = await supabase
     .from('spa_visits')
     .select(`
       id,
@@ -36,31 +36,55 @@ export default async function CobranzaPage() {
       spa_services (name)
     `)
     .eq('company_id', profile.company_id)
+    .eq('status', 'completado')
     .in('payment_status', ['pendiente', 'parcial'])
     .order('debt_due_date', { ascending: true, nullsFirst: false });
 
+  if (visitsErr) {
+    console.error('Error fetching cobranza visits:', visitsErr);
+  }
+
   // Fetch payments to calculate remaining debts
-  const { data: payments } = await supabase
+  const { data: payments, error: paymentsErr } = await supabase
     .from('spa_payments')
     .select('visit_id, amount')
     .eq('company_id', profile.company_id);
 
-  const debts = (rawVisits || []).map((visit) => {
-    const visitPayments = (payments || []).filter((payment) => payment.visit_id === visit.id);
-    const amount_paid = visitPayments.reduce((sum, payment) => sum + Number(payment.amount), 0);
-    return {
-      id: visit.id,
-      contact_name: visit.crm_marketing_contacts?.[0]?.name,
-      contact_phone: visit.crm_marketing_contacts?.[0]?.phone,
-      service_name: visit.spa_services?.[0]?.name,
-      visit_date: visit.visit_date,
-      scheduled_date: visit.scheduled_date,
-      price_charged: visit.price_charged,
-      amount_paid,
-      debt_due_date: visit.debt_due_date,
-      payment_status: visit.payment_status
-    };
-  });
+  if (paymentsErr) {
+    console.error('Error fetching cobranza payments:', paymentsErr);
+  }
+
+  const debts = (rawVisits || [])
+    .map((visit) => {
+      const visitPayments = (payments || []).filter((payment) => payment.visit_id === visit.id);
+      const amount_paid = visitPayments.reduce((sum, payment) => sum + Number(payment.amount), 0);
+      const price_charged = visit.price_charged ?? 0;
+      const pending = price_charged - amount_paid;
+
+      if (pending <= 0) return null;
+
+      const contactObj = Array.isArray(visit.crm_marketing_contacts)
+        ? visit.crm_marketing_contacts[0]
+        : visit.crm_marketing_contacts;
+
+      const serviceObj = Array.isArray(visit.spa_services)
+        ? visit.spa_services[0]
+        : visit.spa_services;
+
+      return {
+        id: visit.id,
+        contact_name: contactObj?.name || null,
+        contact_phone: contactObj?.phone || null,
+        service_name: serviceObj?.name || null,
+        visit_date: visit.visit_date,
+        scheduled_date: visit.scheduled_date,
+        price_charged,
+        amount_paid,
+        debt_due_date: visit.debt_due_date,
+        payment_status: visit.payment_status,
+      };
+    })
+    .filter((d): d is NonNullable<typeof d> => d !== null);
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">

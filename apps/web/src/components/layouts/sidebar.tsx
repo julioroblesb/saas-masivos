@@ -12,7 +12,6 @@ import IconMenuChat from '@/components/icon/menu/icon-menu-chat';
 import IconMenuCalendar from '@/components/icon/menu/icon-menu-calendar';
 import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
 import IconMenuApps from '@/components/icon/menu/icon-menu-apps';
-import IconMenuWidgets from '@/components/icon/menu/icon-menu-widgets';
 import IconSettings from '@/components/icon/icon-settings';
 import IconMinus from '@/components/icon/icon-minus';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
@@ -183,17 +182,6 @@ const Sidebar = () => {
                         <IconMenuApps className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
                           Servicios
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-
-                  <li className="nav-item">
-                    <Link href="/dashboard/productos" className="nav-link group">
-                      <div className="flex items-center">
-                        <IconMenuWidgets className="shrink-0 group-hover:!text-primary" />
-                        <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Productos
                         </span>
                       </div>
                     </Link>

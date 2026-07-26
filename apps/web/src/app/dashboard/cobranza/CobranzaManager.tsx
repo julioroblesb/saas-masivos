@@ -1,10 +1,13 @@
 'use client';
+
 import { useState } from 'react';
 import { Coins, XCircle, Search, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { addPaymentAction } from '../atenciones/actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { formatDateOnly, formatBusinessDateTime } from '@/lib/business-date';
+
 interface DebtVisit {
   amount_paid: number;
   contact_name?: string | null;
@@ -21,17 +24,21 @@ interface DebtVisit {
 export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  
+
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentVisit, setPaymentVisit] = useState<DebtVisit | null>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filteredDebts = debts.filter(d => 
-    d.contact_name?.toLowerCase().includes(search.toLowerCase()) || 
-    d.service_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const query = search.trim().toLowerCase();
+  const filteredDebts = query
+    ? debts.filter((d) =>
+        (d.contact_name || '').toLowerCase().includes(query) ||
+        (d.service_name || '').toLowerCase().includes(query) ||
+        (d.contact_phone || '').includes(query),
+      )
+    : debts;
 
   const handleAddPayment = async () => {
     if (!paymentVisit || paymentAmount <= 0) return;
@@ -47,7 +54,7 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
     setIsSubmitting(false);
   };
 
-  const totalDebt = debts.reduce(
+  const totalDebt = filteredDebts.reduce(
     (sum, debt) => sum + ((debt.price_charged ?? 0) - debt.amount_paid),
     0,
   );
@@ -58,7 +65,9 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
         <div className="rounded-3xl bg-danger text-white border border-danger shadow-sm p-6 relative overflow-hidden group">
           <div className="flex justify-between items-start relative z-10">
             <div className="flex flex-col space-y-1">
-              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">Deuda Total</p>
+              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">
+                Deuda Total
+              </p>
               <h2 className="text-4xl font-bold tracking-tight mt-2">S/ {totalDebt}</h2>
             </div>
             <div className="p-3 bg-white/20 rounded-xl">
@@ -71,12 +80,12 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
-          <input 
-            type="text" 
-            placeholder="Buscar por paciente..." 
+          <input
+            type="text"
+            placeholder="Buscar por paciente o teléfono..."
             className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
@@ -99,16 +108,28 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
               <tbody className="divide-y divide-black-light dark:divide-dark-light">
                 {filteredDebts.map((debt) => {
                   const pending = (debt.price_charged ?? 0) - debt.amount_paid;
-                  const isExpired = debt.debt_due_date && new Date(debt.debt_due_date).getTime() < new Date().getTime();
+                  const isExpired =
+                    debt.debt_due_date &&
+                    new Date(debt.debt_due_date).getTime() < new Date().getTime();
                   return (
-                    <tr key={debt.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <tr
+                      key={debt.id}
+                      className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    >
                       <td className="py-4 px-4 pl-6">
-                        <div className="font-semibold text-black dark:text-white">{debt.contact_name || 'Sin Nombre'}</div>
-                        <div className="text-xs text-zinc-500 flex items-center gap-1"><Phone size={12}/> +{debt.contact_phone}</div>
+                        <div className="font-semibold text-black dark:text-white">
+                          {debt.contact_name || 'Sin Nombre'}
+                        </div>
+                        <div className="text-xs text-zinc-500 flex items-center gap-1">
+                          <Phone size={12} /> +{debt.contact_phone}
+                        </div>
                       </td>
                       <td className="py-4 px-4 text-zinc-600 dark:text-zinc-300">
                         {debt.service_name}
-                        <div className="text-xs text-zinc-400">Atendido el: {new Date(debt.scheduled_date || debt.visit_date || 0).toLocaleDateString()}</div>
+                        <div className="text-xs text-zinc-400">
+                          Atendido el:{' '}
+                          {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}
+                        </div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-danger">S/ {pending}</div>
@@ -116,8 +137,14 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                       </td>
                       <td className="py-4 px-4">
                         {debt.debt_due_date ? (
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${isExpired ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                            {new Date(debt.debt_due_date).toLocaleDateString()} {isExpired && '(Vencido)'}
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                              isExpired
+                                ? 'bg-danger/10 text-danger border-danger/20'
+                                : 'bg-warning/10 text-warning border-warning/20'
+                            }`}
+                          >
+                            {formatDateOnly(debt.debt_due_date)} {isExpired && '(Vencido)'}
                           </span>
                         ) : (
                           <span className="text-zinc-400 text-sm">-</span>
@@ -125,7 +152,7 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                       </td>
                       <td className="py-4 px-4 text-center pr-6">
                         <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
+                          <button
                             onClick={() => {
                               setPaymentVisit(debt);
                               setPaymentAmount(pending);
@@ -155,14 +182,14 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                 <Coins className="w-5 h-5 text-primary" />
                 Registrar Abono
               </h3>
-              <button 
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full" 
+              <button
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsPaymentModalOpen(false)}
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
                 <div className="text-sm text-zinc-500 mb-1">Saldo pendiente</div>
@@ -176,12 +203,14 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                   <Coins className="w-4 h-4 text-primary" /> Monto a abonar
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">S/</span>
-                  <input 
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
+                    S/
+                  </span>
+                  <input
                     type="number"
                     className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
                     value={paymentAmount}
-                    onChange={e => setPaymentAmount(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
                   />
                 </div>
               </div>
@@ -196,21 +225,26 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                     { value: 'yape', label: 'Yape' },
                     { value: 'plin', label: 'Plin' },
                     { value: 'transferencia', label: 'Transferencia' },
-                    { value: 'tarjeta', label: 'Tarjeta' }
+                    { value: 'tarjeta', label: 'Tarjeta' },
                   ]}
-                  value={{ value: paymentMethod, label: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1) }}
-                  onChange={(selected) => setPaymentMethod(selected ? selected.value : 'efectivo')}
+                  value={{
+                    value: paymentMethod,
+                    label: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1),
+                  }}
+                  onChange={(selected) =>
+                    setPaymentMethod(selected ? selected.value : 'efectivo')
+                  }
                 />
               </div>
 
               <div className="pt-4 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
-                <button 
+                <button
                   className="btn btn-outline-secondary rounded-xl px-6"
                   onClick={() => setIsPaymentModalOpen(false)}
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   className="btn btn-primary rounded-xl px-8"
                   onClick={handleAddPayment}
                   disabled={isSubmitting || paymentAmount <= 0}

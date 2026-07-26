@@ -31,6 +31,12 @@ import {
 } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
+import {
+  formatBusinessDateLabel,
+  formatBusinessTime,
+  formatBusinessDateTime,
+  formatDateOnly,
+} from '@/lib/business-date';
 import type {
   AtencionContact,
   AtencionService,
@@ -258,7 +264,10 @@ export function AtencionesManager({
       if (v) {
         setCompleteVisit(v);
         setCompleteIsCredit(false);
-        setCompletePayment(v.price_charged ?? 0);
+        const total = v.price_charged ?? 0;
+        const paid = v.amount_paid ?? 0;
+        const remaining = Math.max(0, total - paid);
+        setCompletePayment(remaining);
         setCompleteMethod(defaultMethod);
         setCompleteNotes(v.notes || '');
         setCompleteDebtDate('');
@@ -281,9 +290,24 @@ export function AtencionesManager({
 
   const handleCompleteSubmit = async () => {
     if (!completeVisit) return;
-    if (completeIsCredit && (!completeDebtDate || completePayment < 0)) {
-      toast.error('Por favor completa la fecha de próximo pago y el abono válido.');
-      return;
+    const total = completeVisit.price_charged ?? 0;
+    const paid = completeVisit.amount_paid ?? 0;
+    const remaining = Math.max(0, total - paid);
+
+    if (completeIsCredit) {
+      if (!completeDebtDate || completePayment < 0) {
+        toast.error('Por favor completa la fecha de próximo pago y el abono válido.');
+        return;
+      }
+      if (completePayment > remaining) {
+        toast.error(`El abono no puede superar el saldo restante (S/ ${remaining}).`);
+        return;
+      }
+    } else {
+      if (completePayment > remaining) {
+        toast.error(`El pago no puede superar el saldo restante (S/ ${remaining}).`);
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -291,14 +315,19 @@ export function AtencionesManager({
       payment_method: completeMethod,
       is_credit: completeIsCredit,
       initial_payment: completePayment,
-      debt_due_date: completeDebtDate,
+      debt_due_date: completeIsCredit ? (completeDebtDate || undefined) : undefined,
       notes: completeNotes,
     });
 
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success('Atención completada y cobrada exitosamente');
+      const isTotalPaid = (paid + completePayment) >= total;
+      toast.success(
+        isTotalPaid || !completeIsCredit
+          ? 'Atención completada y pagada'
+          : 'Atención completada con saldo pendiente',
+      );
       setIsCompleteModalOpen(false);
       router.refresh();
     }
@@ -332,22 +361,18 @@ export function AtencionesManager({
   const groupedVisits = filteredVisits
     .filter((v) => v.status === 'en_curso')
     .reduce<Record<string, AtencionVisit[]>>((acc, visit) => {
-      const date = new Date(
-        (visit.visit_date || '').split('T')[0] + 'T00:00:00',
-      ).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(visit);
+      const dateLabel = formatBusinessDateLabel(visit.visit_date || visit.scheduled_date);
+      if (!acc[dateLabel]) acc[dateLabel] = [];
+      acc[dateLabel].push(visit);
       return acc;
     }, {});
 
   const groupedFutureVisits = filteredVisits
-    .filter((v) => v.status === 'agendada')
+    .filter((v) => v.status === 'agendado')
     .reduce<Record<string, AtencionVisit[]>>((acc, visit) => {
-      const date = new Date(
-        (visit.visit_date || '').split('T')[0] + 'T00:00:00',
-      ).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(visit);
+      const dateLabel = formatBusinessDateLabel(visit.visit_date || visit.scheduled_date);
+      if (!acc[dateLabel]) acc[dateLabel] = [];
+      acc[dateLabel].push(visit);
       return acc;
     }, {});
 
@@ -513,11 +538,7 @@ export function AtencionesManager({
                             Hora
                           </span>
                           <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {new Date(visit.created_at || visit.visit_date || 0).toLocaleTimeString('es-PE', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })}
+                            {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                           </span>
                         </div>
                         <div>
@@ -602,7 +623,7 @@ export function AtencionesManager({
                                       staff_id: visit.staff_id || '',
                                       scheduled_date: visit.visit_date || '',
                                       price_charged: visit.price_charged || 0,
-                                      status: visit.status || 'agendada',
+                                      status: visit.status || 'agendado',
                                       notes: visit.notes || '',
                                     });
                                     setIsEditModalOpen(true);
@@ -669,11 +690,7 @@ export function AtencionesManager({
                             Hora
                           </span>
                           <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {new Date(visit.visit_date || visit.scheduled_date || 0).toLocaleTimeString('es-PE', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })}
+                            {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                           </span>
                         </div>
                         <div>
@@ -738,7 +755,7 @@ export function AtencionesManager({
                                     staff_id: visit.staff_id || '',
                                     scheduled_date: visit.visit_date || '',
                                     price_charged: visit.price_charged || 0,
-                                    status: visit.status || 'agendada',
+                                    status: visit.status || 'agendado',
                                     notes: visit.notes || '',
                                   });
                                   setIsEditModalOpen(true);
@@ -800,17 +817,7 @@ export function AtencionesManager({
                       className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
                     >
                       <td className="p-4 text-black dark:text-white font-medium">
-                        {new Date(visit.scheduled_date || visit.visit_date || 0).toLocaleString(
-                          'es-PE',
-                          {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true,
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          },
-                        )}
+                        {formatBusinessDateTime(visit.visit_date || visit.scheduled_date)}
                       </td>
                       <td className="p-4">
                         <div className="font-semibold text-black dark:text-white">
@@ -1470,7 +1477,7 @@ export function AtencionesManager({
                     options={[
                       { value: 'completado', label: 'Completado' },
                       { value: 'en_curso', label: 'En Curso' },
-                      { value: 'agendada', label: 'Agendada' },
+                      { value: 'agendado', label: 'Agendada' },
                       { value: 'cancelado', label: 'Cancelado' },
                     ]}
                     value={{ value: editForm.status, label: editForm.status }}

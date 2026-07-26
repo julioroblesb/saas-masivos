@@ -15,7 +15,7 @@ const getCompanyId = async () => {
       console.error('getCompanyId - No User Found');
       return { error: 'No user session found' };
     }
-    
+
     const { data: profile, error: profileError } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
     if (profileError) {
       console.error('getCompanyId - Profile Error:', profileError);
@@ -25,7 +25,7 @@ const getCompanyId = async () => {
       console.error('getCompanyId - No Company ID in profile');
       return { error: 'No company ID found for this user' };
     }
-    
+
     return { companyId: profile.company_id };
   } catch (error: unknown) {
     console.error('getCompanyId - Caught Exception:', error);
@@ -58,9 +58,8 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
       .eq('block_date', date);
 
     // 3. Get existing visits (ignore cancelled/no show)
-    // Querying with Peru timezone offset (-05:00) to ensure accurate day bounds
     const startIso = `${date}T00:00:00-05:00`;
-    const endIso = `${date}T23:59:59-05:00`;
+    const endIso = `${date}T23:59:59.999-05:00`;
 
     const { data: visits } = await supabase
       .from('spa_visits')
@@ -112,16 +111,32 @@ export async function createVisitAction(data: {
       finalContactId = newC.id;
     }
 
-    if (!finalContactId) return { error: 'Contact is required' };
+    if (!finalContactId) return { error: 'Debes seleccionar o crear un paciente' };
 
-    // Check overlap if staff is selected
+    // 1. Fetch service validating id, company_id and is_active
+    const { data: service, error: serviceError } = await supabase
+      .from('spa_services')
+      .select('id, price, is_active, company_id')
+      .eq('id', data.service_id)
+      .eq('company_id', companyId)
+      .single();
+
+    if (serviceError || !service) {
+      return { error: 'El servicio seleccionado no existe o no pertenece a la empresa.' };
+    }
+
+    if (!service.is_active) {
+      return { error: 'El servicio seleccionado se encuentra inactivo.' };
+    }
+
+    // 2. Check overlap if staff is selected
     if (data.staff_id) {
       const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
         p_staff_id: data.staff_id,
         p_visit_date: data.visit_date,
         p_duration_minutes: data.duration_minutes
       });
-      
+
       if (overlapError) {
         console.error('Overlap check failed:', overlapError);
       } else if (hasOverlap) {
@@ -129,6 +144,7 @@ export async function createVisitAction(data: {
       }
     }
 
+    // 3. Insert visit with all required fields
     const { error } = await supabase
       .from('spa_visits')
       .insert({
@@ -137,13 +153,15 @@ export async function createVisitAction(data: {
         service_id: data.service_id,
         staff_id: data.staff_id,
         visit_date: data.visit_date,
+        scheduled_date: data.visit_date,
         duration_minutes: data.duration_minutes,
+        price_charged: service.price,
         status: 'agendado',
         payment_status: 'pendiente'
       });
 
     if (error) throw error;
-    
+
     revalidatePath('/dashboard/agenda');
     revalidatePath('/dashboard/atenciones');
     return { success: true };

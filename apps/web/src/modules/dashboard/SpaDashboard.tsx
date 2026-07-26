@@ -52,6 +52,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
         return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-500">Completado</span>;
       case 'en_curso':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-500">En curso</span>;
+      case 'agendado':
       case 'agendada':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-500/10 text-blue-500">Agendada</span>;
       case 'cancelado':
