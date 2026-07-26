@@ -1088,6 +1088,7 @@ export type Database = {
     };
     Functions: {
       auth_company_id: { Args: never; Returns: string };
+      auth_role: { Args: never; Returns: string };
       check_visit_overlap: {
         Args: {
           p_duration_minutes: number;
@@ -1165,11 +1166,45 @@ export type Database = {
           total_visits: number;
         }[];
       };
+      rpc_get_my_access_context: {
+        Args: never;
+        Returns: {
+          app_role: string;
+          company_id: string;
+          company_status: string;
+          is_demo: boolean;
+          plan_type: string;
+          subscription_end_at: string;
+          subscription_start_at: string;
+          timezone: string;
+          user_id: string;
+        }[];
+      };
       rpc_get_spa_dashboard: { Args: never; Returns: Json };
       rpc_get_unique_tags: { Args: never; Returns: string[] };
       rpc_recalculate_customer_segment: {
         Args: { p_contact_id: string };
         Returns: string;
+      };
+      rpc_provision_tenant_for_user: {
+        Args: {
+          p_company_name: string;
+          p_is_demo?: boolean;
+          p_owner_name: string;
+          p_plan_type?: string;
+          p_subscription_end_at?: string;
+          p_user_id: string;
+        };
+        Returns: string;
+      };
+      rpc_set_tenant_subscription: {
+        Args: {
+          p_company_id: string;
+          p_plan_type: string;
+          p_status: string;
+          p_subscription_end_at: string;
+        };
+        Returns: Json;
       };
       rpc_update_company_settings: {
         Args: { p_name?: string; p_settings?: Json };

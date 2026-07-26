@@ -8,8 +8,10 @@ import { z } from 'zod';
 export async function createTenant(formData: FormData) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) return { error: 'No autorizado' };
 
     // Verificar si el usuario que llama es super_admin
@@ -24,67 +26,43 @@ export async function createTenant(formData: FormData) {
     }
 
     const supabaseAdmin = getSupabaseAdmin();
-    const companyName = (formData.get('companyName') as string || '').trim();
-    const fullName = (formData.get('fullName') as string || '').trim();
-    const email = (formData.get('email') as string || '').trim();
-    const password = (formData.get('password') as string || '').trim();
+    const companyName = ((formData.get('companyName') as string) || '').trim();
+    const fullName = ((formData.get('fullName') as string) || '').trim();
+    const email = ((formData.get('email') as string) || '').trim();
+    const password = ((formData.get('password') as string) || '').trim();
 
     if (!companyName || !email || !password) {
       return { error: 'Nombre de empresa, correo y contraseña son obligatorios' };
     }
 
-    const trialStart = new Date();
-    const trialEnd = new Date(trialStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // 1. Crear la compañía (tenant) con 7 días de prueba explícitos
-    const { data: company, error: companyError } = await supabaseAdmin
-      .from('companies')
-      .insert({
-        name: companyName,
-        plan_type: 'prueba',
-        status: 'activa',
-        subscription_start_at: trialStart.toISOString(),
-        subscription_end_at: trialEnd.toISOString(),
-      })
-      .select()
-      .single();
-
-    if (companyError || !company) {
-      return { error: companyError?.message || 'Error al crear la empresa' };
-    }
-
-    // 2. Crear usuario en Supabase Auth
+    // Auth se crea primero y se compensa si falla el aprovisionamiento SQL.
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: {
         full_name: fullName || '',
-      }
+      },
     });
 
     if (authError || !authData.user) {
-      await supabaseAdmin.from('companies').delete().eq('id', company.id);
       return { error: authError?.message || 'Error al crear el usuario auth' };
     }
 
-    // 3. Crear el perfil SIN incluir 'email' (ya vive en auth.users)
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .upsert(
-        {
-          id: authData.user.id,
-          company_id: company.id,
-          role: 'tenant',
-          full_name: fullName || null,
-        },
-        { onConflict: 'id' }
-      );
+    const { error: provisionError } = await supabaseAdmin.rpc('rpc_provision_tenant_for_user', {
+      p_user_id: authData.user.id,
+      p_company_name: companyName,
+      p_owner_name: fullName,
+      p_plan_type: 'prueba',
+      p_subscription_end_at: trialEnd.toISOString(),
+      p_is_demo: false,
+    });
 
-    if (profileError) {
+    if (provisionError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      await supabaseAdmin.from('companies').delete().eq('id', company.id);
-      return { error: profileError.message };
+      return { error: provisionError.message };
     }
 
     revalidatePath('/admin');
@@ -95,7 +73,9 @@ export async function createTenant(formData: FormData) {
 }
 
 const updateSubscriptionSchema = z.object({
-  plan_type: z.enum(['prueba', 'mensual', 'bimestral', 'trimestral', 'semestral', 'anual']).optional(),
+  plan_type: z
+    .enum(['prueba', 'mensual', 'bimestral', 'trimestral', 'semestral', 'anual'])
+    .optional(),
   status: z.enum(['activa', 'suspendida', 'cancelada']).optional(),
   subscription_start_at: z.string().optional(),
   subscription_end_at: z.string().optional(),
@@ -105,8 +85,10 @@ export async function updateTenantSubscription(companyId: string, data: any) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) return { error: 'No autorizado' };
 
     const { data: profile } = await supabase
@@ -125,22 +107,36 @@ export async function updateTenantSubscription(companyId: string, data: any) {
     if (parsedData.status === 'activa' && parsedData.subscription_end_at) {
       const end = new Date(parsedData.subscription_end_at);
       if (!Number.isNaN(end.getTime()) && end.getTime() <= Date.now()) {
-        return { error: 'No se puede activar un tenant con una fecha de vencimiento pasada. Renueve la fecha primero.' };
+        return {
+          error:
+            'No se puede activar un tenant con una fecha de vencimiento pasada. Renueve la fecha primero.',
+        };
       }
     }
 
-    const { error } = await supabaseAdmin
+    const { data: currentCompany, error: companyError } = await supabaseAdmin
       .from('companies')
-      .update(parsedData)
-      .eq('id', companyId);
+      .select('status, plan_type, subscription_end_at')
+      .eq('id', companyId)
+      .single();
+
+    if (companyError || !currentCompany) {
+      return { error: companyError?.message ?? 'Empresa no encontrada' };
+    }
+
+    const { error } = await supabaseAdmin.rpc('rpc_set_tenant_subscription', {
+      p_company_id: companyId,
+      p_status: parsedData.status ?? currentCompany.status,
+      p_plan_type: parsedData.plan_type ?? currentCompany.plan_type ?? 'prueba',
+      p_subscription_end_at:
+        parsedData.subscription_end_at ??
+        currentCompany.subscription_end_at ??
+        new Date().toISOString(),
+    });
 
     if (error) {
       console.error('Error updateTenantSubscription:', error);
       return { error: error.message };
-    }
-
-    if (parsedData.status && parsedData.status !== 'activa') {
-      await supabaseAdmin.from('wa_sessions').update({ status: 'desconectado' }).eq('company_id', companyId);
     }
 
     revalidatePath('/admin');
@@ -154,8 +150,10 @@ export async function deleteTenant(companyId: string) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) return { error: 'No autorizado' };
 
     const { data: profile } = await supabase
@@ -168,8 +166,11 @@ export async function deleteTenant(companyId: string) {
       return { error: 'No autorizado' };
     }
 
-    const { data: profiles } = await supabaseAdmin.from('profiles').select('id').eq('company_id', companyId);
-    
+    const { data: profiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('company_id', companyId);
+
     if (profiles && profiles.length > 0) {
       for (const p of profiles) {
         await supabaseAdmin.auth.admin.deleteUser(p.id);

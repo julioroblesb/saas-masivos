@@ -2,14 +2,25 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { evolution } from '@/integrations/evolution/client';
+import { TenantAccessService } from '@/server/access/tenant-access-service';
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+    const access = await TenantAccessService.allows('owner');
+    if (!access.allowed) {
+      return NextResponse.json(
+        { error: 'Se requiere una cuenta activa con rol de dueño' },
+        { status: 403 },
+      );
     }
 
     const { data: profile } = await supabase
@@ -42,17 +53,20 @@ export async function POST(req: Request) {
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
+      { auth: { persistSession: false } },
     );
-    
-    await supabaseAdmin.from('wa_sessions').update({
-      bb_project_id: null,
-      status: 'desconectado',
-      phone_number: null,
-      connection_started_at: null,
-      last_disconnect_reason: 'Desvinculado manualmente por el usuario',
-      updated_at: new Date().toISOString()
-    }).eq('company_id', profile.company_id);
+
+    await supabaseAdmin
+      .from('wa_sessions')
+      .update({
+        bb_project_id: null,
+        status: 'desconectado',
+        phone_number: null,
+        connection_started_at: null,
+        last_disconnect_reason: 'Desvinculado manualmente por el usuario',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('company_id', profile.company_id);
 
     return NextResponse.json({ message: 'WhatsApp desvinculado' });
   } catch (error: any) {
