@@ -20,6 +20,7 @@
     "db:coverage": "node scripts/check-schema-coverage.mjs",
     "db:validate": "node scripts/validate-migrations.mjs",
     "security:secrets": "node scripts/scan-secrets.mjs",
+    "load:test": "node scripts/load/http-capacity.mjs",
     "format": "prettier --write \"*.{json,md}\" \".github/**/*.yml\" \"docs/**/*.{json,md}\" \"apps/web/*.{json,md,mjs}\"",
     "format:check": "prettier --check \"*.{json,md}\" \".github/**/*.yml\" \"docs/**/*.{json,md}\" \"apps/web/*.{json,md,mjs}\"",
     "check": "npm run security:secrets && npm run db:validate && npm run lint && npm run typecheck && npm run test && npm run test:integration && npm run build"

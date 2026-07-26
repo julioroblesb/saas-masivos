@@ -1,0 +1,14 @@
+[Unit]
+Description=Encrypted Evolution backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/saas-masivos/infra/evolution
+EnvironmentFile=/etc/saas-masivos/evolution.env
+ExecStart=/opt/saas-masivos/infra/evolution/scripts/backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

@@ -1,0 +1,135 @@
+name: saas-masivos-evolution
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:15.13-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${EVOLUTION_POSTGRES_DATABASE:?required}
+      POSTGRES_USER: ${EVOLUTION_POSTGRES_USERNAME:?required}
+      POSTGRES_PASSWORD: ${EVOLUTION_POSTGRES_PASSWORD:?required}
+    volumes:
+      - evolution_postgres:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 60s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  redis:
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --save
+      - "60"
+      - "1000"
+      - --maxmemory
+      - 192mb
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - evolution_redis:/data
+    networks:
+      - backend
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    stop_grace_period: 30s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          memory: 64M
+
+  api:
+    image: evoapicloud/evolution-api:v2.3.7
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:8080:8080
+    environment:
+      SERVER_URL: ${SERVER_URL:?required}
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:?required}
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://${EVOLUTION_POSTGRES_USERNAME}:${EVOLUTION_POSTGRES_PASSWORD}@postgres:5432/${EVOLUTION_POSTGRES_DATABASE}
+      DATABASE_CONNECTION_CLIENT_NAME: saas-masivos
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://redis:6379/6
+      CACHE_REDIS_PREFIX_KEY: saas-masivos
+      CACHE_LOCAL_ENABLED: "false"
+      LOG_LEVEL: ERROR,WARN,INFO
+      DEL_INSTANCE: "false"
+      QRCODE_LIMIT: "30"
+      QRCODE_COLOR: "#198754"
+      CONFIG_SESSION_PHONE_CLIENT: Renova CRM
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      TELEMETRY: "false"
+    volumes:
+      - evolution_instances:/evolution/instances
+    networks:
+      - backend
+      - egress
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:8080').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 8s
+      retries: 5
+      start_period: 90s
+    stop_grace_period: 90s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          memory: 256M
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  egress:
+    driver: bridge
+
+volumes:
+  evolution_instances:
+    name: saas_masivos_evolution_instances
+  evolution_postgres:
+    name: saas_masivos_evolution_postgres
+  evolution_redis:
+    name: saas_masivos_evolution_redis

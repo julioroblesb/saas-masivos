@@ -28,6 +28,7 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   compress: true,
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
