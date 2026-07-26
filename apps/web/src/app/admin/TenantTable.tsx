@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EditTenantModal } from './EditTenantModal';
 import { deleteTenant } from './actions';
 import { toast } from 'react-hot-toast';
 import { Edit2, Trash2, Building } from 'lucide-react';
 import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
+import type { Tables } from '@/types/database.generated';
 
-export function TenantTable({ companies }: { companies: any[] }) {
-  const [editingCompany, setEditingCompany] = useState<any | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+type Company = Tables<'companies'> & {
+  profiles: Array<{ full_name: string | null }>;
+};
+
+export function TenantTable({ companies }: { companies: Company[] }) {
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
 
   const formatDate = (isoStr: string) => {
     if (!isoStr) return '-';
@@ -24,7 +24,7 @@ export function TenantTable({ companies }: { companies: any[] }) {
     return `${day}/${month}/${year}`;
   };
 
-  const getEffectiveBadge = (company: any) => {
+  const getEffectiveBadge = (company: Company) => {
     const access = evaluateTenantAccess(company);
     if (access.reason === 'cancelled') return { label: 'CANCELADA', className: 'bg-danger/10 text-danger border-danger/20' };
     if (access.reason === 'suspended') return { label: 'SUSPENDIDA', className: 'bg-warning/10 text-warning border-warning/20' };
@@ -35,16 +35,16 @@ export function TenantTable({ companies }: { companies: any[] }) {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Estás completamente seguro de que deseas ELIMINAR el cliente "${name}" y TODOS sus datos (campañas, contactos, usuarios)? Esta acción NO se puede deshacer.`)) {
+    if (!confirm(`¿Confirmas cancelar el acceso de "${name}"? Sus datos e historial se conservarán.`)) {
       return;
     }
     
-    toast.loading('Eliminando cliente...', { id: 'delete' });
+    toast.loading('Cancelando acceso...', { id: 'delete' });
     const res = await deleteTenant(id);
     if (res?.error) {
       toast.error(res.error, { id: 'delete' });
     } else {
-      toast.success('Cliente eliminado exitosamente', { id: 'delete' });
+      toast.success('Acceso del cliente cancelado', { id: 'delete' });
     }
   };
 
@@ -55,12 +55,10 @@ export function TenantTable({ companies }: { companies: any[] }) {
           <Building className="w-8 h-8 text-zinc-400" />
         </div>
         <h3 className="text-lg font-semibold text-black dark:text-white mb-2">No hay empresas registradas</h3>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">Aún no has registrado ningún tenant. Haz clic en "Añadir Nuevo Cliente" para comenzar.</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">Aún no has registrado ningún tenant. Haz clic en &quot;Añadir Nuevo Cliente&quot; para comenzar.</p>
       </div>
     );
   }
-
-  if (!isMounted) return null;
 
   return (
     <>
@@ -119,16 +117,18 @@ export function TenantTable({ companies }: { companies: any[] }) {
                   <td className="py-4 px-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
+                        type="button"
                         onClick={() => setEditingCompany(company)}
                         className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                        title="Editar Suscripción"
+                        aria-label={`Editar suscripción de ${company.name}`}
                       >
                         <Edit2 size={16} />
                       </button>
                       <button 
+                        type="button"
                         onClick={() => handleDelete(company.id, company.name)}
                         className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                        title="Eliminar Cliente"
+                        aria-label={`Cancelar acceso de ${company.name}`}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -143,6 +143,7 @@ export function TenantTable({ companies }: { companies: any[] }) {
 
       {editingCompany && (
         <EditTenantModal
+          key={editingCompany.id}
           company={editingCompany}
           isOpen={true}
           onClose={() => setEditingCompany(null)}

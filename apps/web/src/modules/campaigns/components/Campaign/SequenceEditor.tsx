@@ -1,7 +1,7 @@
-import { Settings2, Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import type { SequenceItem } from './types';
 import { MediaField } from './MediaField';
-import { CustomSelect } from '@/components/ui/CustomSelect';
+import { CustomSelect, type CustomSelectOption } from '@/components/ui/CustomSelect';
 
 const typeLabel: Record<string, string> = { text: '💬 Texto', image: '🖼 Imagen', video: '🎬 Video', audio: '🎤 Audio', document: '📄 Documento (PDF)' };
 
@@ -48,7 +48,7 @@ export function SequenceEditor({
                       isSearchable={false}
                       options={Object.entries(typeLabel).map(([v, l]) => ({ value: v, label: l }))}
                       value={{ value: msg.type, label: typeLabel[msg.type] }}
-                      onChange={(option: any) => handleTypeChange(msg.id, option.value as SequenceItem['type'])}
+                      onChange={(option: CustomSelectOption | null) => option && handleTypeChange(msg.id, option.value as SequenceItem['type'])}
                     />
                   </div>
                   <button type="button" className="text-zinc-400 hover:text-danger transition-colors p-1.5" onClick={() => removeMessage(msg.id)}>

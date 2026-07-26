@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { SpaStaff } from '@/types/crm';
 import { revalidatePath } from 'next/cache';
+import type { SpaStaffSchedule } from '@/types/spa';
 
 export async function getStaffListAction(): Promise<SpaStaff[]> {
   const supabase = await createClient();
@@ -23,21 +24,18 @@ export async function getStaffListAction(): Promise<SpaStaff[]> {
     .from('spa_staff_services')
     .select('staff_id, service_id');
 
-  if (servicesError) {
-    console.error('Error fetching staff services:', servicesError);
-    return staff; // Devolvemos el staff aunque falten los servicios
-  }
+  if (servicesError) console.error('Error fetching staff services:', servicesError);
 
   // Combinamos la información
-  return staff.map((member: any) => ({
+  return staff.map((member) => ({
     id: member.id,
     name: member.name,
     birthday: member.birthday,
     role: member.role,
     isActive: member.is_active,
-    services: staffServices
-      .filter((ss: any) => ss.staff_id === member.id)
-      .map((ss: any) => ss.service_id),
+    services: (staffServices ?? [])
+      .filter((staffService) => staffService.staff_id === member.id)
+      .map((staffService) => staffService.service_id),
   }));
 }
 
@@ -85,7 +83,7 @@ export async function upsertStaffAction(payload: {
       .single();
 
     if (error) return { error: 'Error creando trabajadora: ' + error.message };
-    staffId = (data as any)?.id;
+    staffId = data.id;
 
     // 2.5 Insertar horario por defecto (Lunes a Viernes de 09:00 a 18:00)
     const defaultSchedules = [1, 2, 3, 4, 5, 6, 0].map((day) => ({
@@ -124,8 +122,8 @@ export async function upsertStaffAction(payload: {
 
 export async function deleteStaffAction(id: string) {
   const supabase = await createClient();
-  const { error } = await supabase.from('spa_staff').delete().eq('id', id);
-  if (error) return { error: 'Error eliminando trabajadora: ' + error.message };
+  const { error } = await supabase.from('spa_staff').update({ is_active: false }).eq('id', id);
+  if (error) return { error: 'Error archivando trabajadora: ' + error.message };
 
   revalidatePath('/dashboard/trabajadoras');
   return { success: true };
@@ -146,7 +144,10 @@ export async function getStaffSchedulesAction(staffId: string) {
   return data;
 }
 
-export async function upsertStaffSchedulesAction(staffId: string, schedules: any[]) {
+export async function upsertStaffSchedulesAction(
+  staffId: string,
+  schedules: SpaStaffSchedule[],
+) {
   const supabase = await createClient();
   const { data: profile } = await supabase.from('profiles').select('company_id').single();
   if (!profile?.company_id) return { error: 'No autorizado' };

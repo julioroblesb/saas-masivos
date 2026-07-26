@@ -23,6 +23,12 @@ export type AtencionVisit = Tables<'spa_visits'> & {
 };
 
 export type AgendaVisit = AtencionVisit & {
-  crm_marketing_contacts?: { name: string | null; phone: string } | null;
+  crm_marketing_contacts?: {
+    created_at?: string | null;
+    email?: string | null;
+    name: string | null;
+    phone: string;
+    source?: string | null;
+  } | null;
   spa_services?: { name: string; price: number } | null;
 };

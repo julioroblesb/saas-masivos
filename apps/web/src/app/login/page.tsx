@@ -98,7 +98,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-black dark:text-white">Correo Electrónico</label>
+              <label htmlFor="email" className="block text-sm font-semibold text-black dark:text-white">Correo Electrónico</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
@@ -116,7 +116,7 @@ export default function LoginPage() {
             
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-semibold text-black dark:text-white">Contraseña</label>
+                <label htmlFor="password" className="block text-sm font-semibold text-black dark:text-white">Contraseña</label>
                 <Link href="/recuperar-password" className="text-xs font-medium text-primary hover:underline">
                   ¿Olvidaste tu contraseña?
                 </Link>

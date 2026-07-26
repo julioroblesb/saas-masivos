@@ -1,6 +1,6 @@
 import { crmToast } from '../../../../hooks/useToast';
 import { useRef, useState } from 'react';
-import { Loader2, Image, Video, Mic, MicOff, FileAudio, CheckCircle2, UploadCloud, FileText } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Video, Mic, MicOff, FileAudio, CheckCircle2, UploadCloud, FileText } from 'lucide-react';
 import { useCampaignAudioRecorder } from '../../../../hooks/media/useCampaignAudioRecorder';
 import type { SequenceItem } from './types';
 
@@ -91,7 +91,7 @@ export function MediaField({
   if (msg.content && msg.uploadedFilename) {
     return (
       <div className="media-ready-pill">
-        {msg.type === 'image' ? <Image size={15} style={{ color: '#0ea5e9', flexShrink: 0 }} />
+        {msg.type === 'image' ? <ImageIcon size={15} style={{ color: '#0ea5e9', flexShrink: 0 }} />
           : msg.type === 'document' ? <FileText size={15} style={{ color: '#e11d48', flexShrink: 0 }} />
           : <Video size={15} style={{ color: '#f59e0b', flexShrink: 0 }} />}
         <span className="pill-name">{msg.uploadedFilename}</span>
@@ -108,7 +108,7 @@ export function MediaField({
         {isUploading
           ? <><Loader2 size={22} className="spin" style={{ opacity: 0.6 }} /><span>Subiendo archivo...</span></>
           : msg.type === 'image'
-            ? <><Image size={22} className="zone-icon" /><span>Haz clic para seleccionar una imagen</span><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>PNG, JPG, WEBP</span></>
+            ? <><ImageIcon size={22} className="zone-icon" /><span>Haz clic para seleccionar una imagen</span><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>PNG, JPG, WEBP</span></>
             : msg.type === 'document'
             ? <><FileText size={22} className="zone-icon" style={{ color: '#e11d48' }} /><span>Haz clic para seleccionar un PDF</span><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Solo archivos .PDF (máx. 100MB)</span></>
             : <><Video size={22} className="zone-icon" /><span>Haz clic para seleccionar un video</span><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>MP4, MOV (máx. 16MB)</span></>}

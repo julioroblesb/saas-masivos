@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Zap, Search, Users, PhoneForwarded } from 'lucide-react';
 import { supabase } from '../../../../shared/utils/supabase';
-import { CustomSelect } from '@/components/ui/CustomSelect';
+import { CustomSelect, type CustomSelectOption } from '@/components/ui/CustomSelect';
 
 interface ClientMetric {
   id: string;
@@ -178,7 +178,7 @@ export function SegmentConfig({
                     { value: '', label: 'Todos los servicios' },
                     ...availableServices.map(s => ({ value: s, label: s }))
                   ]}
-                  onChange={(option: any) => setServiceFilter(option.value)}
+                  onChange={(option: CustomSelectOption | null) => option && setServiceFilter(option.value)}
                 />
               </div>
             </div>
@@ -238,7 +238,7 @@ export function SegmentConfig({
                 onChange={handleRawTextChange}
               />
               <div className="flex justify-between items-start gap-4">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Asegúrate de incluir el código de país (ej. 51 para Perú) sin símbolos "+".</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Asegúrate de incluir el código de país (ej. 51 para Perú) sin símbolos &quot;+&quot;.</p>
                 <p className="text-xs text-warning dark:text-warning text-right max-w-[200px] leading-tight">Los números masivos fríos tienen mayor riesgo de baneo en WhatsApp.</p>
               </div>
             </div>

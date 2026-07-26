@@ -27,17 +27,15 @@ const getCompanyId = async () => {
     }
     
     return { companyId: profile.company_id };
-  } catch (err: any) {
-    console.error('getCompanyId - Caught Exception:', err);
-    return { error: 'Exception: ' + err.message };
+  } catch (error: unknown) {
+    console.error('getCompanyId - Caught Exception:', error);
+    return { error: 'Exception: ' + (error instanceof Error ? error.message : 'Error interno') };
   }
 };
 
 export async function getStaffAvailabilityAction(staffId: string, date: string) {
   const ctx = await getCompanyId();
   if (ctx?.error) return { error: ctx.error };
-  const companyId = ctx.companyId;
-
   try {
     const [y, m, d] = date.split('-').map(Number);
     const targetDate = new Date(y, m - 1, d);
@@ -77,8 +75,8 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
       blocks: blocks || [],
       visits: visits || []
     };
-  } catch (error: any) {
-    return { error: error.message };
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : 'Error interno' };
   }
 }
 
@@ -149,7 +147,7 @@ export async function createVisitAction(data: {
     revalidatePath('/dashboard/agenda');
     revalidatePath('/dashboard/atenciones');
     return { success: true };
-  } catch (error: any) {
-    return { error: error.message };
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : 'Error interno' };
   }
 }

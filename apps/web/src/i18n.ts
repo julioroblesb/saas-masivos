@@ -1,5 +1,6 @@
-const cookieObj = typeof window === 'undefined' ? require('next/headers') : require('universal-cookie');
+'use client';
 
+import Cookies from 'universal-cookie';
 import en from '../public/locales/en.json';
 import ae from '../public/locales/ae.json';
 import da from '../public/locales/da.json';
@@ -16,40 +17,31 @@ import ru from '../public/locales/ru.json';
 import sv from '../public/locales/sv.json';
 import tr from '../public/locales/tr.json';
 import zh from '../public/locales/zh.json';
-const langObj: any = { en, ae, da, de, el, es, fr, hu, it, ja, pl, pt, ru, sv, tr, zh };
 
-const getLang = () => {
-    let lang = null;
-    if (typeof window !== 'undefined') {
-        const cookies = new cookieObj(null, { path: '/' });
-        lang = cookies.get('i18nextLng');
-    } else {
-        const cookies = cookieObj.cookies();
-        lang = cookies.get('i18nextLng')?.value;
-    }
-    return lang;
-};
+const languages = { en, ae, da, de, el, es, fr, hu, it, ja, pl, pt, ru, sv, tr, zh };
+type Language = keyof typeof languages;
+
+function isLanguage(value: string | undefined): value is Language {
+  return Boolean(value && value in languages);
+}
+
+const cookies = new Cookies(null, { path: '/' });
 
 export const getTranslation = () => {
-    const lang = getLang();
-    const data: any = langObj[lang || 'en'];
+  const selected = cookies.get<string>('i18nextLng');
+  const language: Language = isLanguage(selected) ? selected : 'en';
+  const data = languages[language] as Record<string, string>;
 
-    const t = (key: string) => {
-        return data[key] ? data[key] : key;
-    };
+  const i18n = {
+    language,
+    changeLanguage: (nextLanguage: string) => {
+      if (isLanguage(nextLanguage)) cookies.set('i18nextLng', nextLanguage);
+    },
+  };
 
-    const initLocale = (themeLocale: string) => {
-        const lang = getLang();
-        i18n.changeLanguage(lang || themeLocale);
-    };
-
-    const i18n = {
-        language: lang,
-        changeLanguage: (lang: string) => {
-            const cookies = new cookieObj(null, { path: '/' });
-            cookies.set('i18nextLng', lang);
-        },
-    };
-
-    return { t, i18n, initLocale };
+  return {
+    t: (key: string) => data[key] ?? key,
+    i18n,
+    initLocale: (themeLocale: string) => i18n.changeLanguage(themeLocale),
+  };
 };

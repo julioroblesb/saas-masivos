@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { Mail, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
@@ -11,7 +10,6 @@ export default function RecuperarPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleReset = async (e: React.FormEvent) => {

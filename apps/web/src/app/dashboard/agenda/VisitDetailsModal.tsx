@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { X, Clock, User, Phone, Sparkles, Banknote, Calendar as CalendarIcon, Tag, Mail, CalendarDays, Activity } from 'lucide-react';
+import { X, User, Phone, Sparkles, Banknote, Calendar as CalendarIcon, Tag, Mail, CalendarDays, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { AgendaVisit, AtencionStaff } from '../atenciones/types';
 
 interface VisitDetailsModalProps {
-  visit: any;
-  staffList: any[];
+  visit: AgendaVisit;
+  staffList: AtencionStaff[];
   onClose: () => void;
 }
 
@@ -31,11 +32,13 @@ export function VisitDetailsModal({ visit, staffList, onClose }: VisitDetailsMod
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[70]">
-      <div className={`bg-white dark:bg-dark-light rounded-2xl w-full max-w-md flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-300 transition-all ${expanded ? 'max-h-[90vh]' : 'max-h-[85vh]'}`}>
+      <div role="dialog" aria-modal="true" aria-labelledby="visit-details-title" className={`bg-white dark:bg-dark-light rounded-2xl w-full max-w-md flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-300 transition-all ${expanded ? 'max-h-[90vh]' : 'max-h-[85vh]'}`}>
         
         {/* Header */}
         <div className="relative h-24 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
           <button 
+            type="button"
+            aria-label="Cerrar detalles"
             onClick={onClose} 
             className="absolute top-4 right-4 p-2 bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-black rounded-full backdrop-blur-md transition-colors z-10"
           >
@@ -54,7 +57,7 @@ export function VisitDetailsModal({ visit, staffList, onClose }: VisitDetailsMod
           <div className="pt-12 p-6 space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                <h2 id="visit-details-title" className="text-2xl font-bold text-zinc-900 dark:text-white">
                   {contact?.name || 'Cliente sin nombre'}
                 </h2>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(visit.status)}`}>
@@ -74,9 +77,9 @@ export function VisitDetailsModal({ visit, staffList, onClose }: VisitDetailsMod
                   <CalendarIcon className="w-3.5 h-3.5 text-zinc-400" /> Fecha y Hora
                 </div>
                 <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
-                  {format(new Date(visit.visit_date), "d MMM yyyy", { locale: es })}
+                  {format(new Date(visit.visit_date || 0), "d MMM yyyy", { locale: es })}
                   <br/>
-                  <span className="text-primary font-bold">{format(new Date(visit.visit_date), "HH:mm")}</span>
+                  <span className="text-primary font-bold">{format(new Date(visit.visit_date || 0), "HH:mm")}</span>
                 </div>
               </div>
 
@@ -166,6 +169,7 @@ export function VisitDetailsModal({ visit, staffList, onClose }: VisitDetailsMod
         {/* Footer */}
         <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-dark-light/50 shrink-0">
            <button 
+             type="button"
              onClick={() => setExpanded(!expanded)}
              className="w-full py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-medium rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors shadow-sm"
            >

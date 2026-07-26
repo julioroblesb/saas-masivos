@@ -87,7 +87,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       role: s.role,
       isActive: s.is_active,
       services:
-        staffServices?.filter((ss: any) => ss.staff_id === s.id).map((ss: any) => ss.service_id) ||
+        staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) ||
         [],
     })) || [];
 
@@ -117,7 +117,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   return {
     services: services || [],
     visits:
-      visits?.map((v: any) => ({
+      visits?.map((v) => ({
         ...v,
         contact_name: v.crm_marketing_contacts?.name,
         contact_phone: v.crm_marketing_contacts?.phone,
@@ -445,7 +445,7 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
     if (insertErr) return { error: insertErr.message };
 
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : 'Error interno' };
   }
 }

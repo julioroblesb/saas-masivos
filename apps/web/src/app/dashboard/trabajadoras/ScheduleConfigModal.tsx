@@ -50,7 +50,11 @@ export function ScheduleConfigModal({ staffId, staffName, onClose }: ScheduleCon
     load();
   }, [staffId]);
 
-  const updateSchedule = (dayId: number, field: keyof SpaStaffSchedule, value: any) => {
+  const updateSchedule = <K extends keyof SpaStaffSchedule>(
+    dayId: number,
+    field: K,
+    value: SpaStaffSchedule[K],
+  ) => {
     setSchedules(prev => prev.map(s => 
       s.day_of_week === dayId ? { ...s, [field]: value } : s
     ));
@@ -70,12 +74,12 @@ export function ScheduleConfigModal({ staffId, staffName, onClose }: ScheduleCon
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-dark-light rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
+      <div role="dialog" aria-modal="true" aria-labelledby="schedule-title" className="bg-white dark:bg-dark-light rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-dark-light/50">
           <div>
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+            <h2 id="schedule-title" className="text-xl font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
               Horario de Disponibilidad
             </h2>

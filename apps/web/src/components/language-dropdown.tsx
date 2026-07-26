@@ -5,8 +5,8 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { toggleRTL } from '@/store/themeConfigSlice';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Image from 'next/image';
 
 interface LanguageDropdownProps {
     className?: string;
@@ -39,7 +39,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                     button={
                         <>
                             <div>
-                                <img src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="image" className="h-5 w-5 rounded-full object-cover" />
+                                <Image src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="" width={20} height={20} className="h-5 w-5 rounded-full object-cover" />
                             </div>
                             <div className="text-base font-bold uppercase">{i18n.language}</div>
                             <span className="shrink-0">
@@ -49,7 +49,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                     }
                 >
                     <ul className="grid w-[280px] grid-cols-2 gap-2 !px-2 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
-                        {themeConfig.languageList.map((item: any) => {
+                        {themeConfig.languageList.map((item) => {
                             return (
                                 <li key={item.code}>
                                     <button
@@ -60,7 +60,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                                             setLocale(item.code);
                                         }}
                                     >
-                                        <img src={`/assets/images/flags/${item.code.toUpperCase()}.svg`} alt="flag" className="h-5 w-5 rounded-full object-cover" />
+                                        <Image src={`/assets/images/flags/${item.code.toUpperCase()}.svg`} alt="" width={20} height={20} className="h-5 w-5 rounded-full object-cover" />
                                         <span className="ltr:ml-3 rtl:mr-3">{item.name}</span>
                                     </button>
                                 </li>

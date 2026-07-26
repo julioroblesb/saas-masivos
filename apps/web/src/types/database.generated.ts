@@ -1490,15 +1490,15 @@ export type Database = {
       };
       rpc_upsert_marketing_contact: {
         Args: {
-          p_allergies_and_conditions?: string;
-          p_birthday?: string;
-          p_document_number?: string;
-          p_email?: string;
-          p_internal_notes?: string;
-          p_name: string;
-          p_opt_in_source?: string;
+          p_allergies_and_conditions?: string | null;
+          p_birthday?: string | null;
+          p_document_number?: string | null;
+          p_email?: string | null;
+          p_internal_notes?: string | null;
+          p_name: string | null;
+          p_opt_in_source?: string | null;
           p_phone: string;
-          p_preferences?: string;
+          p_preferences?: string | null;
           p_tags: string[];
         };
         Returns: Json;

@@ -23,12 +23,6 @@ export default async function DashboardPage() {
   }
 
   // Obtener estado de conexión WA
-  const { data: session } = await supabase
-    .from('wa_sessions')
-    .select('status, phone_number')
-    .eq('company_id', profile?.company_id)
-    .single();
-
   // Llamar a RPC function para stats del spa
   const { data: spaStats, error: rpcError } = await supabase
     .rpc('rpc_get_spa_dashboard');

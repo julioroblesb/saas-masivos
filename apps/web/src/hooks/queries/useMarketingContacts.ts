@@ -50,7 +50,7 @@ export function useUpsertMarketingContact() {
         p_document_number: null
       };
       RpcUpsertMarketingContactSchema.parse(payload);
-      const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload as any);
+      const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', payload);
       if (error) throw error;
       return data;
     },

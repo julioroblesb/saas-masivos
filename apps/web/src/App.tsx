@@ -1,15 +1,12 @@
 'use client';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IRootState } from '@/store';
 import { toggleRTL, toggleTheme, toggleMenu, toggleLayout, toggleAnimation, toggleNavbar, toggleSemidark } from '@/store/themeConfigSlice';
-import Loading from '@/components/layouts/loading';
 
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const dispatch = useDispatch();
-    const [isLoading, setIsLoading] = useState(true);
-
     useEffect(() => {
         dispatch(toggleTheme(localStorage.getItem('theme') || themeConfig.theme));
         dispatch(toggleMenu(themeConfig.menu));
@@ -19,7 +16,6 @@ function App({ children }: PropsWithChildren) {
         dispatch(toggleNavbar(localStorage.getItem('navbar') || themeConfig.navbar));
         dispatch(toggleSemidark(localStorage.getItem('semidark') || themeConfig.semidark));
 
-        setIsLoading(false);
     }, [dispatch, themeConfig.theme, themeConfig.menu, themeConfig.layout, themeConfig.rtlClass, themeConfig.animation, themeConfig.navbar, themeConfig.semidark]);
 
     return (
@@ -28,7 +24,7 @@ function App({ children }: PropsWithChildren) {
                 themeConfig.rtlClass
             } main-section relative font-outfit text-sm font-normal antialiased`}
         >
-            {isLoading ? <Loading /> : children}
+            {children}
         </div>
     );
 }

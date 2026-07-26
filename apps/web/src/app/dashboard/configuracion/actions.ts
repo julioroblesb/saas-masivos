@@ -36,7 +36,7 @@ export async function updatePaymentMethodsAction(methods: string[]) {
     if (error) throw error;
 
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : 'Error interno' };
   }
 }

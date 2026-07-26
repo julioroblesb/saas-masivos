@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:characterization": "vitest run",
     "test:integration": "vitest run --passWithNoTests src/integration",
-    "test:e2e": "vitest run --passWithNoTests e2e"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -35,11 +35,11 @@
     "react-dom": "19.2.4",
     "react-flatpickr": "^4.0.11",
     "react-hot-toast": "^2.6.0",
+    "react-joyride": "^3.1.0",
     "react-perfect-scrollbar": "^1.5.8",
     "react-popper": "^2.3.0",
     "react-redux": "^9.3.0",
     "react-select": "^5.10.2",
-    "react-joyride": "^3.1.0",
     "sweetalert2": "^11.26.25",
     "sweetalert2-react-content": "^5.1.2",
     "tailwind-merge": "^3.6.0",
@@ -48,6 +48,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",

@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import Flatpickr from 'react-flatpickr';
 import { Spanish } from 'flatpickr/dist/l10n/es.js';
 import 'flatpickr/dist/themes/dark.css';
+import type { DateTimePickerHandle } from 'react-flatpickr';
 
 interface CustomDatePickerProps extends Omit<React.ComponentProps<typeof Flatpickr>, 'value'> {
   value: string | Date | Date[];
@@ -12,7 +13,7 @@ interface CustomDatePickerProps extends Omit<React.ComponentProps<typeof Flatpic
   enableTime?: boolean;
 }
 
-export const CustomDatePicker = forwardRef<any, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, enableTime = false, ...props }, ref) => {
+export const CustomDatePicker = forwardRef<DateTimePickerHandle | undefined, CustomDatePickerProps>(({ value, onChangeDate, placeholder, className, enableTime = false, ...props }, ref) => {
   return (
     <div className="custom-datepicker-wrapper w-full relative">
       <style jsx global>{`

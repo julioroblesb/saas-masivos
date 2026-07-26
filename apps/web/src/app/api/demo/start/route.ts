@@ -7,7 +7,7 @@ import { z } from 'zod';
 const TEMPLATE_COMPANY_ID = '3c3cb849-06c8-4250-b4cf-9375422684a6';
 const cloneResultSchema = z.object({ new_company_id: z.string().uuid() });
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const supabaseServer = await createServerClient();
     const {
@@ -53,8 +53,11 @@ export async function POST(req: Request) {
     if (profileError) throw profileError;
 
     return NextResponse.json({ success: true, company_id: newCompanyId });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Demo] Error al crear cuenta demo:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Error interno' },
+      { status: 500 },
+    );
   }
 }

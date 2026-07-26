@@ -3,7 +3,6 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { toggleSidebar } from '@/store/themeConfigSlice';
-import AnimateHeight from 'react-animate-height';
 import { IRootState } from '@/store';
 import { useState, useEffect } from 'react';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
@@ -15,7 +14,6 @@ import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
 import IconMenuApps from '@/components/icon/menu/icon-menu-apps';
 import IconMenuWidgets from '@/components/icon/menu/icon-menu-widgets';
 import IconSettings from '@/components/icon/icon-settings';
-import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconMinus from '@/components/icon/icon-minus';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
 import { usePathname } from 'next/navigation';
@@ -25,7 +23,6 @@ import { Coins } from 'lucide-react';
 const Sidebar = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const [currentMenu, setCurrentMenu] = useState<string>('');
   const [role, setRole] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('NAVIER');
   const [initials, setInitials] = useState<string>('NV');
@@ -65,49 +62,17 @@ const Sidebar = () => {
     fetchRole();
   }, []);
 
-  const toggleMenu = (value: string) => {
-    setCurrentMenu((oldValue) => {
-      return oldValue === value ? '' : value;
-    });
-  };
-
   useEffect(() => {
-    const selector = document.querySelector(
-      '.sidebar ul a[href="' + window.location.pathname + '"]',
+    const activeLinks = document.querySelectorAll('.sidebar ul a.active');
+    activeLinks.forEach((element) => element.classList.remove('active'));
+    const selector = document.querySelector<HTMLAnchorElement>(
+      `.sidebar ul a[href="${CSS.escape(pathname)}"]`,
     );
-    if (selector) {
-      selector.classList.add('active');
-      const ul: any = selector.closest('ul.sub-menu');
-      if (ul) {
-        let ele: any = ul.closest('li.menu').querySelectorAll('.nav-link') || [];
-        if (ele.length) {
-          ele = ele[0];
-          setTimeout(() => {
-            ele.click();
-          });
-        }
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    setActiveRoute();
+    selector?.classList.add('active');
     if (window.innerWidth < 1024 && themeConfig.sidebar) {
       dispatch(toggleSidebar());
     }
-  }, [pathname]);
-
-  const setActiveRoute = () => {
-    const allLinks = document.querySelectorAll('.sidebar ul a.active');
-    for (let i = 0; i < allLinks.length; i++) {
-      const element = allLinks[i];
-      element?.classList.remove('active');
-    }
-    const selector = document.querySelector(
-      '.sidebar ul a[href="' + window.location.pathname + '"]',
-    );
-    selector?.classList.add('active');
-  };
+  }, [dispatch, pathname, themeConfig.sidebar]);
 
   return (
     <div className={semidark ? 'dark' : ''}>

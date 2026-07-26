@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import type { WaCampaign } from '../../../types/crm';
 import { ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
-import Badge from '@/components/legacy/Badge';
 
 export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);

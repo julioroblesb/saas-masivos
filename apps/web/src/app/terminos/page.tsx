@@ -56,7 +56,7 @@ export default function TerminosPage() {
             <p className="mb-3">WhatsApp cuenta con sistemas automatizados para detectar comportamientos inusuales, envío de SPAM o abuso de sus plataformas. Al utilizar este Servicio para enviar mensajes masivos:</p>
             <ul className="list-disc pl-5 space-y-2">
               <li>Usted asume el riesgo del 100% de que su cuenta, número telefónico o dispositivo pueda ser temporal o permanentemente bloqueado, suspendido o baneado por WhatsApp.</li>
-              <li>Nosotros proporcionamos herramientas de "calentamiento" (warm-up) y retrasos automáticos (delays) orientadas a reducir el riesgo, pero <strong>no garantizamos de ninguna manera la inmunidad contra baneos</strong>.</li>
+              <li>Nosotros proporcionamos herramientas de &quot;calentamiento&quot; (warm-up) y retrasos automáticos (delays) orientadas a reducir el riesgo, pero <strong>no garantizamos de ninguna manera la inmunidad contra baneos</strong>.</li>
             </ul>
 
             <h3 className="font-bold text-dark dark:text-white-light mb-2 mt-5">B. Exención de Responsabilidad:</h3>
@@ -93,7 +93,7 @@ export default function TerminosPage() {
           <section className="pt-6 border-t border-black-light dark:border-dark-light">
             <h2 className="text-base font-bold text-dark dark:text-white-light mb-3">6. Renuncia de Garantías y Aceptación</h2>
             <p className="text-xs uppercase tracking-wider mb-3">
-              El servicio se proporciona "tal cual" (as-is) y "según disponibilidad". No ofrecemos garantías de ningún tipo, expresas o implícitas, sobre la estabilidad, continuidad o seguridad contra bloqueos en la plataforma externa.
+              El servicio se proporciona &quot;tal cual&quot; (as-is) y &quot;según disponibilidad&quot;. No ofrecemos garantías de ningún tipo, expresas o implícitas, sobre la estabilidad, continuidad o seguridad contra bloqueos en la plataforma externa.
             </p>
             <p className="font-medium">
               Al registrar una cuenta y escanear el código QR para vincular su dispositivo, usted acepta incondicionalmente estos Términos y Condiciones y libera de toda responsabilidad legal, comercial o moral a nuestra plataforma.

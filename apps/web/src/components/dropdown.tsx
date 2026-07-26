@@ -1,57 +1,86 @@
 'use client';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from 'react';
 import { usePopper } from 'react-popper';
+import type { Placement } from '@popperjs/core';
 
-const Dropdown = (props: any, forwardedRef: any) => {
-    const [visibility, setVisibility] = useState<any>(false);
+export interface DropdownHandle {
+  close: () => void;
+}
 
-    const referenceRef = useRef<any>(null);
-    const popperRef = useRef<any>(null);
+interface DropdownProps {
+  btnClassName?: string;
+  button: ReactNode;
+  children: ReactNode;
+  offset?: [number, number];
+  placement?: Placement;
+}
 
-    const { styles, attributes } = usePopper(referenceRef.current, popperRef.current, {
-        placement: props.placement || 'bottom-end',
-        modifiers: [
-            {
-                name: 'offset',
-                options: {
-                    offset: props.offset || [0],
-                },
-            },
-        ],
-    });
+const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropdown(
+  { btnClassName, button, children, offset = [0, 0], placement = 'bottom-end' },
+  forwardedRef,
+) {
+  const [visible, setVisible] = useState(false);
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement,
+    modifiers: [{ name: 'offset', options: { offset } }],
+  });
 
-    const handleDocumentClick = (event: any) => {
-        if (referenceRef.current.contains(event.target) || popperRef.current.contains(event.target)) {
-            return;
-        }
-
-        setVisibility(false);
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (
+        event.target instanceof Node &&
+        (referenceElement?.contains(event.target) || popperElement?.contains(event.target))
+      ) {
+        return;
+      }
+      setVisible(false);
     };
+    document.addEventListener('mousedown', handleDocumentClick);
+    return () => document.removeEventListener('mousedown', handleDocumentClick);
+  }, [popperElement, referenceElement]);
 
-    useEffect(() => {
-        document.addEventListener('mousedown', handleDocumentClick);
-        return () => {
-            document.removeEventListener('mousedown', handleDocumentClick);
-        };
-    }, []);
+  useImperativeHandle(forwardedRef, () => ({ close: () => setVisible(false) }), []);
 
-    useImperativeHandle(forwardedRef, () => ({
-        close() {
-            setVisibility(false);
-        },
-    }));
+  const closeAfterSelection = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest('a,button,[role="menuitem"]')) setVisible(false);
+  };
 
-    return (
-        <>
-            <button ref={referenceRef} type="button" className={props.btnClassName} onClick={() => setVisibility(!visibility)}>
-                {props.button}
-            </button>
+  return (
+    <>
+      <button
+        ref={setReferenceElement}
+        type="button"
+        className={btnClassName}
+        onClick={() => setVisible((current) => !current)}
+        aria-expanded={visible}
+        aria-haspopup="menu"
+      >
+        {button}
+      </button>
+      {visible && (
+        <div
+          ref={setPopperElement}
+          style={styles.popper}
+          {...attributes.popper}
+          className="z-50"
+          onClick={closeAfterSelection}
+          role="menu"
+        >
+          {children}
+        </div>
+      )}
+    </>
+  );
+});
 
-            <div ref={popperRef} style={styles.popper} {...attributes.popper} className="z-50" onClick={() => setVisibility(!visibility)}>
-                {visibility && props.children}
-            </div>
-        </>
-    );
-};
-
-export default forwardRef(Dropdown);
+export default Dropdown;

@@ -1,3 +1,20 @@
+export type CampaignStatus =
+  | 'draft'
+  | 'queued'
+  | 'running'
+  | 'pausada'
+  | 'completed'
+  | 'cancelled'
+  | 'failed';
+
+export interface CampaignSequenceItem {
+  id: string;
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
+  content: string;
+  mediaUrl?: string;
+  delayAfterMs: number;
+}
+
 export interface CRMMarketingContact {
   id: string;
   phone: string;
@@ -19,23 +36,23 @@ export interface CRMMarketingContact {
 export interface WaCampaign {
   id: string;
   name: string;
-  messageTemplate: any;
-  status: 'draft' | 'queued' | 'running' | 'pausada' | 'completed' | 'cancelled' | 'failed';
+  messageTemplate: string;
+  status: CampaignStatus;
   total: number;
   sent: number;
   failed: number;
   createdAt: string;
-  sequence?: any[]; // JSONb array of messages
+  sequence?: CampaignSequenceItem[];
   startedAt?: string;
   completedAt?: string;
-  targetTag?: string; // used in UI
+  targetTag?: string;
   repliedCount?: number;
 }
 
 export interface WaQueueItem {
   id: string;
-  campaignId: string;
-  contactId: string;
+  campaignId?: string;
+  contactId?: string;
   phone: string;
   message: string;
   status:
@@ -57,22 +74,12 @@ export interface CreateCampaignPayload {
   name: string;
   targetContactIds?: string[];
   targetRawPhones?: string[];
-  sequence: {
-    type: 'text' | 'image' | 'video' | 'audio' | 'document';
-    content: string;
-    mediaUrl?: string;
-    delayAfterMs: number;
-  }[];
+  sequence: Omit<CampaignSequenceItem, 'id'>[];
   minDelaySec: number;
   maxDelaySec: number;
 }
 
-export type CampaignMessageSequence = {
-  type: 'text' | 'image' | 'video' | 'audio' | 'document';
-  content: string;
-  mediaUrl?: string;
-  delayAfterMs: number;
-}[];
+export type CampaignMessageSequence = CampaignSequenceItem[];
 
 export interface SpaStaff {
   id: string;
@@ -80,7 +87,7 @@ export interface SpaStaff {
   birthday?: string;
   role?: string;
   isActive: boolean;
-  services?: string[]; // array of service IDs or names
+  services?: string[];
 }
 
 export interface SpaVisit {

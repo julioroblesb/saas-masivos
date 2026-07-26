@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { MessageSquare, CheckCircle, XCircle } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { IRootState } from '@/store';
+import type { ApexOptions } from 'apexcharts';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -21,10 +21,10 @@ interface TenantDashboardProps {
   totalReplies?: number;
 }
 
-export function TenantDashboard({ waStatus, waPhone, sentToday, failedToday, chartData, conversionRate = 0, totalReplies = 0 }: TenantDashboardProps) {
+export function TenantDashboard({ sentToday, failedToday, chartData, conversionRate = 0, totalReplies = 0 }: TenantDashboardProps) {
   const isDark = useSelector((state: IRootState) => state.themeConfig.isDarkMode);
 
-  const chartOptions: any = {
+  const chartOptions: ApexOptions = {
     chart: {
       height: 300,
       type: 'area',

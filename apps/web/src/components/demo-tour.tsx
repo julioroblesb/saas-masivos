@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { EventData, STATUS, Step } from 'react-joyride';
 import { createClient } from '@/utils/supabase/client';
@@ -14,20 +14,23 @@ const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.Joyride)
     ssr: false,
 });
 
+type DemoStep = Step & {
+    disableBeacon?: boolean;
+    hideBackButton?: boolean;
+    hideFooter?: boolean;
+};
+
 export default function DemoTour() {
     const [isDemo, setIsDemo] = useState(false);
     const [run, setRun] = useState(false);
     const [stepIndex, setStepIndex] = useState(0);
     const pathname = usePathname();
     const router = useRouter();
-    const supabase = createClient();
+    const supabase = useMemo(() => createClient(), []);
     const dispatch = useDispatch();
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
 
-    const [mounted, setMounted] = useState(false);
-
     useEffect(() => {
-        setMounted(true);
         const checkDemo = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
@@ -51,9 +54,9 @@ export default function DemoTour() {
             }
         };
         checkDemo();
-    }, [supabase]);
+    }, [dispatch, supabase, themeConfig.sidebar]);
 
-    const steps: any[] = [
+    const steps: DemoStep[] = [
         {
             target: 'body',
             content: (
@@ -77,7 +80,6 @@ export default function DemoTour() {
             target: '.btn-nueva-atencion',
             content: 'Presiona en "Nueva Atención" para abrir el registro de citas.',
             placement: 'bottom',
-            spotlightClicks: true,
             disableBeacon: true,
             hideFooter: true,
         },
@@ -85,7 +87,6 @@ export default function DemoTour() {
             target: '.btn-nuevo-cliente',
             content: 'Presiona aquí ("+ Nuevo cliente") para que pruebes el sistema ingresando tus datos.',
             placement: 'bottom',
-            spotlightClicks: true,
             disableBeacon: true,
             hideFooter: true,
         },
@@ -98,7 +99,6 @@ export default function DemoTour() {
                 </div>
             ),
             placement: 'bottom',
-            spotlightClicks: true,
             disableBeacon: true,
             hideBackButton: true,
         },
@@ -106,33 +106,25 @@ export default function DemoTour() {
             target: '.select-servicio',
             content: 'Ahora selecciona un servicio cualquiera de la lista y presiona el botón "Registrar Atención" al final.',
             placement: 'right',
-            spotlightClicks: true,
             hideFooter: true,
-            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' }, buttonBack: { display: 'none' } }
         },
         {
             target: '.btn-actions-atencion',
             content: '¡Cita registrada! Presiona sobre los tres puntitos para ver las opciones de esta atención.',
             placement: 'left',
-            spotlightClicks: true,
             hideBackButton: true,
-            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: '.btn-completar-atencion',
             content: 'Ahora marca esta cita como "Completar Servicio".',
             placement: 'left',
-            spotlightClicks: true,
             hideBackButton: true,
-            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: '.btn-completar-submit',
             content: 'Confirma el detalle presionando en "Completar Atención".',
             placement: 'bottom',
-            spotlightClicks: true,
             hideBackButton: true,
-            styles: { buttonNext: { display: 'none' }, buttonSkip: { display: 'none' } }
         },
         {
             target: 'body',
@@ -263,7 +255,7 @@ export default function DemoTour() {
         }
     };
 
-    if (!mounted || !isDemo) return null;
+    if (!isDemo) return null;
 
     return (
         <Joyride

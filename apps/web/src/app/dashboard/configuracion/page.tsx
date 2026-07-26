@@ -7,6 +7,12 @@ import { toast } from 'react-hot-toast';
 import { Loader2, Building2, X } from 'lucide-react';
 import { AutoMessagesConfig } from './AutoMessagesConfig';
 import { PaymentMethodsConfig } from './PaymentMethodsConfig';
+import type { AutoMessageSettings } from '@/types/spa';
+
+interface CompanySettings extends Record<string, unknown> {
+  auto_messages?: Partial<AutoMessageSettings>;
+  payment_methods?: string[];
+}
 
 export default function ConfiguracionPage() {
   const [companyName, setCompanyName] = useState('');
@@ -17,7 +23,7 @@ export default function ConfiguracionPage() {
   });
   const [newGreeting, setNewGreeting] = useState('');
   const [newFarewell, setNewFarewell] = useState('');
-  const [fullSettingsObj, setFullSettingsObj] = useState<any>({});
+  const [fullSettingsObj, setFullSettingsObj] = useState<CompanySettings>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -45,7 +51,7 @@ export default function ConfiguracionPage() {
         const companySettings = company.settings;
         setCompanyId(company.id);
         setCompanyName(company.name);
-        setFullSettingsObj(companySettings);
+        setFullSettingsObj(companySettings as CompanySettings);
         setSettings({
           greetings: Array.isArray(companySettings.greetings)
             ? companySettings.greetings.filter(
@@ -100,9 +106,12 @@ export default function ConfiguracionPage() {
       }
 
       toast.success('Configuración actualizada');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al guardar:', error);
-      toast.error('Error al actualizar: ' + error.message);
+      toast.error(
+        'Error al actualizar: ' +
+          (error instanceof Error ? error.message : 'Error desconocido'),
+      );
     } finally {
       setIsSaving(false);
     }

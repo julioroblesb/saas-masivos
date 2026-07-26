@@ -3,19 +3,17 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { IRootState } from '@/store';
-import { toggleTheme, toggleSidebar, toggleRTL } from '@/store/themeConfigSlice';
+import { toggleTheme, toggleSidebar } from '@/store/themeConfigSlice';
 import Dropdown from '@/components/dropdown';
 import IconMenu from '@/components/icon/icon-menu';
 import IconSun from '@/components/icon/icon-sun';
 import IconMoon from '@/components/icon/icon-moon';
-import IconLaptop from '@/components/icon/icon-laptop';
 import IconUser from '@/components/icon/icon-user';
 import IconLogout from '@/components/icon/icon-logout';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
 const Header = () => {
-    const pathname = usePathname();
     const dispatch = useDispatch();
     const router = useRouter();
 
@@ -73,6 +71,8 @@ const Header = () => {
                         <div>
                             {themeConfig.theme === 'light' ? (
                                 <button
+                                    type="button"
+                                    aria-label="Activar tema oscuro"
                                     className={`${
                                         themeConfig.theme === 'light' &&
                                         'flex items-center rounded-full bg-black-light/10 p-2 hover:bg-black-light/20 hover:text-primary dark:bg-dark-light/40 dark:hover:bg-dark-light/60'
@@ -86,6 +86,8 @@ const Header = () => {
                             )}
                             {themeConfig.theme === 'dark' && (
                                 <button
+                                    type="button"
+                                    aria-label="Activar tema claro"
                                     className={`${
                                         themeConfig.theme === 'dark' &&
                                         'flex items-center rounded-full bg-black-light/10 p-2 hover:bg-black-light/20 hover:text-primary dark:bg-dark-light/40 dark:hover:bg-dark-light/60'
@@ -124,7 +126,7 @@ const Header = () => {
                                         </div>
                                     </li>
                                     <li className="border-t border-black-light dark:border-dark-light">
-                                        <button onClick={handleLogout} className="!py-3 text-danger w-full text-left flex items-center px-4 hover:bg-danger/10">
+                                        <button type="button" onClick={handleLogout} className="!py-3 text-danger w-full text-left flex items-center px-4 hover:bg-danger/10">
                                             <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Cerrar Sesión
                                         </button>

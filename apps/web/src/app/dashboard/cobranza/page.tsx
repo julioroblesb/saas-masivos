@@ -45,20 +45,20 @@ export default async function CobranzaPage() {
     .select('visit_id, amount')
     .eq('company_id', profile.company_id);
 
-  const debts = (rawVisits || []).map((v: any) => {
-    const vPayments = (payments || []).filter((p: any) => p.visit_id === v.id);
-    const amount_paid = vPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+  const debts = (rawVisits || []).map((visit) => {
+    const visitPayments = (payments || []).filter((payment) => payment.visit_id === visit.id);
+    const amount_paid = visitPayments.reduce((sum, payment) => sum + Number(payment.amount), 0);
     return {
-      id: v.id,
-      contact_name: v.crm_marketing_contacts?.name,
-      contact_phone: v.crm_marketing_contacts?.phone,
-      service_name: v.spa_services?.name,
-      visit_date: v.visit_date,
-      scheduled_date: v.scheduled_date,
-      price_charged: v.price_charged,
+      id: visit.id,
+      contact_name: visit.crm_marketing_contacts?.[0]?.name,
+      contact_phone: visit.crm_marketing_contacts?.[0]?.phone,
+      service_name: visit.spa_services?.[0]?.name,
+      visit_date: visit.visit_date,
+      scheduled_date: visit.scheduled_date,
+      price_charged: visit.price_charged,
       amount_paid,
-      debt_due_date: v.debt_due_date,
-      payment_status: v.payment_status
+      debt_due_date: visit.debt_due_date,
+      payment_status: visit.payment_status
     };
   });
 

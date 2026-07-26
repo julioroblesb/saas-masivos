@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Loader2, Sparkles, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export default function DemoLandingPage() {
   const [loading, setLoading] = useState(false);
@@ -39,9 +38,9 @@ export default function DemoLandingPage() {
       router.push('/dashboard/atenciones');
       router.refresh();
 
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Error desconocido');
+    } catch (error: unknown) {
+      console.error(error);
+      setError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }

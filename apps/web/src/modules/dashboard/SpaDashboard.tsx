@@ -10,6 +10,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
+import type { ApexOptions } from 'apexcharts';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -81,13 +82,13 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
   };
 
   // Preparar datos del gráfico
-  const categories = chartData.map((d: any) => {
+  const categories = chartData.map((d) => {
     const date = new Date(d.date + 'T00:00:00');
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
   });
-  const revenueSeries = chartData.map((d: any) => parseFloat(d.revenue) || 0);
+  const revenueSeries = chartData.map((d) => Number(d.revenue) || 0);
 
-  const chartOptions: any = {
+  const chartOptions: ApexOptions = {
     chart: {
       height: 320,
       type: 'area',

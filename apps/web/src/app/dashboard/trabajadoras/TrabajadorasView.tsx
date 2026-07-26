@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, UserPlus, Calendar, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit2, Trash2, UserPlus, Calendar, Check } from 'lucide-react';
 import { getStaffListAction, upsertStaffAction, deleteStaffAction } from './actions';
 import { SpaStaff } from '@/types/crm';
 import { supabase } from '@/shared/utils/supabase';
@@ -9,13 +9,11 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
 import { ScheduleConfigModal } from './ScheduleConfigModal';
+import { useQuery } from '@tanstack/react-query';
 
 const MySwal = withReactContent(Swal);
 
 export default function TrabajadorasView() {
-  const [staffList, setStaffList] = useState<SpaStaff[]>([]);
-  const [services, setServices] = useState<{ id: string; name: string }[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleStaff, setScheduleStaff] = useState<{ id: string; name: string } | null>(null);
@@ -34,24 +32,19 @@ export default function TrabajadorasView() {
     services: []
   });
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const staff = await getStaffListAction();
-      setStaffList(staff);
-
-      const { data: svcData } = await supabase.from('spa_services').select('id, name').eq('is_active', true);
-      if (svcData) setServices(svcData);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const staffQuery = useQuery({
+    queryKey: ['staff-and-services'],
+    queryFn: async () => {
+      const [staff, servicesResult] = await Promise.all([
+        getStaffListAction(),
+        supabase.from('spa_services').select('id, name').eq('is_active', true),
+      ]);
+      if (servicesResult.error) throw servicesResult.error;
+      return { staff, services: servicesResult.data ?? [] };
+    },
+  });
+  const staffList: SpaStaff[] = staffQuery.data?.staff ?? [];
+  const services = staffQuery.data?.services ?? [];
 
   const handleOpenModal = (staff?: SpaStaff) => {
     if (staff) {
@@ -87,17 +80,17 @@ export default function TrabajadorasView() {
     } else {
       MySwal.fire('Éxito', 'Trabajadora guardada correctamente', 'success');
       setIsModalOpen(false);
-      fetchData();
+      await staffQuery.refetch();
     }
   };
 
   const handleDelete = async (id: string) => {
     const result = await MySwal.fire({
       title: '¿Estás seguro?',
-      text: "No podrás revertir esto. La trabajadora se eliminará.",
+      text: 'Se archivará y se conservará todo su historial.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, archivar',
       cancelButtonText: 'Cancelar'
     });
 
@@ -106,8 +99,8 @@ export default function TrabajadorasView() {
       if (del.error) {
         MySwal.fire('Error', del.error, 'error');
       } else {
-        MySwal.fire('Eliminada', 'La trabajadora ha sido eliminada.', 'success');
-        fetchData();
+        MySwal.fire('Archivada', 'La trabajadora ha sido archivada.', 'success');
+        await staffQuery.refetch();
       }
     }
   };
@@ -139,7 +132,7 @@ export default function TrabajadorasView() {
 
       <div className="panel p-0 overflow-hidden border border-black-light dark:border-dark-light shadow-sm rounded-3xl">
         <div className="overflow-x-auto -mx-6 px-6">
-          {loading ? (
+          {staffQuery.isPending ? (
             <div className="p-8 text-center text-zinc-500">Cargando trabajadoras...</div>
           ) : staffList.length === 0 ? (
             <div className="p-12 flex flex-col items-center justify-center text-zinc-500">
