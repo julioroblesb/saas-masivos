@@ -32,7 +32,7 @@ export default async function CobranzaPage() {
       payment_status,
       debt_due_date,
       contact_id,
-      crm_marketing_contacts (name, phone),
+      crm_marketing_contacts!spa_visits_contact_tenant_fkey (name, phone),
       spa_services (name)
     `)
     .eq('company_id', profile.company_id)

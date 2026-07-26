@@ -46,7 +46,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     .select(
       `
       *,
-      crm_marketing_contacts ( name, phone ),
+      crm_marketing_contacts!spa_visits_contact_tenant_fkey ( name, phone ),
       spa_services ( name, price )
     `,
     )

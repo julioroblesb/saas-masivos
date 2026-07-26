@@ -46,7 +46,7 @@ export default function MensajeriaView() {
           status, 
           scheduled_for, 
           created_at,
-          crm_marketing_contacts (name)
+          crm_marketing_contacts!crm_queue_contact_tenant_fkey (name)
         `,
         )
         .order('scheduled_for', { ascending: false })
