@@ -1,5 +1,6 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database.generated';
 
 // Cliente de Supabase con permisos absolutos (Service Role)
 // ÚTIL SOLO EN SERVIDOR (Server Actions, Route Handlers)
@@ -12,7 +13,7 @@ export const getSupabaseAdmin = () => {
     throw new Error('Supabase admin environment variables are not configured');
   }
 
-  return createClient(url, serviceRoleKey, {
+  return createClient<Database>(url, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

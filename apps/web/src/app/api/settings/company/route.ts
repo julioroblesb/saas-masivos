@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/utils/supabase/server';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { ApiError } from '@/server/http/api-error';
+import { correlationId, failure, parseJson, success } from '@/server/http/api-response';
 
 const settingsPayloadSchema = z
   .object({
@@ -12,31 +13,48 @@ const settingsPayloadSchema = z
     message: 'No hay cambios para guardar',
   });
 
-export async function GET() {
+export async function GET(request: Request) {
+  const requestId = correlationId(request);
+
   try {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      throw new ApiError(401, 'UNAUTHORIZED', 'No autorizado');
     }
+
     const access = await TenantAccessService.forCurrentUser();
-    if (!access.allowed) {
-      return NextResponse.json({ error: 'Acceso suspendido' }, { status: 403 });
+    if (!access.allowed || !access.companyId) {
+      throw new ApiError(403, 'FORBIDDEN', 'Acceso suspendido');
     }
 
-    const { data: company, error } = await supabase.from('companies').select('settings').single();
-
+    const { data: company, error } = await supabase
+      .from('companies')
+      .select('id, name, settings')
+      .eq('id', access.companyId)
+      .single();
     if (error) throw error;
-    return NextResponse.json({ settings: company?.settings ?? {} });
+
+    return success(
+      {
+        company: {
+          id: company.id,
+          name: company.name,
+          settings: company.settings ?? {},
+        },
+      },
+      requestId,
+    );
   } catch (error: unknown) {
-    console.error('Error loading company settings:', error);
-    return NextResponse.json({ error: 'No se pudo cargar la configuración' }, { status: 500 });
+    return failure(error, requestId);
   }
 }
 
 export async function POST(request: Request) {
+  const requestId = correlationId(request);
+
   try {
     const supabase = await createClient();
     const {
@@ -44,44 +62,39 @@ export async function POST(request: Request) {
       error: authError,
     } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      throw new ApiError(401, 'UNAUTHORIZED', 'No autorizado');
     }
+
     const access = await TenantAccessService.forCurrentUser();
-    if (!access.allowed || !access.canManageCompany) {
-      return NextResponse.json({ error: 'Se requiere el rol de dueño' }, { status: 403 });
+    if (!access.allowed || !access.companyId || !access.canManageCompany) {
+      throw new ApiError(403, 'FORBIDDEN', 'Se requiere el rol de dueño');
     }
 
-    const parsed = settingsPayloadSchema.safeParse(await request.json());
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' },
-        { status: 400 },
-      );
-    }
-
+    const parsed = await parseJson(request, settingsPayloadSchema);
     let mergedSettings: Record<string, unknown> | undefined;
-    if (parsed.data.settings) {
+
+    if (parsed.settings) {
       const { data: company, error: companyError } = await supabase
         .from('companies')
         .select('settings')
+        .eq('id', access.companyId)
         .single();
       if (companyError) throw companyError;
 
       mergedSettings = {
         ...((company?.settings as Record<string, unknown> | null) ?? {}),
-        ...parsed.data.settings,
+        ...parsed.settings,
       };
     }
 
     const { error: updateError } = await supabase.rpc('rpc_update_company_settings', {
-      p_name: parsed.data.companyName ?? null,
+      p_name: parsed.companyName ?? null,
       p_settings: mergedSettings ?? null,
     });
     if (updateError) throw updateError;
 
-    return NextResponse.json({ message: 'Empresa actualizada correctamente' });
+    return success({ message: 'Empresa actualizada correctamente' }, requestId);
   } catch (error: unknown) {
-    console.error('Error saving company settings:', error);
-    return NextResponse.json({ error: 'No se pudo guardar la configuración' }, { status: 500 });
+    return failure(error, requestId);
   }
 }

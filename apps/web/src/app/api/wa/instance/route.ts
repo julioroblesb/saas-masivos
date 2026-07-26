@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { evolution, EvolutionApiError, extractEvolutionQr } from '@/integrations/evolution/client';
 import { getEnv } from '@/config/env';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
 export async function POST(req: Request) {
   try {
@@ -59,11 +59,7 @@ export async function POST(req: Request) {
 
     await evolution.setWebhook(instanceName, webhookUrl, env.INTERNAL_TOKEN, profile.company_id);
 
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } },
-    );
+    const supabaseAdmin = getSupabaseAdmin();
 
     // Resetear connection_started_at a null durante la provisión/generación
     const initialStatus = qr ? 'esperando_qr' : 'generando_qr';

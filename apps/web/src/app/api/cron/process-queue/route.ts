@@ -1,13 +1,16 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { resolveSpintax } from '../../../../shared/utils/spintax';
 import { evolution } from '@/integrations/evolution/client';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
+import { bearerToken, secretsMatch } from '@/server/security/secrets';
 
 // Jitter Gaussiano (Box-Muller Transform) para simular pausas humanas reales
 function randomDelayMs(min: number, max: number) {
-  let u = 0, v = 0;
+  let u = 0,
+    v = 0;
   while (u === 0) u = Math.random();
   while (v === 0) v = Math.random();
   let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
@@ -17,19 +20,15 @@ function randomDelayMs(min: number, max: number) {
 }
 
 export async function GET(req: Request) {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  );
+  const supabaseAdmin = getSupabaseAdmin();
 
-  const authHeader = req.headers.get('authorization');
   const CRON_SECRET = process.env.CRON_SECRET;
-  
+
   if (!CRON_SECRET) {
     return NextResponse.json({ error: 'CRON_SECRET no configurado en servidor' }, { status: 500 });
   }
-  
-  if (authHeader !== `Bearer ${CRON_SECRET}`) {
+
+  if (!secretsMatch(bearerToken(req), CRON_SECRET)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -46,7 +45,9 @@ export async function GET(req: Request) {
 
     const { data: sessions, error: sessionsError } = await supabaseAdmin
       .from('wa_sessions')
-      .select('company_id, bb_project_id, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, consecutive_errors, companies!inner(status, subscription_end_at)')
+      .select(
+        'company_id, bb_project_id, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, consecutive_errors, companies!inner(status, subscription_end_at)',
+      )
       .eq('status', 'conectado')
       .eq('companies.status', 'activa')
       .gte('companies.subscription_end_at', new Date().toISOString());
@@ -60,45 +61,49 @@ export async function GET(req: Request) {
 
     const CHUNK_SIZE = 5;
     const results: PromiseSettledResult<any>[] = [];
-    
+
     for (let i = 0; i < sessions.length; i += CHUNK_SIZE) {
       const chunk = sessions.slice(i, i + CHUNK_SIZE);
       const chunkResults = await Promise.allSettled(
-        chunk.map((session) => processOneCompany(supabaseAdmin, session))
+        chunk.map((session) => processOneCompany(supabaseAdmin, session)),
       );
       results.push(...chunkResults);
     }
 
     const summary = results.map((r, i) => ({
       company_id: sessions[i].company_id,
-      ...(r.status === 'fulfilled' ? r.value : { error: String((r as PromiseRejectedResult).reason) }),
+      ...(r.status === 'fulfilled'
+        ? r.value
+        : { error: String((r as PromiseRejectedResult).reason) }),
     }));
 
     return NextResponse.json({ companies_evaluated: sessions.length, results: summary });
-
   } catch (globalError: any) {
     console.error('Error fatal en cron:', globalError);
     return NextResponse.json({ error: globalError.message }, { status: 500 });
   }
 }
 
-async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
-  company_id: string;
-  bb_project_id: string | null;
-  next_allowed_send_at: string | null;
-  connection_started_at: string | null;
-  daily_sent_count: number;
-  daily_reset_at: string | null;
-  consecutive_errors: number;
-}) {
-  const { 
-    company_id, 
-    bb_project_id, 
+async function processOneCompany(
+  supabaseAdmin: SupabaseClient,
+  session: {
+    company_id: string;
+    bb_project_id: string | null;
+    next_allowed_send_at: string | null;
+    connection_started_at: string | null;
+    daily_sent_count: number | null;
+    daily_reset_at: string | null;
+    consecutive_errors: number | null;
+  },
+) {
+  const {
+    company_id,
+    bb_project_id,
     next_allowed_send_at,
     connection_started_at,
     daily_sent_count,
     daily_reset_at,
-    consecutive_errors
+    consecutive_errors,
   } = session;
 
   if (!bb_project_id) return { skipped: 'sin bb_project_id' };
@@ -118,7 +123,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
   const startedAt = connection_started_at ? new Date(connection_started_at) : now;
   const daysActive = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   let maxDailyLimit = 500;
   if (daysActive <= 2) maxDailyLimit = 50;
   else if (daysActive <= 6) maxDailyLimit = 150;
@@ -136,7 +141,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       if (waitMs > 8000) {
         break;
       } else {
-        await new Promise(r => setTimeout(r, waitMs));
+        await new Promise((r) => setTimeout(r, waitMs));
       }
     }
 
@@ -158,7 +163,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       nextItem = {
         ...automatedItem,
         campaign_id: null,
-        crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 }
+        crm_wa_campaigns: { min_delay_sec: 15, max_delay_sec: 45 },
       };
     } else {
       if (currentDailyCount >= maxDailyLimit) {
@@ -170,11 +175,13 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
       const { data: queueItem } = await supabaseAdmin
         .from('crm_wa_queue')
-        .select(`
+        .select(
+          `
           id, campaign_id, phone, message, media_url, delay_after_ms,
           crm_wa_campaigns!inner(status, min_delay_sec, max_delay_sec, media_url),
           companies(settings)
-        `)
+        `,
+        )
         .eq('company_id', company_id)
         .eq('status', 'pendiente')
         .eq('crm_wa_campaigns.status', 'running')
@@ -182,25 +189,27 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         .order('scheduled_for', { ascending: true })
         .limit(1)
         .maybeSingle();
-      
+
       nextItem = queueItem;
     }
 
     if (!nextItem) break;
 
-    const campaignData = Array.isArray(nextItem.crm_wa_campaigns) ? nextItem.crm_wa_campaigns[0] : nextItem.crm_wa_campaigns;
+    const campaignData = Array.isArray(nextItem.crm_wa_campaigns)
+      ? nextItem.crm_wa_campaigns[0]
+      : nextItem.crm_wa_campaigns;
     const finalMediaUrl = nextItem.media_url || campaignData?.media_url || null;
     const { id, campaign_id, phone, message, delay_after_ms } = nextItem;
-    
+
     const companySettings = (nextItem.companies as any)?.settings || {};
     const minDelaySec = campaignData?.min_delay_sec || 45;
     const maxDelaySec = campaignData?.max_delay_sec || 90;
 
     let nextLockDelayMs = 0;
     if (delay_after_ms !== null && delay_after_ms !== undefined) {
-      nextLockDelayMs = delay_after_ms; 
+      nextLockDelayMs = delay_after_ms;
     } else {
-      nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000); 
+      nextLockDelayMs = randomDelayMs(minDelaySec * 1000, maxDelaySec * 1000);
     }
 
     try {
@@ -227,7 +236,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
         .from('crm_wa_queue')
         .update({ status: 'enviado', sent_at: new Date().toISOString() })
         .eq('id', id);
-        
+
       if (campaign_id) {
         await supabaseAdmin.rpc('increment_campaign_sent', { p_campaign_id: campaign_id });
       }
@@ -236,7 +245,7 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
       currentDailyCount++;
 
       localNextAllowedSendAt = new Date(Date.now() + nextLockDelayMs);
-      
+
       await supabaseAdmin
         .from('wa_sessions')
         .update({
@@ -244,23 +253,22 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
           next_allowed_send_at: localNextAllowedSendAt.toISOString(),
           daily_sent_count: currentDailyCount,
           daily_reset_at: currentResetAt.toISOString(),
-          consecutive_errors: 0
+          consecutive_errors: 0,
         })
         .eq('company_id', company_id);
-
     } catch (err: any) {
       await supabaseAdmin
         .from('crm_wa_queue')
         .update({ status: 'fallido', error_message: err.message || String(err) })
         .eq('id', id);
-        
+
       if (campaign_id) {
         await supabaseAdmin.rpc('increment_campaign_failed', { p_campaign_id: campaign_id });
       }
 
-      const newErrorsCount = consecutive_errors + 1;
+      const newErrorsCount = (consecutive_errors ?? 0) + 1;
       let newSessionStatus = 'conectado';
-      
+
       if (newErrorsCount >= 3) {
         newSessionStatus = 'error_desconexion';
       }
@@ -269,10 +277,10 @@ async function processOneCompany(supabaseAdmin: SupabaseClient, session: {
 
       await supabaseAdmin
         .from('wa_sessions')
-        .update({ 
+        .update({
           consecutive_errors: newSessionStatus === 'error_desconexion' ? 0 : newErrorsCount,
           status: newSessionStatus,
-          next_allowed_send_at: localNextAllowedSendAt.toISOString() 
+          next_allowed_send_at: localNextAllowedSendAt.toISOString(),
         })
         .eq('company_id', company_id);
 

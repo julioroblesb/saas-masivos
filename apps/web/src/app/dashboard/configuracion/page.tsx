@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
@@ -10,10 +9,12 @@ import { AutoMessagesConfig } from './AutoMessagesConfig';
 import { PaymentMethodsConfig } from './PaymentMethodsConfig';
 
 export default function ConfiguracionPage() {
-  const supabase = createClient();
   const [companyName, setCompanyName] = useState('');
   const [companyId, setCompanyId] = useState('');
-  const [settings, setSettings] = useState<{ greetings: string[], farewells: string[] }>({ greetings: [], farewells: [] });
+  const [settings, setSettings] = useState<{ greetings: string[]; farewells: string[] }>({
+    greetings: [],
+    farewells: [],
+  });
   const [newGreeting, setNewGreeting] = useState('');
   const [newFarewell, setNewFarewell] = useState('');
   const [fullSettingsObj, setFullSettingsObj] = useState<any>({});
@@ -23,71 +24,79 @@ export default function ConfiguracionPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('company_id')
-          .eq('id', user.id)
-          .single();
-
-        if (profile?.company_id) {
-          setCompanyId(profile.company_id);
-          const { data: company } = await supabase
-            .from('companies')
-            .select('name, settings')
-            .eq('id', profile.company_id)
-            .single();
-            
-          if (company) {
-            setCompanyName(company.name);
-            if (company.settings) {
-              setFullSettingsObj(company.settings);
-              setSettings({
-                greetings: company.settings.greetings || [],
-                farewells: company.settings.farewells || [],
-              });
-            }
-          }
+        const response = await fetch('/api/settings/company', {
+          cache: 'no-store',
+        });
+        const body = (await response.json()) as {
+          data?: {
+            company: {
+              id: string;
+              name: string;
+              settings: Record<string, unknown>;
+            };
+          };
+          error?: { message?: string };
+        };
+        if (!response.ok || !body.data) {
+          throw new Error(body.error?.message ?? 'No se pudo cargar la configuración');
         }
+
+        const { company } = body.data;
+        const companySettings = company.settings;
+        setCompanyId(company.id);
+        setCompanyName(company.name);
+        setFullSettingsObj(companySettings);
+        setSettings({
+          greetings: Array.isArray(companySettings.greetings)
+            ? companySettings.greetings.filter(
+                (value): value is string => typeof value === 'string',
+              )
+            : [],
+          farewells: Array.isArray(companySettings.farewells)
+            ? companySettings.farewells.filter(
+                (value): value is string => typeof value === 'string',
+              )
+            : [],
+        });
       } catch (error) {
         console.error('Error cargando configuración:', error);
+        toast.error(error instanceof Error ? error.message : 'No se pudo cargar la configuración');
       } finally {
         setIsLoading(false);
       }
     }
     loadData();
-  }, [supabase]);
+  }, []);
 
   const handleSave = async () => {
     if (!companyName.trim()) {
       toast.error('El nombre de la empresa no puede estar vacío');
       return;
     }
-    
+
     setIsSaving(true);
     try {
       const formattedSettings = {
         greetings: settings.greetings.filter((s: string) => s.trim()),
-        farewells: settings.farewells.filter((s: string) => s.trim())
+        farewells: settings.farewells.filter((s: string) => s.trim()),
       };
 
       const res = await fetch('/api/settings/company', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          companyName: companyName.trim(), 
-          companyId,
-          settings: formattedSettings
-        })
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          settings: formattedSettings,
+        }),
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Error desconocido');
+        const errorData = (await res.json()) as {
+          error?: { message?: string };
+        };
+        throw new Error(errorData.error?.message || 'Error desconocido');
       }
 
       toast.success('Configuración actualizada');
@@ -111,8 +120,12 @@ export default function ConfiguracionPage() {
     <div className="p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">Configuración</h1>
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">Gestiona la información y ajustes de tu organización.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">
+            Configuración
+          </h1>
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
+            Gestiona la información y ajustes de tu organización.
+          </p>
         </div>
       </div>
 
@@ -123,14 +136,19 @@ export default function ConfiguracionPage() {
           </div>
           <div>
             <h2 className="text-lg font-semibold dark:text-white-light">Perfil de la Empresa</h2>
-            <p className="text-sm text-white-dark">Este nombre será usado para identificar a tu asistente en la plataforma (ej. BuilderBot).</p>
+            <p className="text-sm text-white-dark">
+              Este nombre será usado para identificar a tu asistente en la plataforma (ej.
+              BuilderBot).
+            </p>
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div className="space-y-2 max-w-md">
-            <label className="text-sm font-medium dark:text-white-light">Nombre de la Empresa</label>
-            <Input 
+            <label className="text-sm font-medium dark:text-white-light">
+              Nombre de la Empresa
+            </label>
+            <Input
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="Ej. Mi Agencia LLC"
@@ -146,24 +164,44 @@ export default function ConfiguracionPage() {
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold dark:text-white-light">Variables Aleatorias (Spintax)</h2>
-            <p className="text-sm text-white-dark">Define una lista de opciones para usar en tus campañas masivas. Ingresa una opción por línea.</p>
+            <h2 className="text-lg font-semibold dark:text-white-light">
+              Variables Aleatorias (Spintax)
+            </h2>
+            <p className="text-sm text-white-dark">
+              Define una lista de opciones para usar en tus campañas masivas. Ingresa una opción por
+              línea.
+            </p>
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <label className="text-sm font-medium dark:text-white-light">Opciones para Saludo <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{saludo}}'}</code></label>
-              
+              <label className="text-sm font-medium dark:text-white-light">
+                Opciones para Saludo{' '}
+                <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">
+                  {'{{saludo}}'}
+                </code>
+              </label>
+
               <div className="flex flex-wrap gap-2 min-h-[40px] p-4 rounded-xl border border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
-                {settings.greetings.length === 0 && <span className="text-sm text-zinc-400">Sin saludos...</span>}
+                {settings.greetings.length === 0 && (
+                  <span className="text-sm text-zinc-400">Sin saludos...</span>
+                )}
                 {settings.greetings.map((greet, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm font-medium">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm font-medium"
+                  >
                     <span>{greet}</span>
-                    <button 
+                    <button
                       type="button"
-                      onClick={() => setSettings(prev => ({...prev, greetings: prev.greetings.filter((_, i) => i !== idx)}))}
+                      onClick={() =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          greetings: prev.greetings.filter((_, i) => i !== idx),
+                        }))
+                      }
                       className="opacity-60 hover:opacity-100 hover:text-danger transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -173,7 +211,7 @@ export default function ConfiguracionPage() {
               </div>
 
               <div className="flex gap-2">
-                <Input 
+                <Input
                   value={newGreeting}
                   onChange={(e) => setNewGreeting(e.target.value)}
                   placeholder="Ej. Hola"
@@ -182,17 +220,23 @@ export default function ConfiguracionPage() {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       if (newGreeting.trim()) {
-                        setSettings(prev => ({...prev, greetings: [...prev.greetings, newGreeting.trim()]}));
+                        setSettings((prev) => ({
+                          ...prev,
+                          greetings: [...prev.greetings, newGreeting.trim()],
+                        }));
                         setNewGreeting('');
                       }
                     }
                   }}
                 />
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={() => {
                     if (newGreeting.trim()) {
-                      setSettings(prev => ({...prev, greetings: [...prev.greetings, newGreeting.trim()]}));
+                      setSettings((prev) => ({
+                        ...prev,
+                        greetings: [...prev.greetings, newGreeting.trim()],
+                      }));
                       setNewGreeting('');
                     }
                   }}
@@ -203,16 +247,31 @@ export default function ConfiguracionPage() {
             </div>
 
             <div className="space-y-4">
-              <label className="text-sm font-medium dark:text-white-light">Opciones para Despedida <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">{'{{despedida}}'}</code></label>
-              
+              <label className="text-sm font-medium dark:text-white-light">
+                Opciones para Despedida{' '}
+                <code className="bg-primary/10 px-1 rounded text-xs ml-1 text-primary">
+                  {'{{despedida}}'}
+                </code>
+              </label>
+
               <div className="flex flex-wrap gap-2 min-h-[40px] p-4 rounded-xl border border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50">
-                {settings.farewells.length === 0 && <span className="text-sm text-zinc-400">Sin despedidas...</span>}
+                {settings.farewells.length === 0 && (
+                  <span className="text-sm text-zinc-400">Sin despedidas...</span>
+                )}
                 {settings.farewells.map((farewell, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg text-sm font-medium">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-1.5 bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg text-sm font-medium"
+                  >
                     <span>{farewell}</span>
-                    <button 
+                    <button
                       type="button"
-                      onClick={() => setSettings(prev => ({...prev, farewells: prev.farewells.filter((_, i) => i !== idx)}))}
+                      onClick={() =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          farewells: prev.farewells.filter((_, i) => i !== idx),
+                        }))
+                      }
                       className="opacity-60 hover:opacity-100 hover:text-danger transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -222,7 +281,7 @@ export default function ConfiguracionPage() {
               </div>
 
               <div className="flex gap-2">
-                <Input 
+                <Input
                   value={newFarewell}
                   onChange={(e) => setNewFarewell(e.target.value)}
                   placeholder="Ej. Saludos"
@@ -231,17 +290,23 @@ export default function ConfiguracionPage() {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       if (newFarewell.trim()) {
-                        setSettings(prev => ({...prev, farewells: [...prev.farewells, newFarewell.trim()]}));
+                        setSettings((prev) => ({
+                          ...prev,
+                          farewells: [...prev.farewells, newFarewell.trim()],
+                        }));
                         setNewFarewell('');
                       }
                     }
                   }}
                 />
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={() => {
                     if (newFarewell.trim()) {
-                      setSettings(prev => ({...prev, farewells: [...prev.farewells, newFarewell.trim()]}));
+                      setSettings((prev) => ({
+                        ...prev,
+                        farewells: [...prev.farewells, newFarewell.trim()],
+                      }));
                       setNewFarewell('');
                     }
                   }}
@@ -255,9 +320,9 @@ export default function ConfiguracionPage() {
       </div>
 
       <div className="pt-4 flex items-center justify-end">
-        <button 
-          onClick={handleSave} 
-          disabled={isSaving || !companyName.trim()} 
+        <button
+          onClick={handleSave}
+          disabled={isSaving || !companyName.trim()}
           className="btn btn-primary gap-2"
         >
           {isSaving ? (
@@ -274,7 +339,7 @@ export default function ConfiguracionPage() {
       {companyId && (
         <div className="space-y-8 mt-8 border-t border-black-light dark:border-dark-light pt-8">
           <PaymentMethodsConfig initialMethods={fullSettingsObj.payment_methods || []} />
-          <AutoMessagesConfig companyId={companyId} initialSettings={fullSettingsObj} />
+          <AutoMessagesConfig initialSettings={fullSettingsObj} />
         </div>
       )}
     </div>

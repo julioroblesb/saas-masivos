@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/utils/supabase/server';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
+import { z } from 'zod';
 
 // TODO: Reemplazar por el ID real cuando el usuario lo provea
 const TEMPLATE_COMPANY_ID = '3c3cb849-06c8-4250-b4cf-9375422684a6';
+const cloneResultSchema = z.object({ new_company_id: z.string().uuid() });
 
 export async function POST(req: Request) {
   try {
@@ -20,10 +22,7 @@ export async function POST(req: Request) {
     const userId = user.id;
 
     // Usar Service Role para bypass RLS al crear la empresa
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    );
+    const supabaseAdmin = getSupabaseAdmin();
 
     console.log('[Demo] Iniciando clonación para usuario anónimo:', userId);
 
@@ -37,7 +36,11 @@ export async function POST(req: Request) {
 
     if (cloneError) throw cloneError;
 
-    const newCompanyId = cloneData.new_company_id;
+    const parsedClone = cloneResultSchema.safeParse(cloneData);
+    if (!parsedClone.success) {
+      return NextResponse.json({ error: 'Respuesta inválida al crear la demo' }, { status: 500 });
+    }
+    const newCompanyId = parsedClone.data.new_company_id;
 
     // 2. Crear o actualizar el perfil del usuario anónimo para enlazarlo a la nueva empresa
     const { error: profileError } = await supabaseAdmin.from('profiles').upsert({

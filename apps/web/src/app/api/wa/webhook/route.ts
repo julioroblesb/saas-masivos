@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { getEnv } from '@/config/env';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
+import { secretsMatch } from '@/server/security/secrets';
 
 export async function POST(req: Request) {
   try {
     const env = getEnv();
     const receivedSecret = req.headers.get('x-evolution-webhook-secret');
-    
-    if (receivedSecret !== env.INTERNAL_TOKEN) {
+
+    if (!secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
       return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
@@ -21,11 +22,7 @@ export async function POST(req: Request) {
     const instanceName = body.instance || req.headers.get('x-instance-name');
     let companyId = req.headers.get('x-company-id');
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
-    );
+    const supabaseAdmin = getSupabaseAdmin();
 
     // Buscar company_id en wa_sessions por match exacto de instanceName si no viene en cabecera
     if (!companyId && instanceName) {
@@ -41,12 +38,15 @@ export async function POST(req: Request) {
     }
 
     if (!companyId) {
-      return NextResponse.json({ error: 'Tenant not resolved for webhook instance' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Tenant not resolved for webhook instance' },
+        { status: 400 },
+      );
     }
 
     // Extraer número de teléfono del webhook de Evolution API / Baileys
     let phoneNumber = '';
-    
+
     if (body.data?.key?.remoteJid) {
       phoneNumber = body.data.key.remoteJid.split('@')[0];
     } else if (body.from) {
@@ -79,17 +79,18 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (queueItem) {
-      await supabaseAdmin
-        .from('crm_wa_queue')
-        .update({ replied: true })
-        .eq('id', queueItem.id);
+      await supabaseAdmin.from('crm_wa_queue').update({ replied: true }).eq('id', queueItem.id);
+
+      if (!queueItem.campaign_id) {
+        return NextResponse.json({ success: true });
+      }
 
       const { data: campaign } = await supabaseAdmin
         .from('crm_wa_campaigns')
         .select('replied_count')
         .eq('id', queueItem.campaign_id)
         .single();
-        
+
       if (campaign) {
         await supabaseAdmin
           .from('crm_wa_campaigns')

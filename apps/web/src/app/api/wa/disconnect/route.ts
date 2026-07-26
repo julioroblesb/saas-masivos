@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { evolution } from '@/integrations/evolution/client';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
 export async function POST(req: Request) {
   try {
@@ -50,11 +50,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } },
-    );
+    const supabaseAdmin = getSupabaseAdmin();
 
     await supabaseAdmin
       .from('wa_sessions')

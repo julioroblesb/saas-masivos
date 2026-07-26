@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { evolution, extractEvolutionQr } from '@/integrations/evolution/client';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
 export async function GET(req: Request) {
   try {
@@ -98,11 +98,7 @@ export async function GET(req: Request) {
       dbStatus = 'desconectado';
     }
 
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } },
-    );
+    const supabaseAdmin = getSupabaseAdmin();
 
     const updateData: any = {
       status: dbStatus,

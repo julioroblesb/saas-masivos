@@ -1,19 +1,24 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { toast } from 'react-hot-toast';
 import { Loader2, MessageSquare, Save, Plus } from 'lucide-react';
 import { AutoMessageSettings } from '@/types/spa';
 
-const DEFAULT_CARE_TEMPLATE = "Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!";
-const DEFAULT_CARE_INSTRUCTIONS_TEMPLATE = "Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}";
-const DEFAULT_FOLLOWUP_TEMPLATE = "Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!";
+const DEFAULT_CARE_TEMPLATE =
+  'Hola {{nombre}}, gracias por visitarnos hoy en nuestro local. Esperamos que hayas disfrutado tu servicio de {{servicio}}. ¡Que tengas un excelente día!';
+const DEFAULT_CARE_INSTRUCTIONS_TEMPLATE =
+  'Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:\n\n{{cuidados}}';
+const DEFAULT_FOLLOWUP_TEMPLATE =
+  'Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días? Queríamos saber cómo te fue. ¡Saludos!';
 
-export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: string, initialSettings: any }) {
-  const supabase = createClient();
+export function AutoMessagesConfig({
+  initialSettings,
+}: {
+  initialSettings: { auto_messages?: Partial<AutoMessageSettings> };
+}) {
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const [settings, setSettings] = useState<AutoMessageSettings>({
     careEnabled: false,
     careTemplate: '',
@@ -30,18 +35,22 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
 
   useEffect(() => {
     if (initialSettings?.auto_messages) {
-      setSettings({
+      setSettings((previous) => ({
+        ...previous,
         ...initialSettings.auto_messages,
-        careTemplate: initialSettings.auto_messages.careTemplate || DEFAULT_CARE_TEMPLATE,
-        careInstructionsTemplate: initialSettings.auto_messages.careInstructionsTemplate || DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
-        followUpTemplate: initialSettings.auto_messages.followUpTemplate || DEFAULT_FOLLOWUP_TEMPLATE,
-      });
+        careTemplate: initialSettings.auto_messages?.careTemplate || DEFAULT_CARE_TEMPLATE,
+        careInstructionsTemplate:
+          initialSettings.auto_messages?.careInstructionsTemplate ||
+          DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
+        followUpTemplate:
+          initialSettings.auto_messages?.followUpTemplate || DEFAULT_FOLLOWUP_TEMPLATE,
+      }));
     } else {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         careTemplate: DEFAULT_CARE_TEMPLATE,
         careInstructionsTemplate: DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
-        followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE
+        followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE,
       }));
     }
   }, [initialSettings]);
@@ -49,7 +58,7 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
   const insertVariable = (
     field: 'careTemplate' | 'careInstructionsTemplate' | 'followUpTemplate',
     variable: string,
-    ref: React.RefObject<HTMLTextAreaElement | null>
+    ref: React.RefObject<HTMLTextAreaElement | null>,
   ) => {
     const textarea = ref.current;
     if (!textarea) return;
@@ -57,11 +66,11 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const currentText = settings[field] || '';
-    
+
     const newText = currentText.substring(0, start) + variable + currentText.substring(end);
-    
+
     setSettings({ ...settings, [field]: newText });
-    
+
     // Focus and restore cursor position after render
     setTimeout(() => {
       textarea.focus();
@@ -72,26 +81,18 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { data: company, error: fetchError } = await supabase
-        .from('companies')
-        .select('settings')
-        .eq('id', companyId)
-        .single();
-        
-      if (fetchError) throw fetchError;
+      const response = await fetch('/api/settings/company', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ settings: { auto_messages: settings } }),
+      });
+      if (!response.ok) {
+        const body = (await response.json()) as {
+          error?: { message?: string };
+        };
+        throw new Error(body.error?.message ?? 'No se pudo guardar la configuración');
+      }
 
-      const newSettings = {
-        ...company.settings,
-        auto_messages: settings
-      };
-
-      const { error: updateError } = await supabase
-        .from('companies')
-        .update({ settings: newSettings })
-        .eq('id', companyId);
-
-      if (updateError) throw updateError;
-      
       toast.success('Configuración de mensajes automáticos actualizada');
     } catch (error: any) {
       console.error('Error saving auto messages:', error);
@@ -108,8 +109,13 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
           <MessageSquare className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold dark:text-white-light">Mensajes Automáticos (Negocio)</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Configura los mensajes de agradecimiento y seguimiento que se enviarán automáticamente a tus clientes.</p>
+          <h2 className="text-lg font-semibold dark:text-white-light">
+            Mensajes Automáticos (Negocio)
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Configura los mensajes de agradecimiento y seguimiento que se enviarán automáticamente a
+            tus clientes.
+          </p>
         </div>
       </div>
 
@@ -118,31 +124,46 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
         <div className="border border-black-light dark:border-dark-light rounded-2xl p-6 bg-white dark:bg-dark shadow-sm">
           <div className="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
             <div>
-              <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">Agradecimiento Post-Servicio</h3>
+              <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">
+                Agradecimiento Post-Servicio
+              </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl">
-                Se enviará inmediatamente al marcar la atención como "Completado". 
-                Si el servicio tiene instrucciones de cuidado, éstas se enviarán en un mensaje adjunto junto a su imagen.
+                Se enviará inmediatamente al marcar la atención como "Completado". Si el servicio
+                tiene instrucciones de cuidado, éstas se enviarán en un mensaje adjunto junto a su
+                imagen.
               </p>
             </div>
             <label className="w-12 h-6 relative">
-              <input type="checkbox" className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" 
+              <input
+                type="checkbox"
+                className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                 checked={settings.careEnabled}
                 onChange={(e) => setSettings({ ...settings, careEnabled: e.target.checked })}
               />
               <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
             </label>
           </div>
-          
-          <div className={`mt-6 transition-all duration-300 ${settings.careEnabled ? 'opacity-100' : 'opacity-50 grayscale pointer-events-none'}`}>
+
+          <div
+            className={`mt-6 transition-all duration-300 ${settings.careEnabled ? 'opacity-100' : 'opacity-50 grayscale pointer-events-none'}`}
+          >
             {/* Mensaje de Agradecimiento */}
             <div className="mb-6">
-              <label className="text-sm font-semibold text-black dark:text-white mb-3 block">Plantilla del Mensaje de Agradecimiento</label>
-              
+              <label className="text-sm font-semibold text-black dark:text-white mb-3 block">
+                Plantilla del Mensaje de Agradecimiento
+              </label>
+
               <div className="flex flex-wrap gap-2 mb-3">
-                <button onClick={() => insertVariable('careTemplate', '{{nombre}}', careTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+                <button
+                  onClick={() => insertVariable('careTemplate', '{{nombre}}', careTextareaRef)}
+                  className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+                >
                   <Plus className="w-3 h-3" /> Nombre Cliente
                 </button>
-                <button onClick={() => insertVariable('careTemplate', '{{servicio}}', careTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+                <button
+                  onClick={() => insertVariable('careTemplate', '{{servicio}}', careTextareaRef)}
+                  className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+                >
                   <Plus className="w-3 h-3" /> Nombre Servicio
                 </button>
               </div>
@@ -157,13 +178,33 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
 
             {/* Mensaje de Cuidados (Adjunto) */}
             <div className="pt-4 border-t border-black-light dark:border-dark-light/50">
-              <label className="text-sm font-semibold text-black dark:text-white mb-3 block">Plantilla del Mensaje de Cuidados (Si el servicio tiene cuidados configurados)</label>
-              
+              <label className="text-sm font-semibold text-black dark:text-white mb-3 block">
+                Plantilla del Mensaje de Cuidados (Si el servicio tiene cuidados configurados)
+              </label>
+
               <div className="flex flex-wrap gap-2 mb-3">
-                <button onClick={() => insertVariable('careInstructionsTemplate', '{{servicio}}', careInstructionsTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+                <button
+                  onClick={() =>
+                    insertVariable(
+                      'careInstructionsTemplate',
+                      '{{servicio}}',
+                      careInstructionsTextareaRef,
+                    )
+                  }
+                  className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+                >
                   <Plus className="w-3 h-3" /> Nombre Servicio
                 </button>
-                <button onClick={() => insertVariable('careInstructionsTemplate', '{{cuidados}}', careInstructionsTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+                <button
+                  onClick={() =>
+                    insertVariable(
+                      'careInstructionsTemplate',
+                      '{{cuidados}}',
+                      careInstructionsTextareaRef,
+                    )
+                  }
+                  className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+                >
                   <Plus className="w-3 h-3" /> Cuidados del Servicio
                 </button>
               </div>
@@ -171,7 +212,9 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
               <textarea
                 ref={careInstructionsTextareaRef}
                 value={settings.careInstructionsTemplate || ''}
-                onChange={(e) => setSettings({ ...settings, careInstructionsTemplate: e.target.value })}
+                onChange={(e) =>
+                  setSettings({ ...settings, careInstructionsTemplate: e.target.value })
+                }
                 className="form-textarea w-full min-h-[100px] rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-zinc-50 dark:bg-zinc-900/50 resize-none transition-all"
                 placeholder="Aquí te dejo unos consejos básicos para que tu {{servicio}} te dure más:&#10;&#10;{{cuidados}}"
               />
@@ -183,31 +226,53 @@ export function AutoMessagesConfig({ companyId, initialSettings }: { companyId: 
         <div className="border border-black-light dark:border-dark-light rounded-2xl p-6 bg-white dark:bg-dark shadow-sm">
           <div className="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
             <div>
-              <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">Seguimiento Automático</h3>
+              <h3 className="text-lg font-bold tracking-tight text-black dark:text-white">
+                Seguimiento Automático
+              </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl">
-                Se enviará de forma programada basándose en la cantidad de "Días para seguimiento" configurada en cada servicio individual.
+                Se enviará de forma programada basándose en la cantidad de "Días para seguimiento"
+                configurada en cada servicio individual.
               </p>
             </div>
             <label className="w-12 h-6 relative">
-              <input type="checkbox" className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" 
+              <input
+                type="checkbox"
+                className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                 checked={settings.followUpEnabled}
                 onChange={(e) => setSettings({ ...settings, followUpEnabled: e.target.checked })}
               />
               <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
             </label>
           </div>
-          
-          <div className={`mt-6 transition-all duration-300 ${settings.followUpEnabled ? 'opacity-100' : 'opacity-50 grayscale pointer-events-none'}`}>
-            <label className="text-sm font-semibold text-black dark:text-white mb-3 block">Plantilla del Mensaje de Seguimiento</label>
-            
+
+          <div
+            className={`mt-6 transition-all duration-300 ${settings.followUpEnabled ? 'opacity-100' : 'opacity-50 grayscale pointer-events-none'}`}
+          >
+            <label className="text-sm font-semibold text-black dark:text-white mb-3 block">
+              Plantilla del Mensaje de Seguimiento
+            </label>
+
             <div className="flex flex-wrap gap-2 mb-3">
-              <button onClick={() => insertVariable('followUpTemplate', '{{nombre}}', followUpTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+              <button
+                onClick={() =>
+                  insertVariable('followUpTemplate', '{{nombre}}', followUpTextareaRef)
+                }
+                className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+              >
                 <Plus className="w-3 h-3" /> Nombre Cliente
               </button>
-              <button onClick={() => insertVariable('followUpTemplate', '{{servicio}}', followUpTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+              <button
+                onClick={() =>
+                  insertVariable('followUpTemplate', '{{servicio}}', followUpTextareaRef)
+                }
+                className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+              >
                 <Plus className="w-3 h-3" /> Nombre Servicio
               </button>
-              <button onClick={() => insertVariable('followUpTemplate', '{{dias}}', followUpTextareaRef)} className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1">
+              <button
+                onClick={() => insertVariable('followUpTemplate', '{{dias}}', followUpTextareaRef)}
+                className="btn btn-sm btn-outline-primary py-1 px-3 text-xs rounded-full gap-1"
+              >
                 <Plus className="w-3 h-3" /> Días Transcurridos
               </button>
             </div>
