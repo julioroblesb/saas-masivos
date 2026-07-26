@@ -4,6 +4,7 @@ import { EvolutionApiError } from '@/integrations/evolution/client';
 import type { WhatsAppProvider } from '@/integrations/whatsapp/provider';
 import { resolveSpintax } from '@/shared/utils/spintax';
 import type { QueueRepositoryPort } from './queue-repository';
+import { createLogger } from '@/server/observability/logger';
 
 export interface QueueSession {
   bb_project_id: string | null;
@@ -39,7 +40,13 @@ export class QueueWorker {
   }
 
   async processCompany(session: QueueSession, workerId: string): Promise<QueueWorkResult> {
+    const logger = createLogger({
+      correlationId: workerId,
+      tenantId: session.company_id,
+      operation: 'queue.process_company',
+    });
     if (!session.bb_project_id) {
+      logger.warn('queue.company_deferred', { reason: 'missing_instance' });
       return { outcome: 'deferred', reason: 'missing_instance' };
     }
 
@@ -85,6 +92,10 @@ export class QueueWorker {
       }
 
       await this.repository.recordSuccess(session.company_id, nextAllowedSendAt);
+      logger.info('queue.message_sent', {
+        queueId: item.id,
+        providerMessageId: receipt.providerMessageId,
+      });
       return {
         outcome: 'sent',
         queueId: item.id,
@@ -98,6 +109,12 @@ export class QueueWorker {
       const failure = queueFailure(error);
       const state = await this.repository.fail(item.id, workerId, failure);
       await this.repository.recordFailure(session.company_id, nextAllowedSendAt, failure.message);
+      logger.warn('queue.message_failed', {
+        queueId: item.id,
+        errorCode: failure.code,
+        retryable: failure.retryable,
+        state,
+      });
       return { outcome: 'failed', queueId: item.id, state };
     }
   }

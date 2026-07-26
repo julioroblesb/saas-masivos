@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { ZodType } from 'zod';
 import { ApiError } from './api-error';
+import { log } from '@/server/observability/logger';
 
 interface ApiErrorBody {
   ok: false;
@@ -38,7 +39,7 @@ export function failure(error: unknown, requestId: string): NextResponse<ApiErro
     error instanceof ApiError ? error : new ApiError(500, 'INTERNAL_ERROR', 'Error interno');
 
   if (!(error instanceof ApiError)) {
-    console.error('Unhandled API error', { correlationId: requestId, error });
+    log('error', 'api.unhandled_error', { correlationId: requestId, error });
   }
 
   return NextResponse.json(

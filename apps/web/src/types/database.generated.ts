@@ -8,6 +8,60 @@ export type Database = {
   };
   public: {
     Tables: {
+      app_audit_events: {
+        Row: {
+          actor_id: string | null;
+          company_id: string | null;
+          correlation_id: string;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          event_type: string;
+          id: number;
+          metadata: Json;
+          outcome: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          company_id?: string | null;
+          correlation_id: string;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          event_type: string;
+          id?: never;
+          metadata?: Json;
+          outcome?: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          company_id?: string | null;
+          correlation_id?: string;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          event_type?: string;
+          id?: never;
+          metadata?: Json;
+          outcome?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'app_audit_events_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'app_audit_events_company_id_fkey';
+            columns: ['company_id'];
+            isOneToOne: false;
+            referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       companies: {
         Row: {
           created_at: string;
@@ -1328,6 +1382,10 @@ export type Database = {
           p_since: string;
         };
         Returns: boolean;
+      };
+      rpc_purge_expired_audit_events: {
+        Args: { p_retention_days?: number };
+        Returns: number;
       };
       rpc_set_visit_outcome: {
         Args: { p_status: string; p_visit_id: string };

@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { createClient } from '@/utils/supabase/server';
 import { z } from 'zod';
+import { recordAuditEvent } from '@/server/observability/audit';
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Error interno';
+}
 
 export async function createTenant(formData: FormData) {
   try {
@@ -65,10 +70,29 @@ export async function createTenant(formData: FormData) {
       return { error: provisionError.message };
     }
 
+    const { data: createdProfile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('company_id')
+      .eq('id', authData.user.id)
+      .single();
+    if (profileError || !createdProfile?.company_id) {
+      throw profileError ?? new Error('El tenant se creó sin un perfil asociado');
+    }
+
+    await recordAuditEvent({
+      actorId: user.id,
+      companyId: createdProfile.company_id,
+      correlationId: crypto.randomUUID(),
+      entityId: createdProfile.company_id,
+      entityType: 'company',
+      eventType: 'superadmin.tenant_created',
+      metadata: { planType: 'prueba' },
+    });
+
     revalidatePath('/admin');
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  } catch (error: unknown) {
+    return { error: errorMessage(error) };
   }
 }
 
@@ -81,7 +105,7 @@ const updateSubscriptionSchema = z.object({
   subscription_end_at: z.string().optional(),
 });
 
-export async function updateTenantSubscription(companyId: string, data: any) {
+export async function updateTenantSubscription(companyId: string, data: unknown) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
     const supabase = await createClient();
@@ -139,10 +163,23 @@ export async function updateTenantSubscription(companyId: string, data: any) {
       return { error: error.message };
     }
 
+    await recordAuditEvent({
+      actorId: user.id,
+      companyId,
+      correlationId: crypto.randomUUID(),
+      entityId: companyId,
+      entityType: 'company',
+      eventType: 'superadmin.subscription_updated',
+      metadata: {
+        planType: parsedData.plan_type ?? currentCompany.plan_type,
+        status: parsedData.status ?? currentCompany.status,
+      },
+    });
+
     revalidatePath('/admin');
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  } catch (error: unknown) {
+    return { error: errorMessage(error) };
   }
 }
 
@@ -166,27 +203,28 @@ export async function deleteTenant(companyId: string) {
       return { error: 'No autorizado' };
     }
 
-    const { data: profiles } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('company_id', companyId);
-
-    if (profiles && profiles.length > 0) {
-      for (const p of profiles) {
-        await supabaseAdmin.auth.admin.deleteUser(p.id);
-      }
-    }
-
-    const { error } = await supabaseAdmin.from('companies').delete().eq('id', companyId);
+    const { error } = await supabaseAdmin
+      .from('companies')
+      .update({ status: 'cancelada' })
+      .eq('id', companyId);
 
     if (error) {
       console.error('Error deleteTenant:', error);
       return { error: error.message };
     }
 
+    await recordAuditEvent({
+      actorId: user.id,
+      companyId,
+      correlationId: crypto.randomUUID(),
+      entityId: companyId,
+      entityType: 'company',
+      eventType: 'superadmin.tenant_cancelled',
+    });
+
     revalidatePath('/admin');
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  } catch (error: unknown) {
+    return { error: errorMessage(error) };
   }
 }

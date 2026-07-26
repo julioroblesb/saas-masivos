@@ -6,6 +6,7 @@ import { QueueRepository } from '@/server/queue/queue-repository';
 import { QueueWorker, type QueueSession } from '@/server/queue/queue-worker';
 import { bearerToken, secretsMatch } from '@/server/security/secrets';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
+import { createLogger } from '@/server/observability/logger';
 
 const CONCURRENCY = 5;
 
@@ -21,7 +22,8 @@ export async function GET(request: Request) {
   const database = getSupabaseAdmin();
   const repository = new QueueRepository(database);
   const worker = new QueueWorker(repository, evolution);
-  const runId = crypto.randomUUID();
+  const runId = request.headers.get('x-correlation-id')?.slice(0, 128) || crypto.randomUUID();
+  const logger = createLogger({ correlationId: runId, operation: 'queue.run' });
 
   try {
     const { data: sessions, error } = await database
@@ -70,16 +72,33 @@ export async function GET(request: Request) {
       });
     }
 
-    return NextResponse.json({
-      runId,
+    const failedCompanies = results.filter(
+      (item) =>
+        typeof item.result === 'object' &&
+        item.result !== null &&
+        'outcome' in item.result &&
+        item.result.outcome === 'error',
+    ).length;
+    logger.info('queue.run_completed', {
       companiesEvaluated: queueSessions.length,
-      results,
+      failedCompanies,
     });
+    return NextResponse.json(
+      {
+        runId,
+        companiesEvaluated: queueSessions.length,
+        results,
+      },
+      { headers: { 'cache-control': 'no-store', 'x-correlation-id': runId } },
+    );
   } catch (error: unknown) {
-    console.error('Queue wake-up failed', {
-      runId,
-      message: error instanceof Error ? error.message : String(error),
-    });
-    return NextResponse.json({ error: 'No se pudo procesar la cola', runId }, { status: 500 });
+    logger.error('queue.run_failed', { error });
+    return NextResponse.json(
+      { error: 'No se pudo procesar la cola', runId },
+      {
+        status: 500,
+        headers: { 'cache-control': 'no-store', 'x-correlation-id': runId },
+      },
+    );
   }
 }

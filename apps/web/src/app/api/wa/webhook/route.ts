@@ -4,6 +4,7 @@ import { getEnv } from '@/config/env';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 import { secretsMatch } from '@/server/security/secrets';
 import { evolutionWebhookSchema, extractEvolutionPhone } from '@/integrations/evolution/webhook';
+import { createLogger } from '@/server/observability/logger';
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
 
@@ -13,6 +14,8 @@ interface ClaimedEvent {
 }
 
 export async function POST(request: Request) {
+  const requestId = request.headers.get('x-correlation-id')?.slice(0, 128) || crypto.randomUUID();
+  const logger = createLogger({ correlationId: requestId, operation: 'evolution.webhook' });
   const env = getEnv();
   const receivedSecret = request.headers.get('x-evolution-webhook-secret');
 
@@ -101,6 +104,7 @@ export async function POST(request: Request) {
     );
     if (claimError) throw claimError;
     if (!claimed) {
+      logger.info('evolution.webhook_duplicate', { tenantId: companyId, eventType });
       return NextResponse.json({ success: true, duplicate: true });
     }
     claimedEvent = { companyId, eventId };
@@ -119,6 +123,7 @@ export async function POST(request: Request) {
     });
     if (completeError) throw completeError;
     claimedEvent = null;
+    logger.info('evolution.webhook_processed', { tenantId: companyId, eventType });
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
@@ -130,15 +135,17 @@ export async function POST(request: Request) {
         .eq('event_id', claimedEvent.eventId)
         .is('processed_at', null);
       if (releaseError) {
-        console.error('Unable to release failed webhook claim', {
-          message: releaseError.message,
+        logger.error('evolution.webhook_claim_release_failed', {
+          tenantId: claimedEvent.companyId,
+          error: releaseError,
         });
       }
     }
 
-    console.error('Error processing Evolution webhook', {
+    logger.error('evolution.webhook_failed', {
+      tenantId: claimedEvent?.companyId,
       instanceName,
-      message: error instanceof Error ? error.message : String(error),
+      error,
     });
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
