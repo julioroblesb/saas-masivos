@@ -1,23 +1,48 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { X, Calendar, User, Clock, AlertCircle } from 'lucide-react';
 import { format, parse, addMinutes, isBefore, isAfter, isEqual } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { getStaffAvailabilityAction, createVisitAction } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import type { Tables } from '@/types/database.generated';
 
 const MySwal = withReactContent(Swal);
 
 interface NewBookingModalProps {
-  contacts: any[];
-  services: any[];
-  staffList: any[];
+  contacts: BookingContact[];
+  services: BookingService[];
+  staffList: BookingStaff[];
   onClose: () => void;
   onSuccess: () => void;
+}
+
+interface BookingContact {
+  document_number?: string | null;
+  id: string;
+  name?: string | null;
+}
+
+interface BookingService {
+  id: string;
+  name: string;
+}
+
+interface BookingStaff {
+  id: string;
+  isActive: boolean;
+  name: string;
+  services?: string[];
+}
+
+interface StaffAvailability {
+  blocks: Tables<'spa_staff_blocks'>[];
+  schedule: Tables<'spa_staff_schedules'> | null;
+  visits: Pick<Tables<'spa_visits'>, 'duration_minutes' | 'status' | 'visit_date'>[];
 }
 
 export function NewBookingModal({ contacts, services, staffList, onClose, onSuccess }: NewBookingModalProps) {
@@ -30,8 +55,6 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
     time: ''
   });
 
-  const [availability, setAvailability] = useState<any>(null);
-  const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [showNewPatient, setShowNewPatient] = useState(false);
   const [newPatient, setNewPatient] = useState({ name: '', phone: '', document_number: '' });
 
@@ -41,33 +64,19 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
     return staffList.filter(s => s.isActive && (s.services || []).includes(form.service_id));
   }, [form.service_id, staffList]);
 
-  // Fetch availability when staff and date change
-  useEffect(() => {
-    if (form.staff_id && form.date) {
-      fetchAvailability();
-    } else {
-      setAvailability(null);
-      setForm(prev => ({ ...prev, time: '' }));
-    }
-  }, [form.staff_id, form.date]);
-
-  const fetchAvailability = async () => {
-    setLoadingAvailability(true);
-    setForm(prev => ({ ...prev, time: '' }));
-    try {
+  const availabilityQuery = useQuery<StaffAvailability>({
+    queryKey: ['staff-availability', form.staff_id, form.date],
+    queryFn: async () => {
       const data = await getStaffAvailabilityAction(form.staff_id, form.date);
       if (data.error) {
-        console.error(data.error);
-        setAvailability(null);
-      } else {
-        setAvailability(data);
+        throw new Error(data.error);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingAvailability(false);
-    }
-  };
+      return data as StaffAvailability;
+    },
+    enabled: Boolean(form.staff_id && form.date),
+    staleTime: 30_000,
+  });
+  const availability = availabilityQuery.data;
 
   // Generate available slots based on the schedule, blocks, and visits
   const availableSlots = useMemo(() => {
@@ -81,15 +90,15 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
     const schedEnd = parse(availability.schedule.end_time, 'HH:mm:ss', baseDate);
     
     // Prepare blocks
-    const parsedBlocks = availability.blocks.map((b: any) => ({
-      start: parse(b.start_time, 'HH:mm:ss', baseDate),
-      end: parse(b.end_time, 'HH:mm:ss', baseDate)
+    const parsedBlocks = availability.blocks.map((block) => ({
+      start: parse(block.start_time, 'HH:mm:ss', baseDate),
+      end: parse(block.end_time, 'HH:mm:ss', baseDate)
     }));
 
     // Prepare visits
-    const parsedVisits = availability.visits.map((v: any) => {
-      const start = new Date(v.visit_date);
-      const end = addMinutes(start, v.duration_minutes || 60);
+    const parsedVisits = availability.visits.map((visit) => {
+      const start = new Date(visit.visit_date || 0);
+      const end = addMinutes(start, visit.duration_minutes || 60);
       return { start, end };
     });
 
@@ -102,13 +111,13 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
       const slotEnd = addMinutes(currentSlot, durationNeeded);
       
       // Check collision with blocks
-      const collidesWithBlock = parsedBlocks.some((b: any) => 
-        (isBefore(slotStart, b.end) && isAfter(slotEnd, b.start))
+      const collidesWithBlock = parsedBlocks.some((block) =>
+        (isBefore(slotStart, block.end) && isAfter(slotEnd, block.start))
       );
 
       // Check collision with visits
-      const collidesWithVisit = parsedVisits.some((v: any) => 
-        (isBefore(slotStart, v.end) && isAfter(slotEnd, v.start))
+      const collidesWithVisit = parsedVisits.some((visit) =>
+        (isBefore(slotStart, visit.end) && isAfter(slotEnd, visit.start))
       );
 
       // Check if slot is in the past if it's today
@@ -171,7 +180,12 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-dark-light rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-booking-title"
+        className="bg-white dark:bg-dark-light rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+      >
         
         {/* Header */}
         <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50">
@@ -180,11 +194,11 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Nueva Cita</h2>
+              <h2 id="new-booking-title" className="text-xl font-bold text-zinc-900 dark:text-white">Nueva Cita</h2>
               <p className="text-xs font-medium text-zinc-500 mt-0.5">Programa un servicio para un cliente</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors">
+          <button type="button" aria-label="Cerrar nueva cita" onClick={onClose} className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
@@ -244,7 +258,9 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                       label: contacts.find(c => c.id === form.contact_id)?.name + 
                              (contacts.find(c => c.id === form.contact_id)?.document_number ? ` - DNI: ${contacts.find(c => c.id === form.contact_id)?.document_number}` : '')
                     } : null}
-                    onChange={(opt: any) => setForm({...form, contact_id: opt ? opt.value : ''})}
+                    onChange={(option) =>
+                      setForm({ ...form, contact_id: option ? option.value : '' })
+                    }
                     placeholder="Selecciona o busca un cliente..."
                     isSearchable
                     isClearable
@@ -259,9 +275,14 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                     value: s.id,
                     label: s.name
                   }))}
-                  value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id)?.name } : null}
-                  onChange={(opt: any) => {
-                    setForm({...form, service_id: opt ? opt.value : '', staff_id: ''}); // reset staff on service change
+                  value={form.service_id ? { value: form.service_id, label: services.find(s => s.id === form.service_id)?.name || '' } : null}
+                  onChange={(option) => {
+                    setForm({
+                      ...form,
+                      service_id: option ? option.value : '',
+                      staff_id: '',
+                      time: '',
+                    });
                   }}
                   placeholder="Selecciona un servicio..."
                   isSearchable
@@ -275,8 +296,14 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                     value: s.id,
                     label: s.name
                   }))}
-                  value={form.staff_id ? { value: form.staff_id, label: availableStaff.find(s => s.id === form.staff_id)?.name } : null}
-                  onChange={(opt: any) => setForm({...form, staff_id: opt ? opt.value : ''})}
+                  value={form.staff_id ? { value: form.staff_id, label: availableStaff.find(s => s.id === form.staff_id)?.name || '' } : null}
+                  onChange={(option) =>
+                    setForm({
+                      ...form,
+                      staff_id: option ? option.value : '',
+                      time: '',
+                    })
+                  }
                   placeholder="Selecciona una especialista..."
                   isDisabled={!form.service_id}
                   isSearchable
@@ -295,7 +322,7 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                 <label className="text-sm font-semibold mb-2 block text-zinc-900 dark:text-white">Fecha *</label>
                 <CustomDatePicker 
                   value={form.date}
-                  onChangeDate={(date) => setForm({...form, date})}
+                  onChangeDate={(date) => setForm({ ...form, date, time: '' })}
                   placeholder="dd/mm/aaaa"
                   className="w-full form-input rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-primary focus:border-primary"
                   options={{
@@ -315,10 +342,14 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                       <User className="w-6 h-6 mb-2 opacity-50" />
                       Selecciona especialista y fecha <br/> para ver los horarios
                     </div>
-                  ) : loadingAvailability ? (
+                  ) : availabilityQuery.isFetching ? (
                     <div className="h-full flex items-center justify-center text-sm text-zinc-500 py-8">
                       <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
                       Buscando huecos...
+                    </div>
+                  ) : availabilityQuery.isError ? (
+                    <div className="h-full rounded-xl bg-danger/10 p-4 text-center text-sm font-medium text-danger" role="alert">
+                      {availabilityQuery.error.message}
                     </div>
                   ) : availability && (!availability.schedule || !availability.schedule.is_working) ? (
                     <div className="h-full flex items-center justify-center text-sm text-danger bg-danger/10 p-4 rounded-xl font-medium text-center">
@@ -332,6 +363,7 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {availableSlots.map(time => (
                         <button
+                          type="button"
                           key={time}
                           onClick={() => setForm({...form, time})}
                           className={`py-2 px-1 text-sm font-medium rounded-xl border transition-all ${

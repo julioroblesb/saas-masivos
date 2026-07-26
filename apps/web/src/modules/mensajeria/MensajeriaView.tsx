@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import {
   Calendar,
@@ -16,19 +17,25 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
+import type { Tables } from '@/types/database.generated';
+
+type QueueMessage = Pick<
+  Tables<'crm_wa_queue'>,
+  'created_at' | 'id' | 'message' | 'phone' | 'scheduled_for' | 'status'
+> & {
+  crm_marketing_contacts?: Array<{ name: string | null }> | null;
+};
 
 export default function MensajeriaView() {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [editDate, setEditDate] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const supabase = createClient();
 
-  const fetchMessages = async () => {
-    setIsLoading(true);
-    try {
+  const messagesQuery = useQuery<QueueMessage[]>({
+    queryKey: ['scheduled-messages'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('crm_wa_queue')
         .select(
@@ -46,20 +53,13 @@ export default function MensajeriaView() {
         .limit(100);
 
       if (error) throw error;
-      setMessages(data || []);
-    } catch (err: any) {
-      console.error('Error fetching scheduled messages:', err);
-      toast.error('Error al cargar mensajes programados');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return data || [];
+    },
+    staleTime: 30_000,
+  });
+  const messages = messagesQuery.data || [];
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  const handleEditClick = (msg: any) => {
+  const handleEditClick = (msg: QueueMessage) => {
     setEditingId(msg.id);
     setEditContent(msg.message);
     setEditDate(msg.scheduled_for || msg.created_at);
@@ -81,15 +81,9 @@ export default function MensajeriaView() {
       if (error) throw error;
 
       toast.success('Mensaje actualizado exitosamente');
-      setMessages(
-        messages.map((m) =>
-          m.id === editingId
-            ? { ...m, message: editContent, scheduled_for: new Date(editDate).toISOString() }
-            : m,
-        ),
-      );
+      await messagesQuery.refetch();
       setEditingId(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating message:', err);
       toast.error('Error al actualizar el mensaje');
     } finally {
@@ -111,11 +105,7 @@ export default function MensajeriaView() {
         .in('status', ['queued', 'retry_scheduled']);
       if (error) throw error;
       toast.success('Mensaje cancelado');
-      setMessages(
-        messages.map((message) =>
-          message.id === id ? { ...message, status: 'cancelled' } : message,
-        ),
-      );
+      await messagesQuery.refetch();
     } catch (err) {
       console.error(err);
       toast.error('Error al eliminar el mensaje');
@@ -163,10 +153,21 @@ export default function MensajeriaView() {
     }
   };
 
-  if (isLoading) {
+  if (messagesQuery.isPending) {
     return (
       <div className="panel flex justify-center items-center p-12">
         <span className="animate-spin border-2 border-primary border-t-transparent w-6 h-6 rounded-full inline-block"></span>
+      </div>
+    );
+  }
+
+  if (messagesQuery.isError) {
+    return (
+      <div className="panel" role="alert">
+        <p className="text-danger">{messagesQuery.error.message}</p>
+        <button type="button" className="btn btn-outline-danger mt-4" onClick={() => messagesQuery.refetch()}>
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -177,8 +178,13 @@ export default function MensajeriaView() {
         <h5 className="font-semibold text-lg dark:text-white-light">
           Mensajes Programados y Sistema
         </h5>
-        <button className="btn btn-sm btn-outline-primary" onClick={fetchMessages}>
-          Actualizar
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => messagesQuery.refetch()}
+          disabled={messagesQuery.isFetching}
+        >
+          {messagesQuery.isFetching ? 'Actualizando…' : 'Actualizar'}
         </button>
       </div>
       <div className="table-responsive">
@@ -196,7 +202,7 @@ export default function MensajeriaView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {messages.map((msg: any) => (
+              {messages.map((msg) => (
                 <tr
                   key={msg.id}
                   className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
@@ -222,7 +228,7 @@ export default function MensajeriaView() {
                   </td>
                   <td className="p-4 align-top">
                     <div className="font-semibold text-black dark:text-white">
-                      {msg.crm_marketing_contacts?.name || 'Desconocido'}
+                      {msg.crm_marketing_contacts?.[0]?.name || 'Desconocido'}
                     </div>
                     <div className="text-xs text-zinc-500 flex items-center gap-1 mt-1">
                       <Phone size={10} /> {msg.phone}
@@ -245,16 +251,20 @@ export default function MensajeriaView() {
                     {editingId === msg.id ? (
                       <div className="flex justify-end gap-2">
                         <button
+                          type="button"
                           className="btn btn-sm btn-outline-danger p-1.5"
                           onClick={() => setEditingId(null)}
                           disabled={isSaving}
+                          aria-label="Cancelar edición"
                         >
                           <X size={14} />
                         </button>
                         <button
+                          type="button"
                           className="btn btn-sm btn-success p-1.5 text-white"
                           onClick={handleSaveEdit}
                           disabled={isSaving}
+                          aria-label="Guardar mensaje"
                         >
                           {isSaving ? (
                             <span className="animate-spin border-2 border-white border-t-transparent w-3.5 h-3.5 rounded-full inline-block"></span>
@@ -267,18 +277,20 @@ export default function MensajeriaView() {
                       <div className="flex justify-end gap-2">
                         {['queued', 'retry_scheduled'].includes(msg.status) && (
                           <button
+                            type="button"
                             className="btn btn-sm btn-outline-primary p-1.5"
                             onClick={() => handleEditClick(msg)}
-                            title="Editar"
+                            aria-label="Editar mensaje"
                           >
                             <Edit size={14} />
                           </button>
                         )}
                         {['queued', 'retry_scheduled'].includes(msg.status) && (
                           <button
+                            type="button"
                             className="btn btn-sm btn-outline-danger p-1.5"
                             onClick={() => handleDelete(msg.id)}
-                            title="Cancelar"
+                            aria-label="Cancelar mensaje"
                           >
                             <Trash2 size={14} />
                           </button>

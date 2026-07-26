@@ -1,14 +1,14 @@
 import React from 'react';
-import { SpaVisit } from '@/types/spa';
-import { X, Clock, User, Phone, Mail, Stethoscope } from 'lucide-react';
+import { X, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { AgendaVisit } from '../atenciones/types';
 
 interface DayVisitsModalProps {
   date: Date;
-  visits: any[];
+  visits: AgendaVisit[];
   onClose: () => void;
-  onVisitClick: (visit: any) => void;
+  onVisitClick: (visit: AgendaVisit) => void;
 }
 
 export function DayVisitsModal({ date, visits, onClose, onVisitClick }: DayVisitsModalProps) {
@@ -25,16 +25,16 @@ export function DayVisitsModal({ date, visits, onClose, onVisitClick }: DayVisit
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
-      <div className="bg-white dark:bg-dark-light rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
+      <div role="dialog" aria-modal="true" aria-labelledby="day-visits-title" className="bg-white dark:bg-dark-light rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
         
         <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-dark-light/50">
           <div>
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white capitalize">
+            <h2 id="day-visits-title" className="text-xl font-bold text-zinc-900 dark:text-white capitalize">
               {format(date, "EEEE, d 'de' MMMM", { locale: es })}
             </h2>
             <p className="text-sm text-zinc-500">{visits.length} citas programadas</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors">
+          <button type="button" aria-label="Cerrar citas del día" onClick={onClose} className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
@@ -50,14 +50,15 @@ export function DayVisitsModal({ date, visits, onClose, onVisitClick }: DayVisit
               const service = visit.spa_services;
               
               return (
-                <div 
+                <button
+                  type="button"
                   key={visit.id} 
                   onClick={() => onVisitClick(visit)}
-                  className={`p-4 rounded-xl border flex gap-4 cursor-pointer shadow-sm hover:shadow-md transition-all hover:scale-[1.01] ${getStatusColor(visit.status)}`}
+                  className={`w-full p-4 text-left rounded-xl border flex gap-4 cursor-pointer shadow-sm hover:shadow-md transition-all hover:scale-[1.01] ${getStatusColor(visit.status)}`}
                 >
                   <div className="flex flex-col items-center justify-center border-r border-current/10 pr-4 min-w-[70px]">
                     <Clock className="w-4 h-4 mb-1 opacity-70" />
-                    <span className="font-bold text-sm">{format(new Date(visit.visit_date), 'HH:mm')}</span>
+                    <span className="font-bold text-sm">{format(new Date(visit.visit_date || 0), 'HH:mm')}</span>
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-base mb-0.5">{contact?.name || 'Cliente sin nombre'}</h4>
@@ -66,7 +67,7 @@ export function DayVisitsModal({ date, visits, onClose, onVisitClick }: DayVisit
                       <span className="uppercase tracking-wider font-semibold">{visit.status.replace('_', ' ')}</span>
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })
           )}

@@ -1,51 +1,45 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { SpaProduct } from '@/types/spa';
-import { Plus, Edit2, Trash2, Loader2, Package, Image as ImageIcon, CheckCircle, XCircle, Tag, FileText, Coins, Box } from 'lucide-react';
+import { Plus, Edit2, Archive, Loader2, Package, Image as ImageIcon, XCircle, Tag, FileText, Coins, Box } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Error inesperado';
+}
 
 export default function SpaProductsPage() {
   const supabase = createClient();
-  const [products, setProducts] = useState<SpaProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [companyId, setCompanyId] = useState<string>('');
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<SpaProduct> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
-    setIsLoading(true);
-    try {
+  const productsQuery = useQuery({
+    queryKey: ['spa-products'],
+    queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) throw new Error('No autorizado');
       
       const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
-      if (profile?.company_id) {
-        setCompanyId(profile.company_id);
-        const { data: prods } = await supabase
-          .from('spa_products')
-          .select('*')
-          .eq('company_id', profile.company_id)
-          .order('name');
-        if (prods) {
-          setProducts(prods);
-        }
-      }
-    } catch (error) {
-      console.error('Error cargando productos:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (!profile?.company_id) throw new Error('Empresa no encontrada');
+      const { data, error } = await supabase
+        .from('spa_products')
+        .select('*')
+        .eq('company_id', profile.company_id)
+        .eq('is_active', true)
+        .order('name');
+      if (error) throw error;
+      return { companyId: profile.company_id, products: (data || []) as SpaProduct[] };
+    },
+  });
+  const companyId = productsQuery.data?.companyId || '';
+  const products = productsQuery.data?.products || [];
+  const isLoading = productsQuery.isPending;
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,9 +62,9 @@ export default function SpaProductsPage() {
 
       setEditingProduct(prev => prev ? { ...prev, image_url: publicUrl } : null);
       toast.success('Imagen subida correctamente');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error subiendo imagen:', error);
-      toast.error('Error al subir imagen: ' + error.message);
+      toast.error('Error al subir imagen: ' + errorMessage(error));
     } finally {
       setUploadingImage(false);
     }
@@ -120,23 +114,26 @@ export default function SpaProductsPage() {
       }
       
       setIsModalOpen(false);
-      loadProducts();
-    } catch (error: any) {
-      toast.error('Error guardando producto: ' + error.message);
+      await productsQuery.refetch();
+    } catch (error: unknown) {
+      toast.error('Error guardando producto: ' + errorMessage(error));
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Seguro que deseas eliminar este producto?')) return;
+    if (!confirm('¿Seguro que deseas archivar este producto?')) return;
     try {
-      const { error } = await supabase.from('spa_products').delete().eq('id', id);
+      const { error } = await supabase
+        .from('spa_products')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', id);
       if (error) throw error;
-      toast.success('Producto eliminado');
-      loadProducts();
-    } catch (error: any) {
-      toast.error('Error al eliminar: ' + error.message);
+      toast.success('Producto archivado');
+      await productsQuery.refetch();
+    } catch (error: unknown) {
+      toast.error('Error al archivar: ' + errorMessage(error));
     }
   };
 
@@ -152,6 +149,17 @@ export default function SpaProductsPage() {
 
   if (isLoading) {
     return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+
+  if (productsQuery.isError) {
+    return (
+      <div className="rounded-2xl border border-danger/20 bg-danger/5 p-6" role="alert">
+        <p className="text-danger">{productsQuery.error.message}</p>
+        <button type="button" className="btn btn-outline-danger mt-4" onClick={() => productsQuery.refetch()}>
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -183,7 +191,13 @@ export default function SpaProductsPage() {
               {/* Image Container */}
               <div className="aspect-square w-full bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-center relative overflow-hidden mb-2">
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" />
+                  <Image
+                    src={product.image_url}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                    className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-105"
+                  />
                 ) : (
                   <Package className="w-10 h-10 text-zinc-300 dark:text-zinc-700" />
                 )}
@@ -195,7 +209,7 @@ export default function SpaProductsPage() {
                     <Edit2 className="w-3 h-3" />
                   </button>
                   <button onClick={() => handleDelete(product.id)} className="p-1.5 bg-white/90 backdrop-blur-sm text-danger rounded-full shadow hover:scale-110 hover:bg-white transition-all pointer-events-auto">
-                    <Trash2 className="w-3 h-3" />
+                    <Archive className="w-3 h-3" />
                   </button>
                 </div>
 
@@ -239,15 +253,17 @@ export default function SpaProductsPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+          <div role="dialog" aria-modal="true" aria-labelledby="product-modal-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
-              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+              <h3 id="product-modal-title" className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   {editingProduct?.id ? <Edit2 className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
                 </div>
                 {editingProduct?.id ? 'Editar Producto' : 'Nuevo Producto'}
               </h3>
               <button 
+                type="button"
+                aria-label="Cerrar formulario de producto"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
                 onClick={() => setIsModalOpen(false)}
               >
@@ -261,7 +277,13 @@ export default function SpaProductsPage() {
                   <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 overflow-hidden flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group-hover:border-primary/50">
                     {editingProduct?.image_url ? (
                       <>
-                        <img src={editingProduct.image_url} alt="Producto" className="w-full h-full object-cover" />
+                        <Image
+                          src={editingProduct.image_url}
+                          alt="Vista previa del producto"
+                          fill
+                          sizes="128px"
+                          className="object-cover"
+                        />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                           <label className="cursor-pointer text-white flex flex-col items-center gap-1">
                             {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}

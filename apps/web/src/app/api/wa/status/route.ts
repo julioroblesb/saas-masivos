@@ -41,7 +41,12 @@ export async function GET() {
       .maybeSingle();
 
     if (!session || !session.bb_project_id) {
-      return NextResponse.json({ status: 'desconectado', evo_state: 'close', qr: null });
+      return NextResponse.json({
+        status: 'desconectado',
+        evo_state: 'close',
+        is_demo: access.state === 'demo',
+        qr: null,
+      });
     }
 
     const instanceName = session.bb_project_id;
@@ -128,6 +133,7 @@ export async function GET() {
           : dbStatus === 'esperando_qr'
             ? 'QR_READY'
             : 'OK',
+      is_demo: access.state === 'demo',
       qr,
     });
   } catch (error: unknown) {

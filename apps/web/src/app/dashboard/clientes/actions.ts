@@ -33,13 +33,27 @@ export async function deleteContactAction(id: string) {
   const supabase = await createClient();
   
   // Unlink visits to prevent losing financial history
-  const { error } = await supabase.rpc('rpc_delete_marketing_contact', {
+  const { data, error } = await supabase.rpc('rpc_delete_marketing_contact', {
     p_contact_id: id
   });
   
   if (error) {
     console.error('Error deleting contact:', error);
     return { error: 'Ocurrió un error al intentar archivar el contacto' };
+  }
+
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'success' in data &&
+    data.success === false
+  ) {
+    return {
+      error:
+        'error' in data && typeof data.error === 'string'
+          ? data.error
+          : 'No se pudo archivar el contacto',
+    };
   }
   
   return { success: true };

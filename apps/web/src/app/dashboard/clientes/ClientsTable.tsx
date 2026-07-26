@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Edit, Plus, User, Mail, Calendar, FileText, CheckCircle, XCircle, Inbox, Trash } from 'lucide-react';
+import { Search, Edit, Plus, User, Mail, Calendar, FileText, XCircle, Inbox, Archive } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { archiveContactsAction, upsertContactAction, deleteContactAction } from './actions';
+import { upsertContactAction, deleteContactAction } from './actions';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
@@ -32,13 +32,8 @@ interface ClientMetric {
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
   const router = useRouter();
-  const [clients, setClients] = useState<ClientMetric[]>(initialClients);
+  const clients = initialClients;
   const [search, setSearch] = useState('');
-  
-  // Mantener sincronizado con servidor
-  useEffect(() => {
-    setClients(initialClients);
-  }, [initialClients]);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -172,11 +167,11 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
   const handleDelete = async (client: ClientMetric, e: React.MouseEvent) => {
     e.stopPropagation();
     MySwal.fire({
-      title: '¿Eliminar cliente?',
-      html: `Estás a punto de eliminar a <strong>${client.name || client.phone}</strong>.<br/>Esta acción eliminará también su historial de atenciones y pagos. No se puede deshacer.`,
+      title: '¿Archivar cliente?',
+      html: `Se ocultará a <strong>${client.name || client.phone}</strong> de la lista activa y se cancelarán sus mensajes pendientes.<br/>Su historial de atenciones y pagos se conservará.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, archivar',
       cancelButtonText: 'Cancelar',
       customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-outline-secondary' }
     }).then(async (result) => {
@@ -185,8 +180,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         if (res.error) {
           toast.error(res.error);
         } else {
-          toast.success('Cliente eliminado');
-          setClients(prev => prev.filter(c => c.id !== client.id));
+          toast.success('Cliente archivado');
           router.refresh();
         }
       }
@@ -315,9 +309,10 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       <button 
                         onClick={(e) => handleDelete(client, e)}
                         className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                        title="Eliminar permanentemente"
+                        title="Archivar cliente"
+                        aria-label={`Archivar a ${client.name || client.phone}`}
                       >
-                        <Trash className="w-4 h-4" />
+                        <Archive className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { Loader2, MessageSquare, Save, Plus } from 'lucide-react';
 import { AutoMessageSettings } from '@/types/spa';
@@ -19,41 +19,22 @@ export function AutoMessagesConfig({
 }) {
   const [isSaving, setIsSaving] = useState(false);
 
-  const [settings, setSettings] = useState<AutoMessageSettings>({
-    careEnabled: false,
-    careTemplate: '',
-    careInstructionsTemplate: '',
-    followUpEnabled: false,
-    followUpTemplate: '',
-    birthdayEnabled: false,
-    birthdayTemplate: '',
-  });
+  const [settings, setSettings] = useState<AutoMessageSettings>(() => ({
+    careEnabled: initialSettings.auto_messages?.careEnabled ?? false,
+    careTemplate: initialSettings.auto_messages?.careTemplate || DEFAULT_CARE_TEMPLATE,
+    careInstructionsTemplate:
+      initialSettings.auto_messages?.careInstructionsTemplate ||
+      DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
+    followUpEnabled: initialSettings.auto_messages?.followUpEnabled ?? false,
+    followUpTemplate:
+      initialSettings.auto_messages?.followUpTemplate || DEFAULT_FOLLOWUP_TEMPLATE,
+    birthdayEnabled: initialSettings.auto_messages?.birthdayEnabled ?? false,
+    birthdayTemplate: initialSettings.auto_messages?.birthdayTemplate || '',
+  }));
 
   const careTextareaRef = useRef<HTMLTextAreaElement>(null);
   const careInstructionsTextareaRef = useRef<HTMLTextAreaElement>(null);
   const followUpTextareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (initialSettings?.auto_messages) {
-      setSettings((previous) => ({
-        ...previous,
-        ...initialSettings.auto_messages,
-        careTemplate: initialSettings.auto_messages?.careTemplate || DEFAULT_CARE_TEMPLATE,
-        careInstructionsTemplate:
-          initialSettings.auto_messages?.careInstructionsTemplate ||
-          DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
-        followUpTemplate:
-          initialSettings.auto_messages?.followUpTemplate || DEFAULT_FOLLOWUP_TEMPLATE,
-      }));
-    } else {
-      setSettings((prev) => ({
-        ...prev,
-        careTemplate: DEFAULT_CARE_TEMPLATE,
-        careInstructionsTemplate: DEFAULT_CARE_INSTRUCTIONS_TEMPLATE,
-        followUpTemplate: DEFAULT_FOLLOWUP_TEMPLATE,
-      }));
-    }
-  }, [initialSettings]);
 
   const insertVariable = (
     field: 'careTemplate' | 'careInstructionsTemplate' | 'followUpTemplate',
@@ -94,9 +75,12 @@ export function AutoMessagesConfig({
       }
 
       toast.success('Configuración de mensajes automáticos actualizada');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving auto messages:', error);
-      toast.error('Error al guardar: ' + error.message);
+      toast.error(
+        'Error al guardar: ' +
+          (error instanceof Error ? error.message : 'Error inesperado'),
+      );
     } finally {
       setIsSaving(false);
     }
@@ -128,7 +112,7 @@ export function AutoMessagesConfig({
                 Agradecimiento Post-Servicio
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl">
-                Se enviará inmediatamente al marcar la atención como "Completado". Si el servicio
+                Se enviará inmediatamente al marcar la atención como &quot;Completado&quot;. Si el servicio
                 tiene instrucciones de cuidado, éstas se enviarán en un mensaje adjunto junto a su
                 imagen.
               </p>
@@ -230,7 +214,7 @@ export function AutoMessagesConfig({
                 Seguimiento Automático
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl">
-                Se enviará de forma programada basándose en la cantidad de "Días para seguimiento"
+                Se enviará de forma programada basándose en la cantidad de &quot;Días para seguimiento&quot;
                 configurada en cada servicio individual.
               </p>
             </div>

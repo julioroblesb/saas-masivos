@@ -1,51 +1,45 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { SpaService } from '@/types/spa';
-import { Plus, Edit2, Trash2, Loader2, Scissors, Image as ImageIcon, CheckCircle, XCircle, Tag, FileText, Coins, Percent, Clock, HeartPulse } from 'lucide-react';
+import { Plus, Edit2, Archive, Loader2, Scissors, Image as ImageIcon, XCircle, Tag, FileText, Coins, Percent, Clock, HeartPulse } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Error inesperado';
+}
 
 export default function SpaServicesPage() {
   const supabase = createClient();
-  const [services, setServices] = useState<SpaService[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [companyId, setCompanyId] = useState<string>('');
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Partial<SpaService> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  useEffect(() => {
-    loadServices();
-  }, []);
-
-  const loadServices = async () => {
-    setIsLoading(true);
-    try {
+  const servicesQuery = useQuery({
+    queryKey: ['spa-services'],
+    queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) throw new Error('No autorizado');
       
       const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
-      if (profile?.company_id) {
-        setCompanyId(profile.company_id);
-        const { data: srvs } = await supabase
-          .from('spa_services')
-          .select('*')
-          .eq('company_id', profile.company_id)
-          .order('name');
-        if (srvs) {
-          setServices(srvs);
-        }
-      }
-    } catch (error) {
-      console.error('Error cargando servicios:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (!profile?.company_id) throw new Error('Empresa no encontrada');
+      const { data, error } = await supabase
+        .from('spa_services')
+        .select('*')
+        .eq('company_id', profile.company_id)
+        .eq('is_active', true)
+        .order('name');
+      if (error) throw error;
+      return { companyId: profile.company_id, services: (data || []) as SpaService[] };
+    },
+  });
+  const companyId = servicesQuery.data?.companyId || '';
+  const services = servicesQuery.data?.services || [];
+  const isLoading = servicesQuery.isPending;
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,9 +62,9 @@ export default function SpaServicesPage() {
 
       setEditingService(prev => prev ? { ...prev, care_image_url: publicUrl } : null);
       toast.success('Imagen subida correctamente');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error subiendo imagen:', error);
-      toast.error('Error al subir imagen: ' + error.message);
+      toast.error('Error al subir imagen: ' + errorMessage(error));
     } finally {
       setUploadingImage(false);
     }
@@ -124,23 +118,26 @@ export default function SpaServicesPage() {
       }
       
       setIsModalOpen(false);
-      loadServices();
-    } catch (error: any) {
-      toast.error('Error guardando servicio: ' + error.message);
+      await servicesQuery.refetch();
+    } catch (error: unknown) {
+      toast.error('Error guardando servicio: ' + errorMessage(error));
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Seguro que deseas eliminar este servicio?')) return;
+    if (!confirm('¿Seguro que deseas archivar este servicio?')) return;
     try {
-      const { error } = await supabase.from('spa_services').delete().eq('id', id);
+      const { error } = await supabase
+        .from('spa_services')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', id);
       if (error) throw error;
-      toast.success('Servicio eliminado');
-      loadServices();
-    } catch (error: any) {
-      toast.error('Error al eliminar: ' + error.message);
+      toast.success('Servicio archivado');
+      await servicesQuery.refetch();
+    } catch (error: unknown) {
+      toast.error('Error al archivar: ' + errorMessage(error));
     }
   };
 
@@ -156,6 +153,17 @@ export default function SpaServicesPage() {
 
   if (isLoading) {
     return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+
+  if (servicesQuery.isError) {
+    return (
+      <div className="rounded-2xl border border-danger/20 bg-danger/5 p-6" role="alert">
+        <p className="text-danger">{servicesQuery.error.message}</p>
+        <button type="button" className="btn btn-outline-danger mt-4" onClick={() => servicesQuery.refetch()}>
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -194,7 +202,7 @@ export default function SpaServicesPage() {
                     <Edit2 className="w-3 h-3" />
                   </button>
                   <button onClick={() => handleDelete(service.id)} className="p-1 bg-white/90 backdrop-blur-sm text-danger rounded-md shadow hover:bg-white transition-all pointer-events-auto">
-                    <Trash2 className="w-3 h-3" />
+                    <Archive className="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -236,15 +244,17 @@ export default function SpaServicesPage() {
       {/* Modal - Nuevo / Editar Servicio */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-y-auto">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
+          <div role="dialog" aria-modal="true" aria-labelledby="service-modal-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] my-auto">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light">
-              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+              <h3 id="service-modal-title" className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   {editingService?.id ? <Edit2 className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
                 </div>
                 {editingService?.id ? 'Editar Servicio' : 'Nuevo Servicio'}
               </h3>
               <button 
+                type="button"
+                aria-label="Cerrar formulario de servicio"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
                 onClick={() => setIsModalOpen(false)}
               >
@@ -349,7 +359,13 @@ export default function SpaServicesPage() {
                       <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/30 p-4 rounded-2xl border border-black-light dark:border-dark-light">
                         {editingService?.care_image_url ? (
                           <div className="relative w-24 h-24 rounded-xl overflow-hidden shadow-sm border border-zinc-200">
-                            <img src={editingService.care_image_url} alt="Care" className="w-full h-full object-cover" />
+                            <Image
+                              src={editingService.care_image_url}
+                              alt="Vista previa de cuidados"
+                              fill
+                              sizes="128px"
+                              className="object-cover"
+                            />
                             <button 
                               className="absolute top-1 right-1 bg-black/60 hover:bg-danger text-white rounded-full p-1 transition-colors backdrop-blur-md"
                               onClick={() => setEditingService({...editingService, care_image_url: ''})}

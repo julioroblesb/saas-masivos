@@ -1,11 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { Info, ShieldCheck } from 'lucide-react';
-import { useMarketingContacts } from '../../../hooks/queries/useMarketingContacts';
+import { Info, Send } from 'lucide-react';
 import { useCreateCampaign } from '../../../hooks/queries/useCampaigns';
 import { useCampaignMediaUpload } from '../../../hooks/media/useCampaignMediaUpload';
-import { resolveSpintax } from '../../../shared/utils/spintax';
 import type { SequenceItem } from './Campaign/types';
 import type { CreateCampaignPayload } from '../../../types/crm';
 import { crmToast } from '../../../hooks/useToast';
@@ -30,60 +28,7 @@ export function CampaignSender() {
   const [minDelaySec, setMinDelaySec] = useState(45);
   const [maxDelaySec, setMaxDelaySec] = useState(90);
   const [queued, setQueued] = useState(false);
-  const [companySettings, setCompanySettings] = useState<{ greetings?: string[], farewells?: string[] }>({});
-  const [companyCreatedAt, setCompanyCreatedAt] = useState<string>('');
-
-  const [targetContactsCount, setTargetContactsCount] = useState<number>(0);
-
-  useEffect(() => {
-    setTargetContactsCount(targetContactIds.length + targetRawPhones.length);
-  }, [targetContactIds, targetRawPhones]);
-
-  const [totalLifetimeSent, setTotalLifetimeSent] = useState<number>(0);
-
-  useEffect(() => {
-    async function loadSettingsAndTags() {
-      try {
-        const { supabase } = await import('../../../shared/utils/supabase');
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        
-        const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
-        if (profile?.company_id) {
-          const { data: company } = await supabase.from('companies').select('settings, created_at').eq('id', profile.company_id).single();
-          if (company) {
-            if (company.settings) setCompanySettings(company.settings);
-            if (company.created_at) setCompanyCreatedAt(company.created_at);
-          }
-
-          // Cargar total de mensajes enviados históricamente
-          const { data: campaigns } = await supabase.from('crm_wa_campaigns').select('sent_count').eq('company_id', profile.company_id);
-          const count = campaigns?.reduce((acc: number, curr: any) => acc + (curr.sent_count || 0), 0) || 0;
-          setTotalLifetimeSent(count);
-        }
-      } catch (err) {
-        console.error('Error loading settings and tags', err);
-      }
-    }
-    loadSettingsAndTags();
-  }, []);
-
-
-
-  const daysSinceCreation = useMemo(() => {
-    if (!companyCreatedAt) return 1;
-    const created = new Date(companyCreatedAt);
-    const now = new Date();
-    return Math.max(1, Math.floor((now.getTime() - created.getTime()) / (1000 * 3600 * 24)) + 1);
-  }, [companyCreatedAt]);
-
-  const accountTier = useMemo(() => {
-    if (totalLifetimeSent < 100) return { level: 1, limit: 50, label: 'Fase 1 (Inicial)', progress: 25, nextLimit: 150, nextReqMsgs: 100 };
-    if (totalLifetimeSent < 500) return { level: 2, limit: 150, label: 'Fase 2 (Calentamiento)', progress: 50, nextLimit: 300, nextReqMsgs: 500 };
-    if (totalLifetimeSent < 1500) return { level: 3, limit: 300, label: 'Fase 3 (Expansión)', progress: 75, nextLimit: 500, nextReqMsgs: 1500 };
-    return { level: 4, limit: 500, label: 'Fase 4 (Máxima)', progress: 100, nextLimit: null, nextReqMsgs: null };
-  }, [totalLifetimeSent]);
+  const targetContactsCount = targetContactIds.length + targetRawPhones.length;
 
   const addMessage = () => setSequence(prev => [
     ...prev, { id: crypto.randomUUID(), type: 'text', content: '', delayAfterMs: 3000 }
@@ -114,13 +59,7 @@ export function CampaignSender() {
       html: `
         <div class="text-left text-sm text-zinc-600 dark:text-zinc-300">
           <p class="mb-4">El método utilizado simula un dispositivo real y <strong>no es una API oficial</strong>. Existen riesgos de baneo o suspensión de tu cuenta de WhatsApp si incumples las políticas de SPAM.</p>
-          <p><strong>Protección de Cuenta Nueva:</strong> Para proteger tu número de bloqueos, el sistema limita automáticamente tus envíos:</p>
-          <ul class="list-disc pl-5 mt-2 space-y-1">
-            <li>Días 1 y 2: Máx. <strong>50 mensajes diarios</strong></li>
-            <li>Días 3 a 6: Máx. <strong>150 mensajes diarios</strong></li>
-            <li>Días 7 a 13: Máx. <strong>300 mensajes diarios</strong></li>
-            <li>Día 14 en adelante: Máx. <strong>500 mensajes diarios</strong></li>
-          </ul>
+          <p><strong>Protección automática:</strong> el servidor aplica ventanas horarias, límites progresivos, pausas y reintentos. La interfaz no puede omitir esas reglas.</p>
         </div>
       `,
       icon: 'info',
@@ -233,35 +172,14 @@ export function CampaignSender() {
           {/* Sticky Unified Sidebar */}
           <div className="sticky top-24 flex flex-col gap-8 p-6 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/50">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h5 className="font-bold text-lg flex items-center gap-2 dark:text-white-light">
-                  <ShieldCheck className="text-success" size={20} />
-                  Salud de Cuenta
-                </h5>
-              </div>
-              <div className="mb-4">
-                <div className="flex justify-between items-end mb-2">
-                  <div className="text-sm font-semibold text-primary">{accountTier.label}</div>
-                  <div className="text-xs text-white-dark">{totalLifetimeSent} Enviados</div>
-                </div>
-                <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
-                  <div 
-                    className="bg-success h-full rounded-full transition-[width] duration-500 ease-linear" 
-                    style={{ width: `${accountTier.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="text-sm text-zinc-500 dark:text-zinc-300 mt-2 leading-relaxed">
-                Límite actual: <strong className="text-primary">{accountTier.limit} msgs/día</strong>.
-                <br className="mb-1" />
-                {accountTier.nextLimit && accountTier.nextReqMsgs ? (
-                  <span>
-                    Sube a <strong>{accountTier.nextLimit} msgs/día</strong> al superar <strong>{accountTier.nextReqMsgs}</strong> envíos históricos.
-                  </span>
-                ) : (
-                  <span>Has alcanzado la capacidad máxima recomendada.</span>
-                )}
-              </div>
+              <h5 className="flex items-center gap-2 text-lg font-bold dark:text-white-light">
+                <Send className="text-primary" size={20} aria-hidden="true" />
+                Resumen de envío
+              </h5>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-300">
+                {targetContactsCount} destinatarios y {sequence.length} pasos. Los límites y
+                horarios se aplican en el servidor.
+              </p>
             </div>
 
             <hr className="border-slate-200 dark:border-slate-800" />

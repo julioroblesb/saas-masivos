@@ -2,7 +2,12 @@
 import React from 'react';
 import Select, { Props as SelectProps, StylesConfig } from 'react-select';
 
-const customStyles: StylesConfig<any, boolean> = {
+export interface CustomSelectOption {
+  label: string;
+  value: string;
+}
+
+const customStyles: StylesConfig<CustomSelectOption, false> = {
   control: (base, state) => ({
     ...base,
     backgroundColor: 'var(--bg-select, #fff)',
@@ -53,7 +58,7 @@ const customStyles: StylesConfig<any, boolean> = {
   })
 };
 
-export function CustomSelect(props: SelectProps<any, boolean>) {
+export function CustomSelect(props: SelectProps<CustomSelectOption, false>) {
   return (
     <div className="custom-select-wrapper w-full">
       <style jsx global>{`

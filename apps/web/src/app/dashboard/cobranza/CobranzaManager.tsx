@@ -1,17 +1,29 @@
 'use client';
 import { useState } from 'react';
-import { Coins, XCircle, Search, Calendar, User, Phone } from 'lucide-react';
+import { Coins, XCircle, Search, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { addPaymentAction } from '../atenciones/actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+interface DebtVisit {
+  amount_paid: number;
+  contact_name?: string | null;
+  contact_phone?: string | null;
+  debt_due_date?: string | null;
+  id: string;
+  payment_status?: string | null;
+  price_charged?: number | null;
+  scheduled_date?: string | null;
+  service_name?: string | null;
+  visit_date?: string | null;
+}
 
-export default function CobranzaManager({ debts }: { debts: any[] }) {
+export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [paymentVisit, setPaymentVisit] = useState<any>(null);
+  const [paymentVisit, setPaymentVisit] = useState<DebtVisit | null>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +47,10 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
     setIsSubmitting(false);
   };
 
-  const totalDebt = debts.reduce((sum, d) => sum + (d.price_charged - d.amount_paid), 0);
+  const totalDebt = debts.reduce(
+    (sum, debt) => sum + ((debt.price_charged ?? 0) - debt.amount_paid),
+    0,
+  );
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -82,8 +97,8 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black-light dark:divide-dark-light">
-                {filteredDebts.map((debt: any) => {
-                  const pending = debt.price_charged - debt.amount_paid;
+                {filteredDebts.map((debt) => {
+                  const pending = (debt.price_charged ?? 0) - debt.amount_paid;
                   const isExpired = debt.debt_due_date && new Date(debt.debt_due_date).getTime() < new Date().getTime();
                   return (
                     <tr key={debt.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
@@ -93,7 +108,7 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
                       </td>
                       <td className="py-4 px-4 text-zinc-600 dark:text-zinc-300">
                         {debt.service_name}
-                        <div className="text-xs text-zinc-400">Atendido el: {new Date(debt.scheduled_date || debt.visit_date).toLocaleDateString()}</div>
+                        <div className="text-xs text-zinc-400">Atendido el: {new Date(debt.scheduled_date || debt.visit_date || 0).toLocaleDateString()}</div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-danger">S/ {pending}</div>
@@ -151,7 +166,9 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
             <div className="p-6 space-y-6">
               <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
                 <div className="text-sm text-zinc-500 mb-1">Saldo pendiente</div>
-                <div className="text-2xl font-bold text-primary">S/ {paymentVisit.price_charged - paymentVisit.amount_paid}</div>
+                <div className="text-2xl font-bold text-primary">
+                  S/ {(paymentVisit.price_charged ?? 0) - paymentVisit.amount_paid}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -182,7 +199,7 @@ export default function CobranzaManager({ debts }: { debts: any[] }) {
                     { value: 'tarjeta', label: 'Tarjeta' }
                   ]}
                   value={{ value: paymentMethod, label: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1) }}
-                  onChange={(selected: any) => setPaymentMethod(selected ? selected.value : 'efectivo')}
+                  onChange={(selected) => setPaymentMethod(selected ? selected.value : 'efectivo')}
                 />
               </div>
 

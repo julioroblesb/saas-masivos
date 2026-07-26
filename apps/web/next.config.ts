@@ -17,6 +17,15 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   compress: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ywpafptrcvgoyaoqgzkz.supabase.co',
+        pathname: '/storage/v1/object/public/spa-media/**',
+      },
+    ],
+  },
   poweredByHeader: false,
   async headers() {
     return [

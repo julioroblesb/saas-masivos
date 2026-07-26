@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { SpaVisit, SpaService } from '@/types/spa';
-import { SpaStaff, CRMMarketingContact } from '@/types/crm';
+import { useRouter } from 'next/navigation';
 import { 
   Calendar as CalendarIcon, 
   Kanban, 
@@ -31,21 +30,28 @@ import { es } from 'date-fns/locale';
 import { DayVisitsModal } from './DayVisitsModal';
 import { VisitDetailsModal } from './VisitDetailsModal';
 import { NewBookingModal } from './NewBookingModal';
+import type {
+  AtencionContact,
+  AtencionService,
+  AtencionStaff,
+  AgendaVisit,
+} from '../atenciones/types';
 
 interface AgendaViewProps {
-  initialVisits: any[];
-  services: SpaService[];
-  contacts: any[];
-  staffList: any[];
+  initialVisits: AgendaVisit[];
+  services: AtencionService[];
+  contacts: AtencionContact[];
+  staffList: AtencionStaff[];
 }
 
 export function AgendaView({ initialVisits, services, contacts, staffList }: AgendaViewProps) {
+  const router = useRouter();
   const [view, setView] = useState<'calendar' | 'kanban'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Modals state
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
+  const [selectedVisit, setSelectedVisit] = useState<AgendaVisit | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   // Kanban specific state
@@ -226,7 +232,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
             
             {/* Calendar Grid */}
             <div className="grid grid-cols-7 flex-1 auto-rows-fr">
-              {days.map((day, dayIdx) => {
+              {days.map((day) => {
                 const dayVisits = getVisitsForDay(day);
                 return (
                   <div 
@@ -252,7 +258,6 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                     <div className="space-y-1.5 h-[calc(100%-40px)] overflow-y-auto pr-1 custom-scrollbar relative">
                       {dayVisits.slice(0, 3).map(visit => {
                         const contact = visit.crm_marketing_contacts;
-                        const service = visit.spa_services;
                         const staff = staffList.find(s => s.id === visit.staff_id);
                         
                         return (
@@ -270,7 +275,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                                </div>
                                <div className="flex items-center gap-1 opacity-90 text-[10px] shrink-0 font-medium">
                                  <Clock className="w-3 h-3 shrink-0" />
-                                 {format(new Date(visit.visit_date), 'HH:mm')}
+                                 {format(new Date(visit.visit_date || 0), 'HH:mm')}
                                </div>
                             </div>
                           </div>
@@ -336,7 +341,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
                                <div className="flex items-center justify-between pt-2">
                                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
                                    <Clock className="w-3.5 h-3.5 text-zinc-400" /> 
-                                   {format(new Date(visit.visit_date), 'dd MMM, HH:mm', { locale: es })}
+                                   {format(new Date(visit.visit_date || 0), 'dd MMM, HH:mm', { locale: es })}
                                  </div>
                                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
                                    <User className="w-3.5 h-3.5 text-zinc-400" />
@@ -392,9 +397,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
           onClose={() => setIsBookingModalOpen(false)}
           onSuccess={() => {
             setIsBookingModalOpen(false);
-            // In a real app we might refetch data here, but Server Actions with revalidatePath 
-            // should trigger a router refresh. Wait a tiny bit just in case.
-            window.location.reload(); 
+            router.refresh();
           }}
         />
       )}

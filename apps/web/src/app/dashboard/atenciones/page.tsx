@@ -3,8 +3,12 @@ import { AtencionesManager } from './AtencionesManager';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AtencionesPage({ searchParams }: { searchParams: { startDate?: string; endDate?: string } }) {
-  const { startDate, endDate } = searchParams;
+export default async function AtencionesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ startDate?: string; endDate?: string }>;
+}) {
+  const { startDate, endDate } = await searchParams;
   const { services, visits, contacts, staff, paymentMethods, error } = await getAtencionesData(startDate, endDate);
 
   return (

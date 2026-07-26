@@ -1,7 +1,7 @@
 import { crmToast } from '../../../hooks/useToast';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMarketingContacts, useUpsertMarketingContact, useBatchInsertMarketingContacts, useDeleteMarketingContact, useDeleteMarketingContactsByTag } from '../../../hooks/queries/useMarketingContacts';
-import { Search, Plus, Trash2, Tag, Upload, Users, X, Phone, User, Mail, Calendar, FileText, Info, CheckSquare, Loader2, XCircle } from 'lucide-react';
+import { Search, Plus, Trash2, Tag, Upload, Users, X, Phone, User, Mail, Calendar, FileText, Info, Loader2, XCircle } from 'lucide-react';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 
 export function MarketingContactsManager() {
@@ -256,7 +256,7 @@ export function MarketingContactsManager() {
                     placeholder="51999999999"
                     autoFocus
                   />
-                  <small className="text-xs text-zinc-500 font-medium ml-1">Incluye el código de país sin "+" (ej: 51 para Perú)</small>
+                  <small className="text-xs text-zinc-500 font-medium ml-1">Incluye el código de país sin &quot;+&quot; (ej: 51 para Perú)</small>
                 </div>
                 
                 <div className="space-y-3">
@@ -346,7 +346,7 @@ export function MarketingContactsManager() {
                             Confirmo que este cliente me ha escrito o contactado a mí primero.
                           </span>
                           <span className="text-xs text-warning-700 dark:text-warning/80 leading-relaxed">
-                            Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
+                            Ten en cuenta que si envías mensajes masivos a clientes &quot;fríos&quot; o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                           </span>
                         </div>
                       </label>
@@ -427,7 +427,7 @@ export function MarketingContactsManager() {
                 <input type="checkbox" id="consent-batch" className="form-checkbox text-warning mt-1" checked={hasOptInConsent} onChange={e => setHasOptInConsent(e.target.checked)} />
                 <label htmlFor="consent-batch" className="text-xs text-warning-800 dark:text-warning leading-snug m-0">
                   <strong>Confirmo que todos estos clientes me han escrito o contactado a mí primero.</strong><br/>
-                  Ten en cuenta que si envías mensajes masivos a clientes "fríos" o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
+                  Ten en cuenta que si envías mensajes masivos a clientes &quot;fríos&quot; o bases de datos compradas, <strong>el riesgo de baneo por parte de WhatsApp es muy alto</strong>.
                 </label>
               </div>
             </div>

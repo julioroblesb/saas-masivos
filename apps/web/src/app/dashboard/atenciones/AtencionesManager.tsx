@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
   Plus,
   CheckCircle,
@@ -32,6 +31,12 @@ import {
 } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
+import type {
+  AtencionContact,
+  AtencionService,
+  AtencionStaff,
+  AtencionVisit,
+} from './types';
 
 export function AtencionesManager({
   initialVisits,
@@ -42,10 +47,10 @@ export function AtencionesManager({
   currentStartDate,
   currentEndDate,
 }: {
-  initialVisits: any[];
-  services: any[];
-  contacts: any[];
-  staffList?: any[];
+  initialVisits: AtencionVisit[];
+  services: AtencionService[];
+  contacts: AtencionContact[];
+  staffList?: AtencionStaff[];
   paymentMethods?: string[];
   currentStartDate?: string;
   currentEndDate?: string;
@@ -61,7 +66,7 @@ export function AtencionesManager({
       : [{ value: 'efectivo', label: 'Efectivo' }];
 
   const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
-  const [visits, setVisits] = useState(initialVisits);
+  const visits = initialVisits;
   const router = useRouter();
 
   const [dateFilter, setDateFilter] = useState({
@@ -77,22 +82,17 @@ export function AtencionesManager({
     router.push(`?${params.toString()}`);
   };
 
-  // Mantener el estado sincronizado con los datos del servidor (router.refresh)
-  useEffect(() => {
-    setVisits(initialVisits);
-  }, [initialVisits]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [completeVisit, setCompleteVisit] = useState<any>(null);
+  const [completeVisit, setCompleteVisit] = useState<AtencionVisit | null>(null);
   const [completeIsCredit, setCompleteIsCredit] = useState(false);
   const [completePayment, setCompletePayment] = useState(0);
   const [completeMethod, setCompleteMethod] = useState(defaultMethod);
   const [completeDebtDate, setCompleteDebtDate] = useState('');
   const [completeNotes, setCompleteNotes] = useState('');
 
-  const [paymentVisit, setPaymentVisit] = useState<any>(null);
+  const [paymentVisit, setPaymentVisit] = useState<AtencionVisit | null>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState(defaultMethod);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,17 +113,12 @@ export function AtencionesManager({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Reset page when search or tab changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, activeTab, pageSize]);
-
   // Handle service selection to auto-fill price
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isNoAsistioModalOpen, setIsNoAsistioModalOpen] = useState(false);
-  const [selectedVisit, setSelectedVisit] = useState<any>(null);
-  const [noAsistioVisit, setNoAsistioVisit] = useState<any>(null);
+  const [selectedVisit, setSelectedVisit] = useState<AtencionVisit | null>(null);
+  const [noAsistioVisit, setNoAsistioVisit] = useState<AtencionVisit | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState(new Date().toISOString());
 
   const [editForm, setEditForm] = useState({
@@ -135,13 +130,13 @@ export function AtencionesManager({
     notes: '',
   });
 
-  const handleEditClick = (visit: any) => {
+  const handleEditClick = (visit: AtencionVisit) => {
     setSelectedVisit(visit);
     setEditForm({
       service_id: visit.service_id,
       staff_id: visit.staff_id || '',
-      scheduled_date: visit.scheduled_date || visit.visit_date,
-      price_charged: visit.price_charged,
+      scheduled_date: visit.scheduled_date || visit.visit_date || new Date().toISOString(),
+      price_charged: visit.price_charged ?? 0,
       status: visit.status,
       notes: visit.notes || '',
     });
@@ -149,6 +144,7 @@ export function AtencionesManager({
   };
 
   const handleEditSubmit = async () => {
+    if (!selectedVisit) return;
     setIsSubmitting(true);
     const res = await editVisitAction(selectedVisit.id, editForm);
     if (res.error) {
@@ -156,31 +152,20 @@ export function AtencionesManager({
     } else {
       toast.success('Atención editada');
       setIsEditModalOpen(false);
-      setVisits(
-        visits.map((v) =>
-          v.id === selectedVisit.id
-            ? {
-                ...v,
-                ...editForm,
-                service_name: services.find((s) => s.id === editForm.service_id)?.name,
-              }
-            : v,
-        ),
-      );
       router.refresh();
     }
     setIsSubmitting(false);
   };
 
   const handleDeleteSubmit = async () => {
+    if (!selectedVisit) return;
     setIsSubmitting(true);
     const res = await deleteVisitAction(selectedVisit.id);
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success('Atención eliminada');
+      toast.success('Atención cancelada');
       setIsDeleteModalOpen(false);
-      setVisits(visits.filter((v) => v.id !== selectedVisit.id));
       router.refresh();
     }
     setIsSubmitting(false);
@@ -273,7 +258,7 @@ export function AtencionesManager({
       if (v) {
         setCompleteVisit(v);
         setCompleteIsCredit(false);
-        setCompletePayment(v.price_charged);
+        setCompletePayment(v.price_charged ?? 0);
         setCompleteMethod(defaultMethod);
         setCompleteNotes(v.notes || '');
         setCompleteDebtDate('');
@@ -283,8 +268,6 @@ export function AtencionesManager({
     }
 
     if (!confirm(`¿Marcar esta atención como ${status}?`)) return;
-
-    setVisits((prev) => prev.map((v) => (v.id === visitId ? { ...v, status } : v)));
 
     const res = await updateVisitStatusAction(visitId, status);
     if (res.error) {
@@ -348,7 +331,7 @@ export function AtencionesManager({
   // Agrupar atenciones por fecha (solo para la pestaña Activas)
   const groupedVisits = filteredVisits
     .filter((v) => v.status === 'en_curso')
-    .reduce((acc: any, visit: any) => {
+    .reduce<Record<string, AtencionVisit[]>>((acc, visit) => {
       const date = new Date(
         (visit.visit_date || '').split('T')[0] + 'T00:00:00',
       ).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
@@ -359,7 +342,7 @@ export function AtencionesManager({
 
   const groupedFutureVisits = filteredVisits
     .filter((v) => v.status === 'agendada')
-    .reduce((acc: any, visit: any) => {
+    .reduce<Record<string, AtencionVisit[]>>((acc, visit) => {
       const date = new Date(
         (visit.visit_date || '').split('T')[0] + 'T00:00:00',
       ).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
@@ -376,6 +359,11 @@ export function AtencionesManager({
     const start = (currentPage - 1) * pageSize;
     return historyVisits.slice(start, start + pageSize);
   }, [historyVisits, currentPage, pageSize]);
+  const selectedContact = contacts.find((contact) => contact.id === form.contact_id);
+  const selectedService = services.find((service) => service.id === form.service_id);
+  const selectedEditService = services.find(
+    (service) => service.id === editForm.service_id,
+  );
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -432,19 +420,28 @@ export function AtencionesManager({
         <div className="flex bg-white dark:bg-zinc-900 border border-black-light dark:border-dark-light rounded-xl overflow-hidden self-start">
           <button
             className={`px-5 py-2.5 text-sm font-semibold transition-colors ${activeTab === 'activas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => setActiveTab('activas')}
+            onClick={() => {
+              setActiveTab('activas');
+              setCurrentPage(1);
+            }}
           >
             Atenciones Activas
           </button>
           <button
             className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'proximas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => setActiveTab('proximas')}
+            onClick={() => {
+              setActiveTab('proximas');
+              setCurrentPage(1);
+            }}
           >
             Próximas
           </button>
           <button
             className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'historial' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => setActiveTab('historial')}
+            onClick={() => {
+              setActiveTab('historial');
+              setCurrentPage(1);
+            }}
           >
             Historial
           </button>
@@ -474,7 +471,10 @@ export function AtencionesManager({
                 placeholder="Buscar cliente o servicio..."
                 className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
             <button
@@ -501,7 +501,7 @@ export function AtencionesManager({
                   {date}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {groupedVisits[date].map((visit: any) => (
+                  {groupedVisits[date].map((visit) => (
                     <div
                       key={visit.id}
                       className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group"
@@ -513,7 +513,7 @@ export function AtencionesManager({
                             Hora
                           </span>
                           <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {new Date(visit.created_at).toLocaleTimeString('es-PE', {
+                            {new Date(visit.created_at || visit.visit_date || 0).toLocaleTimeString('es-PE', {
                               hour: '2-digit',
                               minute: '2-digit',
                               hour12: false,
@@ -541,7 +541,7 @@ export function AtencionesManager({
                             {visit.staff_id && staffList && (
                               <span className="flex items-center gap-1">
                                 <User size={12} />{' '}
-                                {staffList.find((s: any) => s.id === visit.staff_id)?.name}
+                                {staffList.find((staff) => staff.id === visit.staff_id)?.name}
                               </span>
                             )}
                           </div>
@@ -576,7 +576,9 @@ export function AtencionesManager({
                               <button
                                 onClick={() => {
                                   setPaymentVisit(visit);
-                                  setPaymentAmount(visit.price_charged - (visit.amount_paid || 0));
+                                  setPaymentAmount(
+                                    (visit.price_charged ?? 0) - (visit.amount_paid || 0),
+                                  );
                                   setIsPaymentModalOpen(true);
                                 }}
                                 className="btn btn-sm bg-primary/10 text-primary hover:bg-primary hover:text-white border-transparent shadow-none"
@@ -655,7 +657,7 @@ export function AtencionesManager({
                   {date}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {groupedFutureVisits[date].map((visit: any) => (
+                  {groupedFutureVisits[date].map((visit) => (
                     <div
                       key={visit.id}
                       className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group"
@@ -667,7 +669,7 @@ export function AtencionesManager({
                             Hora
                           </span>
                           <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {new Date(visit.visit_date).toLocaleTimeString('es-PE', {
+                            {new Date(visit.visit_date || visit.scheduled_date || 0).toLocaleTimeString('es-PE', {
                               hour: '2-digit',
                               minute: '2-digit',
                               hour12: false,
@@ -693,7 +695,7 @@ export function AtencionesManager({
                             {visit.staff_id && staffList && (
                               <span className="flex items-center gap-1">
                                 <User size={12} />{' '}
-                                {staffList.find((s: any) => s.id === visit.staff_id)?.name}
+                                {staffList.find((staff) => staff.id === visit.staff_id)?.name}
                               </span>
                             )}
                           </div>
@@ -792,13 +794,13 @@ export function AtencionesManager({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                  {paginatedHistory.map((visit: any) => (
+                  {paginatedHistory.map((visit) => (
                     <tr
                       key={visit.id}
                       className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
                     >
                       <td className="p-4 text-black dark:text-white font-medium">
-                        {new Date(visit.scheduled_date || visit.visit_date).toLocaleString(
+                        {new Date(visit.scheduled_date || visit.visit_date || 0).toLocaleString(
                           'es-PE',
                           {
                             hour: 'numeric',
@@ -831,7 +833,7 @@ export function AtencionesManager({
                       </td>
                       <td className="p-4 text-zinc-500">
                         {visit.staff_id && staffList
-                          ? staffList.find((s: any) => s.id === visit.staff_id)?.name || '-'
+                          ? staffList.find((staff) => staff.id === visit.staff_id)?.name || '-'
                           : '-'}
                       </td>
                       <td className="p-4 font-semibold text-black dark:text-white">
@@ -859,7 +861,7 @@ export function AtencionesManager({
                             }}
                             className="px-3 py-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors text-xs font-semibold"
                           >
-                            Eliminar
+                            Cancelar
                           </button>
                         </div>
                       </td>
@@ -876,7 +878,10 @@ export function AtencionesManager({
                 <select
                   className="form-select text-sm rounded-lg border-black-light dark:border-dark-light bg-white dark:bg-dark py-1 pl-2 pr-8"
                   value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
                 >
                   <option value={10}>10</option>
                   <option value={15}>15</option>
@@ -932,15 +937,17 @@ export function AtencionesManager({
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[999] flex items-start justify-center pt-4 sm:pt-[8vh] p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white form-nueva-atencion dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div role="dialog" aria-modal="true" aria-labelledby="new-visit-title" className="bg-white form-nueva-atencion dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
+              <h3 id="new-visit-title" className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Plus className="w-5 h-5 text-primary" />
                 </div>
                 Registrar Atención
               </h3>
               <button
+                type="button"
+                aria-label="Cerrar registro de atención"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsModalOpen(false)}
               >
@@ -992,13 +999,13 @@ export function AtencionesManager({
                         form.contact_id
                           ? {
                               value: form.contact_id,
-                              label: contacts.find((c) => c.id === form.contact_id)
-                                ? `${contacts.find((c) => c.id === form.contact_id).name || 'Sin nombre'} (+${contacts.find((c) => c.id === form.contact_id).phone})`
+                              label: selectedContact
+                                ? `${selectedContact.name || 'Sin nombre'} (+${selectedContact.phone})`
                                 : 'Seleccionado',
                             }
                           : null
                       }
-                      onChange={(selected: any) =>
+                      onChange={(selected) =>
                         setForm((prev) => ({ ...prev, contact_id: selected ? selected.value : '' }))
                       }
                     />
@@ -1019,13 +1026,13 @@ export function AtencionesManager({
                       form.service_id
                         ? {
                             value: form.service_id,
-                            label: services.find((s) => s.id === form.service_id)
-                              ? `${services.find((s) => s.id === form.service_id).name} (Reg: S/ ${services.find((s) => s.id === form.service_id).price}${services.find((s) => s.id === form.service_id).promo_price ? ` - Promo: S/ ${services.find((s) => s.id === form.service_id).promo_price}` : ''})`
+                            label: selectedService
+                              ? `${selectedService.name} (Reg: S/ ${selectedService.price}${selectedService.promo_price ? ` - Promo: S/ ${selectedService.promo_price}` : ''})`
                               : 'Seleccionado',
                           }
                         : null
                     }
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       handleServiceChange(selected ? selected.value : '')
                     }
                   />
@@ -1038,19 +1045,19 @@ export function AtencionesManager({
                   <CustomSelect
                     placeholder="Selecciona la trabajadora..."
                     options={
-                      staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []
+                      staffList ? staffList.map((staff) => ({ value: staff.id, label: staff.name })) : []
                     }
                     value={
                       form.staff_id && staffList
                         ? {
                             value: form.staff_id,
                             label:
-                              staffList.find((s: any) => s.id === form.staff_id)?.name ||
+                              staffList.find((staff) => staff.id === form.staff_id)?.name ||
                               'Seleccionada',
                           }
                         : null
                     }
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       setForm((prev) => ({ ...prev, staff_id: selected ? selected.value : '' }))
                     }
                   />
@@ -1139,13 +1146,15 @@ export function AtencionesManager({
       {/* Modal - Completar Atención */}
       {isCompleteModalOpen && completeVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+          <div role="dialog" aria-modal="true" aria-labelledby="complete-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-success/5 to-white dark:from-success/10 dark:to-dark shrink-0 rounded-t-3xl">
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+              <h3 id="complete-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-success" />
                 Completar Atención
               </h3>
               <button
+                type="button"
+                aria-label="Cerrar finalización de atención"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsCompleteModalOpen(false)}
               >
@@ -1206,7 +1215,7 @@ export function AtencionesManager({
                         paymentMethodOptions.find((o) => o.value === completeMethod)?.label ||
                         completeMethod,
                     }}
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       setCompleteMethod(selected ? selected.value : defaultMethod)
                     }
                   />
@@ -1266,13 +1275,15 @@ export function AtencionesManager({
       {/* Modal - Registrar Abono */}
       {isPaymentModalOpen && paymentVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+          <div role="dialog" aria-modal="true" aria-labelledby="payment-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark shrink-0 rounded-t-3xl">
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+              <h3 id="payment-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <Coins className="w-5 h-5 text-primary" />
                 Registrar Abono
               </h3>
               <button
+                type="button"
+                aria-label="Cerrar registro de abono"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsPaymentModalOpen(false)}
               >
@@ -1284,7 +1295,7 @@ export function AtencionesManager({
               <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
                 <div className="text-sm text-zinc-500 mb-1">Saldo pendiente</div>
                 <div className="text-2xl font-bold text-primary">
-                  S/ {paymentVisit.price_charged - (paymentVisit.amount_paid || 0)}
+                  S/ {(paymentVisit.price_charged ?? 0) - (paymentVisit.amount_paid || 0)}
                 </div>
               </div>
 
@@ -1318,7 +1329,7 @@ export function AtencionesManager({
                       paymentMethodOptions.find((o) => o.value === paymentMethod)?.label ||
                       paymentMethod,
                   }}
-                  onChange={(selected: any) =>
+                  onChange={(selected) =>
                     setPaymentMethod(selected ? selected.value : defaultMethod)
                   }
                 />
@@ -1347,13 +1358,15 @@ export function AtencionesManager({
       {/* Modal - Editar Atención */}
       {isEditModalOpen && selectedVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div role="dialog" aria-modal="true" aria-labelledby="edit-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+              <h3 id="edit-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
                 Editar Atención
               </h3>
               <button
+                type="button"
+                aria-label="Cerrar edición de atención"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsEditModalOpen(false)}
               >
@@ -1376,13 +1389,13 @@ export function AtencionesManager({
                       editForm.service_id
                         ? {
                             value: editForm.service_id,
-                            label: services.find((s) => s.id === editForm.service_id)
-                              ? `${services.find((s) => s.id === editForm.service_id).name} (Reg: S/ ${services.find((s) => s.id === editForm.service_id).price}${services.find((s) => s.id === editForm.service_id).promo_price ? ` - Promo: S/ ${services.find((s) => s.id === editForm.service_id).promo_price}` : ''})`
+                            label: selectedEditService
+                              ? `${selectedEditService.name} (Reg: S/ ${selectedEditService.price}${selectedEditService.promo_price ? ` - Promo: S/ ${selectedEditService.promo_price}` : ''})`
                               : '',
                           }
                         : null
                     }
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       setEditForm((prev) => ({
                         ...prev,
                         service_id: selected ? selected.value : '',
@@ -1397,18 +1410,18 @@ export function AtencionesManager({
                   </label>
                   <CustomSelect
                     options={
-                      staffList ? staffList.map((s: any) => ({ value: s.id, label: s.name })) : []
+                      staffList ? staffList.map((staff) => ({ value: staff.id, label: staff.name })) : []
                     }
                     value={
                       editForm.staff_id && staffList
                         ? {
                             value: editForm.staff_id,
                             label:
-                              staffList.find((s: any) => s.id === editForm.staff_id)?.name || '',
+                              staffList.find((staff) => staff.id === editForm.staff_id)?.name || '',
                           }
                         : null
                     }
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       setEditForm((prev) => ({ ...prev, staff_id: selected ? selected.value : '' }))
                     }
                   />
@@ -1461,7 +1474,7 @@ export function AtencionesManager({
                       { value: 'cancelado', label: 'Cancelado' },
                     ]}
                     value={{ value: editForm.status, label: editForm.status }}
-                    onChange={(selected: any) =>
+                    onChange={(selected) =>
                       setEditForm((prev) => ({
                         ...prev,
                         status: selected ? selected.value : 'completado',
@@ -1506,17 +1519,17 @@ export function AtencionesManager({
       {/* Modal - Confirmar Eliminación */}
       {isDeleteModalOpen && selectedVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+          <div role="alertdialog" aria-modal="true" aria-labelledby="cancel-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
             <div className="p-6 text-center space-y-4">
               <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto">
                 <AlertTriangle className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white">
-                ¿Eliminar Atención?
+              <h3 id="cancel-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white">
+                ¿Cancelar atención?
               </h3>
               <p className="text-zinc-500 text-sm">
-                Se borrará permanentemente la atención de{' '}
-                <strong>{selectedVisit.contact_name}</strong>. Esta acción no se puede deshacer.
+                La atención de <strong>{selectedVisit.contact_name}</strong> quedará cancelada.
+                Los pagos y el historial se conservarán.
               </p>
 
               <div className="flex gap-3 justify-center pt-4">
@@ -1531,7 +1544,7 @@ export function AtencionesManager({
                   onClick={handleDeleteSubmit}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Eliminando...' : 'Sí, Eliminar'}
+                  {isSubmitting ? 'Cancelando...' : 'Sí, cancelar'}
                 </button>
               </div>
             </div>
@@ -1541,13 +1554,15 @@ export function AtencionesManager({
       {/* Modal - No Asistió / Reprogramar */}
       {isNoAsistioModalOpen && noAsistioVisit && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+          <div role="dialog" aria-modal="true" aria-labelledby="no-show-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+              <h3 id="no-show-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-warning" />
                 Opciones de Inasistencia
               </h3>
               <button
+                type="button"
+                aria-label="Cerrar opciones de inasistencia"
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsNoAsistioModalOpen(false)}
               >
