@@ -1,49 +1,39 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
 const root = process.cwd();
 const snapshot = JSON.parse(
-  fs.readFileSync(
-    path.join(root, "supabase/snapshots/production-schema.json"),
-    "utf8",
-  ),
+  fs.readFileSync(path.join(root, 'supabase/snapshots/production-schema.json'), 'utf8'),
 );
 const catalog = JSON.parse(
-  fs.readFileSync(
-    path.join(root, "supabase/snapshots/production-catalog.json"),
-    "utf8",
-  ),
+  fs.readFileSync(path.join(root, 'supabase/snapshots/production-catalog.json'), 'utf8'),
 );
-const migrationsDirectory = path.join(root, "supabase/migrations");
+const migrationsDirectory = path.join(root, 'supabase/migrations');
 const migrationFiles = fs
   .readdirSync(migrationsDirectory)
-  .filter((file) => file.endsWith(".sql"))
+  .filter((file) => file.endsWith('.sql'))
   .sort();
 const sql = migrationFiles
-  .map((file) =>
-    fs.readFileSync(path.join(migrationsDirectory, file), "utf8"),
-  )
-  .join("\n")
+  .map((file) => fs.readFileSync(path.join(migrationsDirectory, file), 'utf8'))
+  .join('\n')
   .toLowerCase();
 
 const localColumns = new Map();
 
 for (const table of snapshot.tables) {
   const columns = new Set();
-  const escapedTable = table.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedTable = table.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const createPattern = new RegExp(
     `create\\s+table(?:\\s+if\\s+not\\s+exists)?\\s+(?:public\\.)?${escapedTable}\\s*\\(([\\s\\S]*?)\\n\\s*\\);`,
-    "gi",
+    'gi',
   );
 
   for (const match of sql.matchAll(createPattern)) {
-    for (const line of match[1].split("\n")) {
+    for (const line of match[1].split('\n')) {
       const columnMatch = line.match(/^\s*"?([a-z_][a-z0-9_]*)"?\s+/i);
       if (
         columnMatch &&
-        !["constraint", "primary", "foreign", "unique", "check"].includes(
-          columnMatch[1],
-        )
+        !['constraint', 'primary', 'foreign', 'unique', 'check'].includes(columnMatch[1])
       ) {
         columns.add(columnMatch[1]);
       }
@@ -52,11 +42,10 @@ for (const table of snapshot.tables) {
 
   const alterPattern = new RegExp(
     `alter\\s+table\\s+(?:public\\.)?${escapedTable}\\s+([\\s\\S]*?);`,
-    "gi",
+    'gi',
   );
   for (const match of sql.matchAll(alterPattern)) {
-    const addColumnPattern =
-      /add\s+column(?:\s+if\s+not\s+exists)?\s+"?([a-z_][a-z0-9_]*)"?/gi;
+    const addColumnPattern = /add\s+column(?:\s+if\s+not\s+exists)?\s+"?([a-z_][a-z0-9_]*)"?/gi;
     for (const columnMatch of match[1].matchAll(addColumnPattern)) {
       columns.add(columnMatch[1]);
     }
@@ -74,24 +63,21 @@ const missingColumns = snapshot.tables.flatMap((table) =>
 const liveFunctions = [
   ...new Set(
     catalog.objects
-      .filter((object) => object.kind === "function")
-      .map((object) => object.name.split("(")[0]),
+      .filter((object) => object.kind === 'function')
+      .map((object) => object.name.split('(')[0]),
   ),
 ];
-const ignoredLegacyFunctions = new Set(["current_tenant_id"]);
+const ignoredLegacyFunctions = new Set();
 const missingFunctions = liveFunctions.filter(
   (name) =>
     !ignoredLegacyFunctions.has(name) &&
-    !new RegExp(
-      `create(?:\\s+or\\s+replace)?\\s+function\\s+(?:public\\.)?${name}\\b`,
-      "i",
-    ).test(sql),
+    !new RegExp(`create(?:\\s+or\\s+replace)?\\s+function\\s+(?:public\\.)?${name}\\b`, 'i').test(
+      sql,
+    ),
 );
 
-const versions = migrationFiles.map((file) => file.split("_")[0]);
-const duplicateVersions = versions.filter(
-  (version, index) => versions.indexOf(version) !== index,
-);
+const versions = migrationFiles.map((file) => file.split('_')[0]);
+const duplicateVersions = versions.filter((version, index) => versions.indexOf(version) !== index);
 
 const report = {
   migrationFiles: migrationFiles.length,

@@ -248,17 +248,12 @@
     {
       "kind": "function",
       "name": "auth_company_id()",
-      "fingerprint": "8ea5c89c0be9aec24fa8345b76ee29c8"
+      "fingerprint": "543d7f55a23947a64c60d9b2323dc311"
     },
     {
       "kind": "function",
       "name": "check_visit_overlap(p_staff_id uuid, p_visit_date timestamp with time zone, p_duration_minutes integer, p_exclude_visit_id uuid)",
-      "fingerprint": "7bea3ff27db536e0ac071bc95804efc8"
-    },
-    {
-      "kind": "function",
-      "name": "current_tenant_id()",
-      "fingerprint": "d4965b391c2cc0f542145fa791b8960e"
+      "fingerprint": "d7c72b2e96bfcf1b8b3bec05babc912c"
     },
     {
       "kind": "function",
@@ -307,11 +302,6 @@
     },
     {
       "kind": "function",
-      "name": "rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_contacts jsonb, p_min_delay_sec integer, p_max_delay_sec integer, p_created_by uuid)",
-      "fingerprint": "fb18f2361f194c1542b3cb9f0a97c5d2"
-    },
-    {
-      "kind": "function",
       "name": "rpc_create_campaign(p_name text, p_target_tag text, p_sequence jsonb, p_min_delay_sec integer, p_max_delay_sec integer)",
       "fingerprint": "5a95188dc7e85b5aade59a5a6f1d9f75"
     },
@@ -323,7 +313,7 @@
     {
       "kind": "function",
       "name": "rpc_delete_marketing_contacts_by_tag(p_tag text)",
-      "fingerprint": "01ee8e785bc8fd7a46362729e977df6d"
+      "fingerprint": "30189047ff38acc83a62ecbaaa8c2c62"
     },
     {
       "kind": "function",
@@ -343,12 +333,12 @@
     {
       "kind": "function",
       "name": "rpc_recalculate_customer_segment(p_contact_id uuid)",
-      "fingerprint": "aeadf673785ec24ddc95ab886de2b672"
+      "fingerprint": "e8043d97ea52a3bedce091f7be58281e"
     },
     {
       "kind": "function",
       "name": "rpc_update_company_settings(p_name text, p_settings jsonb)",
-      "fingerprint": "74b3ee1bc4a8acec11c2468b3a372e8a"
+      "fingerprint": "963e40190c7f9d7010760b95b7cc576b"
     },
     {
       "kind": "function",
@@ -357,18 +347,8 @@
     },
     {
       "kind": "function",
-      "name": "rpc_upsert_marketing_contact(p_phone text, p_name text, p_tags text[], p_opt_in_source text, p_email text, p_birthday text, p_notes text)",
-      "fingerprint": "5115ce33909191c1550a93f3e6e0dcdb"
-    },
-    {
-      "kind": "function",
-      "name": "search_contacts(p_company_id uuid, p_query text, p_limit integer, p_offset integer)",
-      "fingerprint": "f237fb0ca2900222d333a7cf48655e45"
-    },
-    {
-      "kind": "function",
       "name": "search_contacts(search_term text)",
-      "fingerprint": "a0fe60561ef8825120a0045533be1ff1"
+      "fingerprint": "fc72ad98f434adddce9a064bb90f9c78"
     },
     {
       "kind": "index",
@@ -392,6 +372,11 @@
     },
     {
       "kind": "index",
+      "name": "crm_wa_campaigns_company_id_idx",
+      "fingerprint": "14b5f7f620ef3fb2afd22dd896cc9360"
+    },
+    {
+      "kind": "index",
       "name": "crm_wa_campaigns_pkey",
       "fingerprint": "ef7c8dcb37ee302839dd7021448cb526"
     },
@@ -412,28 +397,18 @@
     },
     {
       "kind": "index",
+      "name": "crm_wa_queue_contact_id_idx",
+      "fingerprint": "6841681c7fc50b0db7e4b1e220a1ca5b"
+    },
+    {
+      "kind": "index",
       "name": "crm_wa_queue_pkey",
       "fingerprint": "d65d691c67a48522e85bcb891b5e358e"
     },
     {
       "kind": "index",
-      "name": "idx_crm_marketing_contacts_company",
-      "fingerprint": "c79ee1b3dcd0ebf16d9e12b6f8622c7f"
-    },
-    {
-      "kind": "index",
-      "name": "idx_crm_marketing_contacts_tags",
-      "fingerprint": "d363882fdda02a696e42d17e4f463cab"
-    },
-    {
-      "kind": "index",
-      "name": "idx_crm_wa_queue_campaign_status",
-      "fingerprint": "5ceff2d5320720381b50b4af228358ff"
-    },
-    {
-      "kind": "index",
-      "name": "idx_crm_wa_queue_company_status",
-      "fingerprint": "ee56aee50099c085916a9077cff8ca48"
+      "name": "crm_wa_queue_visit_id_idx",
+      "fingerprint": "73919c330b6743fbf95177eaa26ac79f"
     },
     {
       "kind": "index",
@@ -517,13 +492,28 @@
     },
     {
       "kind": "index",
+      "name": "profiles_company_id_idx",
+      "fingerprint": "caf68d71c84a636b88263d787aff9cd5"
+    },
+    {
+      "kind": "index",
       "name": "profiles_pkey",
       "fingerprint": "b7142bbffc23de763c1bd9f00489ec05"
     },
     {
       "kind": "index",
+      "name": "spa_follow_ups_contact_id_idx",
+      "fingerprint": "602a13e2332726451676cdd4ca19c034"
+    },
+    {
+      "kind": "index",
       "name": "spa_follow_ups_pkey",
       "fingerprint": "61bddc7286dece60cb512c389158a1c2"
+    },
+    {
+      "kind": "index",
+      "name": "spa_follow_ups_visit_id_idx",
+      "fingerprint": "1e067cd9044dc503941ebdfff21f72db"
     },
     {
       "kind": "index",
@@ -547,6 +537,11 @@
     },
     {
       "kind": "index",
+      "name": "spa_staff_company_id_idx",
+      "fingerprint": "f38d13a7dca9145d899c8ec5ddce1a8e"
+    },
+    {
+      "kind": "index",
       "name": "spa_staff_pkey",
       "fingerprint": "21f6d1d1886f77aa4451480fb7adcc44"
     },
@@ -567,8 +562,23 @@
     },
     {
       "kind": "index",
+      "name": "spa_staff_services_service_id_idx",
+      "fingerprint": "4770ada827467232cb6e9ad607b23f82"
+    },
+    {
+      "kind": "index",
       "name": "spa_visits_pkey",
       "fingerprint": "5ec9bc7363de142b61ef57087bf9857d"
+    },
+    {
+      "kind": "index",
+      "name": "spa_visits_service_id_idx",
+      "fingerprint": "46a848077e50e427bc18ba1c79c680ab"
+    },
+    {
+      "kind": "index",
+      "name": "spa_visits_staff_id_idx",
+      "fingerprint": "c922e483daf4f5e88370f5665605a822"
     },
     {
       "kind": "index",
@@ -588,192 +598,187 @@
     {
       "kind": "policy",
       "name": "companies.companies_tenant_select",
-      "fingerprint": "7e67445e98af9a73b5e0d972f0369d46"
+      "fingerprint": "60611d72bb2046af5c18af4fb9787469"
     },
     {
       "kind": "policy",
       "name": "crm_marketing_contacts.tenant_isolation_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "crm_wa_campaigns.tenant_isolation_select_camp",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "crm_wa_queue.crm_wa_queue_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "crm_wa_queue.crm_wa_queue_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "crm_wa_queue.tenant_isolation_select_queue",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "profiles.profiles_self_select",
-      "fingerprint": "72c8390db53cc1abeec3027854868347"
+      "fingerprint": "394f12192a0489ddf55efbd279b76bfe"
     },
     {
       "kind": "policy",
       "name": "spa_follow_ups.spa_follow_ups_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_payments.spa_payments_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_payments.spa_payments_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_payments.spa_payments_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "spa_products.spa_products_tenant_delete",
-      "fingerprint": "71f09d815f948be3a1ca95f667ebab92"
+      "fingerprint": "758c74d6b4272c41aee44f9f2eabab28"
     },
     {
       "kind": "policy",
       "name": "spa_products.spa_products_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_products.spa_products_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_products.spa_products_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "spa_services.spa_services_tenant_delete",
-      "fingerprint": "71f09d815f948be3a1ca95f667ebab92"
+      "fingerprint": "758c74d6b4272c41aee44f9f2eabab28"
     },
     {
       "kind": "policy",
       "name": "spa_services.spa_services_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_services.spa_services_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_services.spa_services_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "spa_staff.spa_staff_tenant_all",
-      "fingerprint": "e0e117e851407231172502e2cbb8ce9c"
+      "fingerprint": "a1022826549529a29c6a92fefd3ada48"
     },
     {
       "kind": "policy",
       "name": "spa_staff_blocks.spa_staff_blocks_delete",
-      "fingerprint": "71f09d815f948be3a1ca95f667ebab92"
+      "fingerprint": "758c74d6b4272c41aee44f9f2eabab28"
     },
     {
       "kind": "policy",
       "name": "spa_staff_blocks.spa_staff_blocks_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_staff_blocks.spa_staff_blocks_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_staff_blocks.spa_staff_blocks_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "spa_staff_schedules.spa_staff_schedules_delete",
-      "fingerprint": "71f09d815f948be3a1ca95f667ebab92"
+      "fingerprint": "758c74d6b4272c41aee44f9f2eabab28"
     },
     {
       "kind": "policy",
       "name": "spa_staff_schedules.spa_staff_schedules_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_staff_schedules.spa_staff_schedules_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_staff_schedules.spa_staff_schedules_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "spa_staff_services.spa_staff_services_all",
-      "fingerprint": "9c0c270d8e2f684ba70c4097dd8d8fd3"
-    },
-    {
-      "kind": "policy",
-      "name": "spa_staff_services.spa_staff_services_insert",
-      "fingerprint": "079f8a8f8500f3cd9ff3fa63000269ee"
+      "fingerprint": "754fb99016e4f61db57474d8e5f91a2d"
     },
     {
       "kind": "policy",
       "name": "spa_visits.spa_visits_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "spa_visits.spa_visits_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "spa_visits.spa_visits_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "wa_auth_state.wa_auth_state_tenant_delete",
-      "fingerprint": "71f09d815f948be3a1ca95f667ebab92"
+      "fingerprint": "758c74d6b4272c41aee44f9f2eabab28"
     },
     {
       "kind": "policy",
       "name": "wa_auth_state.wa_auth_state_tenant_insert",
-      "fingerprint": "cc85a044643d1e9fab4e163a60b891de"
+      "fingerprint": "6f05c187fb55d047cb87f1e060d033d9"
     },
     {
       "kind": "policy",
       "name": "wa_auth_state.wa_auth_state_tenant_select",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "policy",
       "name": "wa_auth_state.wa_auth_state_tenant_update",
-      "fingerprint": "5adb5b140772fa7a1f3021c57d3231ae"
+      "fingerprint": "ce9523c4869b4a109c02f648fb03bd10"
     },
     {
       "kind": "policy",
       "name": "wa_sessions.tenant_isolation_select_sessions",
-      "fingerprint": "8669c887773a6ac68c7454b6b5a06ab0"
+      "fingerprint": "e7878d5e58fcb9d0ce111091dad559c6"
     },
     {
       "kind": "table",
@@ -862,6 +867,6 @@
     }
   ],
   "project_ref": "ywpafptrcvgoyaoqgzkz",
-  "object_count": 172,
+  "object_count": 173,
   "postgres_version": "17.6"
 }

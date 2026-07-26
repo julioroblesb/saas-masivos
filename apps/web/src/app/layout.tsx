@@ -12,8 +12,16 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Renova CRM",
-  description: "Renueva la relación con tus clientes.",
+  title: {
+    default: "Renova CRM",
+    template: "%s | Renova CRM",
+  },
+  description: "Gestión de clientes, agenda y automatización para spas y salones.",
+  applicationName: "Renova CRM",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
@@ -22,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={`${outfit.variable} font-outfit antialiased`}>
         <ProviderComponent>
           <Providers>
