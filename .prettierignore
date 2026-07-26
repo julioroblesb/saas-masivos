@@ -1,0 +1,8 @@
+.next
+node_modules
+coverage
+dist
+detect-results*.json
+docs/refactor/01-baseline/evidence
+package-lock.json
+public/assets

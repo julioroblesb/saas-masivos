@@ -7,7 +7,7 @@
 - **VERIFICADO**: **Evolution Redis**: `redis:7-alpine` (Contenedor Docker `evolution_redis`, 13.11MiB RAM, 6 PIDs, `healthy`).
 - **VERIFICADO**: **Estado de Servicios de Sistema (`systemctl is-active`)**:
   - `docker`: **active**
-  - `cloudflared`: **activating** *(servicio tunnel en proceso de reconexión/inicio)*
+  - `cloudflared`: **activating** _(servicio tunnel en proceso de reconexión/inicio)_
   - `tailscaled`: **active**
 
 ---
@@ -15,6 +15,7 @@
 ## 2. Abstracción HTTP de Evolution API v2.3.7 (`src/integrations/evolution/client.ts`)
 
 Endpoints invocados con payload estructurado plano para la v2.3.7:
+
 - `POST /instance/create`: `{ instanceName, syncFullHistory: false, integration: 'WHATSAPP-BAILEYS' }`.
 - `POST /webhook/set/{instanceName}`: `{ webhook: { enabled: true, url, headers, events } }`.
 - `GET /instance/connectionState/{instanceName}`.

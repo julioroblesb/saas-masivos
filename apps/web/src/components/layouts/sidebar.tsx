@@ -86,7 +86,7 @@ const Sidebar = () => {
     }, [pathname]);
 
     const setActiveRoute = () => {
-        let allLinks = document.querySelectorAll('.sidebar ul a.active');
+        const allLinks = document.querySelectorAll('.sidebar ul a.active');
         for (let i = 0; i < allLinks.length; i++) {
             const element = allLinks[i];
             element?.classList.remove('active');

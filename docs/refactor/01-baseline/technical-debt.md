@@ -1,6 +1,7 @@
 # Registro de Deuda Técnica (Technical Debt Register - Actualizado)
 
 ## TD-001 — 20 Funciones `SECURITY DEFINER` sin `search_path` Fijo y Ejecutables por Roles Inadecuados
+
 - **Severidad**: P0
 - **Dominio**: Supabase / Seguridad
 - **Evidencia**: Registrado en `functions.csv`. 20 funciones `SECURITY DEFINER` (incluyendo `rpc_create_campaign`, `search_contacts`) omiten `SET search_path = public`.
@@ -12,6 +13,7 @@
 ---
 
 ## TD-002 — Vista `SECURITY DEFINER` (`view_crm_profiles`)
+
 - **Severidad**: P1
 - **Dominio**: Supabase / Seguridad
 - **Evidencia**: `views.csv`. La vista `view_crm_profiles` opera con privilegios elevados omitiendo RLS estricto por `company_id`.
@@ -23,6 +25,7 @@
 ---
 
 ## TD-003 — Bucket de Storage Público Listable (`spa-media`)
+
 - **Severidad**: P2
 - **Dominio**: Supabase Storage
 - **Evidencia**: `storage-buckets.csv`. Bucket `spa-media` es público y permite listado de archivos.
@@ -34,6 +37,7 @@
 ---
 
 ## TD-004 — Foreign Keys sin Índices en Base de Datos Desplegada
+
 - **Severidad**: P2
 - **Dominio**: Rendimiento de Base de Datos
 - **Evidencia**: `crm_wa_queue.campaign_id` y `spa_visits.staff_id` carecen de índices explícitos.
@@ -45,6 +49,7 @@
 ---
 
 ## TD-005 — Salida de `npm run lint` y `npm run build` con Exit Code 1
+
 - **Severidad**: P1
 - **Dominio**: Calidad y Build
 - **Evidencia**: Registrado en `evidence/build/timings.json` y `lint.log`.

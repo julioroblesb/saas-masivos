@@ -5,6 +5,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 1. Login y Resolución de Perfil
+
 - **Precondiciones**: Usuario registrado en `auth.users`.
 - **Código de entrada**: `apps/web/src/app/login/page.tsx`, `utils/supabase/server.ts`.
 - **Tablas leídas/modificadas**: `auth.users`, `profiles`, `companies`.
@@ -21,6 +22,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 2. Validación de Tenant y Suscripción
+
 - **Precondiciones**: Usuario autenticado.
 - **Código de entrada**: `apps/web/src/domain/subscriptions/evaluate-tenant-access.ts`.
 - **Tablas leídas/modificadas**: `companies`.
@@ -36,6 +38,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 3. Creación de Tenant desde SuperAdmin
+
 - **Precondiciones**: Usuario con rol `superadmin` autenticado.
 - **Código de entrada**: `apps/web/src/app/admin/actions.ts` (`createTenantAction`).
 - **Tablas leídas/modificadas**: `companies`, `profiles`, `auth.users`.
@@ -52,6 +55,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 4. Activación / Desactivación de Tenant
+
 - **Precondiciones**: Rol `superadmin`.
 - **Código de entrada**: `apps/web/src/app/admin/actions.ts` (`updateTenantAction`).
 - **Tablas leídas/modificadas**: `companies`.
@@ -66,6 +70,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 5. Creación de Contacto CRM
+
 - **Precondiciones**: Tenant activo.
 - **Código de entrada**: `apps/web/src/app/contacts/actions.ts`.
 - **Tablas leídas/modificadas**: `crm_marketing_contacts`.
@@ -80,6 +85,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 6. Creación de Servicio de Spa
+
 - **Precondiciones**: Tenant activo.
 - **Código de entrada**: `apps/web/src/app/dashboard/servicios/page.tsx`.
 - **Tablas leídas/modificadas**: `spa_services`.
@@ -94,6 +100,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 7. Consulta de Agenda y Disponibilidad
+
 - **Precondiciones**: Personal registrado en `spa_staff`.
 - **Código de entrada**: `apps/web/src/app/dashboard/agenda/page.tsx`.
 - **Tablas leídas/modificadas**: `spa_staff`, `spa_staff_schedules`, `spa_staff_blocks`, `spa_visits`.
@@ -108,6 +115,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 8. Creación de Visita / Cita
+
 - **Precondiciones**: Cliente y servicio seleccionados.
 - **Código de entrada**: `apps/web/src/app/dashboard/agenda/actions.ts`.
 - **Tablas leídas/modificadas**: `spa_visits`, `crm_marketing_contacts`.
@@ -122,6 +130,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 9. Completar Visita
+
 - **Precondiciones**: Visita en estado `'programada'`.
 - **Código de entrada**: `apps/web/src/app/dashboard/atenciones/actions.ts`.
 - **Tablas leídas/modificadas**: `spa_visits`, `spa_payments`.
@@ -136,6 +145,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 10. Registro de Pago y Deuda
+
 - **Precondiciones**: Visita completada.
 - **Código de entrada**: `apps/web/src/app/dashboard/cobranza/actions.ts`.
 - **Tablas leídas/modificadas**: `spa_payments`.
@@ -150,6 +160,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 11. Generación de Cuidados Post-Atención
+
 - **Precondiciones**: Visita completada.
 - **Código de entrada**: `apps/web/src/modules/appointments/components/CareGuideModal.tsx`.
 - **Tablas leídas/modificadas**: `spa_services`, `crm_marketing_contacts`.
@@ -164,6 +175,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 12. Generación de Seguimiento
+
 - **Precondiciones**: Visita completada.
 - **Código de entrada**: `apps/web/src/app/dashboard/atenciones/page.tsx`.
 - **Tablas leídas/modificadas**: `spa_follow_ups`.
@@ -178,6 +190,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 13. Creación de Campaña Masiva
+
 - **Precondiciones**: Tenant activo.
 - **Código de entrada**: `apps/web/src/app/dashboard/campanas/new/page.tsx`.
 - **Tablas leídas/modificadas**: `crm_wa_campaigns`, `crm_wa_queue`.
@@ -192,6 +205,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 14. Procesamiento de Cola Cron
+
 - **Precondiciones**: Header `Authorization: Bearer CRON_SECRET`.
 - **Código de entrada**: `apps/web/src/app/api/cron/process-queue/route.ts`.
 - **Tablas leídas/modificadas**: `crm_wa_queue`, `wa_sessions`, `crm_wa_campaigns`, `companies`.
@@ -206,6 +220,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 15. Creación de Instancia WhatsApp
+
 - **Precondiciones**: Usuario autenticado en tenant.
 - **Código de entrada**: `apps/web/src/app/api/wa/instance/route.ts`.
 - **Tablas leídas/modificadas**: `wa_sessions`, `companies`.
@@ -220,6 +235,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 16. Generación de Código QR
+
 - **Precondiciones**: Instancia creada en Evolution API.
 - **Código de entrada**: `apps/web/src/app/api/wa/status/route.ts`.
 - **Tablas leídas/modificadas**: `wa_sessions`.
@@ -234,6 +250,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 17. Procesamiento de Webhook Entrante
+
 - **Precondiciones**: Header `X-Evolution-Webhook-Secret` válido.
 - **Código de entrada**: `apps/web/src/app/api/wa/webhook/route.ts`.
 - **Tablas leídas/modificadas**: `wa_sessions`, `crm_wa_queue`, `crm_wa_campaigns`.
@@ -248,6 +265,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 18. Desconexión y Reconexión WhatsApp
+
 - **Precondiciones**: Sesión en `wa_sessions`.
 - **Código de entrada**: `apps/web/src/app/api/wa/disconnect/route.ts`.
 - **Tablas leídas/modificadas**: `wa_sessions`.
@@ -262,6 +280,7 @@ Este documento describe exhaustivamente los 19 flujos funcionales del sistema et
 ---
 
 ## 19. Reinicio del Servidor e Infraestructura
+
 - **Precondiciones**: Servidor Ubuntu Linux `100.72.75.79`.
 - **Código de entrada**: `/srv/apps/evolution-api/docker-compose.yml`.
 - **Tablas leídas/modificadas**: N/A.

@@ -8,16 +8,16 @@ graph TD
     Vercel -->|Auth & Database Queries| Supabase[Supabase Cloud PostgreSQL ywpafptrcvgoyaoqgzkz]
     Vercel -->|HTTPS via Cloudflare Access| CFTunnel[Cloudflare Tunnel]
     CFTunnel -->|Red Privada Tailscale / Local| Laptop[Laptop Servidor HP Ubuntu 26.04]
-    
+
     subgraph LaptopServidor [Laptop HP - 4GB RAM - Docker Stack]
         EvoAPI[Evolution API v2.3.7 / Node 20]
         EvoPG[(PostgreSQL 15 Alpine)]
         EvoRedis[(Redis 7 Alpine)]
-        
+
         EvoAPI --> EvoPG
         EvoAPI --> EvoRedis
     end
-    
+
     CFTunnel --> EvoAPI
     EvoAPI -->|WhatsApp Baileys Protocol| WA[Red de WhatsApp]
 ```

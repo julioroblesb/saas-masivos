@@ -23,7 +23,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Empresa no encontrada' }, { status: 404 });
     }
 
-    // @ts-ignore
     const company = Array.isArray(profile.companies) ? profile.companies[0] : profile.companies;
     
     const access = evaluateTenantAccess(company);

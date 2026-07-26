@@ -244,7 +244,7 @@ export async function createVisitAction(payload: {
   const visit_timestamp = new Date(payload.scheduled_date).toISOString();
 
   // Determine payment status (siempre pendiente al inicio, no cobramos al crear)
-  let payment_status = 'pendiente';
+  const payment_status = 'pendiente';
 
   // Check overlap if staff is selected
   if (payload.staff_id) {
