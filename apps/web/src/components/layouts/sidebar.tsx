@@ -124,7 +124,7 @@ const Sidebar = () => {
                 <>
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>General</span>
+                    <span>INICIO</span>
                   </h2>
 
                   <li className="nav-item">
@@ -140,37 +140,37 @@ const Sidebar = () => {
 
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>Operaciones</span>
+                    <span>GESTIÓN DE NEGOCIO</span>
                   </h2>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/agenda" className="nav-link group">
+                    <Link href="/dashboard/agenda" className="nav-link nav-agenda group">
                       <div className="flex items-center">
                         <IconMenuCalendar className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Agenda
+                          Agenda & Citas
                         </span>
                       </div>
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/atenciones" className="nav-link group">
+                    <Link href="/dashboard/atenciones" className="nav-link nav-atenciones group">
                       <div className="flex items-center">
                         <IconMenuDatatables className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Atenciones
+                          Atenciones (Historial)
                         </span>
                       </div>
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/clientes" className="nav-link group">
+                    <Link href="/dashboard/trabajadoras" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Clientes
+                          Equipo
                         </span>
                       </div>
                     </Link>
@@ -188,22 +188,11 @@ const Sidebar = () => {
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/productos" className="nav-link group">
-                      <div className="flex items-center">
-                        <IconMenuApps className="shrink-0 group-hover:!text-primary" />
-                        <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Productos
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-
-                  <li className="nav-item">
-                    <Link href="/dashboard/trabajadoras" className="nav-link group">
+                    <Link href="/dashboard/clientes" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Equipo
+                          Clientes
                         </span>
                       </div>
                     </Link>
@@ -222,7 +211,7 @@ const Sidebar = () => {
 
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>Marketing</span>
+                    <span>MARKETING</span>
                   </h2>
 
                   <li className="nav-item">
@@ -249,7 +238,7 @@ const Sidebar = () => {
 
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>Ajustes</span>
+                    <span>AJUSTES</span>
                   </h2>
 
                   <li className="nav-item">
