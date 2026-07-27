@@ -20,6 +20,13 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import type { AtencionContact, AtencionService, AtencionStaff, AtencionVisit } from './types';
 import {
+  completeVisitInState,
+  updateVisitStatusInState,
+  applyPaymentToVisitState,
+  editVisitInState,
+  insertVisitInState,
+} from './visit-state';
+import {
   addPaymentAction,
   completeAndPayVisitAction,
   createVisitAction,
@@ -259,7 +266,7 @@ export function AtencionesManager({
           amount_paid: 0,
           crm_marketing_contacts: c,
         };
-        setVisits((prev) => [newVisit, ...prev]);
+        setVisits((prev) => insertVisitInState(prev, newVisit));
       }
       startTransition(() => {
         router.refresh();
@@ -324,7 +331,7 @@ export function AtencionesManager({
       completed_at: pastOutcome.status === 'completado' ? new Date().toISOString() : undefined,
       crm_marketing_contacts: c,
     };
-    setVisits((prev) => [newVisit, ...prev]);
+    setVisits((prev) => insertVisitInState(prev, newVisit));
 
     setIsPastOutcomeModalOpen(false);
     setIsModalOpen(false);
@@ -343,10 +350,14 @@ export function AtencionesManager({
       const v = visits.find((x) => x.id === visitId);
       if (v) {
         setSelectedVisit(v);
+        const total = v.price_charged ?? 0;
+        const alreadyPaid = v.amount_paid ?? 0;
+        const remaining = Math.max(0, total - alreadyPaid);
+
         setCompleteForm({
           payment_method: paymentMethods[0] || 'efectivo',
           is_credit: false,
-          initial_payment: v.price_charged || 0,
+          initial_payment: remaining,
           debt_due_date: '',
           notes: v.notes || '',
         });
@@ -361,9 +372,7 @@ export function AtencionesManager({
       toast.error(res.error);
     } else {
       toast.success('Estado actualizado correctamente');
-      setVisits((prev) =>
-        prev.map((v) => (v.id === visitId ? { ...v, status } : v)),
-      );
+      setVisits((prev) => updateVisitStatusInState(prev, visitId, status));
       startTransition(() => {
         router.refresh();
       });
@@ -374,6 +383,16 @@ export function AtencionesManager({
   // Submit Completion & Payment
   const handleCompleteSubmit = async () => {
     if (!selectedVisit) return;
+
+    const total = selectedVisit.price_charged ?? 0;
+    const alreadyPaid = selectedVisit.amount_paid ?? 0;
+    const remaining = Math.max(0, total - alreadyPaid);
+
+    if (completeForm.initial_payment > remaining) {
+      toast.error(`El monto a cobrar (S/${completeForm.initial_payment}) no puede superar el saldo restante (S/${remaining}).`);
+      return;
+    }
+
     setIsSubmitting(true);
 
     const res = await completeAndPayVisitAction(selectedVisit.id, completeForm);
@@ -382,22 +401,11 @@ export function AtencionesManager({
     } else {
       toast.success('Atención completada y pago registrado');
       setIsCompleteModalOpen(false);
-      setVisits((prev) =>
-        prev.map((v) => {
-          if (v.id !== selectedVisit.id) return v;
-          const addedPayment = completeForm.initial_payment || 0;
-          const newAmountPaid = (v.amount_paid || 0) + addedPayment;
-          const isFullyPaid = newAmountPaid >= (v.price_charged || 0);
-          return {
-            ...v,
-            status: 'completado',
-            payment_status: isFullyPaid ? 'pagado' : 'parcial',
-            amount_paid: newAmountPaid,
-            debt_due_date: completeForm.debt_due_date || v.debt_due_date,
-            completed_at: new Date().toISOString(),
-          };
-        }),
-      );
+
+      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + (completeForm.initial_payment || 0));
+      const serverPaymentStatus = res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
+
+      setVisits((prev) => completeVisitInState(prev, selectedVisit.id, serverTotalPaid, serverPaymentStatus));
       setSelectedVisit(null);
       startTransition(() => {
         router.refresh();
@@ -413,6 +421,15 @@ export function AtencionesManager({
       return;
     }
 
+    const total = paymentVisit.price_charged ?? 0;
+    const alreadyPaid = paymentVisit.amount_paid ?? 0;
+    const remaining = Math.max(0, total - alreadyPaid);
+
+    if (paymentAmount > remaining) {
+      toast.error(`El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`);
+      return;
+    }
+
     setIsSubmitting(true);
     const res = await addPaymentAction(paymentVisit.id, paymentAmount, paymentMethod);
     if (res.error) {
@@ -420,18 +437,11 @@ export function AtencionesManager({
     } else {
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
-      setVisits((prev) =>
-        prev.map((v) => {
-          if (v.id !== paymentVisit.id) return v;
-          const newAmountPaid = (v.amount_paid || 0) + paymentAmount;
-          const isFullyPaid = newAmountPaid >= (v.price_charged || 0);
-          return {
-            ...v,
-            amount_paid: newAmountPaid,
-            payment_status: isFullyPaid ? 'pagado' : 'parcial',
-          };
-        }),
-      );
+
+      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + paymentAmount);
+      const serverPaymentStatus = res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
+
+      setVisits((prev) => applyPaymentToVisitState(prev, paymentVisit.id, serverTotalPaid, serverPaymentStatus));
       setPaymentVisit(null);
       startTransition(() => {
         router.refresh();
@@ -477,21 +487,17 @@ export function AtencionesManager({
     } else {
       toast.success('Atención actualizada exitosamente');
       setIsEditModalOpen(false);
+      const s = services.find((x) => x.id === editForm.service_id);
       setVisits((prev) =>
-        prev.map((v) => {
-          if (v.id !== editForm.id) return v;
-          const s = services.find((x) => x.id === editForm.service_id);
-          return {
-            ...v,
-            service_id: editForm.service_id,
-            service_name: s?.name || v.service_name,
-            staff_id: editForm.staff_id || null,
-            scheduled_date: editForm.scheduled_date,
-            visit_date: editForm.scheduled_date,
-            price_charged: editForm.price_charged,
-            status: editForm.status as AtencionVisit['status'],
-            notes: editForm.notes,
-          };
+        editVisitInState(prev, {
+          id: editForm.id,
+          service_id: editForm.service_id,
+          service_name: s?.name,
+          staff_id: editForm.staff_id,
+          scheduled_date: editForm.scheduled_date,
+          price_charged: editForm.price_charged,
+          status: editForm.status as AtencionVisit['status'],
+          notes: editForm.notes,
         }),
       );
       startTransition(() => {

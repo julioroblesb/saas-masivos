@@ -52,7 +52,7 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('*')
+      .select('id, company_id, name, description, price, promo_price, min_price, duration_minutes, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('name'),
     supabase
@@ -71,7 +71,24 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
     .from('spa_visits')
     .select(
       `
-      *,
+      id,
+      company_id,
+      contact_id,
+      service_id,
+      staff_id,
+      visit_date,
+      scheduled_date,
+      duration_minutes,
+      status,
+      price_charged,
+      payment_status,
+      debt_due_date,
+      completed_at,
+      notes,
+      created_at,
+      care_sent,
+      follow_up_date,
+      follow_up_sent,
       crm_marketing_contacts!spa_visits_contact_tenant_fkey (
         id,
         name,
@@ -112,7 +129,7 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   return {
     services: services || [],
     visits:
-      visits?.map((v) => {
+      (visits?.map((v) => {
         const contactObj = Array.isArray(v.crm_marketing_contacts)
           ? v.crm_marketing_contacts[0]
           : v.crm_marketing_contacts;
@@ -124,8 +141,10 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
           contact_name: contactObj?.name || '',
           contact_phone: contactObj?.phone || '',
           service_name: serviceObj?.name || '',
+          crm_marketing_contacts: contactObj ?? null,
+          spa_services: serviceObj ? { name: serviceObj.name, price: serviceObj.price } : null,
         };
-      }) || [],
+      }) || []) as import('../atenciones/types').AgendaVisit[],
     contacts: contacts || [],
     staff: staffWithServices,
     error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
@@ -148,13 +167,13 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
     ] = await Promise.all([
       supabase
         .from('spa_staff_schedules')
-        .select('*')
+        .select('id, company_id, staff_id, day_of_week, start_time, end_time, is_working')
         .eq('staff_id', staffId)
         .eq('day_of_week', dayOfWeek)
         .single(),
       supabase
         .from('spa_staff_blocks')
-        .select('*')
+        .select('id, company_id, staff_id, block_date, start_time, end_time, reason')
         .eq('staff_id', staffId)
         .eq('block_date', date),
       supabase

@@ -73,7 +73,24 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     .from('spa_visits')
     .select(
       `
-      *,
+      id,
+      company_id,
+      contact_id,
+      service_id,
+      staff_id,
+      visit_date,
+      scheduled_date,
+      duration_minutes,
+      status,
+      price_charged,
+      payment_status,
+      debt_due_date,
+      completed_at,
+      notes,
+      created_at,
+      care_sent,
+      follow_up_date,
+      follow_up_sent,
       crm_marketing_contacts!spa_visits_contact_tenant_fkey (
         id,
         name,
@@ -110,7 +127,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('*')
+      .select('id, company_id, name, description, price, promo_price, min_price, duration_minutes, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('name'),
     visitsQuery,
@@ -168,7 +185,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   return {
     services: services || [],
     visits:
-      visits?.map((v) => {
+      (visits?.map((v) => {
         const contactObj = Array.isArray(v.crm_marketing_contacts)
           ? v.crm_marketing_contacts[0]
           : v.crm_marketing_contacts;
@@ -181,8 +198,10 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
           contact_phone: contactObj?.phone || '',
           service_name: serviceObj?.name || '',
           amount_paid: paymentsByVisit[v.id] || 0,
+          crm_marketing_contacts: contactObj ?? null,
+          spa_services: serviceObj ?? null,
         };
-      }) || [],
+      }) || []) as import('./types').AtencionVisit[],
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
@@ -471,7 +490,7 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
 
     const { data: oldVisit, error: fetchErr } = await supabase
       .from('spa_visits')
-      .select('*')
+      .select('company_id, contact_id, service_id, staff_id, price_charged, notes')
       .eq('id', visitId)
       .single();
 

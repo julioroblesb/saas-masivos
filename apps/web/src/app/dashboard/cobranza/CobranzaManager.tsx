@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Coins, XCircle, Search, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -23,6 +23,15 @@ interface DebtVisit {
 
 export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  const [prevDebts, setPrevDebts] = useState(debts);
+  const [localDebts, setLocalDebts] = useState<DebtVisit[]>(debts);
+  if (prevDebts !== debts) {
+    setPrevDebts(debts);
+    setLocalDebts(debts);
+  }
+
   const [search, setSearch] = useState('');
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -33,23 +42,54 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
 
   const query = search.trim().toLowerCase();
   const filteredDebts = query
-    ? debts.filter((d) =>
+    ? localDebts.filter((d) =>
         (d.contact_name || '').toLowerCase().includes(query) ||
         (d.service_name || '').toLowerCase().includes(query) ||
         (d.contact_phone || '').includes(query),
       )
-    : debts;
+    : localDebts;
 
   const handleAddPayment = async () => {
     if (!paymentVisit || paymentAmount <= 0) return;
+
+    const total = paymentVisit.price_charged ?? 0;
+    const alreadyPaid = paymentVisit.amount_paid ?? 0;
+    const remaining = Math.max(0, total - alreadyPaid);
+
+    if (paymentAmount > remaining) {
+      toast.error(`El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`);
+      return;
+    }
+
     setIsSubmitting(true);
     const res = await addPaymentAction(paymentVisit.id, paymentAmount, paymentMethod);
     if (res.error) {
       toast.error(res.error);
     } else {
       toast.success('Abono registrado exitosamente');
+      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + paymentAmount);
+      const newRemaining = Math.max(0, total - serverTotalPaid);
+
+      setLocalDebts((prev) => {
+        if (newRemaining <= 0) {
+          return prev.filter((d) => d.id !== paymentVisit.id);
+        }
+        return prev.map((d) =>
+          d.id === paymentVisit.id
+            ? {
+                ...d,
+                amount_paid: serverTotalPaid,
+                payment_status: res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial'),
+              }
+            : d,
+        );
+      });
+
       setIsPaymentModalOpen(false);
-      router.refresh();
+      setPaymentVisit(null);
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };

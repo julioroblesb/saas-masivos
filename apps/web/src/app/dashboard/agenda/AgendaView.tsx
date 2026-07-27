@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAgendaData } from './actions';
 import { 
   Calendar as CalendarIcon, 
   Kanban, 
@@ -37,6 +38,17 @@ import type {
   AgendaVisit,
 } from '../atenciones/types';
 
+/** Insert or replace a visit in the local state array */
+function insertVisitInState(prev: AgendaVisit[], visit: AgendaVisit): AgendaVisit[] {
+  const idx = prev.findIndex((v) => v.id === visit.id);
+  if (idx !== -1) {
+    const next = [...prev];
+    next[idx] = visit;
+    return next;
+  }
+  return [visit, ...prev];
+}
+
 interface AgendaViewProps {
   initialVisits: AgendaVisit[];
   services: AtencionService[];
@@ -46,6 +58,7 @@ interface AgendaViewProps {
 
 export function AgendaView({ initialVisits, services, contacts, staffList }: AgendaViewProps) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const [prevVisits, setPrevVisits] = useState(initialVisits);
   const [visits, setVisits] = useState<AgendaVisit[]>(initialVisits);
   if (prevVisits !== initialVisits) {
@@ -55,6 +68,27 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
 
   const [view, setView] = useState<'calendar' | 'kanban'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  useEffect(() => {
+    let isMounted = true;
+    const gridStart = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 });
+    const gridEnd = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 });
+
+    const fetchRange = async () => {
+      const { visits: fetchedVisits } = await getAgendaData(
+        gridStart.toISOString(),
+        gridEnd.toISOString(),
+      );
+      if (isMounted && fetchedVisits) {
+        setVisits(fetchedVisits);
+      }
+    };
+
+    fetchRange();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentDate]);
   
   // Modals state
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
@@ -402,9 +436,27 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
           services={services}
           staffList={staffList}
           onClose={() => setIsBookingModalOpen(false)}
-          onSuccess={() => {
+          onSuccess={(newVisitData) => {
+            if (newVisitData) {
+              const c = contacts.find((x) => x.id === newVisitData.contact_id) || {
+                id: newVisitData.contact_id,
+                name: newVisitData.contact_name || 'Cliente',
+                phone: newVisitData.contact_phone || '',
+              };
+              const s = services.find((x) => x.id === newVisitData.service_id);
+              const fullVisit: AgendaVisit = {
+                ...newVisitData,
+                contact_name: c.name,
+                contact_phone: c.phone,
+                service_name: s?.name || 'Servicio',
+                crm_marketing_contacts: c,
+              };
+              setVisits((prev) => insertVisitInState(prev, fullVisit));
+            }
             setIsBookingModalOpen(false);
-            router.refresh();
+            startTransition(() => {
+              router.refresh();
+            });
           }}
         />
       )}

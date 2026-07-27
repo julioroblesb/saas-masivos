@@ -18,7 +18,7 @@ interface NewBookingModalProps {
   services: BookingService[];
   staffList: BookingStaff[];
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (newVisit?: any) => void;
 }
 
 interface BookingContact {
@@ -174,7 +174,7 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
         timer: 2000,
         showConfirmButton: false
       });
-      onSuccess();
+      onSuccess(result.data);
     }
   };
 
