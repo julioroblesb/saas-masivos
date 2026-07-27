@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useTransition } from 'react';
+import React, { useMemo, useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar as CalendarIcon,
@@ -64,26 +64,14 @@ export function AtencionesManager({
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  const [prevVisits, setPrevVisits] = useState(initialVisits);
   const [visits, setVisits] = useState<AtencionVisit[]>(initialVisits);
-  if (prevVisits !== initialVisits) {
-    setPrevVisits(initialVisits);
-    setVisits(initialVisits);
-  }
-
-  const [prevServices, setPrevServices] = useState(propServices);
   const [services, setServices] = useState<AtencionService[]>(propServices);
-  if (prevServices !== propServices) {
-    setPrevServices(propServices);
-    setServices(propServices);
-  }
-
-  const [prevContacts, setPrevContacts] = useState(propContacts);
   const [contacts, setContacts] = useState<AtencionContact[]>(propContacts);
-  if (prevContacts !== propContacts) {
-    setPrevContacts(propContacts);
-    setContacts(propContacts);
-  }
+
+  // Sync state from server props after a router.refresh()
+  useEffect(() => { setVisits(initialVisits); }, [initialVisits]);
+  useEffect(() => { setServices(propServices); }, [propServices]);
+  useEffect(() => { setContacts(propContacts); }, [propContacts]);
 
   const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
   const [search, setSearch] = useState('');

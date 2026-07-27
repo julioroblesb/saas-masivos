@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Coins, XCircle, Search, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -25,12 +25,10 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  const [prevDebts, setPrevDebts] = useState(debts);
   const [localDebts, setLocalDebts] = useState<DebtVisit[]>(debts);
-  if (prevDebts !== debts) {
-    setPrevDebts(debts);
-    setLocalDebts(debts);
-  }
+
+  // Sync state from server props after a router.refresh()
+  useEffect(() => { setLocalDebts(debts); }, [debts]);
 
   const [search, setSearch] = useState('');
 

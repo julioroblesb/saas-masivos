@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useMemo, useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
@@ -62,12 +62,10 @@ const OPT_IN_SOURCE_OPTIONS = [
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [prevClients, setPrevClients] = useState(initialClients);
   const [clients, setClients] = useState<ClientMetric[]>(initialClients);
-  if (prevClients !== initialClients) {
-    setPrevClients(initialClients);
-    setClients(initialClients);
-  }
+
+  // Sync state from server props after a router.refresh()
+  useEffect(() => { setClients(initialClients); }, [initialClients]);
   const [search, setSearch] = useState('');
 
   // Modal State

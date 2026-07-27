@@ -360,7 +360,7 @@ export async function createVisitAction(data: {
         name: contactName || undefined,
         phone: contactPhone || undefined,
       },
-      spa_services: { name: service.name || '', price: service.price },
+      spa_services: { name: service.name || '', price: service.price ?? 0 },
     };
     return { success: true, data: enriched };
   } catch (error: unknown) {
@@ -394,5 +394,5 @@ export interface CreatedVisitData {
   contact_phone: string;
   service_name: string;
   crm_marketing_contacts: import('../atenciones/types').FullClientProfileData | null;
-  spa_services: { name: string; price: number | null } | null;
+  spa_services: { name: string; price: number } | null;
 }

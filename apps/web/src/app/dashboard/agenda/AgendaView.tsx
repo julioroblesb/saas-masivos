@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAgendaData } from './actions';
+import { getAgendaVisitsRange } from './actions';
+import { insertVisitInState } from '../atenciones/visit-state';
 import { 
   Calendar as CalendarIcon, 
   Kanban, 
@@ -38,63 +39,69 @@ import type {
   AgendaVisit,
 } from '../atenciones/types';
 
-/** Insert or replace a visit in the local state array */
-function insertVisitInState(prev: AgendaVisit[], visit: AgendaVisit): AgendaVisit[] {
-  const idx = prev.findIndex((v) => v.id === visit.id);
-  if (idx !== -1) {
-    const next = [...prev];
-    next[idx] = visit;
-    return next;
-  }
-  return [visit, ...prev];
-}
-
 interface AgendaViewProps {
   initialVisits: AgendaVisit[];
   services: AtencionService[];
   contacts: AtencionContact[];
   staffList: AtencionStaff[];
+  initialMonth: string; // 'YYYY-MM'
 }
 
-export function AgendaView({ initialVisits, services, contacts, staffList }: AgendaViewProps) {
+export function AgendaView({ initialVisits, services, contacts, staffList, initialMonth }: AgendaViewProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [prevVisits, setPrevVisits] = useState(initialVisits);
   const [visits, setVisits] = useState<AgendaVisit[]>(initialVisits);
-  if (prevVisits !== initialVisits) {
-    setPrevVisits(initialVisits);
+
+  // Sync when server re-fetches (preserves local inserts until server data arrives)
+  useEffect(() => {
     setVisits(initialVisits);
-  }
+  }, [initialVisits]);
+
+  // currentDate drives the displayed month; initialised from URL param
+  const [currentDate, setCurrentDate] = useState(() => {
+    const [y, m] = initialMonth.split('-').map(Number);
+    return new Date(y, m - 1, 1);
+  });
 
   const [view, setView] = useState<'calendar' | 'kanban'>('calendar');
-  const [currentDate, setCurrentDate] = useState(new Date());
 
+  // When the month changes, fetch only visits for that range (light query)
+  const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
   useEffect(() => {
-    let isMounted = true;
     const gridStart = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 });
     const gridEnd = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 });
+    let cancelled = false;
+    getAgendaVisitsRange(gridStart.toISOString(), gridEnd.toISOString()).then((fetched) => {
+      if (!cancelled) setVisits(fetched);
+    });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMonthKey]);
 
-    const fetchRange = async () => {
-      const { visits: fetchedVisits } = await getAgendaData(
-        gridStart.toISOString(),
-        gridEnd.toISOString(),
-      );
-      if (isMounted && fetchedVisits) {
-        setVisits(fetchedVisits);
-      }
-    };
+  const nextMonth = () => {
+    const next = addMonths(currentDate, 1);
+    setCurrentDate(next);
+    const key = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`;
+    startTransition(() => router.push(`?month=${key}`));
+  };
+  const prevMonth = () => {
+    const prev = subMonths(currentDate, 1);
+    setCurrentDate(prev);
+    const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+    startTransition(() => router.push(`?month=${key}`));
+  };
+  const goToToday = () => {
+    const now = new Date();
+    setCurrentDate(now);
+    const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    startTransition(() => router.push(`?month=${key}`));
+  };
 
-    fetchRange();
-    return () => {
-      isMounted = false;
-    };
-  }, [currentDate]);
-  
   // Modals state
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedVisit, setSelectedVisit] = useState<AgendaVisit | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  
+
   // Kanban specific state
   const [kanbanFilter, setKanbanFilter] = useState<'day' | 'week' | 'month'>('week');
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,15 +112,8 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
-  const dateFormat = "MMMM yyyy";
-  const days = eachDayOfInterval({
-    start: startDate,
-    end: endDate
-  });
-
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
-  const goToToday = () => setCurrentDate(new Date());
+  const dateFormat = 'MMMM yyyy';
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
 
   // Render Helpers
   const getVisitsForDay = (day: Date) => {
@@ -438,18 +438,8 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
           onClose={() => setIsBookingModalOpen(false)}
           onSuccess={(newVisitData) => {
             if (newVisitData) {
-              const c = contacts.find((x) => x.id === newVisitData.contact_id) || {
-                id: newVisitData.contact_id,
-                name: newVisitData.contact_name || 'Cliente',
-                phone: newVisitData.contact_phone || '',
-              };
-              const s = services.find((x) => x.id === newVisitData.service_id);
               const fullVisit: AgendaVisit = {
                 ...newVisitData,
-                contact_name: c.name,
-                contact_phone: c.phone,
-                service_name: s?.name || 'Servicio',
-                crm_marketing_contacts: c,
               };
               setVisits((prev) => insertVisitInState(prev, fullVisit));
             }

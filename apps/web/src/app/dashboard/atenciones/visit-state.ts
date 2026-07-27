@@ -4,6 +4,12 @@ export function insertVisitInState<T extends { id: string }>(
   visits: T[],
   newVisit: T,
 ): T[] {
+  const idx = visits.findIndex((v) => v.id === newVisit.id);
+  if (idx !== -1) {
+    const next = [...visits];
+    next[idx] = newVisit;
+    return next;
+  }
   return [newVisit, ...visits];
 }
 

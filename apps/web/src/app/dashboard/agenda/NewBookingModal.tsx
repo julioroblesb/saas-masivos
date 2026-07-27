@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X, Calendar, User, Clock, AlertCircle } from 'lucide-react';
 import { format, parse, addMinutes, isBefore, isAfter, isEqual } from 'date-fns';
 import { getStaffAvailabilityAction, createVisitAction } from './actions';
+import type { CreatedVisitData } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
 import Swal from 'sweetalert2';
@@ -18,7 +19,7 @@ interface NewBookingModalProps {
   services: BookingService[];
   staffList: BookingStaff[];
   onClose: () => void;
-  onSuccess: (newVisit?: any) => void;
+  onSuccess: (newVisit?: CreatedVisitData) => void;
 }
 
 interface BookingContact {
