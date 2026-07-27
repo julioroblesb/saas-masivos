@@ -52,7 +52,7 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('id, company_id, name, description, price, promo_price, min_price, duration_minutes, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
+      .select('id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('name'),
     supabase
@@ -151,6 +151,58 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   };
 }
 
+/**
+ * Light-weight visit-range fetch used by AgendaView when the user navigates
+ * between months. Does NOT re-query services, contacts, staff, or staff_services.
+ */
+export async function getAgendaVisitsRange(startDate: string, endDate: string): Promise<import('../atenciones/types').AgendaVisit[]> {
+  const supabase = await createClient();
+  const { data: visits } = await supabase
+    .from('spa_visits')
+    .select(`
+      id,
+      company_id,
+      contact_id,
+      service_id,
+      staff_id,
+      visit_date,
+      scheduled_date,
+      duration_minutes,
+      status,
+      price_charged,
+      payment_status,
+      debt_due_date,
+      completed_at,
+      notes,
+      created_at,
+      care_sent,
+      follow_up_date,
+      follow_up_sent,
+      crm_marketing_contacts!spa_visits_contact_tenant_fkey ( id, name, phone ),
+      spa_services ( id, name, price )
+    `)
+    .gte('visit_date', startDate)
+    .lte('visit_date', endDate)
+    .order('visit_date', { ascending: false });
+
+  return (visits?.map((v) => {
+    const contactObj = Array.isArray(v.crm_marketing_contacts)
+      ? v.crm_marketing_contacts[0]
+      : v.crm_marketing_contacts;
+    const serviceObj = Array.isArray(v.spa_services)
+      ? v.spa_services[0]
+      : v.spa_services;
+    return {
+      ...v,
+      contact_name: contactObj?.name || '',
+      contact_phone: contactObj?.phone || '',
+      service_name: serviceObj?.name || '',
+      crm_marketing_contacts: contactObj ?? null,
+      spa_services: serviceObj ? { name: serviceObj.name, price: serviceObj.price } : null,
+    };
+  }) || []) as import('../atenciones/types').AgendaVisit[];
+}
+
 export async function getStaffAvailabilityAction(staffId: string, date: string) {
   const ctx = await getCompanyId();
   if (ctx?.error) return { error: ctx.error };
@@ -210,6 +262,8 @@ export async function createVisitAction(data: {
   try {
     const supabase = await createClient();
     let finalContactId = data.contact_id;
+    let contactName = '';
+    let contactPhone = '';
 
     if (data.new_contact) {
       const { data: newC, error: errC } = await supabase
@@ -225,13 +279,23 @@ export async function createVisitAction(data: {
         .single();
       if (errC) throw errC;
       finalContactId = newC.id;
+      contactName = data.new_contact.name;
+      contactPhone = data.new_contact.phone || '';
+    } else if (data.contact_id) {
+      const { data: existingContact } = await supabase
+        .from('crm_marketing_contacts')
+        .select('name, phone')
+        .eq('id', data.contact_id)
+        .single();
+      contactName = existingContact?.name || '';
+      contactPhone = existingContact?.phone || '';
     }
 
     if (!finalContactId) return { error: 'Debes seleccionar o crear un paciente' };
 
     const { data: service, error: serviceError } = await supabase
       .from('spa_services')
-      .select('id, price, is_active, company_id')
+      .select('id, name, price, is_active, company_id')
       .eq('id', data.service_id)
       .eq('company_id', companyId)
       .single();
@@ -286,8 +350,49 @@ export async function createVisitAction(data: {
     revalidatePath('/dashboard/clientes');
     revalidatePath('/dashboard');
 
-    return { success: true, data: insertedVisit };
+    const enriched: CreatedVisitData = {
+      ...insertedVisit,
+      contact_name: contactName,
+      contact_phone: contactPhone,
+      service_name: service.name || '',
+      crm_marketing_contacts: {
+        id: finalContactId,
+        name: contactName || undefined,
+        phone: contactPhone || undefined,
+      },
+      spa_services: { name: service.name || '', price: service.price },
+    };
+    return { success: true, data: enriched };
   } catch (error: unknown) {
     return { error: error instanceof Error ? error.message : 'Error interno' };
   }
+}
+
+/** Typed return of createVisitAction on success */
+export interface CreatedVisitData {
+  // Matches spa_visits Row exactly
+  id: string;
+  company_id: string;
+  contact_id: string;
+  service_id: string;
+  staff_id: string | null;
+  visit_date: string | null;
+  scheduled_date: string | null;
+  duration_minutes: number | null;
+  status: string;
+  price_charged: number | null;
+  payment_status: string | null;
+  debt_due_date: string | null;
+  completed_at: string | null;
+  notes: string | null;
+  created_at: string | null;
+  care_sent: boolean | null;
+  follow_up_date: string | null;
+  follow_up_sent: boolean | null;
+  // Enriched fields
+  contact_name: string;
+  contact_phone: string;
+  service_name: string;
+  crm_marketing_contacts: import('../atenciones/types').FullClientProfileData | null;
+  spa_services: { name: string; price: number | null } | null;
 }

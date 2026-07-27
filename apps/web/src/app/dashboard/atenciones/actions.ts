@@ -127,7 +127,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('id, company_id, name, description, price, promo_price, min_price, duration_minutes, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
+      .select('id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
       .eq('is_active', true)
       .order('name'),
     visitsQuery,
