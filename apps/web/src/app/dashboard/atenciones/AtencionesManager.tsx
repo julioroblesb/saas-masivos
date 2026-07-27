@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar as CalendarIcon,
@@ -55,10 +55,28 @@ export function AtencionesManager({
   paymentMethods,
 }: AtencionesManagerProps) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
-  const [services] = useState<AtencionService[]>(propServices);
-  const [visits] = useState<AtencionVisit[]>(initialVisits);
-  const [contacts] = useState<AtencionContact[]>(propContacts);
+  const [prevVisits, setPrevVisits] = useState(initialVisits);
+  const [visits, setVisits] = useState<AtencionVisit[]>(initialVisits);
+  if (prevVisits !== initialVisits) {
+    setPrevVisits(initialVisits);
+    setVisits(initialVisits);
+  }
+
+  const [prevServices, setPrevServices] = useState(propServices);
+  const [services, setServices] = useState<AtencionService[]>(propServices);
+  if (prevServices !== propServices) {
+    setPrevServices(propServices);
+    setServices(propServices);
+  }
+
+  const [prevContacts, setPrevContacts] = useState(propContacts);
+  const [contacts, setContacts] = useState<AtencionContact[]>(propContacts);
+  if (prevContacts !== propContacts) {
+    setPrevContacts(propContacts);
+    setContacts(propContacts);
+  }
 
   const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
   const [search, setSearch] = useState('');
@@ -176,7 +194,7 @@ export function AtencionesManager({
     }
 
     const selectedTime = new Date(form.scheduled_date).getTime();
-    const nowTime = Date.now();
+    const nowTime = new Date().getTime();
 
     // Check if selected date is in the past (Problema 6)
     if (selectedTime < nowTime - 60000) {
@@ -226,7 +244,26 @@ export function AtencionesManager({
     } else {
       toast.success('Atención registrada exitosamente');
       setIsModalOpen(false);
-      router.refresh();
+      if (res.data) {
+        const c = contacts.find((x) => x.id === res.data.contact_id) || {
+          id: res.data.contact_id,
+          name: showNewPatient ? newPatient.name : selectedContact?.name || 'Cliente',
+          phone: showNewPatient ? newPatient.phone : selectedContact?.phone || '',
+        };
+        const s = services.find((x) => x.id === res.data.service_id);
+        const newVisit: AtencionVisit = {
+          ...res.data,
+          contact_name: c.name,
+          contact_phone: c.phone,
+          service_name: s?.name || 'Servicio',
+          amount_paid: 0,
+          crm_marketing_contacts: c,
+        };
+        setVisits((prev) => [newVisit, ...prev]);
+      }
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };
@@ -252,6 +289,7 @@ export function AtencionesManager({
       return;
     }
 
+    let addedAmount = 0;
     if (pastOutcome.status === 'completado') {
       const compRes = await completeAndPayVisitAction(res.data.id, {
         payment_method: pastOutcome.paymentMethod,
@@ -263,15 +301,36 @@ export function AtencionesManager({
       if (compRes.error) {
         toast.error('Visita creada pero hubo error al registrar pago: ' + compRes.error);
       } else {
+        addedAmount = pastOutcome.initialPayment || 0;
         toast.success('Atención histórica registrada y completada en el historial');
       }
     } else {
       toast.success('Atención registrada en el historial');
     }
 
+    const c = contacts.find((x) => x.id === res.data.contact_id) || {
+      id: res.data.contact_id,
+      name: showNewPatient ? newPatient.name : selectedContact?.name || 'Cliente',
+      phone: showNewPatient ? newPatient.phone : selectedContact?.phone || '',
+    };
+    const s = services.find((x) => x.id === res.data.service_id);
+    const newVisit: AtencionVisit = {
+      ...res.data,
+      status: pastOutcome.status as AtencionVisit['status'],
+      contact_name: c.name,
+      contact_phone: c.phone,
+      service_name: s?.name || 'Servicio',
+      amount_paid: addedAmount,
+      completed_at: pastOutcome.status === 'completado' ? new Date().toISOString() : undefined,
+      crm_marketing_contacts: c,
+    };
+    setVisits((prev) => [newVisit, ...prev]);
+
     setIsPastOutcomeModalOpen(false);
     setIsModalOpen(false);
-    router.refresh();
+    startTransition(() => {
+      router.refresh();
+    });
     setIsSubmitting(false);
   };
 
@@ -302,7 +361,12 @@ export function AtencionesManager({
       toast.error(res.error);
     } else {
       toast.success('Estado actualizado correctamente');
-      router.refresh();
+      setVisits((prev) =>
+        prev.map((v) => (v.id === visitId ? { ...v, status } : v)),
+      );
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };
@@ -318,8 +382,26 @@ export function AtencionesManager({
     } else {
       toast.success('Atención completada y pago registrado');
       setIsCompleteModalOpen(false);
+      setVisits((prev) =>
+        prev.map((v) => {
+          if (v.id !== selectedVisit.id) return v;
+          const addedPayment = completeForm.initial_payment || 0;
+          const newAmountPaid = (v.amount_paid || 0) + addedPayment;
+          const isFullyPaid = newAmountPaid >= (v.price_charged || 0);
+          return {
+            ...v,
+            status: 'completado',
+            payment_status: isFullyPaid ? 'pagado' : 'parcial',
+            amount_paid: newAmountPaid,
+            debt_due_date: completeForm.debt_due_date || v.debt_due_date,
+            completed_at: new Date().toISOString(),
+          };
+        }),
+      );
       setSelectedVisit(null);
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };
@@ -338,8 +420,22 @@ export function AtencionesManager({
     } else {
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
+      setVisits((prev) =>
+        prev.map((v) => {
+          if (v.id !== paymentVisit.id) return v;
+          const newAmountPaid = (v.amount_paid || 0) + paymentAmount;
+          const isFullyPaid = newAmountPaid >= (v.price_charged || 0);
+          return {
+            ...v,
+            amount_paid: newAmountPaid,
+            payment_status: isFullyPaid ? 'pagado' : 'parcial',
+          };
+        }),
+      );
       setPaymentVisit(null);
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };
@@ -381,7 +477,26 @@ export function AtencionesManager({
     } else {
       toast.success('Atención actualizada exitosamente');
       setIsEditModalOpen(false);
-      router.refresh();
+      setVisits((prev) =>
+        prev.map((v) => {
+          if (v.id !== editForm.id) return v;
+          const s = services.find((x) => x.id === editForm.service_id);
+          return {
+            ...v,
+            service_id: editForm.service_id,
+            service_name: s?.name || v.service_name,
+            staff_id: editForm.staff_id || null,
+            scheduled_date: editForm.scheduled_date,
+            visit_date: editForm.scheduled_date,
+            price_charged: editForm.price_charged,
+            status: editForm.status as AtencionVisit['status'],
+            notes: editForm.notes,
+          };
+        }),
+      );
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };

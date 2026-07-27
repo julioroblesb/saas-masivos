@@ -1,13 +1,13 @@
-import { getAtencionesData } from '../atenciones/actions';
+import { getAgendaData } from './actions';
 import { AgendaView } from './AgendaView';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AgendaPage() {
-  const { services, visits, contacts, staff, error } = await getAtencionesData();
+  const { services, visits, contacts, staff, error } = await getAgendaData();
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-300">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">Agenda & Citas</h1>

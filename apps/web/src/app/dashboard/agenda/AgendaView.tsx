@@ -46,6 +46,13 @@ interface AgendaViewProps {
 
 export function AgendaView({ initialVisits, services, contacts, staffList }: AgendaViewProps) {
   const router = useRouter();
+  const [prevVisits, setPrevVisits] = useState(initialVisits);
+  const [visits, setVisits] = useState<AgendaVisit[]>(initialVisits);
+  if (prevVisits !== initialVisits) {
+    setPrevVisits(initialVisits);
+    setVisits(initialVisits);
+  }
+
   const [view, setView] = useState<'calendar' | 'kanban'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   
@@ -76,7 +83,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
 
   // Render Helpers
   const getVisitsForDay = (day: Date) => {
-    return initialVisits.filter(visit => {
+    return visits.filter(visit => {
       if (!visit.visit_date) return false;
       const visitDate = new Date(visit.visit_date);
       return isSameDay(visitDate, day);
@@ -96,7 +103,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
 
   // Filter kanban visits based on current kanbanFilter, currentDate AND search query
   const kanbanVisits = useMemo(() => {
-    return initialVisits.filter(visit => {
+    return visits.filter(visit => {
       if (!visit.visit_date) return false;
       const visitDate = new Date(visit.visit_date);
       
@@ -125,7 +132,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList }: Age
 
       return true;
     });
-  }, [initialVisits, currentDate, kanbanFilter, searchQuery, staffList]);
+  }, [visits, currentDate, kanbanFilter, searchQuery, staffList]);
 
   return (
     <div className="flex flex-col h-full min-h-[70vh] bg-white dark:bg-dark-light rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in zoom-in-95 duration-500">

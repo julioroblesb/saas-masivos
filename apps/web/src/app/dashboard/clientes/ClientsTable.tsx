@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
@@ -61,7 +61,13 @@ const OPT_IN_SOURCE_OPTIONS = [
 
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
   const router = useRouter();
-  const clients = initialClients;
+  const [, startTransition] = useTransition();
+  const [prevClients, setPrevClients] = useState(initialClients);
+  const [clients, setClients] = useState<ClientMetric[]>(initialClients);
+  if (prevClients !== initialClients) {
+    setPrevClients(initialClients);
+    setClients(initialClients);
+  }
   const [search, setSearch] = useState('');
 
   // Modal State
@@ -197,7 +203,43 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     } else {
       toast.success(idToUse ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
       setIsModalOpen(false);
-      router.refresh();
+      setClients((prev) => {
+        const existingIndex = prev.findIndex((c) => c.phone === form.phone || (idToUse && c.id === idToUse));
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            name: form.name,
+            phone: form.phone,
+            email: form.email,
+            document_number: form.documentNumber,
+            birthday: form.birthday,
+            opt_in_source: finalSource,
+            allergies_and_conditions: form.allergiesAndConditions,
+            preferences: form.preferences,
+            internal_notes: form.internalNotes,
+          };
+          return updated;
+        }
+        const newClient: ClientMetric = {
+          id: idToUse || res.data?.id || String(Date.now()),
+          phone: form.phone,
+          name: form.name,
+          email: form.email,
+          document_number: form.documentNumber,
+          birthday: form.birthday,
+          opt_in_source: finalSource,
+          allergies_and_conditions: form.allergiesAndConditions,
+          preferences: form.preferences,
+          internal_notes: form.internalNotes,
+          is_archived: false,
+          created_at: new Date().toISOString(),
+        };
+        return [newClient, ...prev];
+      });
+      startTransition(() => {
+        router.refresh();
+      });
     }
     setIsSubmitting(false);
   };
@@ -219,7 +261,10 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           toast.error(res.error);
         } else {
           toast.success('Cliente archivado');
-          router.refresh();
+          setClients((prev) => prev.filter((c) => c.id !== client.id));
+          startTransition(() => {
+            router.refresh();
+          });
         }
       }
     });

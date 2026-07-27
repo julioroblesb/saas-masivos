@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@/utils/supabase/server';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const emptyToUndefinedDate = z.preprocess((val) => {
@@ -40,15 +41,33 @@ const addPaymentSchema = z.object({
   visitId: z.string().uuid(),
 });
 
+function revalidateAllAffectedPaths() {
+  revalidatePath('/dashboard/atenciones');
+  revalidatePath('/dashboard/agenda');
+  revalidatePath('/dashboard/cobranza');
+  revalidatePath('/dashboard/clientes');
+  revalidatePath('/dashboard');
+}
+
 export async function getAtencionesData(startDate?: string, endDate?: string) {
   const supabase = await createClient();
 
-  // Get active services
-  const { data: services, error: sErr } = await supabase
-    .from('spa_services')
-    .select('*')
-    .eq('is_active', true)
-    .order('name');
+  let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let companyId: string | null = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
+    if (profile?.company_id) {
+      companyId = profile.company_id;
+    }
+  }
 
   let visitsQuery = supabase
     .from('spa_visits')
@@ -58,21 +77,9 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       crm_marketing_contacts!spa_visits_contact_tenant_fkey (
         id,
         name,
-        phone,
-        email,
-        document_number,
-        birthday,
-        allergies_and_conditions,
-        preferences,
-        internal_notes,
-        created_at,
-        opt_in_source,
-        customer_segment,
-        total_visits,
-        total_spent,
-        last_visit_date
+        phone
       ),
-      spa_services ( name, price )
+      spa_services ( id, name, price )
     `,
     )
     .order('visit_date', { ascending: false });
@@ -88,9 +95,44 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     visitsQuery = visitsQuery.limit(50);
   }
 
-  const { data: visits, error: vErr } = await visitsQuery;
+  const companySettingsPromise = companyId
+    ? supabase.from('companies').select('settings').eq('id', companyId).single()
+    : Promise.resolve({ data: null, error: null });
 
-  // Get payments for loaded visits to compute amount_paid per visit
+  // Execute independent queries in PARALLEL batch
+  const [
+    { data: services, error: sErr },
+    { data: visits, error: vErr },
+    { data: contacts, error: cErr },
+    { data: staff, error: staffErr },
+    { data: staffServices },
+    companyRes,
+  ] = await Promise.all([
+    supabase
+      .from('spa_services')
+      .select('*')
+      .eq('is_active', true)
+      .order('name'),
+    visitsQuery,
+    supabase
+      .from('crm_marketing_contacts')
+      .select(
+        'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
+      )
+      .order('name'),
+    supabase
+      .from('spa_staff')
+      .select('id, name, role, is_active')
+      .eq('is_active', true)
+      .order('name'),
+    supabase.from('spa_staff_services').select('staff_id, service_id'),
+    companySettingsPromise,
+  ]);
+
+  if (companyRes?.data?.settings?.payment_methods && companyRes.data.settings.payment_methods.length > 0) {
+    paymentMethods = companyRes.data.settings.payment_methods;
+  }
+
   const visitIds = visits?.map((v) => v.id) || [];
   const paymentsByVisit: Record<string, number> = {};
   let pErr: string | undefined = undefined;
@@ -112,23 +154,6 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     }
   }
 
-  // Get contacts with full client profile fields
-  const { data: contacts, error: cErr } = await supabase
-    .from('crm_marketing_contacts')
-    .select('id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date')
-    .order('name');
-
-  // Get active staff
-  const { data: staff, error: staffErr } = await supabase
-    .from('spa_staff')
-    .select('id, name, role, is_active')
-    .eq('is_active', true)
-    .order('name');
-
-  const { data: staffServices } = await supabase
-    .from('spa_staff_services')
-    .select('staff_id, service_id');
-
   const staffWithServices =
     staff?.map((s) => ({
       id: s.id,
@@ -140,39 +165,24 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
         [],
     })) || [];
 
-  // Get payment methods from company settings
-  let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('company_id')
-      .eq('id', user.id)
-      .single();
-    if (profile?.company_id) {
-      const { data: company } = await supabase
-        .from('companies')
-        .select('settings')
-        .eq('id', profile.company_id)
-        .single();
-      if (company?.settings?.payment_methods && company.settings.payment_methods.length > 0) {
-        paymentMethods = company.settings.payment_methods;
-      }
-    }
-  }
-
   return {
     services: services || [],
     visits:
-      visits?.map((v) => ({
-        ...v,
-        contact_name: v.crm_marketing_contacts?.name,
-        contact_phone: v.crm_marketing_contacts?.phone,
-        service_name: v.spa_services?.name,
-        amount_paid: paymentsByVisit[v.id] || 0,
-      })) || [],
+      visits?.map((v) => {
+        const contactObj = Array.isArray(v.crm_marketing_contacts)
+          ? v.crm_marketing_contacts[0]
+          : v.crm_marketing_contacts;
+        const serviceObj = Array.isArray(v.spa_services)
+          ? v.spa_services[0]
+          : v.spa_services;
+        return {
+          ...v,
+          contact_name: contactObj?.name || '',
+          contact_phone: contactObj?.phone || '',
+          service_name: serviceObj?.name || '',
+          amount_paid: paymentsByVisit[v.id] || 0,
+        };
+      }) || [],
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
@@ -205,12 +215,12 @@ export async function createVisitAction(payload: {
 
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
 
-  // Server-side validation for past dates
   const selectedTime = new Date(payload.scheduled_date).getTime();
   const nowTime = Date.now();
-  if (payload.status === 'agendado' && selectedTime < (nowTime - 5 * 60 * 1000)) {
+  if (payload.status === 'agendado' && selectedTime < nowTime - 5 * 60 * 1000) {
     return {
-      error: 'La fecha y hora seleccionadas ya pasaron. Por favor, selecciona una fecha futura o registra la atención directamente en el historial.',
+      error:
+        'La fecha y hora seleccionadas ya pasaron. Por favor, selecciona una fecha futura o registra la atención directamente en el historial.',
     };
   }
 
@@ -285,19 +295,17 @@ export async function createVisitAction(payload: {
   }
 
   if (payload.status === 'completado') {
-    const { error: completeError } = await supabase.rpc(
-      'rpc_complete_visit',
-      { p_visit_id: data.id },
-    );
+    const { error: completeError } = await supabase.rpc('rpc_complete_visit', {
+      p_visit_id: data.id,
+    });
     if (completeError) {
       return {
-        error:
-          'Visita creada, pero no se pudo completar: ' +
-          completeError.message,
+        error: 'Visita creada, pero no se pudo completar: ' + completeError.message,
       };
     }
   }
 
+  revalidateAllAffectedPaths();
   return { success: true, data };
 }
 
@@ -311,7 +319,9 @@ export async function updateVisitStatusAction(
     const { error } = await supabase.rpc('rpc_complete_visit', {
       p_visit_id: visitId,
     });
-    return error ? { error: error.message } : { success: true };
+    if (error) return { error: error.message };
+    revalidateAllAffectedPaths();
+    return { success: true };
   }
 
   const { error } = await supabase.rpc('rpc_set_visit_outcome', {
@@ -322,6 +332,7 @@ export async function updateVisitStatusAction(
     return { error: error.message };
   }
 
+  revalidateAllAffectedPaths();
   return { success: true };
 }
 
@@ -343,7 +354,10 @@ export async function addPaymentAction(visitId: string, amount: number, paymentM
     p_payment_method: parsed.data.paymentMethod,
     p_visit_id: parsed.data.visitId,
   });
-  return error ? { error: error.message } : { success: true, data };
+  if (error) return { error: error.message };
+
+  revalidateAllAffectedPaths();
+  return { success: true, data };
 }
 
 export async function completeAndPayVisitAction(
@@ -383,6 +397,7 @@ export async function completeAndPayVisitAction(
     return { error: 'Error finalizando atención: ' + error.message };
   }
 
+  revalidateAllAffectedPaths();
   return { success: true, data };
 }
 
@@ -399,6 +414,7 @@ export async function deleteVisitAction(visitId: string) {
   });
   if (error) return { error: error.message };
 
+  revalidateAllAffectedPaths();
   return { success: true };
 }
 
@@ -434,6 +450,7 @@ export async function editVisitAction(
 
   if (error) return { error: error.message };
 
+  revalidateAllAffectedPaths();
   return { success: true };
 }
 
@@ -486,6 +503,7 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
 
     if (insertErr) return { error: insertErr.message };
 
+    revalidateAllAffectedPaths();
     return { success: true };
   } catch (error: unknown) {
     return { error: error instanceof Error ? error.message : 'Error interno' };
