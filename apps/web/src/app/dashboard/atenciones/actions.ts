@@ -1,6 +1,7 @@
 'use server';
 
 import { randomUUID } from 'node:crypto';
+import { formatBusinessDateTime } from '@/lib/business-date';
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -500,7 +501,7 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
       .from('spa_visits')
       .update({
         status: 'cancelado',
-        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${new Date(newDate).toLocaleString('es-PE')}]`,
+        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${formatBusinessDateTime(newDate)}]`,
       })
       .eq('id', visitId);
 

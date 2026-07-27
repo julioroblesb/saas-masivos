@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { BUSINESS_TIMEZONE } from '@/lib/business-date';
 import { motion, type Variants } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
@@ -66,26 +67,35 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
     if (!dateStr) return '';
     const isDateOnly = !dateStr.includes('T') || dateStr.includes('T00:00:00');
     if (isDateOnly) {
-      const cleanDateStr = dateStr.split('T')[0];
-      const date = new Date(cleanDateStr + 'T00:00:00');
-      return date.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'short',
-      });
+      // Parse pure calendar date without timezone shifting
+      const clean = dateStr.split('T')[0];
+      const parts = clean.split('-');
+      if (parts.length === 3) {
+        const d = new Date(2000, Number(parts[1]) - 1, Number(parts[2]));
+        return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' }).format(d);
+      }
+      return clean;
     }
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES', {
+    // Timestamp with time component → use business timezone
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    return new Intl.DateTimeFormat('es-ES', {
+      timeZone: BUSINESS_TIMEZONE,
       day: 'numeric',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit',
-    });
+    }).format(d);
   };
 
   // Preparar datos del gráfico
   const categories = chartData.map((d) => {
-    const date = new Date(d.date + 'T00:00:00');
-    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const parts = d.date.split('-');
+    if (parts.length === 3) {
+      const date = new Date(2000, Number(parts[1]) - 1, Number(parts[2]));
+      return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' }).format(date);
+    }
+    return d.date;
   });
   const revenueSeries = chartData.map((d) => Number(d.revenue) || 0);
 

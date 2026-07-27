@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { formatBusinessDateTime } from '@/lib/business-date';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import {
@@ -219,10 +220,7 @@ export default function MensajeriaView() {
                     ) : (
                       <div className="flex items-center gap-2 text-black dark:text-white font-medium">
                         <Calendar size={14} className="text-zinc-400 shrink-0" />
-                        {new Date(msg.scheduled_for || msg.created_at).toLocaleString('es-ES', {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
-                        })}
+                        {formatBusinessDateTime(msg.scheduled_for || msg.created_at)}
                       </div>
                     )}
                   </td>

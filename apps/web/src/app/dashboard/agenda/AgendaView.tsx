@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAgendaVisitsRange } from './actions';
+import { formatBusinessTime } from '@/lib/business-date';
 import { insertVisitInState } from '../atenciones/visit-state';
 import { 
   Calendar as CalendarIcon, 
@@ -316,7 +317,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                                </div>
                                <div className="flex items-center gap-1 opacity-90 text-[10px] shrink-0 font-medium">
                                  <Clock className="w-3 h-3 shrink-0" />
-                                 {format(new Date(visit.visit_date || 0), 'HH:mm')}
+                                 {formatBusinessTime(visit.visit_date)}
                                </div>
                             </div>
                           </div>
@@ -382,7 +383,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                                <div className="flex items-center justify-between pt-2">
                                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
                                    <Clock className="w-3.5 h-3.5 text-zinc-400" /> 
-                                   {format(new Date(visit.visit_date || 0), 'dd MMM, HH:mm', { locale: es })}
+                                   {formatBusinessTime(visit.visit_date)}
                                  </div>
                                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
                                    <User className="w-3.5 h-3.5 text-zinc-400" />

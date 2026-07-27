@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -32,6 +33,18 @@ interface SessionStatus {
   status: string;
 }
 
+interface InstanceResponse {
+  message?: string;
+  instanceName?: string;
+  status: string;
+  code?: string;
+  qr: string | null;
+  webhookConfigured?: boolean;
+  warningCode?: string;
+  warning?: string;
+  error?: string;
+}
+
 const ACTIVE_STATES = new Set([
   'conectando',
   'esperando_qr',
@@ -39,7 +52,10 @@ const ACTIVE_STATES = new Set([
   'provisionando',
 ]);
 
-async function readJson(response: Response): Promise<SessionStatus> {
+const RECOVERY_INTERVAL_MS = 3_000;
+const RECOVERY_MAX_ATTEMPTS = 15; // 15 × 3s = 45s
+
+async function readSessionStatus(response: Response): Promise<SessionStatus> {
   const data = (await response.json()) as SessionStatus & { error?: string };
   if (!response.ok) {
     throw new Error(data.error || 'No se pudo consultar la conexión de WhatsApp');
@@ -48,12 +64,51 @@ async function readJson(response: Response): Promise<SessionStatus> {
 }
 
 async function getSessionStatus(): Promise<SessionStatus> {
-  return readJson(await fetch('/api/wa/status', { cache: 'no-store' }));
+  return readSessionStatus(await fetch('/api/wa/status', { cache: 'no-store' }));
+}
+
+async function postInstance(): Promise<InstanceResponse> {
+  const response = await fetch('/api/wa/instance', { method: 'POST' });
+  const data = (await response.json()) as InstanceResponse;
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo iniciar la conexión de WhatsApp');
+  }
+  return data;
 }
 
 export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const queryClient = useQueryClient();
   const queryKey = ['whatsapp-session', companyId] as const;
+  const recoveryTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopRecovery = useCallback(() => {
+    if (recoveryTimerRef.current) {
+      clearInterval(recoveryTimerRef.current);
+      recoveryTimerRef.current = null;
+    }
+  }, []);
+
+  const startRecoveryPolling = useCallback(() => {
+    stopRecovery();
+    let attempts = 0;
+    recoveryTimerRef.current = setInterval(async () => {
+      attempts += 1;
+      if (attempts >= RECOVERY_MAX_ATTEMPTS) {
+        stopRecovery();
+        return;
+      }
+      try {
+        const status = await getSessionStatus();
+        if (ACTIVE_STATES.has(status.status) || status.status === 'conectado') {
+          queryClient.setQueryData<SessionStatus>(queryKey, status);
+          stopRecovery();
+        }
+      } catch {
+        // silently retry
+      }
+    }, RECOVERY_INTERVAL_MS);
+  }, [queryClient, queryKey, stopRecovery]);
+
   const statusQuery = useQuery({
     queryKey,
     queryFn: getSessionStatus,
@@ -69,19 +124,34 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   });
 
   const startSession = useMutation({
-    mutationFn: async () =>
-      readJson(await fetch('/api/wa/instance', { method: 'POST' })),
+    mutationFn: postInstance,
     onSuccess: (data) => {
-      queryClient.setQueryData<SessionStatus>(queryKey, data);
-      toast.success('Inicializando servicio de WhatsApp…');
+      stopRecovery();
+      const sessionData: SessionStatus = {
+        status: data.status,
+        code: data.code,
+        qr: data.qr,
+      };
+      queryClient.setQueryData<SessionStatus>(queryKey, sessionData);
+
+      if (data.webhookConfigured === false && data.warning) {
+        toast(data.warning, { icon: '⚠️', duration: 6_000 });
+      } else {
+        toast.success('Inicializando servicio de WhatsApp…');
+      }
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => {
+      toast.error(error.message);
+      // Start recovery polling — the instance may have been created
+      startRecoveryPolling();
+    },
   });
 
   const disconnectSession = useMutation({
     mutationFn: async () =>
-      readJson(await fetch('/api/wa/disconnect', { method: 'POST' })),
+      readSessionStatus(await fetch('/api/wa/disconnect', { method: 'POST' })),
     onSuccess: () => {
+      stopRecovery();
       queryClient.setQueryData<SessionStatus>(queryKey, {
         is_demo: statusQuery.data?.is_demo,
         qr: null,
@@ -131,6 +201,7 @@ export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const isBusy = startSession.isPending || disconnectSession.isPending;
 
   const abortConnection = () => {
+    stopRecovery();
     if (!disconnectSession.isPending) {
       disconnectSession.mutate();
     }

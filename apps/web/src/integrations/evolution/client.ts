@@ -61,17 +61,22 @@ const messagePayloadSchema = z
     message: 'Evolution response is missing a message id',
   });
 
-type EvolutionErrorCode =
+export type EvolutionErrorCode =
   | 'CIRCUIT_OPEN'
+  | 'CLOUDFLARE_ACCESS_REJECTED'
   | 'CONFLICT'
+  | 'INSTANCE_ALREADY_EXISTS'
   | 'INVALID_CONFIGURATION'
   | 'INVALID_INPUT'
   | 'INVALID_RESPONSE'
   | 'NETWORK_ERROR'
   | 'NOT_FOUND'
+  | 'PROVIDER_AUTH_REJECTED'
+  | 'PROVIDER_FORBIDDEN'
   | 'RATE_LIMITED'
   | 'TIMEOUT'
-  | 'UNAVAILABLE';
+  | 'UNAVAILABLE'
+  | 'WEBHOOK_CONFIGURATION_FAILED';
 
 export class EvolutionApiError extends Error {
   constructor(
@@ -349,7 +354,18 @@ export class EvolutionWhatsAppProvider implements WhatsAppProvider {
       });
 
       if (!response.ok) {
-        throw errorFromStatus(response.status);
+        const rawText = await response.text().catch(() => '');
+        const safeBody = rawText.slice(0, 2048);
+        const isCloudflare = safeBody.includes('cf-access') ||
+          safeBody.includes('cloudflare') ||
+          safeBody.includes('CF-Access');
+        let providerJson: Record<string, unknown> | null = null;
+        try { providerJson = JSON.parse(safeBody) as Record<string, unknown>; } catch { /* not JSON */ }
+        throw errorFromResponse(response.status, endpoint, {
+          isCloudflare,
+          providerJson,
+          rawSnippet: safeBody.slice(0, 200),
+        });
       }
 
       if (!options.schema) {
@@ -414,11 +430,33 @@ function messageId(payload: z.infer<typeof messagePayloadSchema>): string | null
   return payload.key?.id ?? payload.messageId ?? payload.id ?? null;
 }
 
-function errorFromStatus(status: number): EvolutionApiError {
-  if (status === 401 || status === 403) {
+interface ErrorContext {
+  isCloudflare: boolean;
+  providerJson: Record<string, unknown> | null;
+  rawSnippet: string;
+}
+
+function errorFromResponse(
+  status: number,
+  endpoint: string,
+  ctx: ErrorContext,
+): EvolutionApiError {
+  if (ctx.isCloudflare && (status === 401 || status === 403)) {
     return new EvolutionApiError(
-      'Evolution API rechazó las credenciales',
-      'INVALID_CONFIGURATION',
+      'Cloudflare Access bloqueó la solicitud',
+      'CLOUDFLARE_ACCESS_REJECTED',
+      status,
+    );
+  }
+  if (status === 401 || status === 403) {
+    const msg = String(ctx.providerJson?.message ?? ctx.providerJson?.error ?? '');
+    const lower = msg.toLowerCase();
+    if (lower.includes('already') || lower.includes('exist') || lower.includes('ya existe')) {
+      return new EvolutionApiError('La instancia ya existe', 'INSTANCE_ALREADY_EXISTS', 409);
+    }
+    return new EvolutionApiError(
+      `Operación prohibida en ${endpoint}`,
+      'PROVIDER_FORBIDDEN',
       status,
     );
   }
