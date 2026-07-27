@@ -35,7 +35,6 @@ import {
   formatBusinessDateLabel,
   formatBusinessTime,
   formatBusinessDateTime,
-  formatDateOnly,
 } from '@/lib/business-date';
 import type {
   AtencionContact,
