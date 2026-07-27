@@ -24,7 +24,6 @@ import {
   completeAndPayVisitAction,
   createVisitAction,
   editVisitAction,
-  rescheduleVisitAction,
   updateVisitStatusAction,
 } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
@@ -123,6 +122,15 @@ export function AtencionesManager({
 
   // Edit Modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    id: '',
+    service_id: '',
+    staff_id: '',
+    scheduled_date: '',
+    price_charged: 0,
+    status: 'agendado',
+    notes: '',
+  });
 
   const handleOpenModal = () => {
     setForm({
@@ -331,26 +339,6 @@ export function AtencionesManager({
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
       setPaymentVisit(null);
-      router.refresh();
-    }
-    setIsSubmitting(false);
-  };
-
-  // Reschedule Submit
-  const handleRescheduleSubmit = async () => {
-    if (!selectedVisit || !rescheduleDate) {
-      toast.error('Selecciona una nueva fecha y hora.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    const res = await rescheduleVisitAction(selectedVisit.id, rescheduleDate);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success('Cita reprogramada exitosamente');
-      setIsRescheduleModalOpen(false);
-      setSelectedVisit(null);
       router.refresh();
     }
     setIsSubmitting(false);
