@@ -1,33 +1,31 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  Calendar as CalendarIcon,
+  Clock,
+  User,
   Plus,
+  Search,
   CheckCircle,
   XCircle,
-  Search,
-  Calendar,
-  User,
-  ShoppingBag,
-  Coins,
-  FileText,
-  Clock,
-  AlertTriangle,
   Activity,
   Phone,
-  Users,
-  MoreVertical,
+  Coins,
+  Edit,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import type { AtencionContact, AtencionService, AtencionStaff, AtencionVisit } from './types';
 import {
-  createVisitAction,
-  updateVisitStatusAction,
   addPaymentAction,
   completeAndPayVisitAction,
-  deleteVisitAction,
+  createVisitAction,
   editVisitAction,
   rescheduleVisitAction,
+  updateVisitStatusAction,
 } from './actions';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CustomDatePicker } from '@/components/ui/CustomDatePicker';
@@ -36,159 +34,108 @@ import {
   formatBusinessTime,
   formatBusinessDateTime,
 } from '@/lib/business-date';
-import type {
-  AtencionContact,
-  AtencionService,
-  AtencionStaff,
-  AtencionVisit,
-} from './types';
+import { ClientProfileInteractiveName } from '@/components/clients/ClientProfilePopover';
 
-export function AtencionesManager({
-  initialVisits,
-  services,
-  contacts,
-  staffList,
-  paymentMethods,
-  currentStartDate,
-  currentEndDate,
-}: {
-  initialVisits: AtencionVisit[];
+const MySwal = withReactContent(Swal);
+
+interface AtencionesManagerProps {
   services: AtencionService[];
+  initialVisits: AtencionVisit[];
   contacts: AtencionContact[];
-  staffList?: AtencionStaff[];
-  paymentMethods?: string[];
+  staffList: AtencionStaff[];
+  paymentMethods: string[];
   currentStartDate?: string;
   currentEndDate?: string;
-}) {
-  const defaultMethod =
-    paymentMethods && paymentMethods.length > 0 ? paymentMethods[0].toLowerCase() : 'efectivo';
-  const paymentMethodOptions =
-    paymentMethods && paymentMethods.length > 0
-      ? paymentMethods.map((m) => ({
-          value: m.toLowerCase(),
-          label: m.charAt(0).toUpperCase() + m.slice(1),
-        }))
-      : [{ value: 'efectivo', label: 'Efectivo' }];
+}
 
-  const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
-  const visits = initialVisits;
+export function AtencionesManager({
+  services: propServices,
+  initialVisits,
+  contacts: propContacts,
+  staffList,
+  paymentMethods,
+}: AtencionesManagerProps) {
   const router = useRouter();
 
-  const [dateFilter, setDateFilter] = useState({
-    start: currentStartDate || '',
-    end: currentEndDate || '',
-  });
+  const [services] = useState<AtencionService[]>(propServices);
+  const [visits] = useState<AtencionVisit[]>(initialVisits);
+  const [contacts] = useState<AtencionContact[]>(propContacts);
 
-  const applyDateFilter = (start: string, end: string) => {
-    setDateFilter({ start, end });
-    const params = new URLSearchParams();
-    if (start) params.set('startDate', start);
-    if (end) params.set('endDate', end);
-    router.push(`?${params.toString()}`);
-  };
+  const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
+  const [search, setSearch] = useState('');
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [completeVisit, setCompleteVisit] = useState<AtencionVisit | null>(null);
-  const [completeIsCredit, setCompleteIsCredit] = useState(false);
-  const [completePayment, setCompletePayment] = useState(0);
-  const [completeMethod, setCompleteMethod] = useState(defaultMethod);
-  const [completeDebtDate, setCompleteDebtDate] = useState('');
-  const [completeNotes, setCompleteNotes] = useState('');
-
-  const [paymentVisit, setPaymentVisit] = useState<AtencionVisit | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState(defaultMethod);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showNewPatient, setShowNewPatient] = useState(false);
 
+  // New visit form
   const [form, setForm] = useState({
     contact_id: '',
     service_id: '',
     staff_id: '',
-    scheduled_date: new Date().toISOString(),
-    price_charged: 0,
-    notes: '',
-  });
-
-  const [showNewPatient, setShowNewPatient] = useState(false);
-  const [newPatient, setNewPatient] = useState({ name: '', phone: '' });
-
-  const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
-  // Handle service selection to auto-fill price
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isNoAsistioModalOpen, setIsNoAsistioModalOpen] = useState(false);
-  const [selectedVisit, setSelectedVisit] = useState<AtencionVisit | null>(null);
-  const [noAsistioVisit, setNoAsistioVisit] = useState<AtencionVisit | null>(null);
-  const [rescheduleDate, setRescheduleDate] = useState(new Date().toISOString());
-
-  const [editForm, setEditForm] = useState({
-    service_id: '',
-    staff_id: '',
     scheduled_date: '',
     price_charged: 0,
-    status: '',
     notes: '',
   });
 
-  const handleEditClick = (visit: AtencionVisit) => {
-    setSelectedVisit(visit);
-    setEditForm({
-      service_id: visit.service_id,
-      staff_id: visit.staff_id || '',
-      scheduled_date: visit.scheduled_date || visit.visit_date || new Date().toISOString(),
-      price_charged: visit.price_charged ?? 0,
-      status: visit.status,
-      notes: visit.notes || '',
+  const [newPatient, setNewPatient] = useState({
+    name: '',
+    phone: '',
+  });
+
+  // Past Date Confirmation Modal
+  const [isPastOutcomeModalOpen, setIsPastOutcomeModalOpen] = useState(false);
+  const [pastOutcome, setPastOutcome] = useState<{
+    status: 'completado' | 'cancelado' | 'no_asistio';
+    paymentMethod: string;
+    initialPayment: number;
+    isCredit: boolean;
+    debtDueDate: string;
+    notes: string;
+  }>({
+    status: 'completado',
+    paymentMethod: paymentMethods[0] || 'efectivo',
+    initialPayment: 0,
+    isCredit: false,
+    debtDueDate: '',
+    notes: '',
+  });
+
+  // Complete / Pay Modal
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState<AtencionVisit | null>(null);
+  const [completeForm, setCompleteForm] = useState({
+    payment_method: paymentMethods[0] || 'efectivo',
+    is_credit: false,
+    initial_payment: 0,
+    debt_due_date: '',
+    notes: '',
+  });
+
+  // Payment (Abono) Modal
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentVisit, setPaymentVisit] = useState<AtencionVisit | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentMethod, setPaymentMethod] = useState<string>(paymentMethods[0] || 'efectivo');
+
+  // Edit Modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setForm({
+      contact_id: contacts[0]?.id || '',
+      service_id: services[0]?.id || '',
+      staff_id: '',
+      scheduled_date: new Date().toISOString().slice(0, 16),
+      price_charged: services[0]?.price || 0,
+      notes: '',
     });
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = async () => {
-    if (!selectedVisit) return;
-    setIsSubmitting(true);
-    const res = await editVisitAction(selectedVisit.id, editForm);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success('Atención editada');
-      setIsEditModalOpen(false);
-      router.refresh();
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleDeleteSubmit = async () => {
-    if (!selectedVisit) return;
-    setIsSubmitting(true);
-    const res = await deleteVisitAction(selectedVisit.id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success('Atención cancelada');
-      setIsDeleteModalOpen(false);
-      router.refresh();
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleRescheduleSubmit = async () => {
-    if (!noAsistioVisit || !rescheduleDate) return;
-    setIsSubmitting(true);
-    const res = await rescheduleVisitAction(noAsistioVisit.id, rescheduleDate);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success('Cita reprogramada exitosamente');
-      setIsNoAsistioModalOpen(false);
-      setNoAsistioVisit(null);
-      router.refresh();
-    }
-    setIsSubmitting(false);
+    setShowNewPatient(false);
+    setNewPatient({ name: '', phone: '' });
+    setIsModalOpen(true);
   };
 
   const handleServiceChange = (serviceId: string) => {
@@ -196,18 +143,19 @@ export function AtencionesManager({
     setForm((prev) => ({
       ...prev,
       service_id: serviceId,
-      price_charged: s ? s.price : 0,
+      price_charged: s ? (s.promo_price ?? s.price) : 0,
     }));
   };
 
   const handlePriceBlur = () => {
     const s = services.find((x) => x.id === form.service_id);
     if (s && s.promo_price && form.price_charged < s.promo_price) {
-      toast.error(`El precio no puede ser menor al precio promo (S/ ${s.promo_price})`);
+      toast.error(`El precio no puede ser menor al precio promocional (S/ ${s.promo_price})`);
       setForm((prev) => ({ ...prev, price_charged: s.promo_price as number }));
     }
   };
 
+  // Submit NEW visit
   const handleSubmit = async () => {
     if (
       (!form.contact_id && !showNewPatient) ||
@@ -219,17 +167,38 @@ export function AtencionesManager({
       return;
     }
 
-    // Auto-determine status based on date
-    const selectedDateObj = new Date(form.scheduled_date);
-    const selectedDateStr = new Date(
-      selectedDateObj.getTime() - selectedDateObj.getTimezoneOffset() * 60000,
-    )
-      .toISOString()
-      .split('T')[0];
-    const todayObj = new Date();
-    const todayStr = new Date(todayObj.getTime() - todayObj.getTimezoneOffset() * 60000)
-      .toISOString()
-      .split('T')[0];
+    const selectedTime = new Date(form.scheduled_date).getTime();
+    const nowTime = Date.now();
+
+    // Check if selected date is in the past (Problema 6)
+    if (selectedTime < nowTime - 60000) {
+      MySwal.fire({
+        title: 'Fecha u Hora Pasada',
+        html: `La fecha y hora seleccionadas ya pasaron.<br/><br/>¿Deseas registrar esta atención directamente en el <strong>historial</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Registrar en historial',
+        cancelButtonText: 'Corregir fecha',
+        customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-outline-secondary' },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setPastOutcome({
+            status: 'completado',
+            paymentMethod: paymentMethods[0] || 'efectivo',
+            initialPayment: form.price_charged,
+            isCredit: false,
+            debtDueDate: '',
+            notes: form.notes,
+          });
+          setIsPastOutcomeModalOpen(true);
+        }
+      });
+      return;
+    }
+
+    // Normal future visit -> status: agendado / en_curso if today
+    const selectedDateStr = new Date(form.scheduled_date).toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
     const computedStatus = selectedDateStr === todayStr ? 'en_curso' : 'agendado';
 
     setIsSubmitting(true);
@@ -254,6 +223,51 @@ export function AtencionesManager({
     setIsSubmitting(false);
   };
 
+  // Submit PAST Visit directly into History (Problema 6)
+  const handlePastOutcomeSubmit = async () => {
+    setIsSubmitting(true);
+
+    const res = await createVisitAction({
+      contact_id: !showNewPatient ? form.contact_id : undefined,
+      new_contact: showNewPatient ? newPatient : undefined,
+      service_id: form.service_id,
+      scheduled_date: form.scheduled_date,
+      status: pastOutcome.status,
+      price_charged: form.price_charged,
+      notes: pastOutcome.notes || form.notes,
+      staff_id: form.staff_id || undefined,
+    });
+
+    if (res.error || !res.data) {
+      toast.error(res.error || 'Error registrando atención en historial');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (pastOutcome.status === 'completado') {
+      const compRes = await completeAndPayVisitAction(res.data.id, {
+        payment_method: pastOutcome.paymentMethod,
+        is_credit: pastOutcome.isCredit,
+        initial_payment: pastOutcome.initialPayment,
+        debt_due_date: pastOutcome.debtDueDate || undefined,
+        notes: pastOutcome.notes,
+      });
+      if (compRes.error) {
+        toast.error('Visita creada pero hubo error al registrar pago: ' + compRes.error);
+      } else {
+        toast.success('Atención histórica registrada y completada en el historial');
+      }
+    } else {
+      toast.success('Atención registrada en el historial');
+    }
+
+    setIsPastOutcomeModalOpen(false);
+    setIsModalOpen(false);
+    router.refresh();
+    setIsSubmitting(false);
+  };
+
+  // Update Status (Complete / Cancel / No Asistio)
   const handleUpdateStatus = async (
     visitId: string,
     status: 'completado' | 'cancelado' | 'no_asistio',
@@ -261,80 +275,54 @@ export function AtencionesManager({
     if (status === 'completado') {
       const v = visits.find((x) => x.id === visitId);
       if (v) {
-        setCompleteVisit(v);
-        setCompleteIsCredit(false);
-        const total = v.price_charged ?? 0;
-        const paid = v.amount_paid ?? 0;
-        const remaining = Math.max(0, total - paid);
-        setCompletePayment(remaining);
-        setCompleteMethod(defaultMethod);
-        setCompleteNotes(v.notes || '');
-        setCompleteDebtDate('');
+        setSelectedVisit(v);
+        setCompleteForm({
+          payment_method: paymentMethods[0] || 'efectivo',
+          is_credit: false,
+          initial_payment: v.price_charged || 0,
+          debt_due_date: '',
+          notes: v.notes || '',
+        });
         setIsCompleteModalOpen(true);
       }
       return;
     }
 
-    if (!confirm(`¿Marcar esta atención como ${status}?`)) return;
-
+    setIsSubmitting(true);
     const res = await updateVisitStatusAction(visitId, status);
     if (res.error) {
       toast.error(res.error);
-      router.refresh();
     } else {
-      toast.success(`Atención ${status}.`);
-      router.refresh();
-    }
-  };
-
-  const handleCompleteSubmit = async () => {
-    if (!completeVisit) return;
-    const total = completeVisit.price_charged ?? 0;
-    const paid = completeVisit.amount_paid ?? 0;
-    const remaining = Math.max(0, total - paid);
-
-    if (completeIsCredit) {
-      if (!completeDebtDate || completePayment < 0) {
-        toast.error('Por favor completa la fecha de próximo pago y el abono válido.');
-        return;
-      }
-      if (completePayment > remaining) {
-        toast.error(`El abono no puede superar el saldo restante (S/ ${remaining}).`);
-        return;
-      }
-    } else {
-      if (completePayment > remaining) {
-        toast.error(`El pago no puede superar el saldo restante (S/ ${remaining}).`);
-        return;
-      }
-    }
-
-    setIsSubmitting(true);
-    const res = await completeAndPayVisitAction(completeVisit.id, {
-      payment_method: completeMethod,
-      is_credit: completeIsCredit,
-      initial_payment: completePayment,
-      debt_due_date: completeIsCredit ? (completeDebtDate || undefined) : undefined,
-      notes: completeNotes,
-    });
-
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      const isTotalPaid = (paid + completePayment) >= total;
-      toast.success(
-        isTotalPaid || !completeIsCredit
-          ? 'Atención completada y pagada'
-          : 'Atención completada con saldo pendiente',
-      );
-      setIsCompleteModalOpen(false);
+      toast.success('Estado actualizado correctamente');
       router.refresh();
     }
     setIsSubmitting(false);
   };
 
-  const handleAddPayment = async () => {
-    if (!paymentVisit || paymentAmount <= 0) return;
+  // Submit Completion & Payment
+  const handleCompleteSubmit = async () => {
+    if (!selectedVisit) return;
+    setIsSubmitting(true);
+
+    const res = await completeAndPayVisitAction(selectedVisit.id, completeForm);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Atención completada y pago registrado');
+      setIsCompleteModalOpen(false);
+      setSelectedVisit(null);
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
+  // Submit Payment Abono (Problema 4)
+  const handleAddPaymentSubmit = async () => {
+    if (!paymentVisit || paymentAmount <= 0) {
+      toast.error('Ingresa un monto válido para el abono.');
+      return;
+    }
+
     setIsSubmitting(true);
     const res = await addPaymentAction(paymentVisit.id, paymentAmount, paymentMethod);
     if (res.error) {
@@ -342,21 +330,85 @@ export function AtencionesManager({
     } else {
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
+      setPaymentVisit(null);
       router.refresh();
     }
     setIsSubmitting(false);
   };
 
+  // Reschedule Submit
+  const handleRescheduleSubmit = async () => {
+    if (!selectedVisit || !rescheduleDate) {
+      toast.error('Selecciona una nueva fecha y hora.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await rescheduleVisitAction(selectedVisit.id, rescheduleDate);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Cita reprogramada exitosamente');
+      setIsRescheduleModalOpen(false);
+      setSelectedVisit(null);
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
+  // Edit Visit Click
+  const handleEditClick = (v: AtencionVisit) => {
+    setEditForm({
+      id: v.id,
+      service_id: v.service_id || '',
+      staff_id: v.staff_id || '',
+      scheduled_date: v.scheduled_date
+        ? new Date(v.scheduled_date).toISOString().slice(0, 16)
+        : '',
+      price_charged: v.price_charged || 0,
+      status: v.status,
+      notes: v.notes || '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editForm.id || !editForm.service_id || !editForm.scheduled_date) {
+      toast.error('Completa los campos requeridos');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await editVisitAction(editForm.id, {
+      service_id: editForm.service_id,
+      staff_id: editForm.staff_id || undefined,
+      scheduled_date: editForm.scheduled_date,
+      price_charged: editForm.price_charged,
+      status: editForm.status,
+      notes: editForm.notes,
+    });
+
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success('Atención actualizada exitosamente');
+      setIsEditModalOpen(false);
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
+
+  // Filtered visits
   const filteredVisits = useMemo(() => {
     if (!search) return visits;
     return visits.filter(
       (v) =>
         v.contact_name?.toLowerCase().includes(search.toLowerCase()) ||
-        v.service_name?.toLowerCase().includes(search.toLowerCase()),
+        v.service_name?.toLowerCase().includes(search.toLowerCase()) ||
+        v.contact_phone?.includes(search),
     );
   }, [search, visits]);
 
-  // Agrupar atenciones por fecha (solo para la pestaña Activas)
   const groupedVisits = filteredVisits
     .filter((v) => v.status === 'en_curso')
     .reduce<Record<string, AtencionVisit[]>>((acc, visit) => {
@@ -378,16 +430,16 @@ export function AtencionesManager({
   const historyVisits = filteredVisits.filter(
     (v) => v.status === 'completado' || v.status === 'cancelado' || v.status === 'no_asistio',
   );
+
   const totalPages = Math.ceil(historyVisits.length / pageSize) || 1;
   const paginatedHistory = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return historyVisits.slice(start, start + pageSize);
   }, [historyVisits, currentPage, pageSize]);
-  const selectedContact = contacts.find((contact) => contact.id === form.contact_id);
-  const selectedService = services.find((service) => service.id === form.service_id);
-  const selectedEditService = services.find(
-    (service) => service.id === editForm.service_id,
-  );
+
+  const selectedContact = contacts.find((c) => c.id === form.contact_id);
+  const selectedService = services.find((s) => s.id === form.service_id);
+  const selectedEditService = services.find((s) => s.id === editForm.service_id);
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -418,7 +470,7 @@ export function AtencionesManager({
               </h2>
             </div>
             <div className="p-3 bg-white-light dark:bg-zinc-900 rounded-xl">
-              <Clock className="w-6 h-6 text-warning" />
+              <Clock className="w-6 h-6 text-amber-500" />
             </div>
           </div>
         </div>
@@ -427,95 +479,79 @@ export function AtencionesManager({
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
               <p className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
-                Completadas
+                Próximas Citas
               </p>
               <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white mt-2">
-                {visits.filter((v) => v.status === 'completado').length}
+                {visits.filter((v) => v.status === 'agendado').length}
               </h2>
             </div>
             <div className="p-3 bg-white-light dark:bg-zinc-900 rounded-xl">
-              <CheckCircle className="w-6 h-6 text-success" />
+              <CalendarIcon className="w-6 h-6 text-blue-500" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div className="flex bg-white dark:bg-zinc-900 border border-black-light dark:border-dark-light rounded-xl overflow-hidden self-start">
+      {/* Control Bar & Tabs */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-dark p-4 rounded-3xl border border-black-light dark:border-dark-light">
+        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl w-full sm:w-auto">
           <button
-            className={`px-5 py-2.5 text-sm font-semibold transition-colors ${activeTab === 'activas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => {
-              setActiveTab('activas');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveTab('activas')}
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all min-h-[44px] flex items-center justify-center flex-1 sm:flex-initial ${
+              activeTab === 'activas'
+                ? 'bg-white dark:bg-dark text-primary shadow-sm'
+                : 'text-zinc-500 hover:text-black dark:hover:text-white'
+            }`}
           >
             Atenciones Activas
           </button>
           <button
-            className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'proximas' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => {
-              setActiveTab('proximas');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveTab('proximas')}
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all min-h-[44px] flex items-center justify-center flex-1 sm:flex-initial ${
+              activeTab === 'proximas'
+                ? 'bg-white dark:bg-dark text-primary shadow-sm'
+                : 'text-zinc-500 hover:text-black dark:hover:text-white'
+            }`}
           >
-            Próximas
+            Próximas ({visits.filter((v) => v.status === 'agendado').length})
           </button>
           <button
-            className={`px-5 py-2.5 text-sm font-semibold transition-colors border-l border-black-light dark:border-dark-light ${activeTab === 'historial' ? 'bg-primary/10 text-primary' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
-            onClick={() => {
-              setActiveTab('historial');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveTab('historial')}
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all min-h-[44px] flex items-center justify-center flex-1 sm:flex-initial ${
+              activeTab === 'historial'
+                ? 'bg-white dark:bg-dark text-primary shadow-sm'
+                : 'text-zinc-500 hover:text-black dark:hover:text-white'
+            }`}
           >
-            Historial
+            Historial ({historyVisits.length})
           </button>
         </div>
 
-        <div className="flex flex-col xl:flex-row flex-wrap items-end xl:items-center gap-4 w-full md:w-auto">
-          <div className="flex items-center gap-2">
-            <CustomDatePicker
-              value={dateFilter.start}
-              onChangeDate={(date) => applyDateFilter(date, dateFilter.end)}
-              placeholder="dd/mm/aaaa"
-              className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]"
-            />
-            <span className="text-zinc-400 font-medium">-</span>
-            <CustomDatePicker
-              value={dateFilter.end}
-              onChangeDate={(date) => applyDateFilter(dateFilter.start, date)}
-              placeholder="dd/mm/aaaa"
-              className="form-input text-sm px-3 py-2 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary bg-white dark:bg-dark w-[130px]"
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Buscar por cliente o servicio..."
+              className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-zinc-50 dark:bg-zinc-900"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Buscar cliente o servicio..."
-                className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-            <button
-              className="btn btn-primary btn-nueva-atencion rounded-xl gap-2 px-4 md:px-6 whitespace-nowrap h-[42px] flex items-center justify-center shrink-0"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus className="w-5 h-5 hidden sm:block" /> Nueva Atención
-            </button>
-          </div>
+          <button
+            onClick={handleOpenModal}
+            className="btn btn-primary rounded-xl px-5 gap-2 font-bold min-h-[44px] flex items-center justify-center shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Nueva Atención
+          </button>
         </div>
       </div>
 
-      {/* Contenido principal basado en la pestaña */}
+      {/* Main Tab Content */}
       {activeTab === 'activas' ? (
         Object.keys(groupedVisits).length === 0 ? (
           <div className="p-12 text-center text-zinc-500 bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl">
-            No se encontraron atenciones activas.
+            No hay atenciones en curso en este momento.
           </div>
         ) : (
           <div className="space-y-8">
@@ -525,140 +561,79 @@ export function AtencionesManager({
                   {date}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {groupedVisits[date].map((visit) => (
-                    <div
-                      key={visit.id}
-                      className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group"
-                    >
-                      {/* Left: Info */}
-                      <div className="flex items-center gap-4">
-                        <div className="flex flex-col items-center justify-center bg-bg dark:bg-dark rounded-xl w-16 h-16 shrink-0 border border-black-light/30 dark:border-dark-dark-light">
-                          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">
-                            Hora
-                          </span>
-                          <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">
-                              {visit.contact_name || 'Cliente'}
-                            </h4>
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${visit.status === 'en_curso' ? 'bg-warning/10 text-warning' : visit.status === 'completado' ? 'bg-success/10 text-success' : visit.status === 'no_asistio' ? 'bg-black-light/50 text-muted' : 'bg-danger/10 text-danger'}`}
-                            >
-                              {visit.status.replace('_', ' ')}
+                  {groupedVisits[date].map((visit) => {
+                    const price = visit.price_charged || 0;
+                    const paid = visit.amount_paid || 0;
+                    const pending = Math.max(0, price - paid);
+                    return (
+                      <div
+                        key={visit.id}
+                        className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/40 shadow-sm"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase">
+                              Hora
+                            </span>
+                            <span className="text-lg font-extrabold text-black dark:text-white">
+                              {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                             </span>
                           </div>
-                          <div className="text-sm font-semibold text-primary leading-tight">
-                            {visit.service_name}
-                          </div>
-                          <div className="flex items-center text-xs text-muted gap-3 mt-1.5">
-                            <span className="flex items-center gap-1">
-                              <Phone size={12} /> {visit.contact_phone}
-                            </span>
-                            {visit.staff_id && staffList && (
-                              <span className="flex items-center gap-1">
-                                <User size={12} />{' '}
-                                {staffList.find((staff) => staff.id === visit.staff_id)?.name}
+                          <div>
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <ClientProfileInteractiveName
+                                client={visit.crm_marketing_contacts}
+                                pendingBalance={pending}
+                              />
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                En Curso
                               </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right: Actions and Price */}
-                      <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full md:w-auto">
-                        {visit.notes && (
-                          <div
-                            className="hidden md:flex items-center text-xs text-muted max-w-[150px] truncate"
-                            title={visit.notes}
-                          >
-                            <FileText size={14} className="mr-1 shrink-0" />
-                            <span className="truncate">{visit.notes}</span>
-                          </div>
-                        )}
-
-                        <div className="text-left md:text-right flex flex-col justify-center">
-                          <span className="text-lg font-bold text-ink dark:text-white-light leading-tight">
-                            S/ {visit.price_charged}
-                          </span>
-                          <span className="text-xs text-muted font-medium">
-                            Cobrado: S/ {visit.amount_paid || 0}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 mt-2 md:mt-0 justify-end">
-                          {visit.status === 'completado' &&
-                            (visit.payment_status === 'pendiente' ||
-                              visit.payment_status === 'parcial') && (
-                              <button
-                                onClick={() => {
-                                  setPaymentVisit(visit);
-                                  setPaymentAmount(
-                                    (visit.price_charged ?? 0) - (visit.amount_paid || 0),
-                                  );
-                                  setIsPaymentModalOpen(true);
-                                }}
-                                className="btn btn-sm bg-primary/10 text-primary hover:bg-primary hover:text-white border-transparent shadow-none"
-                              >
-                                <Coins size={14} className="mr-1.5" /> Abonar
-                              </button>
-                            )}
-
-                          {visit.status === 'en_curso' && (
-                            <div className="relative group/menu z-10 btn-actions-atencion">
-                              <button className="btn btn-sm btn-outline-secondary px-2 border-black-light/50 dark:border-dark-light">
-                                <MoreVertical size={16} />
-                              </button>
-                              <div className="absolute right-0 top-full mt-1 w-48 bg-surface dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl shadow-lg opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col py-1 overflow-hidden">
-                                <button
-                                  className="px-4 py-2 text-sm text-left hover:bg-black-light/5 dark:hover:bg-dark-light text-ink dark:text-white-light w-full transition-colors"
-                                  onClick={() => {
-                                    setSelectedVisit(visit);
-                                    setEditForm({
-                                      service_id: visit.service_id || '',
-                                      staff_id: visit.staff_id || '',
-                                      scheduled_date: visit.visit_date || '',
-                                      price_charged: visit.price_charged || 0,
-                                      status: visit.status || 'agendado',
-                                      notes: visit.notes || '',
-                                    });
-                                    setIsEditModalOpen(true);
-                                  }}
-                                >
-                                  Editar Cita
-                                </button>
-                                <button
-                                  className="btn-completar-atencion px-4 py-2 text-sm text-left hover:bg-success/10 text-success w-full transition-colors"
-                                  onClick={() => handleUpdateStatus(visit.id, 'completado')}
-                                >
-                                  Completar Servicio
-                                </button>
-                                <button
-                                  className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors"
-                                  onClick={() => {
-                                    setNoAsistioVisit(visit);
-                                    setRescheduleDate(visit.visit_date || new Date().toISOString());
-                                    setIsNoAsistioModalOpen(true);
-                                  }}
-                                >
-                                  No Asistió
-                                </button>
-                                <button
-                                  className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors"
-                                  onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
-                                >
-                                  Cancelar Cita
-                                </button>
-                              </div>
                             </div>
-                          )}
+                            <div className="text-sm font-semibold text-primary">
+                              {visit.service_name}
+                            </div>
+                            <div className="flex items-center text-xs text-zinc-500 gap-3 mt-1 font-medium">
+                              <span className="flex items-center gap-1">
+                                <Phone className="w-3 h-3" /> +{visit.contact_phone}
+                              </span>
+                              {visit.staff_id && staffList && (
+                                <span className="flex items-center gap-1">
+                                  <User className="w-3 h-3" />{' '}
+                                  {staffList.find((s) => s.id === visit.staff_id)?.name}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 justify-between border-t md:border-t-0 pt-3 md:pt-0 border-black-light/30">
+                          <div className="text-left md:text-right">
+                            <span className="text-base font-extrabold text-black dark:text-white block">
+                              S/ {price}
+                            </span>
+                            <span className="text-xs text-zinc-500 font-medium">
+                              Pagado: S/ {paid}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={() => handleUpdateStatus(visit.id, 'completado')}
+                              className="btn btn-sm btn-primary rounded-xl px-4 font-bold min-h-[44px] flex items-center gap-1"
+                            >
+                              <CheckCircle className="w-4 h-4" /> Finalizar Cita
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
+                              className="btn btn-sm btn-outline-danger rounded-xl px-3 min-h-[44px] flex items-center"
+                              title="Cancelar Cita"
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -677,263 +652,355 @@ export function AtencionesManager({
                   {date}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {groupedFutureVisits[date].map((visit) => (
-                    <div
-                      key={visit.id}
-                      className="bg-surface dark:bg-dark-light border border-black-light/50 dark:border-dark-dark-light rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/30 group"
-                    >
-                      {/* Left: Info */}
-                      <div className="flex items-center gap-4">
-                        <div className="flex flex-col items-center justify-center bg-bg dark:bg-dark rounded-xl w-16 h-16 shrink-0 border border-black-light/30 dark:border-dark-dark-light">
-                          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">
-                            Hora
-                          </span>
-                          <span className="text-lg font-bold text-ink dark:text-white-light">
-                            {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h4 className="text-base font-bold text-ink dark:text-white-light leading-tight">
-                              {visit.contact_name || 'Cliente'}
-                            </h4>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary">
-                              Agendada
+                  {groupedFutureVisits[date].map((visit) => {
+                    const price = visit.price_charged || 0;
+                    const paid = visit.amount_paid || 0;
+                    const pending = Math.max(0, price - paid);
+                    return (
+                      <div
+                        key={visit.id}
+                        className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-primary/40 shadow-sm"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase">
+                              Hora
+                            </span>
+                            <span className="text-lg font-extrabold text-black dark:text-white">
+                              {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                             </span>
                           </div>
-                          <div className="text-sm font-semibold text-primary leading-tight">
-                            {visit.service_name}
-                          </div>
-                          <div className="flex items-center text-xs text-muted gap-3 mt-1.5">
-                            <span className="flex items-center gap-1">
-                              <Phone size={12} /> {visit.contact_phone}
-                            </span>
-                            {visit.staff_id && staffList && (
-                              <span className="flex items-center gap-1">
-                                <User size={12} />{' '}
-                                {staffList.find((staff) => staff.id === visit.staff_id)?.name}
+                          <div>
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <ClientProfileInteractiveName
+                                client={visit.crm_marketing_contacts}
+                                pendingBalance={pending}
+                              />
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                Agendada
                               </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right: Actions and Price */}
-                      <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full md:w-auto">
-                        {visit.notes && (
-                          <div
-                            className="hidden md:flex items-center text-xs text-muted max-w-[150px] truncate"
-                            title={visit.notes}
-                          >
-                            <FileText size={14} className="mr-1 shrink-0" />
-                            <span className="truncate">{visit.notes}</span>
-                          </div>
-                        )}
-
-                        <div className="text-left md:text-right flex flex-col justify-center">
-                          <span className="text-lg font-bold text-ink dark:text-white-light leading-tight">
-                            S/ {visit.price_charged}
-                          </span>
-                          <span className="text-xs text-muted font-medium">
-                            Cobrado: S/ {visit.amount_paid || 0}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 mt-2 md:mt-0 justify-end">
-                          <div className="relative group/menu z-10">
-                            <button className="btn btn-sm btn-outline-secondary px-2 border-black-light/50 dark:border-dark-light">
-                              <MoreVertical size={16} />
-                            </button>
-                            <div className="absolute right-0 top-full mt-1 w-48 bg-surface dark:bg-dark border border-black-light/50 dark:border-dark-dark-light rounded-xl shadow-lg opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col py-1 overflow-hidden">
-                              <button
-                                className="px-4 py-2 text-sm text-left hover:bg-black-light/5 dark:hover:bg-dark-light text-ink dark:text-white-light w-full transition-colors"
-                                onClick={() => {
-                                  setSelectedVisit(visit);
-                                  setEditForm({
-                                    service_id: visit.service_id || '',
-                                    staff_id: visit.staff_id || '',
-                                    scheduled_date: visit.visit_date || '',
-                                    price_charged: visit.price_charged || 0,
-                                    status: visit.status || 'agendado',
-                                    notes: visit.notes || '',
-                                  });
-                                  setIsEditModalOpen(true);
-                                }}
-                              >
-                                Editar Cita
-                              </button>
-                              <button
-                                className="px-4 py-2 text-sm text-left hover:bg-warning/10 text-warning w-full transition-colors"
-                                onClick={() => {
-                                  setNoAsistioVisit(visit);
-                                  setRescheduleDate(visit.visit_date || new Date().toISOString());
-                                  setIsNoAsistioModalOpen(true);
-                                }}
-                              >
-                                No Asistió
-                              </button>
-                              <button
-                                className="px-4 py-2 text-sm text-left hover:bg-danger/10 text-danger w-full transition-colors"
-                                onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
-                              >
-                                Cancelar Cita
-                              </button>
+                            </div>
+                            <div className="text-sm font-semibold text-primary">
+                              {visit.service_name}
+                            </div>
+                            <div className="flex items-center text-xs text-zinc-500 gap-3 mt-1 font-medium">
+                              <span className="flex items-center gap-1">
+                                <Phone className="w-3 h-3" /> +{visit.contact_phone}
+                              </span>
+                              {visit.staff_id && staffList && (
+                                <span className="flex items-center gap-1">
+                                  <User className="w-3 h-3" />{' '}
+                                  {staffList.find((s) => s.id === visit.staff_id)?.name}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
+
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 justify-between border-t md:border-t-0 pt-3 md:pt-0 border-black-light/30">
+                          <div className="text-left md:text-right">
+                            <span className="text-base font-extrabold text-black dark:text-white block">
+                              S/ {price}
+                            </span>
+                            <span className="text-xs text-zinc-500 font-medium">
+                              Cobrado: S/ {paid}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={() => handleUpdateStatus(visit.id, 'completado')}
+                              className="btn btn-sm btn-primary rounded-xl px-4 font-bold min-h-[44px] flex items-center gap-1"
+                            >
+                              <CheckCircle className="w-4 h-4" /> Atender
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(visit.id, 'cancelado')}
+                              className="btn btn-sm btn-outline-danger rounded-xl px-3 min-h-[44px] flex items-center"
+                              title="Cancelar Cita"
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
         )
       ) : (
-        <div className="panel p-0 overflow-hidden">
-          <div className="table-responsive">
-            {historyVisits.length === 0 ? (
-              <div className="p-8 text-center text-zinc-500">
-                No hay atenciones en el historial.
-              </div>
-            ) : (
-              <table className="w-full text-left">
-                <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
-                  <tr>
-                    <th className="p-4">Fecha</th>
-                    <th className="p-4">Cliente</th>
-                    <th className="p-4">Servicio</th>
-                    <th className="p-4">Trabajadora</th>
-                    <th className="p-4">Monto</th>
-                    <th className="p-4">Estado</th>
-                    <th className="p-4">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                  {paginatedHistory.map((visit) => (
-                    <tr
-                      key={visit.id}
-                      className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
-                    >
-                      <td className="p-4 text-black dark:text-white font-medium">
-                        {formatBusinessDateTime(visit.visit_date || visit.scheduled_date)}
-                      </td>
-                      <td className="p-4">
-                        <div className="font-semibold text-black dark:text-white">
-                          {visit.contact_name}
-                        </div>
-                        <div className="text-xs text-zinc-500">+{visit.contact_phone}</div>
-                      </td>
-                      <td className="p-4 text-zinc-600 dark:text-zinc-300">
-                        <div className="flex items-center gap-2">
-                          {visit.service_name}
-                          {visit.notes && (
-                            <div className="group relative flex items-center">
-                              <FileText className="w-4 h-4 text-primary cursor-help" />
-                              <div className="absolute left-full ml-2 w-48 p-2 bg-black text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
+        /* HISTORIAL TAB */
+        <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl p-4 sm:p-6 shadow-sm">
+          {historyVisits.length === 0 ? (
+            <div className="p-12 text-center text-zinc-500">
+              No hay atenciones registradas en el historial.
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View (>= md) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[850px]">
+                  <thead>
+                    <tr className="border-b border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      <th className="p-4">Fecha</th>
+                      <th className="p-4">Cliente</th>
+                      <th className="p-4">Servicio</th>
+                      <th className="p-4">Especialista</th>
+                      <th className="p-4">Pagos & Saldo</th>
+                      <th className="p-4">Estado</th>
+                      <th className="p-4 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black-light/40 dark:divide-dark-light">
+                    {paginatedHistory.map((visit) => {
+                      const total = visit.price_charged || 0;
+                      const pagado = visit.amount_paid || 0;
+                      const saldo = Math.max(0, total - pagado);
+                      const isCompletado = visit.status === 'completado';
+
+                      return (
+                        <tr
+                          key={visit.id}
+                          className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors text-sm"
+                        >
+                          <td className="p-4 font-semibold text-black dark:text-white">
+                            {formatBusinessDateTime(visit.visit_date || visit.scheduled_date)}
+                          </td>
+
+                          <td className="p-4">
+                            <ClientProfileInteractiveName
+                              client={visit.crm_marketing_contacts}
+                              pendingBalance={saldo}
+                            />
+                            <div className="text-xs text-zinc-500 font-medium mt-0.5">
+                              +{visit.contact_phone}
+                            </div>
+                          </td>
+
+                          <td className="p-4 font-medium text-black dark:text-white">
+                            {visit.service_name}
+                            {visit.notes && (
+                              <div className="text-xs text-zinc-400 truncate max-w-[150px] mt-0.5" title={visit.notes}>
                                 {visit.notes}
                               </div>
+                            )}
+                          </td>
+
+                          <td className="p-4 text-zinc-500 font-medium">
+                            {visit.staff_id && staffList
+                              ? staffList.find((s) => s.id === visit.staff_id)?.name || '-'
+                              : '-'}
+                          </td>
+
+                          {/* Problema 4: Total, Pagado, Saldo breakdown */}
+                          <td className="p-4">
+                            <div className="text-xs space-y-0.5">
+                              <div className="font-bold text-black dark:text-white">
+                                Total: S/ {total}
+                              </div>
+                              <div className="text-zinc-500 font-medium">
+                                Pagado: S/ {pagado}
+                              </div>
+                              {saldo <= 0 ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                  Pagado
+                                </span>
+                              ) : (
+                                <div className="font-bold text-danger">
+                                  Saldo: S/ {saldo}
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </td>
+
+                          <td className="p-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                visit.status === 'completado'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  : visit.status === 'cancelado'
+                                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                    : 'bg-zinc-500/10 text-zinc-500'
+                              }`}
+                            >
+                              {visit.status.replace('_', ' ')}
+                            </span>
+                          </td>
+
+                          {/* Problema 5: Remove Cancel button for completed/cancelled/no_asistio */}
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end gap-2 items-center">
+                              {isCompletado && saldo > 0 && (
+                                <button
+                                  onClick={() => {
+                                    setPaymentVisit(visit);
+                                    setPaymentAmount(saldo);
+                                    setIsPaymentModalOpen(true);
+                                  }}
+                                  className="btn btn-sm btn-primary rounded-xl px-3 text-xs font-bold min-h-[44px] flex items-center gap-1 shadow-sm"
+                                >
+                                  <Coins className="w-3.5 h-3.5" /> Registrar Abono
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleEditClick(visit)}
+                                className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                title="Editar"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards View for Historial (< md) (Problema 8) */}
+              <div className="block md:hidden space-y-4">
+                {paginatedHistory.map((visit) => {
+                  const total = visit.price_charged || 0;
+                  const pagado = visit.amount_paid || 0;
+                  const saldo = Math.max(0, total - pagado);
+                  const isCompletado = visit.status === 'completado';
+
+                  return (
+                    <div
+                      key={visit.id}
+                      className="bg-white dark:bg-dark border border-black-light/50 dark:border-dark-light rounded-2xl p-4 flex flex-col gap-3 shadow-sm"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="text-xs text-zinc-400 font-semibold mb-1">
+                            {formatBusinessDateTime(visit.visit_date || visit.scheduled_date)}
+                          </div>
+                          <ClientProfileInteractiveName
+                            client={visit.crm_marketing_contacts}
+                            pendingBalance={saldo}
+                          />
                         </div>
-                      </td>
-                      <td className="p-4 text-zinc-500">
-                        {visit.staff_id && staffList
-                          ? staffList.find((staff) => staff.id === visit.staff_id)?.name || '-'
-                          : '-'}
-                      </td>
-                      <td className="p-4 font-semibold text-black dark:text-white">
-                        S/ {visit.price_charged}
-                      </td>
-                      <td className="p-4">
                         <span
-                          className={`badge ${visit.status === 'completado' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            visit.status === 'completado'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                              : visit.status === 'cancelado'
+                                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                : 'bg-zinc-500/10 text-zinc-500'
+                          }`}
                         >
                           {visit.status.replace('_', ' ')}
                         </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditClick(visit)}
-                            className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-semibold"
-                          >
-                            Editar
-                          </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-black-light/30 dark:border-dark-light">
+                        <div>
+                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                            Servicio
+                          </span>
+                          <span className="font-semibold text-black dark:text-white">
+                            {visit.service_name}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                            Especialista
+                          </span>
+                          <span className="font-semibold text-black dark:text-white">
+                            {visit.staff_id && staffList
+                              ? staffList.find((s) => s.id === visit.staff_id)?.name || '-'
+                              : '-'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                            Total / Pagado
+                          </span>
+                          <span className="font-semibold text-black dark:text-white">
+                            S/ {total} / S/ {pagado}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                            Saldo
+                          </span>
+                          {saldo <= 0 ? (
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                              Pagado
+                            </span>
+                          ) : (
+                            <span className="font-bold text-danger">S/ {saldo}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2 border-t border-black-light/30 dark:border-dark-light">
+                        {isCompletado && saldo > 0 && (
                           <button
                             onClick={() => {
-                              setSelectedVisit(visit);
-                              setIsDeleteModalOpen(true);
+                              setPaymentVisit(visit);
+                              setPaymentAmount(saldo);
+                              setIsPaymentModalOpen(true);
                             }}
-                            className="px-3 py-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors text-xs font-semibold"
+                            className="btn btn-sm btn-primary rounded-xl px-4 text-xs font-bold min-h-[44px] flex items-center gap-1 shadow-sm"
                           >
-                            Cancelar
+                            <Coins className="w-3.5 h-3.5" /> Registrar Abono
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                        )}
+                        <button
+                          onClick={() => handleEditClick(visit)}
+                          className="btn btn-sm btn-outline-secondary rounded-xl px-3 min-h-[44px] flex items-center"
+                        >
+                          <Edit className="w-4 h-4" /> Editar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {/* Pagination Footer */}
           {historyVisits.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-black-light dark:border-dark-light bg-zinc-50 dark:bg-zinc-900/50 gap-4 mt-4 rounded-2xl">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">Mostrar</span>
+                <span className="text-xs text-zinc-500">Mostrar</span>
                 <select
-                  className="form-select text-sm rounded-lg border-black-light dark:border-dark-light bg-white dark:bg-dark py-1 pl-2 pr-8"
+                  className="form-select text-xs rounded-lg border-black-light dark:border-dark-light bg-white dark:bg-dark py-1 pl-2 pr-8"
                   value={pageSize}
                   onChange={(e) => {
                     setPageSize(Number(e.target.value));
                     setCurrentPage(1);
                   }}
                 >
-                  <option value={10}>10</option>
-                  <option value={15}>15</option>
-                  <option value={20}>20</option>
-                  <option value={30}>30</option>
-                  <option value={50}>50</option>
+                  <option value={10}>10 por página</option>
+                  <option value={25}>25 por página</option>
+                  <option value={50}>50 por página</option>
                 </select>
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">filas</span>
               </div>
 
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Página {currentPage} de {totalPages} ({historyVisits.length} total)
+              <div className="flex items-center gap-2">
+                <button
+                  className="btn btn-sm btn-outline-secondary rounded-lg px-3 py-1 text-xs"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </button>
+                <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+                  Página {currentPage} de {totalPages}
                 </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="p-1.5 rounded-lg border border-black-light dark:border-dark-light hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <span className="sr-only">Anterior</span>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    className="p-1.5 rounded-lg border border-black-light dark:border-dark-light hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <span className="sr-only">Siguiente</span>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  className="btn btn-sm btn-outline-secondary rounded-lg px-3 py-1 text-xs"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Siguiente
+                </button>
               </div>
             </div>
           )}
@@ -942,676 +1009,696 @@ export function AtencionesManager({
 
       {/* Modal - Nueva Atención */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[999] flex items-start justify-center pt-4 sm:pt-[8vh] p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div role="dialog" aria-modal="true" aria-labelledby="new-visit-title" className="bg-white form-nueva-atencion dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4 py-4 sm:py-6 bg-black/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setIsModalOpen(false);
+          }}
+        >
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-xl max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 id="new-visit-title" className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <Plus className="w-5 h-5 text-primary" />
-                </div>
-                Registrar Atención
+              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" /> Registrar Nueva Atención
               </h3>
               <button
                 type="button"
-                aria-label="Cerrar registro de atención"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center"
                 onClick={() => setIsModalOpen(false)}
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4 col-span-1 md:col-span-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                      <User className="w-4 h-4 text-primary" /> Cliente *
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPatient(!showNewPatient)}
-                      className="btn-nuevo-cliente text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                    >
-                      {showNewPatient ? 'Seleccionar existente' : '+ Nuevo cliente'}
-                    </button>
-                  </div>
+            <div className="p-6 space-y-4 min-h-0 overflow-y-auto">
+              {/* Toggle Cliente Existente vs Nuevo */}
+              <div className="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setShowNewPatient(false)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase transition-all min-h-[44px] ${
+                    !showNewPatient
+                      ? 'bg-white dark:bg-dark text-primary shadow-sm'
+                      : 'text-zinc-500'
+                  }`}
+                >
+                  Cliente Existente
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNewPatient(true)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase transition-all min-h-[44px] ${
+                    showNewPatient
+                      ? 'bg-white dark:bg-dark text-primary shadow-sm'
+                      : 'text-zinc-500'
+                  }`}
+                >
+                  Nuevo Cliente
+                </button>
+              </div>
 
-                  {showNewPatient ? (
-                    <div className="inputs-nuevo-cliente grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <input
-                        type="text"
-                        placeholder="Nombre completo"
-                        className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
-                        value={newPatient.name}
-                        onChange={(e) => setNewPatient((p) => ({ ...p, name: e.target.value }))}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Teléfono (ej: 51987654321)"
-                        className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
-                        value={newPatient.phone}
-                        onChange={(e) => setNewPatient((p) => ({ ...p, phone: e.target.value }))}
-                      />
-                    </div>
-                  ) : (
-                    <CustomSelect
-                      placeholder="Selecciona un cliente..."
-                      options={contacts.map((c) => ({
-                        value: c.id,
-                        label: `${c.name || 'Sin nombre'} (+${c.phone})`,
-                      }))}
-                      value={
-                        form.contact_id
-                          ? {
-                              value: form.contact_id,
-                              label: selectedContact
-                                ? `${selectedContact.name || 'Sin nombre'} (+${selectedContact.phone})`
-                                : 'Seleccionado',
-                            }
-                          : null
-                      }
-                      onChange={(selected) =>
-                        setForm((prev) => ({ ...prev, contact_id: selected ? selected.value : '' }))
-                      }
-                    />
-                  )}
-                </div>
-
-                <div className="space-y-4 select-servicio">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
+              {!showNewPatient ? (
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Seleccionar Cliente *
                   </label>
                   <CustomSelect
-                    placeholder="Selecciona un servicio..."
+                    options={contacts
+                      .filter((c): c is AtencionContact & { id: string } => Boolean(c.id))
+                      .map((c) => ({
+                        value: c.id,
+                        label: `${c.name || 'Sin nombre'} (+${c.phone || ''})`,
+                      }))}
+                    value={
+                      selectedContact && selectedContact.id
+                        ? {
+                            value: selectedContact.id,
+                            label: `${selectedContact.name || 'Sin nombre'} (+${selectedContact.phone || ''})`,
+                          }
+                        : null
+                    }
+                    onChange={(sel) => setForm((prev) => ({ ...prev, contact_id: sel?.value || '' }))}
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                      Nombre *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: María Pérez"
+                      className="form-input rounded-xl border-black-light dark:border-dark-light text-sm"
+                      value={newPatient.name}
+                      onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                      Teléfono *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: 51987654321"
+                      className="form-input rounded-xl border-black-light dark:border-dark-light text-sm"
+                      value={newPatient.phone}
+                      onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Servicio *
+                  </label>
+                  <CustomSelect
                     options={services.map((s) => ({
                       value: s.id,
-                      label: `${s.name} (Reg: S/ ${s.price}${s.promo_price ? ` - Promo: S/ ${s.promo_price}` : ''})`,
+                      label: `${s.name} - S/ ${s.price}`,
                     }))}
                     value={
-                      form.service_id
+                      selectedService
                         ? {
-                            value: form.service_id,
-                            label: selectedService
-                              ? `${selectedService.name} (Reg: S/ ${selectedService.price}${selectedService.promo_price ? ` - Promo: S/ ${selectedService.promo_price}` : ''})`
-                              : 'Seleccionado',
+                            value: selectedService.id,
+                            label: `${selectedService.name} - S/ ${selectedService.price}`,
                           }
                         : null
                     }
-                    onChange={(selected) =>
-                      handleServiceChange(selected ? selected.value : '')
-                    }
+                    onChange={(sel) => handleServiceChange(sel?.value || '')}
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" /> Trabajadora
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Especialista
                   </label>
                   <CustomSelect
-                    placeholder="Selecciona la trabajadora..."
-                    options={
-                      staffList ? staffList.map((staff) => ({ value: staff.id, label: staff.name })) : []
-                    }
+                    options={[
+                      { value: '', label: 'Sin asignar' },
+                      ...staffList.map((st) => ({ value: st.id, label: st.name })),
+                    ]}
                     value={
-                      form.staff_id && staffList
+                      form.staff_id
                         ? {
                             value: form.staff_id,
-                            label:
-                              staffList.find((staff) => staff.id === form.staff_id)?.name ||
-                              'Seleccionada',
+                            label: staffList.find((s) => s.id === form.staff_id)?.name || 'Sin asignar',
                           }
-                        : null
+                        : { value: '', label: 'Sin asignar' }
                     }
-                    onChange={(selected) =>
-                      setForm((prev) => ({ ...prev, staff_id: selected ? selected.value : '' }))
-                    }
+                    onChange={(sel) => setForm((prev) => ({ ...prev, staff_id: sel?.value || '' }))}
                   />
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Fecha Programada (Cita) *
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Fecha y Hora *
                   </label>
                   <CustomDatePicker
-                    enableTime={true}
                     value={form.scheduled_date}
-                    onChangeDate={(dateStr) =>
-                      setForm((prev) => ({ ...prev, scheduled_date: dateStr }))
+                    onChangeDate={(dateStr) => setForm((prev) => ({ ...prev, scheduled_date: dateStr }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Precio Cobrado (S/)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    className="form-input rounded-xl border-black-light dark:border-dark-light text-sm"
+                    value={form.price_charged}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, price_charged: Number(e.target.value) }))
                     }
+                    onBlur={handlePriceBlur}
                   />
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-primary" /> Precio Total Acordado *
-                    </span>
-                    {form.service_id &&
-                      services.find((s) => s.id === form.service_id)?.promo_price && (
-                        <span className="text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded">
-                          Mínimo: S/ {services.find((s) => s.id === form.service_id)?.promo_price}
-                        </span>
-                      )}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
-                      S/
-                    </span>
-                    <input
-                      type="number"
-                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                      value={form.price_charged}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          price_charged: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      onBlur={handlePriceBlur}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4 col-span-1 md:col-span-2">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-primary" /> Notas de la sesión
-                  </label>
-                  <textarea
-                    className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    placeholder="Detalles sobre el procedimiento, preferencias del cliente, etc."
-                    rows={3}
-                    value={form.notes}
-                    onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
-                  />
-                </div>
-
-                {/* The automatic warning text is removed since status isn't chosen directly here */}
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Notas de la atención
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Detalles o requerimientos especiales..."
+                  className="form-textarea rounded-xl border-black-light dark:border-dark-light text-sm w-full"
+                  value={form.notes}
+                  onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+                />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light shrink-0">
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-black-light dark:border-dark-light flex justify-end gap-3 shrink-0">
               <button
-                className="btn btn-outline-secondary rounded-xl px-6"
+                type="button"
+                className="btn btn-outline-danger rounded-xl px-6 min-h-[44px]"
                 onClick={() => setIsModalOpen(false)}
+                disabled={isSubmitting}
               >
                 Cancelar
               </button>
               <button
-                className="btn-registrar-atencion btn btn-primary rounded-xl px-8"
+                type="button"
+                className="btn btn-primary rounded-xl px-8 min-h-[44px]"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Guardando...' : 'Registrar Atención'}
+                {isSubmitting ? 'Guardando...' : 'Guardar Cita'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal - Completar Atención */}
-      {isCompleteModalOpen && completeVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div role="dialog" aria-modal="true" aria-labelledby="complete-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-success/5 to-white dark:from-success/10 dark:to-dark shrink-0 rounded-t-3xl">
-              <h3 id="complete-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-success" />
-                Completar Atención
+      {/* Modal - Confirmación de Registro Histórico para Fecha Pasada (Problema 6) */}
+      {isPastOutcomeModalOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-black-light dark:border-dark-light pb-4">
+              <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-amber-500" /> Registrar en Historial
               </h3>
               <button
-                type="button"
-                aria-label="Cerrar finalización de atención"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
-                onClick={() => setIsCompleteModalOpen(false)}
+                onClick={() => setIsPastOutcomeModalOpen(false)}
+                className="text-zinc-400 hover:text-white"
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-              <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-                <div className="text-sm text-zinc-500 mb-1">Costo Total del Servicio</div>
-                <div className="text-2xl font-bold text-primary">
-                  S/ {completeVisit.price_charged}
-                </div>
-              </div>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              Como la fecha seleccionada ya pasó, define el resultado final para guardarla directamente en el <strong>historial</strong>:
+            </p>
 
-              <div className="space-y-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="form-checkbox text-primary focus:ring-primary h-5 w-5 rounded border-zinc-300"
-                    checked={completeIsCredit}
-                    onChange={(e) => setCompleteIsCredit(e.target.checked)}
-                  />
-                  <span className="text-sm font-semibold text-black dark:text-white">
-                    ¿Es pago a crédito / parcial?
-                  </span>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Resultado de la Atención
                 </label>
+                <select
+                  className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-white dark:bg-dark"
+                  value={pastOutcome.status}
+                  onChange={(e) =>
+                    setPastOutcome((prev) => ({
+                      ...prev,
+                      status: e.target.value as 'completado' | 'cancelado' | 'no_asistio',
+                    }))
+                  }
+                >
+                  <option value="completado">Completada</option>
+                  <option value="cancelado">Cancelada</option>
+                  <option value="no_asistio">No Asistió</option>
+                </select>
               </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-primary" /> Monto cobrado AHORA
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
-                    S/
-                  </span>
-                  <input
-                    type="number"
-                    className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={completePayment}
-                    onChange={(e) => setCompletePayment(parseFloat(e.target.value) || 0)}
-                  />
-                </div>
-              </div>
+              {pastOutcome.status === 'completado' && (
+                <div className="space-y-3 p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-black-light/40 dark:border-dark-light">
+                  <div>
+                    <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                      Método de Pago
+                    </label>
+                    <select
+                      className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-white dark:bg-dark capitalize"
+                      value={pastOutcome.paymentMethod}
+                      onChange={(e) =>
+                        setPastOutcome((prev) => ({ ...prev, paymentMethod: e.target.value }))
+                      }
+                    >
+                      {paymentMethods.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              {completePayment > 0 && (
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-primary" /> Método de Pago
-                  </label>
-                  <CustomSelect
-                    placeholder="Seleccionar..."
-                    options={paymentMethodOptions}
-                    value={{
-                      value: completeMethod,
-                      label:
-                        paymentMethodOptions.find((o) => o.value === completeMethod)?.label ||
-                        completeMethod,
-                    }}
-                    onChange={(selected) =>
-                      setCompleteMethod(selected ? selected.value : defaultMethod)
-                    }
-                  />
+                  <div>
+                    <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                      Monto Pagado Inicial (S/)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full"
+                      value={pastOutcome.initialPayment}
+                      onChange={(e) =>
+                        setPastOutcome((prev) => ({
+                          ...prev,
+                          initialPayment: Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="pastIsCredit"
+                      className="form-checkbox rounded text-primary"
+                      checked={pastOutcome.isCredit}
+                      onChange={(e) =>
+                        setPastOutcome((prev) => ({ ...prev, isCredit: e.target.checked }))
+                      }
+                    />
+                    <label htmlFor="pastIsCredit" className="text-xs font-bold text-black dark:text-white cursor-pointer">
+                      ¿Quedó saldo pendiente / a crédito?
+                    </label>
+                  </div>
+
+                  {pastOutcome.isCredit && (
+                    <div>
+                      <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                        Fecha Máxima de Pago
+                      </label>
+                      <input
+                        type="date"
+                        className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-white dark:bg-dark"
+                        value={pastOutcome.debtDueDate}
+                        onChange={(e) =>
+                          setPastOutcome((prev) => ({ ...prev, debtDueDate: e.target.value }))
+                        }
+                      />
+                    </div>
+                  )}
                 </div>
               )}
+            </div>
 
-              {completeIsCredit && (
-                <div className="space-y-4 p-4 bg-warning/5 rounded-xl border border-warning/20">
-                  <label className="text-sm font-semibold text-warning-dark flex items-center gap-2">
-                    <Calendar className="w-4 h-4" /> Fecha Promesa de Pago *
-                  </label>
-                  <CustomDatePicker
-                    value={completeDebtDate}
-                    onChangeDate={(date) => setCompleteDebtDate(date)}
-                    placeholder="dd/mm/aaaa"
-                    className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark w-full"
-                  />
-                  <p className="text-xs text-zinc-500">
-                    Debe seleccionar una fecha para enviar la alerta de cobranza.
-                  </p>
-                </div>
-              )}
+            <div className="flex justify-end gap-3 pt-4 border-t border-black-light dark:border-dark-light">
+              <button
+                type="button"
+                className="btn btn-outline-danger rounded-xl px-4 min-h-[44px]"
+                onClick={() => setIsPastOutcomeModalOpen(false)}
+              >
+                Corregir Fecha
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary rounded-xl px-6 min-h-[44px]"
+                onClick={handlePastOutcomeSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Guardando...' : 'Guardar en Historial'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-primary" /> Observaciones (Opcional)
+      {/* Modal - Registrar Abono (Problema 4) */}
+      {isPaymentModalOpen && paymentVisit && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-black-light dark:border-dark-light pb-3">
+              <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                <Coins className="w-5 h-5 text-emerald-500" /> Registrar Abono de Pago
+              </h3>
+              <button
+                onClick={() => setIsPaymentModalOpen(false)}
+                className="text-zinc-400 hover:text-white"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="text-xs text-zinc-500 space-y-1">
+              <div>
+                Cliente: <strong className="text-black dark:text-white">{paymentVisit.contact_name}</strong>
+              </div>
+              <div>
+                Servicio: <strong className="text-black dark:text-white">{paymentVisit.service_name}</strong>
+              </div>
+              <div>
+                Saldo Deuda Actual: <strong className="text-danger font-bold">S/ {Math.max(0, (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0))}</strong>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Monto del Abono (S/) *
                 </label>
-                <textarea
-                  className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                  placeholder="Detalles sobre cómo quedó el cliente..."
-                  rows={3}
-                  value={completeNotes}
-                  onChange={(e) => setCompleteNotes(e.target.value)}
+                <input
+                  type="number"
+                  min={1}
+                  max={Math.max(0, (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0))}
+                  className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full font-bold"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(Number(e.target.value))}
                 />
               </div>
 
-              <div className="pt-4 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
-                <button
-                  className="btn btn-outline-secondary rounded-xl px-6"
-                  onClick={() => setIsCompleteModalOpen(false)}
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Método de Pago *
+                </label>
+                <select
+                  className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full capitalize"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
                 >
-                  Cancelar
-                </button>
-                <button
-                  className="btn btn-success btn-completar-submit rounded-xl px-8 text-white"
-                  onClick={handleCompleteSubmit}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Guardando...' : 'Completar Atención'}
-                </button>
+                  {paymentMethods.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-black-light dark:border-dark-light">
+              <button
+                type="button"
+                className="btn btn-outline-secondary rounded-xl px-4 min-h-[44px]"
+                onClick={() => setIsPaymentModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary rounded-xl px-6 min-h-[44px]"
+                onClick={handleAddPaymentSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Guardando...' : 'Confirmar Abono'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal - Registrar Abono */}
-      {isPaymentModalOpen && paymentVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div role="dialog" aria-modal="true" aria-labelledby="payment-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark shrink-0 rounded-t-3xl">
-              <h3 id="payment-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <Coins className="w-5 h-5 text-primary" />
-                Registrar Abono
+      {/* Modal - Finalizar y Cobrar Atención */}
+      {isCompleteModalOpen && selectedVisit && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-black-light dark:border-dark-light pb-3">
+              <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-500" /> Finalizar y Cobrar Atención
               </h3>
               <button
-                type="button"
-                aria-label="Cerrar registro de abono"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
-                onClick={() => setIsPaymentModalOpen(false)}
+                onClick={() => setIsCompleteModalOpen(false)}
+                className="text-zinc-400 hover:text-white"
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-                <div className="text-sm text-zinc-500 mb-1">Saldo pendiente</div>
-                <div className="text-2xl font-bold text-primary">
-                  S/ {(paymentVisit.price_charged ?? 0) - (paymentVisit.amount_paid || 0)}
-                </div>
+            <div className="text-xs text-zinc-500 space-y-1">
+              <div>
+                Cliente: <strong className="text-black dark:text-white">{selectedVisit.contact_name}</strong>
+              </div>
+              <div>
+                Servicio: <strong className="text-black dark:text-white">{selectedVisit.service_name}</strong>
+              </div>
+              <div>
+                Precio Total: <strong className="text-primary font-bold">S/ {selectedVisit.price_charged}</strong>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Método de Pago
+                </label>
+                <select
+                  className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full capitalize"
+                  value={completeForm.payment_method}
+                  onChange={(e) =>
+                    setCompleteForm((prev) => ({ ...prev, payment_method: e.target.value }))
+                  }
+                >
+                  {paymentMethods.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-primary" /> Monto a abonar
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Monto Recibido Hoy (S/)
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
-                    S/
-                  </span>
-                  <input
-                    type="number"
-                    className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-primary" /> Método de Pago
-                </label>
-                <CustomSelect
-                  placeholder="Seleccionar..."
-                  options={paymentMethodOptions}
-                  value={{
-                    value: paymentMethod,
-                    label:
-                      paymentMethodOptions.find((o) => o.value === paymentMethod)?.label ||
-                      paymentMethod,
-                  }}
-                  onChange={(selected) =>
-                    setPaymentMethod(selected ? selected.value : defaultMethod)
+                <input
+                  type="number"
+                  min={0}
+                  className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full"
+                  value={completeForm.initial_payment}
+                  onChange={(e) =>
+                    setCompleteForm((prev) => ({
+                      ...prev,
+                      initial_payment: Number(e.target.value),
+                    }))
                   }
                 />
               </div>
 
-              <div className="pt-4 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
-                <button
-                  className="btn btn-outline-secondary rounded-xl px-6"
-                  onClick={() => setIsPaymentModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="btn btn-primary rounded-xl px-8"
-                  onClick={handleAddPayment}
-                  disabled={isSubmitting || paymentAmount <= 0}
-                >
-                  {isSubmitting ? 'Guardando...' : 'Guardar Abono'}
-                </button>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="isCredit"
+                  className="form-checkbox rounded text-primary"
+                  checked={completeForm.is_credit}
+                  onChange={(e) =>
+                    setCompleteForm((prev) => ({ ...prev, is_credit: e.target.checked }))
+                  }
+                />
+                <label htmlFor="isCredit" className="text-xs font-bold text-black dark:text-white cursor-pointer">
+                  ¿Queda un saldo a crédito?
+                </label>
               </div>
+
+              {completeForm.is_credit && (
+                <div>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    Fecha Límite de Pago
+                  </label>
+                  <input
+                    type="date"
+                    className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-white dark:bg-dark"
+                    value={completeForm.debt_due_date}
+                    onChange={(e) =>
+                      setCompleteForm((prev) => ({ ...prev, debt_due_date: e.target.value }))
+                    }
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Notas Finales
+                </label>
+                <textarea
+                  rows={2}
+                  className="form-textarea rounded-xl border-black-light dark:border-dark-light text-sm w-full"
+                  value={completeForm.notes}
+                  onChange={(e) =>
+                    setCompleteForm((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-black-light dark:border-dark-light">
+              <button
+                type="button"
+                className="btn btn-outline-secondary rounded-xl px-4 min-h-[44px]"
+                onClick={() => setIsCompleteModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary rounded-xl px-6 min-h-[44px]"
+                onClick={handleCompleteSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Guardando...' : 'Finalizar Atención'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal - Editar Atención */}
-      {isEditModalOpen && selectedVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-          <div role="dialog" aria-modal="true" aria-labelledby="edit-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 id="edit-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary" />
-                Editar Atención
+      {/* Modal - Editar Atención (Problema 5: Restricción de Estado) */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-black-light dark:border-dark-light pb-3">
+              <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
+                <Edit className="w-5 h-5 text-primary" /> Editar Atención
               </h3>
               <button
-                type="button"
-                aria-label="Cerrar edición de atención"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
                 onClick={() => setIsEditModalOpen(false)}
+                className="text-zinc-400 hover:text-white"
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-primary" /> Servicio *
-                  </label>
-                  <CustomSelect
-                    options={services.map((s) => ({
-                      value: s.id,
-                      label: `${s.name} (Reg: S/ ${s.price}${s.promo_price ? ` - Promo: S/ ${s.promo_price}` : ''})`,
-                    }))}
-                    value={
-                      editForm.service_id
-                        ? {
-                            value: editForm.service_id,
-                            label: selectedEditService
-                              ? `${selectedEditService.name} (Reg: S/ ${selectedEditService.price}${selectedEditService.promo_price ? ` - Promo: S/ ${selectedEditService.promo_price}` : ''})`
-                              : '',
-                          }
-                        : null
-                    }
-                    onChange={(selected) =>
-                      setEditForm((prev) => ({
-                        ...prev,
-                        service_id: selected ? selected.value : '',
-                      }))
-                    }
-                  />
-                </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Servicio
+                </label>
+                <CustomSelect
+                  options={services.map((s) => ({ value: s.id, label: s.name }))}
+                  value={
+                    selectedEditService
+                      ? { value: selectedEditService.id, label: selectedEditService.name }
+                      : null
+                  }
+                  onChange={(sel) =>
+                    setEditForm((prev) => ({ ...prev, service_id: sel?.value || '' }))
+                  }
+                />
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" /> Trabajadora
-                  </label>
-                  <CustomSelect
-                    options={
-                      staffList ? staffList.map((staff) => ({ value: staff.id, label: staff.name })) : []
-                    }
-                    value={
-                      editForm.staff_id && staffList
-                        ? {
-                            value: editForm.staff_id,
-                            label:
-                              staffList.find((staff) => staff.id === editForm.staff_id)?.name || '',
-                          }
-                        : null
-                    }
-                    onChange={(selected) =>
-                      setEditForm((prev) => ({ ...prev, staff_id: selected ? selected.value : '' }))
-                    }
-                  />
-                </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Especialista
+                </label>
+                <CustomSelect
+                  options={[
+                    { value: '', label: 'Sin asignar' },
+                    ...staffList.map((st) => ({ value: st.id, label: st.name })),
+                  ]}
+                  value={
+                    editForm.staff_id
+                      ? {
+                          value: editForm.staff_id,
+                          label: staffList.find((s) => s.id === editForm.staff_id)?.name || 'Sin asignar',
+                        }
+                      : { value: '', label: 'Sin asignar' }
+                  }
+                  onChange={(sel) =>
+                    setEditForm((prev) => ({ ...prev, staff_id: sel?.value || '' }))
+                  }
+                />
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Fecha
-                  </label>
-                  <CustomDatePicker
-                    enableTime={true}
-                    value={editForm.scheduled_date}
-                    onChangeDate={(dateStr) =>
-                      setEditForm((prev) => ({ ...prev, scheduled_date: dateStr }))
-                    }
-                  />
-                </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Fecha y Hora
+                </label>
+                <CustomDatePicker
+                  value={editForm.scheduled_date}
+                  onChangeDate={(dateStr) =>
+                    setEditForm((prev) => ({ ...prev, scheduled_date: dateStr }))
+                  }
+                />
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-primary" /> Precio Cobrado
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
-                      S/
-                    </span>
-                    <input
-                      type="number"
-                      className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                      value={editForm.price_charged}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          price_charged: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Precio Cobrado (S/)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  className="form-input rounded-xl border-black-light dark:border-dark-light text-sm"
+                  value={editForm.price_charged}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({ ...prev, price_charged: Number(e.target.value) }))
+                  }
+                />
+              </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" /> Estado
-                  </label>
-                  <CustomSelect
-                    options={[
-                      { value: 'completado', label: 'Completado' },
-                      { value: 'en_curso', label: 'En Curso' },
-                      { value: 'agendado', label: 'Agendada' },
-                      { value: 'cancelado', label: 'Cancelado' },
-                    ]}
-                    value={{ value: editForm.status, label: editForm.status }}
-                    onChange={(selected) =>
-                      setEditForm((prev) => ({
-                        ...prev,
-                        status: selected ? selected.value : 'completado',
-                      }))
-                    }
-                  />
-                </div>
+              {/* Problema 5: Restricción de estado al editar */}
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Estado
+                </label>
+                <select
+                  className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full capitalize bg-white dark:bg-dark"
+                  value={editForm.status}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, status: e.target.value }))}
+                >
+                  <option value="agendado">Agendado</option>
+                  <option value="en_curso">En curso</option>
+                  <option value="completado">Completado</option>
+                  {/* Se oculta opción cancelado si la visita original era completado */}
+                  {visits.find((v) => v.id === editForm.id)?.status !== 'completado' && (
+                    <option value="cancelado">Cancelado</option>
+                  )}
+                  <option value="no_asistio">No Asistió</option>
+                </select>
+              </div>
 
-                <div className="space-y-4 col-span-1 md:col-span-2">
-                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-primary" /> Notas
-                  </label>
-                  <textarea
-                    className="form-textarea w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    rows={3}
-                    value={editForm.notes}
-                    onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
-                  />
-                </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                  Notas
+                </label>
+                <textarea
+                  rows={2}
+                  className="form-textarea rounded-xl border-black-light dark:border-dark-light text-sm w-full"
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
+                />
               </div>
             </div>
 
-            <div className="p-6 border-t border-black-light dark:border-dark-light flex justify-end gap-3 shrink-0">
+            <div className="flex justify-end gap-3 pt-4 border-t border-black-light dark:border-dark-light">
               <button
-                className="btn btn-outline-secondary rounded-xl px-6"
+                type="button"
+                className="btn btn-outline-secondary rounded-xl px-4 min-h-[44px]"
                 onClick={() => setIsEditModalOpen(false)}
               >
                 Cancelar
               </button>
               <button
-                className="btn btn-primary rounded-xl px-8"
-                onClick={handleEditSubmit}
-                disabled={isSubmitting || !editForm.service_id || !editForm.scheduled_date}
-              >
-                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal - Confirmar Eliminación */}
-      {isDeleteModalOpen && selectedVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div role="alertdialog" aria-modal="true" aria-labelledby="cancel-visit-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="p-6 text-center space-y-4">
-              <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto">
-                <AlertTriangle className="w-8 h-8" />
-              </div>
-              <h3 id="cancel-visit-title" className="text-xl font-bold tracking-tight text-black dark:text-white">
-                ¿Cancelar atención?
-              </h3>
-              <p className="text-zinc-500 text-sm">
-                La atención de <strong>{selectedVisit.contact_name}</strong> quedará cancelada.
-                Los pagos y el historial se conservarán.
-              </p>
-
-              <div className="flex gap-3 justify-center pt-4">
-                <button
-                  className="btn btn-outline-secondary rounded-xl px-6"
-                  onClick={() => setIsDeleteModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="btn btn-danger rounded-xl px-6"
-                  onClick={handleDeleteSubmit}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Cancelando...' : 'Sí, cancelar'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Modal - No Asistió / Reprogramar */}
-      {isNoAsistioModalOpen && noAsistioVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div role="dialog" aria-modal="true" aria-labelledby="no-show-title" className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl flex flex-col max-h-[85dvh] animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
-              <h3 id="no-show-title" className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-warning" />
-                Opciones de Inasistencia
-              </h3>
-              <button
                 type="button"
-                aria-label="Cerrar opciones de inasistencia"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
-                onClick={() => setIsNoAsistioModalOpen(false)}
-              >
-                <XCircle className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6 overflow-y-auto">
-              <div className="bg-warning/5 rounded-xl p-4 border border-warning/20">
-                <p className="text-sm text-warning font-medium">
-                  El cliente {noAsistioVisit.contact_name} no asistió a su cita. ¿Qué deseas hacer?
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-primary" /> Seleccionar nueva fecha para
-                  reprogramar
-                </label>
-                <CustomDatePicker
-                  enableTime={true}
-                  value={rescheduleDate}
-                  onChangeDate={(dateStr) => setRescheduleDate(dateStr)}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-6 border-t border-black-light dark:border-dark-light shrink-0">
-              <button
-                className="btn bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-xl px-6 w-full sm:w-auto"
-                onClick={async () => {
-                  setIsNoAsistioModalOpen(false);
-                  await handleUpdateStatus(noAsistioVisit.id, 'cancelado');
-                }}
-              >
-                Cancelar Cita Definitivamente
-              </button>
-              <button
-                className="btn btn-primary rounded-xl px-6 w-full sm:w-auto"
-                onClick={handleRescheduleSubmit}
+                className="btn btn-primary rounded-xl px-6 min-h-[44px]"
+                onClick={handleEditSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Procesando...' : 'Reprogramar Cita'}
+                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
           </div>

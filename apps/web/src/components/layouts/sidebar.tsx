@@ -2,7 +2,7 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
-import { toggleSidebar } from '@/store/themeConfigSlice';
+import { toggleSidebar, resetToggleSidebar } from '@/store/themeConfigSlice';
 import { IRootState } from '@/store';
 import { useState, useEffect } from 'react';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
@@ -25,7 +25,6 @@ const Sidebar = () => {
   const [role, setRole] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('NAVIER');
   const [initials, setInitials] = useState<string>('NV');
-  const themeConfig = useSelector((state: IRootState) => state.themeConfig);
   const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
 
   useEffect(() => {
@@ -68,10 +67,10 @@ const Sidebar = () => {
       `.sidebar ul a[href="${CSS.escape(pathname)}"]`,
     );
     selector?.classList.add('active');
-    if (window.innerWidth < 1024 && themeConfig.sidebar) {
-      dispatch(toggleSidebar());
+    if (window.innerWidth < 1024) {
+      dispatch(resetToggleSidebar());
     }
-  }, [dispatch, pathname, themeConfig.sidebar]);
+  }, [dispatch, pathname]);
 
   return (
     <div className={semidark ? 'dark' : ''}>
@@ -231,17 +230,6 @@ const Sidebar = () => {
                         <IconMenuChat className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
                           Mensajería
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-
-                  <li className="nav-item">
-                    <Link href="/dashboard/bot" className="nav-link group">
-                      <div className="flex items-center">
-                        <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                        <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Bot de IA
                         </span>
                       </div>
                     </Link>

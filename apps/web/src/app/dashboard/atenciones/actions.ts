@@ -55,7 +55,23 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     .select(
       `
       *,
-      crm_marketing_contacts!spa_visits_contact_tenant_fkey ( name, phone ),
+      crm_marketing_contacts!spa_visits_contact_tenant_fkey (
+        id,
+        name,
+        phone,
+        email,
+        document_number,
+        birthday,
+        allergies_and_conditions,
+        preferences,
+        internal_notes,
+        created_at,
+        opt_in_source,
+        customer_segment,
+        total_visits,
+        total_spent,
+        last_visit_date
+      ),
       spa_services ( name, price )
     `,
     )
@@ -96,10 +112,10 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     }
   }
 
-  // Get contacts
+  // Get contacts with full client profile fields
   const { data: contacts, error: cErr } = await supabase
     .from('crm_marketing_contacts')
-    .select('id, name, phone, email, document_number')
+    .select('id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date')
     .order('name');
 
   // Get active staff
@@ -168,7 +184,7 @@ export async function createVisitAction(payload: {
   contact_id?: string;
   new_contact?: { name: string; phone: string };
   service_id: string;
-  status: 'en_curso' | 'completado' | 'cancelado' | 'agendado';
+  status: 'en_curso' | 'completado' | 'cancelado' | 'agendado' | 'no_asistio';
   price_charged: number;
   scheduled_date: string;
   notes?: string;
@@ -188,6 +204,15 @@ export async function createVisitAction(payload: {
     .single();
 
   if (!profile?.company_id) return { error: 'Empresa no encontrada' };
+
+  // Server-side validation for past dates
+  const selectedTime = new Date(payload.scheduled_date).getTime();
+  const nowTime = Date.now();
+  if (payload.status === 'agendado' && selectedTime < (nowTime - 5 * 60 * 1000)) {
+    return {
+      error: 'La fecha y hora seleccionadas ya pasaron. Por favor, selecciona una fecha futura o registra la atención directamente en el historial.',
+    };
+  }
 
   let final_contact_id = payload.contact_id;
   if (payload.new_contact && payload.new_contact.phone) {
@@ -221,7 +246,7 @@ export async function createVisitAction(payload: {
   const visit_timestamp = new Date(payload.scheduled_date).toISOString();
   const payment_status = 'pendiente';
 
-  if (payload.staff_id) {
+  if (payload.staff_id && payload.status === 'agendado') {
     const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_visit_overlap', {
       p_staff_id: payload.staff_id,
       p_visit_date: visit_timestamp,

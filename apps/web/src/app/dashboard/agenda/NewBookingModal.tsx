@@ -23,7 +23,7 @@ interface NewBookingModalProps {
 
 interface BookingContact {
   document_number?: string | null;
-  id: string;
+  id?: string;
   name?: string | null;
 }
 
@@ -249,15 +249,24 @@ export function NewBookingModal({ contacts, services, staffList, onClose, onSucc
                   </div>
                 ) : (
                   <CustomSelect
-                    options={contacts.map(c => ({
-                      value: c.id,
-                      label: `${c.name} ${c.document_number ? `- DNI: ${c.document_number}` : ''}`
-                    }))}
-                    value={form.contact_id ? { 
-                      value: form.contact_id, 
-                      label: contacts.find(c => c.id === form.contact_id)?.name + 
-                             (contacts.find(c => c.id === form.contact_id)?.document_number ? ` - DNI: ${contacts.find(c => c.id === form.contact_id)?.document_number}` : '')
-                    } : null}
+                    options={contacts
+                      .filter((c): c is BookingContact & { id: string } => Boolean(c.id))
+                      .map((c) => ({
+                        value: c.id,
+                        label: `${c.name || 'Sin nombre'} ${c.document_number ? `- DNI: ${c.document_number}` : ''}`,
+                      }))}
+                    value={
+                      form.contact_id
+                        ? {
+                            value: form.contact_id,
+                            label: `${contacts.find((c) => c.id === form.contact_id)?.name || 'Sin nombre'} ${
+                              contacts.find((c) => c.id === form.contact_id)?.document_number
+                                ? ` - DNI: ${contacts.find((c) => c.id === form.contact_id)?.document_number}`
+                                : ''
+                            }`,
+                          }
+                        : null
+                    }
                     onChange={(option) =>
                       setForm({ ...form, contact_id: option ? option.value : '' })
                     }

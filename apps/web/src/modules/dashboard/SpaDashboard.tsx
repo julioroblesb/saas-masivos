@@ -199,29 +199,35 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
 
         {/* Autocomunicaciones (7d) */}
         <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Comunicaciones (7d)</span>
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            Mensajes automáticos enviados
+          </span>
           <span className="text-black dark:text-white text-3xl font-black tracking-tight">
             {metrics.auto_messages_7d || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Mensajes enviados</span>
+          <span className="text-[10px] text-white-dark font-medium">Últimos 7 días</span>
         </div>
 
         {/* Mensajes en Cola */}
         <div className="flex flex-col space-y-1.5 sm:border-l sm:border-black-light/40 dark:sm:border-dark-light/40 sm:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Mensajes en Cola</span>
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            Mensajes pendientes
+          </span>
           <span className="text-black dark:text-white text-3xl font-black tracking-tight">
             {metrics.pending_messages || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Pendientes de salida</span>
+          <span className="text-[10px] text-white-dark font-medium">Esperando envío</span>
         </div>
 
         {/* Clientes Recuperados */}
         <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Recuperados</span>
+          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            Clientes que regresaron
+          </span>
           <span className="text-black dark:text-white text-3xl font-black tracking-tight">
             {metrics.recovered_clients || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Clientes reactivados</span>
+          <span className="text-[10px] text-white-dark font-medium">Completaron una atención después de recibir un mensaje</span>
         </div>
       </motion.div>
 
