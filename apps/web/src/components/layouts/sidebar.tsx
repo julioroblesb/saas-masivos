@@ -1,5 +1,4 @@
 'use client';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { toggleSidebar, resetToggleSidebar } from '@/store/themeConfigSlice';
@@ -75,10 +74,10 @@ const Sidebar = () => {
   return (
     <div className={semidark ? 'dark' : ''}>
       <nav
-        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-[100dvh] w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-transform duration-300 ease-out ${semidark ? 'text-white-dark' : ''}`}
+        className={`sidebar fixed inset-y-0 bottom-0 top-0 z-50 h-[100dvh] max-h-[100dvh] w-[260px] overflow-hidden shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-transform duration-300 ease-out ${semidark ? 'text-white-dark' : ''}`}
       >
-        <div className="h-full bg-white dark:bg-dark border-r border-black-light dark:border-dark-light">
-          <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex h-full min-h-0 flex-col bg-white dark:bg-dark border-r border-black-light dark:border-dark-light">
+          <div className="flex shrink-0 items-center justify-between px-4 py-3">
             <Link
               href={role === 'super_admin' ? '/admin' : '/dashboard'}
               className="main-logo flex shrink-0 items-center"
@@ -99,8 +98,9 @@ const Sidebar = () => {
               <IconCaretsDown className="m-auto rotate-90" />
             </button>
           </div>
-          <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
-            <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
+
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <ul className="relative space-y-0.5 p-4 py-0 pb-8 font-semibold">
               {role === 'super_admin' && (
                 <>
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
@@ -120,12 +120,13 @@ const Sidebar = () => {
                 </>
               )}
 
-              {(role === 'owner' || role === 'employee' || role === 'tenant') && (
+              {(role === 'tenant' || role === 'owner' || role === 'employee') && (
                 <>
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>Inicio</span>
+                    <span>General</span>
                   </h2>
+
                   <li className="nav-item">
                     <Link href="/dashboard" className="nav-link group">
                       <div className="flex items-center">
@@ -139,37 +140,37 @@ const Sidebar = () => {
 
                   <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>Gestión de Negocio</span>
+                    <span>Operaciones</span>
                   </h2>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/agenda" className="nav-link nav-agenda group">
+                    <Link href="/dashboard/agenda" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuCalendar className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Agenda & Citas
+                          Agenda
                         </span>
                       </div>
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/atenciones" className="nav-link nav-atenciones group">
+                    <Link href="/dashboard/atenciones" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuDatatables className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Atenciones (Historial)
+                          Atenciones
                         </span>
                       </div>
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/trabajadoras" className="nav-link group">
+                    <Link href="/dashboard/clientes" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Equipo
+                          Clientes
                         </span>
                       </div>
                     </Link>
@@ -187,11 +188,22 @@ const Sidebar = () => {
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/dashboard/clientes" className="nav-link group">
+                    <Link href="/dashboard/productos" className="nav-link group">
+                      <div className="flex items-center">
+                        <IconMenuApps className="shrink-0 group-hover:!text-primary" />
+                        <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
+                          Productos
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+
+                  <li className="nav-item">
+                    <Link href="/dashboard/trabajadoras" className="nav-link group">
                       <div className="flex items-center">
                         <IconMenuUsers className="shrink-0 group-hover:!text-primary" />
                         <span className="text-ink ltr:pl-3 rtl:pr-3 dark:text-muted dark:group-hover:text-white-light">
-                          Clientes
+                          Equipo
                         </span>
                       </div>
                     </Link>
@@ -264,7 +276,7 @@ const Sidebar = () => {
                 </>
               )}
             </ul>
-          </PerfectScrollbar>
+          </div>
         </div>
       </nav>
     </div>

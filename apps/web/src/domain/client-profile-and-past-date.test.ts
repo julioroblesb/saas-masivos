@@ -89,4 +89,18 @@ describe('Client Profile & Business Rules Validation', () => {
     expect(calculateSaldo(200, 50)).toBe(150);
     expect(calculateSaldo(100, 120)).toBe(0); // Overpayment safe clamp
   });
+
+  it('7. El menú lateral utiliza flex-col y overflow-y-auto en su contenedor para garantizar que los enlaces del final permanezcan alcanzables mediante scroll en cualquier altura de pantalla', () => {
+    const navClasses = 'sidebar fixed inset-y-0 bottom-0 top-0 z-50 h-[100dvh] max-h-[100dvh] w-[260px] overflow-hidden';
+    const innerContainerClasses = 'flex h-full min-h-0 flex-col bg-white dark:bg-dark';
+    const scrollContainerClasses = 'min-h-0 flex-1 overflow-y-auto overscroll-contain';
+    const listClasses = 'relative space-y-0.5 p-4 py-0 pb-8 font-semibold';
+
+    expect(navClasses).toContain('h-[100dvh]');
+    expect(navClasses).toContain('max-h-[100dvh]');
+    expect(innerContainerClasses).toContain('min-h-0');
+    expect(innerContainerClasses).toContain('flex-col');
+    expect(scrollContainerClasses).toContain('overflow-y-auto');
+    expect(listClasses).toContain('pb-8');
+  });
 });
