@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     const cleanCompanyId = resolvedCompanyId.replaceAll('-', '');
-    instanceName = session?.evolution_instance_name || session?.bb_project_id || `company_${cleanCompanyId}`;
+    instanceName = session?.evolution_instance_name || `company_${cleanCompanyId}`;
 
     const env = getEnv();
     if (process.env.NODE_ENV === 'production' && !env.APP_PUBLIC_URL) {

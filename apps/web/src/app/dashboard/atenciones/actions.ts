@@ -447,6 +447,7 @@ export async function editVisitAction(
     price_charged: number;
     status: string;
     notes?: string;
+    duration_minutes?: number;
   },
 ) {
   const supabase = await createClient();
@@ -458,10 +459,12 @@ export async function editVisitAction(
   const { error } = await supabase.rpc('rpc_update_visit', {
     p_visit_id: visitId,
     p_service_id: payload.service_id,
-    p_staff_id: payload.staff_id || undefined,
+    p_staff_id: payload.staff_id ?? null,
     p_visit_date: new Date(payload.scheduled_date).toISOString(),
     p_price_charged: payload.price_charged,
     p_notes: payload.notes,
+    p_duration_minutes: payload.duration_minutes ?? undefined,
+    p_status: payload.status,
   });
 
   if (error) return { error: error.message };

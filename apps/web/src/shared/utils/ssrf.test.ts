@@ -13,16 +13,24 @@ describe('Strict SSRF Media URL Validation (ssrf.ts)', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = originalEnv;
   });
 
+  it('fails closed when NEXT_PUBLIC_SUPABASE_URL is missing or empty', () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = '';
+    expect(validatePublicMediaUrl(`https://abc-xyz.supabase.co/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
+  });
+
   it('rejects localhost and loopback IPs', () => {
     expect(validatePublicMediaUrl('https://localhost/storage/v1/object/public/spa-media/123/a.jpg', mockTenantId)).toBe(false);
     expect(validatePublicMediaUrl('https://127.0.0.1/storage/v1/object/public/spa-media/123/a.jpg', mockTenantId)).toBe(false);
     expect(validatePublicMediaUrl('http://127.0.0.1:8080/image.jpg', mockTenantId)).toBe(false);
   });
 
-  it('rejects private IP ranges 10.x and 169.254.x cloud metadata', () => {
+  it('rejects private IP ranges 10.x, 169.254.x, 192.168.x and full 172.16.0.0/12', () => {
     expect(validatePublicMediaUrl(`https://10.0.0.1/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
     expect(validatePublicMediaUrl('https://169.254.169.254/latest/meta-data/', mockTenantId)).toBe(false);
     expect(validatePublicMediaUrl(`https://192.168.1.1/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
+    expect(validatePublicMediaUrl(`https://172.16.0.1/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
+    expect(validatePublicMediaUrl(`https://172.25.10.5/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
+    expect(validatePublicMediaUrl(`https://172.31.255.254/storage/v1/object/public/spa-media/${mockTenantId}/a.jpg`, mockTenantId)).toBe(false);
   });
 
   it('rejects external domains', () => {

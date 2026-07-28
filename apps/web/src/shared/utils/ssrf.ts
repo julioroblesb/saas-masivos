@@ -1,9 +1,41 @@
 import { getEnv } from '@/config/env';
 
+function isPrivateOrLoopbackHost(host: string): boolean {
+  if (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host.endsWith('.local')
+  ) {
+    return true;
+  }
+
+  const ipMatch = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (ipMatch) {
+    const o1 = Number(ipMatch[1]);
+    const o2 = Number(ipMatch[2]);
+    const o3 = Number(ipMatch[3]);
+    const o4 = Number(ipMatch[4]);
+
+    if (o1 > 255 || o2 > 255 || o3 > 255 || o4 > 255) return true;
+
+    if (o1 === 10) return true; // 10.0.0.0/8
+    if (o1 === 127) return true; // 127.0.0.0/8
+    if (o1 === 169 && o2 === 254) return true; // 169.254.0.0/16 (Link-local / Cloud metadata)
+    if (o1 === 192 && o2 === 168) return true; // 192.168.0.0/16
+    if (o1 === 172 && o2 >= 16 && o2 <= 31) return true; // 172.16.0.0/12 (172.16.0.0 - 172.31.255.255)
+    if (o1 === 0) return true;
+  }
+
+  if (host.includes('[')) return true; // IPv6 literal
+  return false;
+}
+
 /**
  * Validates that a media URL strictly matches the trusted Supabase Storage allowlist for the given tenant:
  * 1. HTTPS only.
- * 2. Host matches configured Supabase Storage host.
+ * 2. Host matches configured Supabase Storage host (FAILS CLOSED if NEXT_PUBLIC_SUPABASE_URL is unconfigured).
  * 3. Standard HTTPS port (empty or 443).
  * 4. No embedded username/password in URL.
  * 5. Path must belong to the 'spa-media' bucket under the tenant's exact company_id folder.
@@ -39,23 +71,7 @@ export function validatePublicMediaUrl(mediaUrl: string, companyId: string): boo
   // 4. Host matching & IP literal rejection
   const host = parsed.hostname.toLowerCase();
 
-  if (
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '0.0.0.0' ||
-    host.startsWith('10.') ||
-    host.startsWith('169.254.') ||
-    host.startsWith('192.168.') ||
-    host.startsWith('172.16.') ||
-    host.startsWith('172.17.') ||
-    host.startsWith('172.18.') ||
-    host.startsWith('172.19.') ||
-    host.startsWith('172.20.') ||
-    host.startsWith('172.31.') ||
-    /^\d+\.\d+\.\d+\.\d+$/.test(host) ||
-    host.includes('[') ||
-    host.endsWith('.local')
-  ) {
+  if (isPrivateOrLoopbackHost(host)) {
     return false;
   }
 
@@ -76,7 +92,8 @@ export function validatePublicMediaUrl(mediaUrl: string, companyId: string): boo
     }
   }
 
-  if (allowedHost && host !== allowedHost) {
+  // Fail closed if allowedHost is missing or host does not match allowedHost
+  if (!allowedHost || host !== allowedHost) {
     return false;
   }
 

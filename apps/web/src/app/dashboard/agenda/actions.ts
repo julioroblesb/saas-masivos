@@ -331,6 +331,7 @@ export async function createVisitAction(data: {
       p_staff_id: data.staff_id || undefined,
       p_visit_date: data.visit_date,
       p_price_charged: service.price,
+      p_duration_minutes: data.duration_minutes,
     });
 
     if (rpcError || !rpcRes) {

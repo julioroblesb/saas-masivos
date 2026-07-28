@@ -1370,6 +1370,38 @@ export type Database = {
         };
         Returns: Json;
       };
+      rpc_create_visit: {
+        Args: {
+          p_contact_id: string;
+          p_duration_minutes?: number | null;
+          p_notes?: string | null;
+          p_price_charged?: number | null;
+          p_service_id: string;
+          p_staff_id?: string | null;
+          p_visit_date?: string | null;
+        };
+        Returns: Json;
+      };
+      rpc_update_visit: {
+        Args: {
+          p_duration_minutes?: number | null;
+          p_notes?: string | null;
+          p_price_charged?: number | null;
+          p_service_id?: string | null;
+          p_staff_id?: string | null;
+          p_status?: string | null;
+          p_visit_date?: string | null;
+          p_visit_id: string;
+        };
+        Returns: Json;
+      };
+      rpc_reschedule_visit: {
+        Args: {
+          p_new_date: string;
+          p_visit_id: string;
+        };
+        Returns: Json;
+      };
       rpc_delete_marketing_contact: {
         Args: { p_contact_id: string };
         Returns: Json;

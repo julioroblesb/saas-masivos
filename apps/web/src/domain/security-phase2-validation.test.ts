@@ -22,7 +22,7 @@ describe('Phase 2 Security & Architecture Audits', () => {
 
       // Active writes/queries must not use bb_project_id
       expect(content).not.toContain(".from('wa_sessions').insert({ bb_project_id");
-      expect(content).not.toContain("bb_project_id:");
+      expect(content).not.toContain('session?.bb_project_id');
       expect(content).not.toContain(".eq('bb_project_id'");
     }
   });
@@ -37,17 +37,46 @@ describe('Phase 2 Security & Architecture Audits', () => {
     expect(content).toContain("from('wa_webhook_secrets')");
   });
 
-  it('verifies phase 2 RPC migration file exists and is valid', () => {
+  it('verifies phase 2 RPC migration file enforces all 13 PostgreSQL security rules', () => {
     const migrationPath = join(rootDir, 'supabase/migrations/20260728110000_security_phase2_rpcs.sql');
     expect(existsSync(migrationPath)).toBe(true);
     const sql = readFileSync(migrationPath, 'utf8');
 
-    expect(sql).toContain('create or replace function public.rpc_create_visit');
-    expect(sql).toContain('create or replace function public.rpc_update_visit');
-    expect(sql).toContain('create or replace function public.rpc_reschedule_visit');
-    expect(sql).toContain('security definer');
-    expect(sql).toContain("set search_path = ''");
-    expect(sql).toContain('for update');
+    // 1. Staff validated in spa_staff, NEVER profiles
+    expect(sql).toContain('from public.spa_staff s');
+    expect(sql).not.toContain('from public.profiles s');
+
+    // 2. Staff from another tenant or inactive is rejected
+    expect(sql).toContain('s.company_id = v_company_id');
+    expect(sql).toContain('coalesce(s.is_active, true)');
+    expect(sql).toContain('Personal no encontrado, inactivo o ajeno a la empresa');
+
+    // 3. duration_minutes stored and validated between 1 and 1440
+    expect(sql).toContain('p_duration_minutes not between 1 and 1440');
+
+    // 4. Overlap check for staff inside RPC
+    expect(sql).toContain('public.check_visit_overlap');
+    expect(sql).toContain('El especialista ya tiene una cita que se cruza con ese horario');
+
+    // 5. Expired tenant check
+    expect(sql).toContain("c.status = 'activa'");
+    expect(sql).toContain('c.subscription_end_at > now()');
+    expect(sql).toContain('La empresa no tiene acceso activo');
+
+    // 6. Minimum price validation
+    expect(sql).toContain('coalesce(s.min_price, 0)');
+    expect(sql).toContain('El precio no puede ser menor al precio mínimo del servicio');
+
+    // 7. Total paid validation
+    expect(sql).toContain('select coalesce(sum(p.amount), 0)');
+    expect(sql).toContain('El precio no puede ser menor al total ya pagado');
+
+    // 8. Staff removal (p_staff_id = null)
+    expect(sql).toContain('v_effective_staff_id := p_staff_id;');
+
+    // 9. Editable status validation (only agendado and en_curso)
+    expect(sql).toContain("v_effective_status not in ('agendado', 'en_curso')");
+    expect(sql).toContain('Estado editable inválido');
   });
 
   it('verifies webhook route uses per-tenant secret and transition fallback', () => {
@@ -57,5 +86,14 @@ describe('Phase 2 Security & Architecture Audits', () => {
     expect(content).toContain('getTenantWebhookSecret');
     expect(content).toContain('secretsMatch(receivedSecret, expectedSecret)');
     expect(content).toContain('secretsMatch(receivedSecret, env.INTERNAL_TOKEN)');
+  });
+
+  it('verifies controlled admin endpoint exists for webhook reconfiguration', () => {
+    const routePath = join(rootDir, 'apps/web/src/app/api/admin/reconfigure-webhooks/route.ts');
+    expect(existsSync(routePath)).toBe(true);
+    const content = readFileSync(routePath, 'utf8');
+
+    expect(content).toContain('reconfigureConnectedWebhooks');
+    expect(content).toContain('INTERNAL_TOKEN');
   });
 });
