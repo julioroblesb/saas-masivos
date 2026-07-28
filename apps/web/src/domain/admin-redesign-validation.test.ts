@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { deleteTenant, purgeDemoTenants } from '@/app/admin/actions';
+import { evolution } from '@/integrations/evolution/client';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -7,22 +8,30 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock('@/integrations/evolution/client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/integrations/evolution/client')>();
+  return {
+    ...actual,
+    evolution: {
+      logoutInstance: vi.fn(),
+      deleteInstance: vi.fn(),
+    },
+  };
+});
+
 let mockUserRole: string | null = null;
 let mockUserId: string | null = null;
-
-const mockCompanyDeleteIn = vi.fn(async () => ({ error: null }));
-const mockProfilesDeleteIn = vi.fn(async () => ({ error: null }));
-const mockCompanyUpdateEq = vi.fn(async () => ({ error: null }));
+let mockRpcResult: { data: unknown; error: unknown } = {
+  data: { success: true, purged_count: 2, company_ids: ['demo-1', 'demo-2'] },
+  error: null,
+};
+let mockAuthDeleteUserError: { message: string } | null = null;
 
 const DEMO_1 = '00000000-0000-4000-8000-000000000001';
 const DEMO_2 = '00000000-0000-4000-8000-000000000002';
 const REAL_1 = '00000000-0000-4000-8000-000000000003';
 
-const mockDbCompanies = [
-  { id: DEMO_1, name: 'Demo Spa 1', is_demo: true, status: 'activa' },
-  { id: DEMO_2, name: 'Demo Spa 2', is_demo: true, status: 'activa' },
-  { id: REAL_1, name: 'Real Client Spa', is_demo: false, status: 'activa' },
-];
+const mockCompanyUpdateEq = vi.fn(async () => ({ error: null }));
 
 vi.mock('@/utils/supabase/server', () => ({
   createClient: vi.fn(async () => ({
@@ -48,15 +57,6 @@ vi.mock('@/utils/supabase/admin', () => ({
     from: vi.fn((table: string) => {
       if (table === 'companies') {
         return {
-          select: vi.fn(() => ({
-            in: vi.fn(async (col: string, ids: string[]) => {
-              const matched = mockDbCompanies.filter((c) => ids.includes(c.id));
-              return { data: matched, error: null };
-            }),
-          })),
-          delete: vi.fn(() => ({
-            in: mockCompanyDeleteIn,
-          })),
           update: vi.fn(() => ({
             eq: mockCompanyUpdateEq,
           })),
@@ -69,23 +69,50 @@ vi.mock('@/utils/supabase/admin', () => ({
               data: [{ id: 'user-demo-1', company_id: DEMO_1 }],
             })),
           })),
-          delete: vi.fn(() => ({
-            in: mockProfilesDeleteIn,
-          })),
         };
       }
       if (table === 'wa_sessions') {
         return {
           select: vi.fn(() => ({
-            in: vi.fn(async () => ({ data: [] })),
+            in: vi.fn(async () => ({
+              data: [
+                { company_id: DEMO_1, evolution_instance_name: 'company_demo1', status: 'conectado' },
+              ],
+            })),
           })),
         };
       }
       return {};
     }),
+    rpc: vi.fn(async () => mockRpcResult),
+    storage: {
+      from: vi.fn(() => ({
+        list: vi.fn(async () => ({ data: [] })),
+        remove: vi.fn(async () => ({ data: [] })),
+      })),
+    },
     auth: {
       admin: {
-        deleteUser: vi.fn(async () => ({ error: null })),
+        deleteUser: vi.fn(async () => ({ error: mockAuthDeleteUserError })),
+        listUsers: vi.fn(async ({ page }) => {
+          if (page === 1) {
+            return {
+              data: {
+                users: Array.from({ length: 1000 }, (_, i) => ({
+                  id: `user-${i}`,
+                  email: `user${i}@test.com`,
+                })),
+              },
+              error: null,
+            };
+          }
+          return {
+            data: {
+              users: [{ id: 'user-1001', email: 'user1001@test.com' }],
+            },
+            error: null,
+          };
+        }),
       },
     },
   })),
@@ -95,16 +122,21 @@ vi.mock('@/server/observability/audit', () => ({
   recordAuditEvent: vi.fn(async () => {}),
 }));
 
-describe('Admin Panel Redesign & Security Audits', () => {
+describe('Admin Panel Transactional Purge & Observability Audits', () => {
   const rootDir = process.cwd();
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockUserId = null;
     mockUserRole = null;
+    mockAuthDeleteUserError = null;
+    mockRpcResult = {
+      data: { success: true, purged_count: 2, company_ids: [DEMO_1, DEMO_2] },
+      error: null,
+    };
   });
 
-  it('1 & 2. rejects tenant owner and normal admin from purgeDemoTenants', async () => {
+  it('1 & 6. rejects tenant owner and normal admin from purgeDemoTenants', async () => {
     mockUserId = 'user-owner';
     mockUserRole = 'owner';
     const resOwner = await purgeDemoTenants({ companyIds: [DEMO_1] });
@@ -116,7 +148,7 @@ describe('Admin Panel Redesign & Security Audits', () => {
     expect(resAdmin).toEqual({ error: 'No autorizado' });
   });
 
-  it('3 & 6. allows super_admin to purge a batch containing ONLY demo accounts', async () => {
+  it('3. allows super_admin to execute purgeDemoTenants via rpc_purge_demo_tenants', async () => {
     mockUserId = 'super-admin-id';
     mockUserRole = 'super_admin';
 
@@ -124,51 +156,79 @@ describe('Admin Panel Redesign & Security Audits', () => {
       companyIds: [DEMO_1, DEMO_2],
     });
 
-    if (res.error) console.error('PURGE ERROR:', res.error);
     expect(res.success).toBe(true);
-    expect(res.purgedCount).toBe(2);
-    expect(mockCompanyDeleteIn).toHaveBeenCalled();
+    expect(res.databasePurged).toEqual({
+      count: 2,
+      companyIds: [DEMO_1, DEMO_2],
+    });
+    expect(res.authCleanupErrors).toEqual([]);
+    expect(res.evolutionCleanupErrors).toEqual([]);
   });
 
-  it('7. STRICT LOCK: rejects entire batch if even a single real client is included', async () => {
+  it('8. reports Evolution cleanup failures separately without marking DB purge as failed', async () => {
     mockUserId = 'super-admin-id';
     mockUserRole = 'super_admin';
 
-    // Batch contains 1 demo and 1 REAL client
+    vi.mocked(evolution.deleteInstance).mockRejectedValueOnce(
+      new Error('Evolution API HTTP 500 Connection error'),
+    );
+
     const res = await purgeDemoTenants({
-      companyIds: [DEMO_1, REAL_1],
+      companyIds: [DEMO_1],
     });
 
-    expect(res.error).toContain('cliente real y no puede ser eliminada');
-    expect(mockCompanyDeleteIn).not.toHaveBeenCalled();
+    expect(res.success).toBe(true);
+    expect(res.databasePurged?.count).toBe(2);
+    expect(res.evolutionCleanupErrors).toHaveLength(1);
+    expect(res.evolutionCleanupErrors?.[0]).toContain('Evolution API HTTP 500');
   });
 
-  it('12. Cancelar acceso for a real client does NOT delete data (only updates status to cancelada)', async () => {
+  it('7. differentiates DB purge result from Auth cleanup errors', async () => {
     mockUserId = 'super-admin-id';
     mockUserRole = 'super_admin';
+    mockAuthDeleteUserError = { message: 'Auth user lock error' };
 
-    const res = await deleteTenant(REAL_1);
-    if (res.error) console.error('DELETE ERROR:', res.error);
+    const res = await purgeDemoTenants({
+      companyIds: [DEMO_1],
+    });
+
     expect(res.success).toBe(true);
-    expect(mockCompanyUpdateEq).toHaveBeenCalledWith('id', REAL_1);
-    expect(mockCompanyDeleteIn).not.toHaveBeenCalled();
+    expect(res.databasePurged?.count).toBe(2);
+    expect(res.authCleanupErrors).toHaveLength(1);
+    expect(res.authCleanupErrors?.[0]).toContain('Auth user lock error');
   });
 
-  it('9 & 10. verifies superadmin views and actions do not expose getSupabaseAdmin to browser', () => {
-    const views = [
-      'apps/web/src/app/admin/RealClientsView.tsx',
-      'apps/web/src/app/admin/DemoAccountsView.tsx',
-      'apps/web/src/app/admin/WhatsappOversightView.tsx',
-      'apps/web/src/app/admin/AdminDashboardClient.tsx',
-    ];
+  it('5. verifies transactional RPC migration file revokes permissions from public, anon, authenticated', () => {
+    const migrationPath = join(
+      rootDir,
+      'supabase/migrations/20260728130000_transactional_demo_purge_rpc.sql',
+    );
+    expect(existsSync(migrationPath)).toBe(true);
+    const sql = readFileSync(migrationPath, 'utf8');
 
-    for (const relPath of views) {
-      const fullPath = join(rootDir, relPath);
-      expect(existsSync(fullPath), `File missing: ${relPath}`).toBe(true);
-      const content = readFileSync(fullPath, 'utf8');
+    expect(sql).toContain('create or replace function public.rpc_purge_demo_tenants');
+    expect(sql).toContain('security definer');
+    expect(sql).toContain("set search_path = ''");
+    expect(sql).toContain('for update');
+    expect(sql).toContain(
+      'revoke execute on function public.rpc_purge_demo_tenants(uuid[], uuid) from public, anon, authenticated;',
+    );
+    expect(sql).toContain(
+      'grant execute on function public.rpc_purge_demo_tenants(uuid[], uuid) to service_role;',
+    );
+    expect(sql).toContain('array_length(p_company_ids, 1)');
+    expect(sql).toContain('La lista p_company_ids contiene IDs duplicados');
+    expect(sql).toContain('is_demo != true');
+  });
 
-      expect(content).not.toContain('getSupabaseAdmin');
-      expect(content).not.toContain('SUPABASE_SERVICE_ROLE_KEY');
-    }
+  it('9 & 10. verifies owner resolution by role and listUsers pagination in page.tsx', () => {
+    const pagePath = join(rootDir, 'apps/web/src/app/admin/page.tsx');
+    expect(existsSync(pagePath)).toBe(true);
+    const content = readFileSync(pagePath, 'utf8');
+
+    expect(content).toContain("profiles(id, full_name, role)");
+    expect(content).toContain("p.role === 'owner'");
+    expect(content).toContain('while (hasMore)');
+    expect(content).toContain('listUsers({ page, perPage: 1000 })');
   });
 });

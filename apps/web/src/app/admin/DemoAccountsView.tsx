@@ -103,16 +103,26 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
       if (res?.error) {
         toast.error(res.error, { duration: 5000 });
       } else if (res?.success) {
+        const purgedCount = res.databasePurged?.count ?? selectedIds.length;
         toast.success(
-          `Se eliminaron permanentemente ${res.purgedCount} cuentas demo y sus usuarios asociados.`,
+          `Se eliminaron ${purgedCount} cuentas demo transaccionalmente de la base de datos.`,
           { duration: 4000 },
         );
+
         if (res.authCleanupErrors && res.authCleanupErrors.length > 0) {
-          toast.error(
-            `Incidencias Auth (${res.authCleanupErrors.length}): Revise logs de auditoría para reintentar.`,
-            { duration: 6000 },
-          );
+          toast.error(`Incidencias Auth (${res.authCleanupErrors.length})`, { duration: 6000 });
         }
+        if (res.evolutionCleanupErrors && res.evolutionCleanupErrors.length > 0) {
+          toast.error(`Incidencias Evolution (${res.evolutionCleanupErrors.length})`, {
+            duration: 6000,
+          });
+        }
+        if (res.storageCleanupErrors && res.storageCleanupErrors.length > 0) {
+          toast.error(`Incidencias Storage (${res.storageCleanupErrors.length})`, {
+            duration: 6000,
+          });
+        }
+
         setSelectedIds([]);
         setIsModalOpen(false);
       }

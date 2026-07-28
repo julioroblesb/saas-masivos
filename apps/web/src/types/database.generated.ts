@@ -1402,6 +1402,13 @@ export type Database = {
         };
         Returns: Json;
       };
+      rpc_purge_demo_tenants: {
+        Args: {
+          p_actor_id: string;
+          p_company_ids: string[];
+        };
+        Returns: Json;
+      };
       rpc_delete_marketing_contact: {
         Args: { p_contact_id: string };
         Returns: Json;

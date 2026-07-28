@@ -30,10 +30,10 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  // 1. Fetch all companies with owner profiles
+  // 1. Fetch all companies with owner profiles (explicitly selecting role)
   const { data: rawCompanies, error: compErr } = await supabaseAdmin
     .from('companies')
-    .select('*, profiles(id, full_name)')
+    .select('*, profiles(id, full_name, role)')
     .order('created_at', { ascending: false });
 
   if (compErr) {
@@ -49,17 +49,32 @@ export default async function AdminPage() {
     console.error('Error fetching wa_sessions for superadmin:', sessionErr);
   }
 
-  // 3. Resolve Auth emails server-side
+  // 3. Resolve Auth emails server-side with REAL PAGINATION (page by page beyond 1000 users)
   const emailMap = new Map<string, string>();
   try {
-    const {
-      data: { users: authUsers },
-    } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-    (authUsers || []).forEach((u) => {
-      if (u.email) emailMap.set(u.id, u.email);
-    });
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const {
+        data: { users: authUsers },
+        error: listErr,
+      } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
+
+      if (listErr || !authUsers || authUsers.length === 0) {
+        hasMore = false;
+      } else {
+        authUsers.forEach((u) => {
+          if (u.email) emailMap.set(u.id, u.email);
+        });
+        if (authUsers.length < 1000) {
+          hasMore = false;
+        } else {
+          page += 1;
+        }
+      }
+    }
   } catch (err) {
-    console.error('Error listing auth users for superadmin email resolution:', err);
+    console.error('Error paginating auth users for superadmin email resolution:', err);
   }
 
   const sessionMap = new Map<string, Tables<'wa_sessions'>>();
@@ -69,14 +84,18 @@ export default async function AdminPage() {
     }
   }
 
-  // 4. Map extended companies
+  // 4. Map extended companies resolving the owner specifically by role = 'owner'
   const extendedCompanies: ExtendedCompany[] = (rawCompanies || []).map((c) => {
-    const ownerId = c.profiles?.[0]?.id;
+    // Select specifically profile where role === 'owner', fallback to first if unassigned
+    const ownerProfile = c.profiles?.find((p) => p.role === 'owner') || c.profiles?.[0];
+    const ownerId = ownerProfile?.id;
+    const ownerName = ownerProfile?.full_name || 'Sin dueño';
     const ownerEmail = ownerId ? emailMap.get(ownerId) || null : null;
     const waSession = sessionMap.get(c.id);
 
     return {
       ...c,
+      profiles: ownerProfile ? [{ id: ownerProfile.id, full_name: ownerName }] : [],
       owner_email: ownerEmail,
       wa_session: waSession
         ? {

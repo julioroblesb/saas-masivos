@@ -235,9 +235,12 @@ const purgeDemoSchema = z.object({
 });
 
 /**
- * Superadmin exclusive action to permanently delete demo tenants and all associated Auth users & data.
- * Safety Lock: Verifies super_admin role and asserts that EVERY requested company has is_demo === true.
- * Reject entire batch if ANY requested company is not a demo or does not exist.
+ * Transactional & Observable Demo Tenant Purge.
+ * 1. Verifies super_admin role and validates input array.
+ * 2. Captures metadata BEFORE purging database (Auth IDs, Evolution instances, Storage prefixes).
+ * 3. Calls rpc_purge_demo_tenants for atomic database transaction.
+ * 4. Post-commit: attempts cleanup of Evolution instances, Auth users, and Storage files.
+ * 5. Returns structured observability detailing DB success and any external cleanup notices.
  */
 export async function purgeDemoTenants(data: unknown) {
   try {
@@ -261,48 +264,7 @@ export async function purgeDemoTenants(data: unknown) {
     const { companyIds } = purgeDemoSchema.parse(data);
     const supabaseAdmin = getSupabaseAdmin();
 
-    // 1. Fetch targeted companies to verify existence and assert is_demo === true
-    const { data: targetCompanies, error: fetchErr } = await supabaseAdmin
-      .from('companies')
-      .select('id, name, is_demo')
-      .in('id', companyIds);
-
-    if (fetchErr || !targetCompanies) {
-      return { error: 'Error al consultar las empresas seleccionadas' };
-    }
-
-    if (targetCompanies.length !== companyIds.length) {
-      return { error: 'Operación rechazada: algunas empresas seleccionadas no existen' };
-    }
-
-    // SAFETY LOCK: Reject entire operation if ANY company is NOT a demo account
-    const realClient = targetCompanies.find((c) => c.is_demo !== true);
-    if (realClient) {
-      return {
-        error: `Operación rechazada por seguridad: la empresa "${realClient.name}" es un cliente real y no puede ser eliminada.`,
-      };
-    }
-
-    // 2. Attempt logout and deletion of active WhatsApp Evolution instances
-    const { data: waSessions } = await supabaseAdmin
-      .from('wa_sessions')
-      .select('company_id, evolution_instance_name, status')
-      .in('company_id', companyIds);
-
-    if (waSessions && waSessions.length > 0) {
-      for (const session of waSessions) {
-        if (session.evolution_instance_name && session.status !== 'desconectado') {
-          try {
-            await evolution.logoutInstance(session.evolution_instance_name);
-            await evolution.deleteInstance(session.evolution_instance_name);
-          } catch {
-            // Non-fatal instance cleanup catch
-          }
-        }
-      }
-    }
-
-    // 3. Find profiles and Auth user IDs linked to these demo companies
+    // 1. CAPTURE METADATA BEFORE DB PURGE
     const { data: linkedProfiles } = await supabaseAdmin
       .from('profiles')
       .select('id, company_id')
@@ -310,23 +272,53 @@ export async function purgeDemoTenants(data: unknown) {
 
     const authUserIds = (linkedProfiles ?? []).map((p) => p.id);
 
-    // Delete profiles first to prevent FK constraint failure
-    if (authUserIds.length > 0) {
-      await supabaseAdmin.from('profiles').delete().in('company_id', companyIds);
+    const { data: waSessions } = await supabaseAdmin
+      .from('wa_sessions')
+      .select('company_id, evolution_instance_name, status')
+      .in('company_id', companyIds);
+
+    // 2. EXECUTE TRANSACTIONAL RPC FOR ATOMIC DB PURGE
+    const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc('rpc_purge_demo_tenants', {
+      p_company_ids: companyIds,
+      p_actor_id: user.id,
+    });
+
+    if (rpcErr) {
+      return { error: `Error en purga de base de datos: ${rpcErr.message}` };
     }
 
-    // 4. Delete companies from database (ON DELETE CASCADE handles all linked tenant tables)
-    const { error: deleteCompErr } = await supabaseAdmin
-      .from('companies')
-      .delete()
-      .in('id', companyIds);
+    const parsedRpcRes = rpcResult as {
+      success?: boolean;
+      purged_count?: number;
+      company_ids?: string[];
+    };
 
-    if (deleteCompErr) {
-      return { error: `Error eliminando datos de las empresas: ${deleteCompErr.message}` };
-    }
-
-    // 5. Delete associated Supabase Auth users
+    // 3. POST-COMMIT EXTERNAL CLEANUPS (Observable & Non-Destructive to committed DB state)
     const authCleanupErrors: string[] = [];
+    const evolutionCleanupErrors: string[] = [];
+    const storageCleanupErrors: string[] = [];
+
+    // 3a. Evolution API instance cleanup
+    if (waSessions && waSessions.length > 0) {
+      for (const session of waSessions) {
+        if (session.evolution_instance_name) {
+          try {
+            if (session.status !== 'desconectado') {
+              await evolution.logoutInstance(session.evolution_instance_name);
+            }
+            await evolution.deleteInstance(session.evolution_instance_name);
+          } catch (evoErr: unknown) {
+            evolutionCleanupErrors.push(
+              `Instancia ${session.evolution_instance_name}: ${
+                evoErr instanceof Error ? evoErr.message : String(evoErr)
+              }`,
+            );
+          }
+        }
+      }
+    }
+
+    // 3b. Supabase Auth users cleanup
     for (const authUserId of authUserIds) {
       const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(authUserId);
       if (authDelErr) {
@@ -334,27 +326,41 @@ export async function purgeDemoTenants(data: unknown) {
       }
     }
 
-    // 6. Record audit log event
-    await recordAuditEvent({
-      actorId: user.id,
-      companyId: null,
-      correlationId: crypto.randomUUID(),
-      entityId: companyIds.join(','),
-      entityType: 'demo_tenants_batch',
-      eventType: 'superadmin.demo_tenant_purged',
-      metadata: {
-        purgedCount: companyIds.length,
-        companyIds,
-        authCleanupErrorsCount: authCleanupErrors.length,
-      },
-    });
+    // 3c. Storage files cleanup ('spa-media' bucket)
+    for (const companyId of companyIds) {
+      try {
+        const rawPrefix = `${companyId}`;
+        const cleanPrefix = companyId.replaceAll('-', '');
+
+        const { data: rawFiles } = await supabaseAdmin.storage.from('spa-media').list(rawPrefix);
+        if (rawFiles && rawFiles.length > 0) {
+          const filePaths = rawFiles.map((f) => `${rawPrefix}/${f.name}`);
+          await supabaseAdmin.storage.from('spa-media').remove(filePaths);
+        }
+
+        const { data: cleanFiles } = await supabaseAdmin.storage.from('spa-media').list(cleanPrefix);
+        if (cleanFiles && cleanFiles.length > 0) {
+          const filePaths = cleanFiles.map((f) => `${cleanPrefix}/${f.name}`);
+          await supabaseAdmin.storage.from('spa-media').remove(filePaths);
+        }
+      } catch (stgErr: unknown) {
+        storageCleanupErrors.push(
+          `Storage ${companyId}: ${stgErr instanceof Error ? stgErr.message : String(stgErr)}`,
+        );
+      }
+    }
 
     revalidatePath('/admin');
 
     return {
       success: true,
-      purgedCount: companyIds.length,
+      databasePurged: {
+        count: parsedRpcRes.purged_count ?? companyIds.length,
+        companyIds: parsedRpcRes.company_ids ?? companyIds,
+      },
       authCleanupErrors,
+      evolutionCleanupErrors,
+      storageCleanupErrors,
     };
   } catch (error: unknown) {
     return { error: errorMessage(error) };
