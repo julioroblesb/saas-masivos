@@ -98,6 +98,70 @@ export type Database = {
         };
         Relationships: [];
       };
+      demo_leads: {
+        Row: {
+          auth_user_id: string;
+          business_name: string;
+          company_id: string;
+          contact_name: string;
+          created_at: string;
+          id: string;
+          industry: string;
+          phone: string;
+          welcome_queue_id: string | null;
+          whatsapp_consent: boolean;
+          whatsapp_consented_at: string | null;
+        };
+        Insert: {
+          auth_user_id: string;
+          business_name: string;
+          company_id: string;
+          contact_name: string;
+          created_at?: string;
+          id?: string;
+          industry: string;
+          phone: string;
+          welcome_queue_id?: string | null;
+          whatsapp_consent?: boolean;
+          whatsapp_consented_at?: string | null;
+        };
+        Update: {
+          auth_user_id?: string;
+          business_name?: string;
+          company_id?: string;
+          contact_name?: string;
+          created_at?: string;
+          id?: string;
+          industry?: string;
+          phone?: string;
+          welcome_queue_id?: string | null;
+          whatsapp_consent?: boolean;
+          whatsapp_consented_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'demo_leads_auth_user_id_fkey';
+            columns: ['auth_user_id'];
+            isOneToOne: true;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'demo_leads_company_id_fkey';
+            columns: ['company_id'];
+            isOneToOne: true;
+            referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'demo_leads_welcome_queue_id_fkey';
+            columns: ['welcome_queue_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_wa_queue';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       crm_marketing_contacts: {
         Row: {
           allergies_and_conditions: string | null;
@@ -1330,6 +1394,18 @@ export type Database = {
       rpc_cleanup_demo_companies: { Args: never; Returns: Json };
       rpc_clone_demo_company: {
         Args: { p_template_company_id: string };
+        Returns: Json;
+      };
+      rpc_create_demo_from_lead: {
+        Args: {
+          p_business_name: string;
+          p_contact_name: string;
+          p_industry: string;
+          p_phone: string;
+          p_template_company_id: string;
+          p_user_id: string;
+          p_whatsapp_consent: boolean;
+        };
         Returns: Json;
       };
       rpc_complete_evolution_webhook: {

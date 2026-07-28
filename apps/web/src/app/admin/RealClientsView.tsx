@@ -16,6 +16,13 @@ export type ExtendedCompany = Tables<'companies'> & {
     phone_number: string | null;
     evolution_instance_name: string | null;
   } | null;
+  demo_lead?: {
+    contact_name: string;
+    phone: string;
+    industry: string;
+    whatsapp_consent: boolean;
+    created_at: string;
+  } | null;
 };
 
 interface RealClientsViewProps {
@@ -29,10 +36,7 @@ export function RealClientsView({ companies }: RealClientsViewProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [editingCompany, setEditingCompany] = useState<ExtendedCompany | null>(null);
 
-  const realCompanies = useMemo(
-    () => companies.filter((c) => c.is_demo !== true),
-    [companies],
-  );
+  const realCompanies = useMemo(() => companies.filter((c) => c.is_demo !== true), [companies]);
 
   const filteredCompanies = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -152,7 +156,9 @@ export function RealClientsView({ companies }: RealClientsViewProps) {
             No se encontraron clientes reales
           </h3>
           <p className="text-xs text-zinc-500 mt-1 max-w-sm">
-            {search ? 'Intenta modificar el término de búsqueda.' : 'No hay clientes reales registrados.'}
+            {search
+              ? 'Intenta modificar el término de búsqueda.'
+              : 'No hay clientes reales registrados.'}
           </p>
         </div>
       ) : (
@@ -169,7 +175,9 @@ export function RealClientsView({ companies }: RealClientsViewProps) {
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">WhatsApp</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Registro</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Vencimiento</th>
-                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500 text-right">Acciones</th>
+                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500 text-right">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -221,7 +229,9 @@ export function RealClientsView({ companies }: RealClientsViewProps) {
                               {formatDate(company.subscription_end_at)} (Vencido)
                             </span>
                           ) : (
-                            <span className="text-zinc-500">{formatDate(company.subscription_end_at)}</span>
+                            <span className="text-zinc-500">
+                              {formatDate(company.subscription_end_at)}
+                            </span>
                           )
                         ) : (
                           <span className="text-zinc-400">-</span>

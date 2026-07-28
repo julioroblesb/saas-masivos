@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     companyId = resolvedCompanyId;
 
     const access = await TenantAccessService.allows('owner');
-    if (!access.allowed) {
+    if (!access.allowed || !access.canUseWhatsApp) {
       return NextResponse.json(
         { error: 'Acceso bloqueado por suscripción.', code: access.state },
         { status: 403 },
@@ -141,7 +141,9 @@ export async function POST(request: NextRequest) {
 
     const env = getEnv();
     if (process.env.NODE_ENV === 'production' && !env.APP_PUBLIC_URL) {
-      throw new Error('APP_PUBLIC_URL es obligatorio en producción para configurar webhooks de forma segura');
+      throw new Error(
+        'APP_PUBLIC_URL es obligatorio en producción para configurar webhooks de forma segura',
+      );
     }
 
     const appPublicUrl = env.APP_PUBLIC_URL ?? request.nextUrl.origin;
@@ -177,12 +179,7 @@ export async function POST(request: NextRequest) {
     let warning: string | undefined;
 
     try {
-      await evolution.configureWebhook(
-        instanceName,
-        webhookUrl,
-        tenantSecret,
-        resolvedCompanyId,
-      );
+      await evolution.configureWebhook(instanceName, webhookUrl, tenantSecret, resolvedCompanyId);
     } catch (webhookErr: unknown) {
       webhookConfigured = false;
       warningCode = 'WEBHOOK_CONFIGURATION_FAILED';

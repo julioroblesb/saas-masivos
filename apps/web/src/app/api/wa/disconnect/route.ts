@@ -16,7 +16,7 @@ export async function POST() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
     const access = await TenantAccessService.allows('owner');
-    if (!access.allowed) {
+    if (!access.allowed || !access.canUseWhatsApp) {
       return NextResponse.json(
         { error: 'Se requiere una cuenta activa con rol de dueño' },
         { status: 403 },

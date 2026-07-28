@@ -62,8 +62,14 @@ describe('evaluateAccessRecord', () => {
 
   it('classifies demo and trial plans', () => {
     expect(
-      evaluateAccessRecord({ ...activeOwner, plan_type: 'demo', is_demo: true }, now).state,
-    ).toBe('demo');
+      evaluateAccessRecord({ ...activeOwner, plan_type: 'demo', is_demo: true }, now),
+    ).toMatchObject({
+      state: 'demo',
+      allowed: true,
+      canManageCompany: false,
+      canManageUsers: false,
+      canUseWhatsApp: false,
+    });
     expect(evaluateAccessRecord({ ...activeOwner, plan_type: 'prueba' }, now).state).toBe('trial');
   });
 

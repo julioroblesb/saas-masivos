@@ -1,7 +1,7 @@
 import 'server-only';
-import DefaultLayout from "@/components/layouts/default-layout";
-import { TenantAccessService } from "@/server/access/tenant-access-service";
-import { AlertCircle } from "lucide-react";
+import DefaultLayout from '@/components/layouts/default-layout';
+import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { AlertCircle } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const access = await TenantAccessService.forCurrentUser();
@@ -15,12 +15,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
           <h2 className="text-xl font-bold text-white">Acceso Bloqueado por Suscripción</h2>
           <p className="text-sm text-zinc-400">
-            Tu empresa tiene la suscripción vencida o suspendida. Por favor, ponte en contacto con administración para restablecer el acceso.
+            Tu empresa tiene la suscripción vencida o suspendida. Por favor, ponte en contacto con
+            administración para restablecer el acceso.
           </p>
         </div>
       </div>
     );
   }
 
-  return <DefaultLayout>{children}</DefaultLayout>;
+  return <DefaultLayout isDemo={access.state === 'demo'}>{children}</DefaultLayout>;
 }

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { normalizePeruPhone } from '@/shared/utils/phone';
 
 const getCompanyId = async () => {
   try {
@@ -52,7 +53,9 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
+      .select(
+        'id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at',
+      )
       .eq('is_active', true)
       .order('name'),
     supabase
@@ -122,29 +125,25 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
       role: s.role,
       isActive: s.is_active,
       services:
-        staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) ||
-        [],
+        staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
 
   return {
     services: services || [],
-    visits:
-      (visits?.map((v) => {
-        const contactObj = Array.isArray(v.crm_marketing_contacts)
-          ? v.crm_marketing_contacts[0]
-          : v.crm_marketing_contacts;
-        const serviceObj = Array.isArray(v.spa_services)
-          ? v.spa_services[0]
-          : v.spa_services;
-        return {
-          ...v,
-          contact_name: contactObj?.name || '',
-          contact_phone: contactObj?.phone || '',
-          service_name: serviceObj?.name || '',
-          crm_marketing_contacts: contactObj ?? null,
-          spa_services: serviceObj ? { name: serviceObj.name, price: serviceObj.price } : null,
-        };
-      }) || []) as import('../atenciones/types').AgendaVisit[],
+    visits: (visits?.map((v) => {
+      const contactObj = Array.isArray(v.crm_marketing_contacts)
+        ? v.crm_marketing_contacts[0]
+        : v.crm_marketing_contacts;
+      const serviceObj = Array.isArray(v.spa_services) ? v.spa_services[0] : v.spa_services;
+      return {
+        ...v,
+        contact_name: contactObj?.name || '',
+        contact_phone: contactObj?.phone || '',
+        service_name: serviceObj?.name || '',
+        crm_marketing_contacts: contactObj ?? null,
+        spa_services: serviceObj ? { name: serviceObj.name, price: serviceObj.price } : null,
+      };
+    }) || []) as import('../atenciones/types').AgendaVisit[],
     contacts: contacts || [],
     staff: staffWithServices,
     error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
@@ -155,11 +154,15 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
  * Light-weight visit-range fetch used by AgendaView when the user navigates
  * between months. Does NOT re-query services, contacts, staff, or staff_services.
  */
-export async function getAgendaVisitsRange(startDate: string, endDate: string): Promise<import('../atenciones/types').AgendaVisit[]> {
+export async function getAgendaVisitsRange(
+  startDate: string,
+  endDate: string,
+): Promise<import('../atenciones/types').AgendaVisit[]> {
   const supabase = await createClient();
   const { data: visits } = await supabase
     .from('spa_visits')
-    .select(`
+    .select(
+      `
       id,
       company_id,
       contact_id,
@@ -180,7 +183,8 @@ export async function getAgendaVisitsRange(startDate: string, endDate: string): 
       follow_up_sent,
       crm_marketing_contacts!spa_visits_contact_tenant_fkey ( id, name, phone ),
       spa_services ( id, name, price )
-    `)
+    `,
+    )
     .gte('visit_date', startDate)
     .lte('visit_date', endDate)
     .order('visit_date', { ascending: false });
@@ -189,9 +193,7 @@ export async function getAgendaVisitsRange(startDate: string, endDate: string): 
     const contactObj = Array.isArray(v.crm_marketing_contacts)
       ? v.crm_marketing_contacts[0]
       : v.crm_marketing_contacts;
-    const serviceObj = Array.isArray(v.spa_services)
-      ? v.spa_services[0]
-      : v.spa_services;
+    const serviceObj = Array.isArray(v.spa_services) ? v.spa_services[0] : v.spa_services;
     return {
       ...v,
       contact_name: contactObj?.name || '',
@@ -212,11 +214,7 @@ export async function getStaffAvailabilityAction(staffId: string, date: string) 
     const dayOfWeek = targetDate.getDay();
     const supabase = await createClient();
 
-    const [
-      { data: schedule },
-      { data: blocks },
-      { data: visits },
-    ] = await Promise.all([
+    const [{ data: schedule }, { data: blocks }, { data: visits }] = await Promise.all([
       supabase
         .from('spa_staff_schedules')
         .select('id, company_id, staff_id, day_of_week, start_time, end_time, is_working')
@@ -266,12 +264,16 @@ export async function createVisitAction(data: {
     let contactPhone = '';
 
     if (data.new_contact) {
+      const normalizedPhone = normalizePeruPhone(data.new_contact.phone);
+      if (!normalizedPhone) {
+        return { error: 'Ingresa un celular peruano de 9 dígitos, por ejemplo 996 552 871.' };
+      }
       const { data: newC, error: errC } = await supabase
         .from('crm_marketing_contacts')
         .insert({
           company_id: companyId,
           name: data.new_contact.name,
-          phone: data.new_contact.phone,
+          phone: normalizedPhone,
           document_number: data.new_contact.document_number,
           tags: ['nuevo_paciente'],
         })
@@ -280,7 +282,7 @@ export async function createVisitAction(data: {
       if (errC) throw errC;
       finalContactId = newC.id;
       contactName = data.new_contact.name;
-      contactPhone = data.new_contact.phone || '';
+      contactPhone = normalizedPhone;
     } else if (data.contact_id) {
       const { data: existingContact } = await supabase
         .from('crm_marketing_contacts')

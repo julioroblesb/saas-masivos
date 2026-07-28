@@ -5,6 +5,7 @@ import { formatBusinessDateTime } from '@/lib/business-date';
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { normalizePeruPhone } from '@/shared/utils/phone';
 
 const emptyToUndefinedDate = z.preprocess((val) => {
   if (typeof val === 'string') {
@@ -23,18 +24,14 @@ const completeVisitSchema = z
     debt_due_date: emptyToUndefinedDate,
     notes: z.string().trim().max(2000).optional(),
   })
-  .refine(
-    (payload) =>
-      payload.initial_payment === 0 || payload.payment_method !== undefined,
-    { message: 'Selecciona un método de pago', path: ['payment_method'] },
-  )
-  .refine(
-    (payload) => !payload.is_credit || payload.debt_due_date !== undefined,
-    {
-      message: 'Selecciona la fecha de pago de la deuda',
-      path: ['debt_due_date'],
-    },
-  );
+  .refine((payload) => payload.initial_payment === 0 || payload.payment_method !== undefined, {
+    message: 'Selecciona un método de pago',
+    path: ['payment_method'],
+  })
+  .refine((payload) => !payload.is_credit || payload.debt_due_date !== undefined, {
+    message: 'Selecciona la fecha de pago de la deuda',
+    path: ['debt_due_date'],
+  });
 
 const addPaymentSchema = z.object({
   amount: z.number().finite().positive(),
@@ -128,7 +125,9 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   ] = await Promise.all([
     supabase
       .from('spa_services')
-      .select('id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at')
+      .select(
+        'id, company_id, name, description, price, promo_price, min_price, duration_days, care_instructions, care_image_url, is_active, created_at, updated_at',
+      )
       .eq('is_active', true)
       .order('name'),
     visitsQuery,
@@ -147,7 +146,10 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     companySettingsPromise,
   ]);
 
-  if (companyRes?.data?.settings?.payment_methods && companyRes.data.settings.payment_methods.length > 0) {
+  if (
+    companyRes?.data?.settings?.payment_methods &&
+    companyRes.data.settings.payment_methods.length > 0
+  ) {
     paymentMethods = companyRes.data.settings.payment_methods;
   }
 
@@ -179,30 +181,26 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       role: s.role,
       isActive: s.is_active,
       services:
-        staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) ||
-        [],
+        staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
 
   return {
     services: services || [],
-    visits:
-      (visits?.map((v) => {
-        const contactObj = Array.isArray(v.crm_marketing_contacts)
-          ? v.crm_marketing_contacts[0]
-          : v.crm_marketing_contacts;
-        const serviceObj = Array.isArray(v.spa_services)
-          ? v.spa_services[0]
-          : v.spa_services;
-        return {
-          ...v,
-          contact_name: contactObj?.name || '',
-          contact_phone: contactObj?.phone || '',
-          service_name: serviceObj?.name || '',
-          amount_paid: paymentsByVisit[v.id] || 0,
-          crm_marketing_contacts: contactObj ?? null,
-          spa_services: serviceObj ?? null,
-        };
-      }) || []) as import('./types').AtencionVisit[],
+    visits: (visits?.map((v) => {
+      const contactObj = Array.isArray(v.crm_marketing_contacts)
+        ? v.crm_marketing_contacts[0]
+        : v.crm_marketing_contacts;
+      const serviceObj = Array.isArray(v.spa_services) ? v.spa_services[0] : v.spa_services;
+      return {
+        ...v,
+        contact_name: contactObj?.name || '',
+        contact_phone: contactObj?.phone || '',
+        service_name: serviceObj?.name || '',
+        amount_paid: paymentsByVisit[v.id] || 0,
+        crm_marketing_contacts: contactObj ?? null,
+        spa_services: serviceObj ?? null,
+      };
+    }) || []) as import('./types').AtencionVisit[],
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
@@ -246,10 +244,14 @@ export async function createVisitAction(payload: {
 
   let final_contact_id = payload.contact_id;
   if (payload.new_contact && payload.new_contact.phone) {
+    const normalizedPhone = normalizePeruPhone(payload.new_contact.phone);
+    if (!normalizedPhone) {
+      return { error: 'Ingresa un celular peruano de 9 dígitos, por ejemplo 996 552 871.' };
+    }
     const { data: contactData, error: contactError } = await supabase.rpc(
       'rpc_upsert_marketing_contact',
       {
-        p_phone: payload.new_contact.phone,
+        p_phone: normalizedPhone,
         p_name: payload.new_contact.name || '',
         p_tags: ['cliente'],
         p_opt_in_source: null,
@@ -394,8 +396,7 @@ export async function completeAndPayVisitAction(
   if (!parsed.success) {
     return {
       error:
-        parsed.error.issues[0]?.message ??
-        'Los datos para completar la atención no son válidos',
+        parsed.error.issues[0]?.message ?? 'Los datos para completar la atención no son válidos',
     };
   }
 

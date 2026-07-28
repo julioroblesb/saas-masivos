@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { normalizePeruPhone } from '@/shared/utils/phone';
 
 export async function getClientsMetrics() {
   const supabase = await createClient();
@@ -41,12 +42,7 @@ export async function deleteContactAction(id: string) {
     return { error: 'Ocurrió un error al intentar archivar el contacto' };
   }
 
-  if (
-    typeof data === 'object' &&
-    data !== null &&
-    'success' in data &&
-    data.success === false
-  ) {
+  if (typeof data === 'object' && data !== null && 'success' in data && data.success === false) {
     return {
       error:
         'error' in data && typeof data.error === 'string'
@@ -69,9 +65,14 @@ export async function upsertContactAction(payload: {
   internalNotes?: string;
   documentNumber?: string;
 }) {
+  const phone = normalizePeruPhone(payload.phone);
+  if (!phone) {
+    return { error: 'Ingresa un celular peruano de 9 dígitos, por ejemplo 996 552 871.' };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('rpc_upsert_marketing_contact', {
-    p_phone: payload.phone,
+    p_phone: phone,
     p_name: payload.name || null,
     p_tags: ['cliente'],
     p_opt_in_source: payload.optInSource || null,

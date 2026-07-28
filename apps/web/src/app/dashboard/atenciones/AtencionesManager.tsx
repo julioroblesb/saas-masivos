@@ -69,9 +69,15 @@ export function AtencionesManager({
   const [contacts, setContacts] = useState<AtencionContact[]>(propContacts);
 
   // Sync state from server props after a router.refresh()
-  useEffect(() => { setVisits(initialVisits); }, [initialVisits]);
-  useEffect(() => { setServices(propServices); }, [propServices]);
-  useEffect(() => { setContacts(propContacts); }, [propContacts]);
+  useEffect(() => {
+    setVisits(initialVisits);
+  }, [initialVisits]);
+  useEffect(() => {
+    setServices(propServices);
+  }, [propServices]);
+  useEffect(() => {
+    setContacts(propContacts);
+  }, [propContacts]);
 
   const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
   const [search, setSearch] = useState('');
@@ -200,7 +206,10 @@ export function AtencionesManager({
         showCancelButton: true,
         confirmButtonText: 'Registrar en historial',
         cancelButtonText: 'Corregir fecha',
-        customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-outline-secondary' },
+        customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton: 'btn btn-outline-secondary',
+        },
       }).then((result) => {
         if (result.isConfirmed) {
           setPastOutcome({
@@ -377,7 +386,9 @@ export function AtencionesManager({
     const remaining = Math.max(0, total - alreadyPaid);
 
     if (completeForm.initial_payment > remaining) {
-      toast.error(`El monto a cobrar (S/${completeForm.initial_payment}) no puede superar el saldo restante (S/${remaining}).`);
+      toast.error(
+        `El monto a cobrar (S/${completeForm.initial_payment}) no puede superar el saldo restante (S/${remaining}).`,
+      );
       return;
     }
 
@@ -390,10 +401,14 @@ export function AtencionesManager({
       toast.success('Atención completada y pago registrado');
       setIsCompleteModalOpen(false);
 
-      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + (completeForm.initial_payment || 0));
-      const serverPaymentStatus = res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
+      const serverTotalPaid =
+        res.data?.total_paid ?? alreadyPaid + (completeForm.initial_payment || 0);
+      const serverPaymentStatus =
+        res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
 
-      setVisits((prev) => completeVisitInState(prev, selectedVisit.id, serverTotalPaid, serverPaymentStatus));
+      setVisits((prev) =>
+        completeVisitInState(prev, selectedVisit.id, serverTotalPaid, serverPaymentStatus),
+      );
       setSelectedVisit(null);
       startTransition(() => {
         router.refresh();
@@ -414,7 +429,9 @@ export function AtencionesManager({
     const remaining = Math.max(0, total - alreadyPaid);
 
     if (paymentAmount > remaining) {
-      toast.error(`El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`);
+      toast.error(
+        `El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`,
+      );
       return;
     }
 
@@ -426,10 +443,13 @@ export function AtencionesManager({
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
 
-      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + paymentAmount);
-      const serverPaymentStatus = res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
+      const serverTotalPaid = res.data?.total_paid ?? alreadyPaid + paymentAmount;
+      const serverPaymentStatus =
+        res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
 
-      setVisits((prev) => applyPaymentToVisitState(prev, paymentVisit.id, serverTotalPaid, serverPaymentStatus));
+      setVisits((prev) =>
+        applyPaymentToVisitState(prev, paymentVisit.id, serverTotalPaid, serverPaymentStatus),
+      );
       setPaymentVisit(null);
       startTransition(() => {
         router.refresh();
@@ -444,9 +464,7 @@ export function AtencionesManager({
       id: v.id,
       service_id: v.service_id || '',
       staff_id: v.staff_id || '',
-      scheduled_date: v.scheduled_date
-        ? new Date(v.scheduled_date).toISOString().slice(0, 16)
-        : '',
+      scheduled_date: v.scheduled_date ? new Date(v.scheduled_date).toISOString().slice(0, 16) : '',
       price_charged: v.price_charged || 0,
       status: v.status,
       notes: v.notes || '',
@@ -545,9 +563,7 @@ export function AtencionesManager({
         <div className="rounded-3xl bg-primary text-white border border-primary shadow-sm p-6 relative overflow-hidden group">
           <div className="flex justify-between items-start relative z-10">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold text-white/80">
-                Total de atenciones
-              </p>
+              <p className="text-sm font-semibold text-white/80">Total de atenciones</p>
               <h2 className="type-metric mt-2">{visits.length}</h2>
             </div>
             <div className="p-3 bg-white/20 rounded-xl">
@@ -559,9 +575,7 @@ export function AtencionesManager({
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                En curso
-              </p>
+              <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">En curso</p>
               <h2 className="type-metric mt-2 text-black dark:text-white">
                 {visits.filter((v) => v.status === 'en_curso').length}
               </h2>
@@ -669,9 +683,7 @@ export function AtencionesManager({
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">
-                              Hora
-                            </span>
+                            <span className="text-xs font-bold text-zinc-400 uppercase">Hora</span>
                             <span className="text-lg font-extrabold text-black dark:text-white">
                               {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                             </span>
@@ -760,9 +772,7 @@ export function AtencionesManager({
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">
-                              Hora
-                            </span>
+                            <span className="text-xs font-bold text-zinc-400 uppercase">Hora</span>
                             <span className="text-lg font-extrabold text-black dark:text-white">
                               {formatBusinessTime(visit.visit_date || visit.scheduled_date)}
                             </span>
@@ -879,7 +889,10 @@ export function AtencionesManager({
                           <td className="p-4 font-medium text-black dark:text-white">
                             {visit.service_name}
                             {visit.notes && (
-                              <div className="text-xs text-zinc-400 truncate max-w-[150px] mt-0.5" title={visit.notes}>
+                              <div
+                                className="text-xs text-zinc-400 truncate max-w-[150px] mt-0.5"
+                                title={visit.notes}
+                              >
                                 {visit.notes}
                               </div>
                             )}
@@ -897,17 +910,13 @@ export function AtencionesManager({
                               <div className="font-bold text-black dark:text-white">
                                 Total: S/ {total}
                               </div>
-                              <div className="text-zinc-500 font-medium">
-                                Pagado: S/ {pagado}
-                              </div>
+                              <div className="text-zinc-500 font-medium">Pagado: S/ {pagado}</div>
                               {saldo <= 0 ? (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                   Pagado
                                 </span>
                               ) : (
-                                <div className="font-bold text-danger">
-                                  Saldo: S/ {saldo}
-                                </div>
+                                <div className="font-bold text-danger">Saldo: S/ {saldo}</div>
                               )}
                             </div>
                           </td>
@@ -1173,7 +1182,9 @@ export function AtencionesManager({
                           }
                         : null
                     }
-                    onChange={(sel) => setForm((prev) => ({ ...prev, contact_id: sel?.value || '' }))}
+                    onChange={(sel) =>
+                      setForm((prev) => ({ ...prev, contact_id: sel?.value || '' }))
+                    }
                   />
                 </div>
               ) : (
@@ -1196,7 +1207,7 @@ export function AtencionesManager({
                     </label>
                     <input
                       type="text"
-                      placeholder="Ej: 51987654321"
+                      placeholder="Ej: 987 654 321"
                       className="form-input rounded-xl border-black-light dark:border-dark-light text-sm"
                       value={newPatient.phone}
                       onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
@@ -1240,7 +1251,8 @@ export function AtencionesManager({
                       form.staff_id
                         ? {
                             value: form.staff_id,
-                            label: staffList.find((s) => s.id === form.staff_id)?.name || 'Sin asignar',
+                            label:
+                              staffList.find((s) => s.id === form.staff_id)?.name || 'Sin asignar',
                           }
                         : { value: '', label: 'Sin asignar' }
                     }
@@ -1256,7 +1268,9 @@ export function AtencionesManager({
                   </label>
                   <CustomDatePicker
                     value={form.scheduled_date}
-                    onChangeDate={(dateStr) => setForm((prev) => ({ ...prev, scheduled_date: dateStr }))}
+                    onChangeDate={(dateStr) =>
+                      setForm((prev) => ({ ...prev, scheduled_date: dateStr }))
+                    }
                   />
                 </div>
 
@@ -1330,7 +1344,8 @@ export function AtencionesManager({
             </div>
 
             <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Como la fecha seleccionada ya pasó, define el resultado final para guardarla directamente en el <strong>historial</strong>:
+              Como la fecha seleccionada ya pasó, define el resultado final para guardarla
+              directamente en el <strong>historial</strong>:
             </p>
 
             <div className="space-y-4">
@@ -1403,7 +1418,10 @@ export function AtencionesManager({
                         setPastOutcome((prev) => ({ ...prev, isCredit: e.target.checked }))
                       }
                     />
-                    <label htmlFor="pastIsCredit" className="text-xs font-bold text-black dark:text-white cursor-pointer">
+                    <label
+                      htmlFor="pastIsCredit"
+                      className="text-xs font-bold text-black dark:text-white cursor-pointer"
+                    >
                       ¿Quedó saldo pendiente / a crédito?
                     </label>
                   </div>
@@ -1466,13 +1484,19 @@ export function AtencionesManager({
 
             <div className="text-xs text-zinc-500 space-y-1">
               <div>
-                Cliente: <strong className="text-black dark:text-white">{paymentVisit.contact_name}</strong>
+                Cliente:{' '}
+                <strong className="text-black dark:text-white">{paymentVisit.contact_name}</strong>
               </div>
               <div>
-                Servicio: <strong className="text-black dark:text-white">{paymentVisit.service_name}</strong>
+                Servicio:{' '}
+                <strong className="text-black dark:text-white">{paymentVisit.service_name}</strong>
               </div>
               <div>
-                Saldo Deuda Actual: <strong className="text-danger font-bold">S/ {Math.max(0, (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0))}</strong>
+                Saldo Deuda Actual:{' '}
+                <strong className="text-danger font-bold">
+                  S/{' '}
+                  {Math.max(0, (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0))}
+                </strong>
               </div>
             </div>
 
@@ -1484,7 +1508,10 @@ export function AtencionesManager({
                 <input
                   type="number"
                   min={1}
-                  max={Math.max(0, (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0))}
+                  max={Math.max(
+                    0,
+                    (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0),
+                  )}
                   className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full font-bold"
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(Number(e.target.value))}
@@ -1548,13 +1575,16 @@ export function AtencionesManager({
 
             <div className="text-xs text-zinc-500 space-y-1">
               <div>
-                Cliente: <strong className="text-black dark:text-white">{selectedVisit.contact_name}</strong>
+                Cliente:{' '}
+                <strong className="text-black dark:text-white">{selectedVisit.contact_name}</strong>
               </div>
               <div>
-                Servicio: <strong className="text-black dark:text-white">{selectedVisit.service_name}</strong>
+                Servicio:{' '}
+                <strong className="text-black dark:text-white">{selectedVisit.service_name}</strong>
               </div>
               <div>
-                Precio Total: <strong className="text-primary font-bold">S/ {selectedVisit.price_charged}</strong>
+                Precio Total:{' '}
+                <strong className="text-primary font-bold">S/ {selectedVisit.price_charged}</strong>
               </div>
             </div>
 
@@ -1606,7 +1636,10 @@ export function AtencionesManager({
                     setCompleteForm((prev) => ({ ...prev, is_credit: e.target.checked }))
                   }
                 />
-                <label htmlFor="isCredit" className="text-xs font-bold text-black dark:text-white cursor-pointer">
+                <label
+                  htmlFor="isCredit"
+                  className="text-xs font-bold text-black dark:text-white cursor-pointer"
+                >
                   ¿Queda un saldo a crédito?
                 </label>
               </div>
@@ -1635,9 +1668,7 @@ export function AtencionesManager({
                   rows={2}
                   className="form-textarea rounded-xl border-black-light dark:border-dark-light text-sm w-full"
                   value={completeForm.notes}
-                  onChange={(e) =>
-                    setCompleteForm((prev) => ({ ...prev, notes: e.target.value }))
-                  }
+                  onChange={(e) => setCompleteForm((prev) => ({ ...prev, notes: e.target.value }))}
                 />
               </div>
             </div>
@@ -1710,7 +1741,9 @@ export function AtencionesManager({
                     editForm.staff_id
                       ? {
                           value: editForm.staff_id,
-                          label: staffList.find((s) => s.id === editForm.staff_id)?.name || 'Sin asignar',
+                          label:
+                            staffList.find((s) => s.id === editForm.staff_id)?.name ||
+                            'Sin asignar',
                         }
                       : { value: '', label: 'Sin asignar' }
                   }

@@ -1,7 +1,11 @@
 'use client';
 
 import { useMemo, useState, useEffect, useTransition } from 'react';
-import { formatBusinessDateLabel, formatBusinessDateTime, formatDateOnly } from '@/lib/business-date';
+import {
+  formatBusinessDateLabel,
+  formatBusinessDateTime,
+  formatDateOnly,
+} from '@/lib/business-date';
 import { useRouter } from 'next/navigation';
 import {
   Search,
@@ -23,6 +27,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { BirthdayPicker } from '@/components/ui/BirthdayPicker';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { ClientProfileInteractiveName } from '@/components/clients/ClientProfilePopover';
+import { normalizePeruPhone } from '@/shared/utils/phone';
 
 const MySwal = withReactContent(Swal);
 
@@ -66,7 +71,9 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
   const [clients, setClients] = useState<ClientMetric[]>(initialClients);
 
   // Sync state from server props after a router.refresh()
-  useEffect(() => { setClients(initialClients); }, [initialClients]);
+  useEffect(() => {
+    setClients(initialClients);
+  }, [initialClients]);
   const [search, setSearch] = useState('');
 
   // Modal State
@@ -147,13 +154,14 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
   };
 
   const handleSubmit = async () => {
-    if (!form.phone.trim()) {
-      toast.error('El número de teléfono es obligatorio.');
+    const normalizedPhone = normalizePeruPhone(form.phone);
+    if (!normalizedPhone) {
+      toast.error('Ingresa un celular peruano de 9 dígitos, por ejemplo 996 552 871.');
       return;
     }
 
     if (!form.id) {
-      const existing = clients.find((c) => c.phone === form.phone);
+      const existing = clients.find((c) => normalizePeruPhone(c.phone) === normalizedPhone);
       if (existing) {
         MySwal.fire({
           title: 'Número Registrado',
@@ -165,23 +173,22 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-outline-danger' },
         }).then((result) => {
           if (result.isConfirmed) {
-            executeSave(existing.id);
+            executeSave(existing.id, normalizedPhone);
           }
         });
         return;
       }
     }
 
-    executeSave(form.id);
+    executeSave(form.id, normalizedPhone);
   };
 
-  const executeSave = async (idToUse: string) => {
+  const executeSave = async (idToUse: string, normalizedPhone: string) => {
     setIsSubmitting(true);
-    const finalSource =
-      form.optInSource === 'Otro' ? customOptInSource.trim() : form.optInSource;
+    const finalSource = form.optInSource === 'Otro' ? customOptInSource.trim() : form.optInSource;
 
     const res = await upsertContactAction({
-      phone: form.phone,
+      phone: normalizedPhone,
       name: form.name,
       email: form.email,
       documentNumber: form.documentNumber,
@@ -195,16 +202,20 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success(idToUse ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente');
+      toast.success(
+        idToUse ? 'Cliente actualizado exitosamente' : 'Cliente registrado exitosamente',
+      );
       setIsModalOpen(false);
       setClients((prev) => {
-        const existingIndex = prev.findIndex((c) => c.phone === form.phone || (idToUse && c.id === idToUse));
+        const existingIndex = prev.findIndex(
+          (c) => normalizePeruPhone(c.phone) === normalizedPhone || (idToUse && c.id === idToUse),
+        );
         if (existingIndex >= 0) {
           const updated = [...prev];
           updated[existingIndex] = {
             ...updated[existingIndex],
             name: form.name,
-            phone: form.phone,
+            phone: normalizedPhone,
             email: form.email,
             document_number: form.documentNumber,
             birthday: form.birthday,
@@ -217,7 +228,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         }
         const newClient: ClientMetric = {
           id: idToUse || res.data?.id || String(Date.now()),
-          phone: form.phone,
+          phone: normalizedPhone,
           name: form.name,
           email: form.email,
           document_number: form.documentNumber,
@@ -522,7 +533,11 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light shrink-0">
               <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-2">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  {form.id ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
+                  {form.id ? (
+                    <Edit className="w-5 h-5 text-primary" />
+                  ) : (
+                    <Plus className="w-5 h-5 text-primary" />
+                  )}
                 </div>
                 {form.id ? 'Editar Cliente' : 'Nuevo Cliente'}
               </h3>
@@ -557,7 +572,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: 51987654321"
+                    placeholder="Ej: 987 654 321"
                     className="form-input rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}

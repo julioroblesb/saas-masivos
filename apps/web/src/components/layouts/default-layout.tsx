@@ -7,48 +7,57 @@ import ScrollToTop from '@/components/layouts/scroll-to-top';
 import Sidebar from '@/components/layouts/sidebar';
 import Portals from '@/components/portals';
 import DemoBanner from '@/components/demo-banner';
-import DemoTour from '@/components/demo-tour';
 
-export default function DefaultLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <>
-            {/* BEGIN MAIN CONTAINER */}
-            <div className="relative">
-                <a
-                    href="#main-content"
-                    className="fixed left-4 top-4 z-[1000] -translate-y-24 rounded-lg bg-primary px-4 py-2 font-medium text-white transition-transform focus:translate-y-0"
-                >
-                    Saltar al contenido principal
-                </a>
-                <DemoTour />
-                <DemoBanner />
-                <Overlay />
-                <ScrollToTop />
+export default function DefaultLayout({
+  children,
+  isDemo = false,
+}: {
+  children: React.ReactNode;
+  isDemo?: boolean;
+}) {
+  return (
+    <>
+      {/* BEGIN MAIN CONTAINER */}
+      <div className="relative">
+        <a
+          href="#main-content"
+          className="fixed left-4 top-4 z-[1000] -translate-y-24 rounded-lg bg-primary px-4 py-2 font-medium text-white transition-transform focus:translate-y-0"
+        >
+          Saltar al contenido principal
+        </a>
+        <DemoBanner active={isDemo} />
+        <Overlay />
+        <ScrollToTop />
 
-                {/* BEGIN APP SETTING LAUNCHER */}
-                {/* <Setting /> Removed per user request */}
-                {/* END APP SETTING LAUNCHER */}
+        {/* BEGIN APP SETTING LAUNCHER */}
+        {/* <Setting /> Removed per user request */}
+        {/* END APP SETTING LAUNCHER */}
 
-                <MainContainer>
-                    {/* BEGIN SIDEBAR */}
-                    <Sidebar />
-                    {/* END SIDEBAR */}
-                    <div className="main-content flex min-h-[100dvh] flex-col">
-                        {/* BEGIN TOP NAVBAR */}
-                        <Header />
-                        {/* END TOP NAVBAR */}
+        <MainContainer>
+          {/* BEGIN SIDEBAR */}
+          <Sidebar />
+          {/* END SIDEBAR */}
+          <div className="main-content flex min-h-[100dvh] flex-col">
+            {/* BEGIN TOP NAVBAR */}
+            <Header />
+            {/* END TOP NAVBAR */}
 
-                        {/* BEGIN CONTENT AREA */}
-                        <ContentAnimation>{children}</ContentAnimation>
-                        {/* END CONTENT AREA */}
-
-                        {/* BEGIN FOOTER */}
-                        <Footer />
-                        {/* END FOOTER */}
-                        <Portals />
-                    </div>
-                </MainContainer>
+            {/* BEGIN CONTENT AREA */}
+            <div
+              className={isDemo ? 'demo-read-only-content' : undefined}
+              aria-disabled={isDemo || undefined}
+            >
+              <ContentAnimation>{children}</ContentAnimation>
             </div>
-        </>
-    );
+            {/* END CONTENT AREA */}
+
+            {/* BEGIN FOOTER */}
+            <Footer />
+            {/* END FOOTER */}
+            <Portals />
+          </div>
+        </MainContainer>
+      </div>
+    </>
+  );
 }

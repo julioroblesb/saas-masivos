@@ -49,6 +49,14 @@ export default async function AdminPage() {
     console.error('Error fetching wa_sessions for superadmin:', sessionErr);
   }
 
+  const { data: demoLeads, error: demoLeadsError } = await supabaseAdmin
+    .from('demo_leads')
+    .select('company_id, contact_name, phone, industry, whatsapp_consent, created_at');
+
+  if (demoLeadsError) {
+    console.error('Error fetching demo leads for superadmin:', demoLeadsError);
+  }
+
   // 3. Resolve Auth emails server-side with REAL PAGINATION (page by page beyond 1000 users)
   const emailMap = new Map<string, string>();
   try {
@@ -99,6 +107,7 @@ export default async function AdminPage() {
       sessionMap.set(s.company_id, s);
     }
   }
+  const demoLeadMap = new Map((demoLeads || []).map((lead) => [lead.company_id, lead] as const));
 
   // 4. Map extended companies resolving the owner specifically by role = 'owner'
   const extendedCompanies: ExtendedCompany[] = (rawCompanies || []).map((c) => {
@@ -107,11 +116,21 @@ export default async function AdminPage() {
     const ownerName = ownerProfile?.full_name || 'Sin dueño';
     const ownerEmail = ownerId ? emailMap.get(ownerId) || null : null;
     const waSession = sessionMap.get(c.id);
+    const demoLead = demoLeadMap.get(c.id);
 
     return {
       ...c,
       profiles: ownerProfile ? [{ id: ownerProfile.id, full_name: ownerName }] : [],
       owner_email: ownerEmail,
+      demo_lead: demoLead
+        ? {
+            contact_name: demoLead.contact_name,
+            phone: demoLead.phone,
+            industry: demoLead.industry,
+            whatsapp_consent: demoLead.whatsapp_consent,
+            created_at: demoLead.created_at,
+          }
+        : null,
       wa_session: waSession
         ? {
             status: waSession.status,

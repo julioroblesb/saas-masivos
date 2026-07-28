@@ -107,9 +107,9 @@ export function evaluateAccessRecord(
     state,
     plan,
     expiresAt,
-    canManageCompany: role === 'owner',
-    canManageUsers: role === 'owner',
-    canUseWhatsApp: true,
+    canManageCompany: state !== 'demo' && role === 'owner',
+    canManageUsers: state !== 'demo' && role === 'owner',
+    canUseWhatsApp: state !== 'demo',
   };
 }
 

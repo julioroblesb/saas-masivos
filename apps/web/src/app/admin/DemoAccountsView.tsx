@@ -31,10 +31,7 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const demoCompanies = useMemo(
-    () => companies.filter((c) => c.is_demo === true),
-    [companies],
-  );
+  const demoCompanies = useMemo(() => companies.filter((c) => c.is_demo === true), [companies]);
 
   const filteredCompanies = useMemo(() => {
     return demoCompanies.filter((c) => {
@@ -43,7 +40,10 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
       const nameMatch = c.name.toLowerCase().includes(q);
       const ownerMatch = c.profiles?.[0]?.full_name?.toLowerCase().includes(q) ?? false;
       const emailMatch = c.owner_email?.toLowerCase().includes(q) ?? false;
-      const matchesSearch = !q || nameMatch || ownerMatch || emailMatch;
+      const phoneMatch = c.demo_lead?.phone.includes(q) ?? false;
+      const industryMatch = c.demo_lead?.industry.toLowerCase().includes(q) ?? false;
+      const matchesSearch =
+        !q || nameMatch || ownerMatch || emailMatch || phoneMatch || industryMatch;
 
       if (!matchesSearch) return false;
 
@@ -91,6 +91,13 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
+  };
+
+  const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return '-';
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length !== 11 || !digits.startsWith('51')) return phone;
+    return `+51 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
   };
 
   const handleConfirmPurge = async () => {
@@ -142,7 +149,7 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
             <input
               type="text"
-              placeholder="Buscar demo por empresa, dueño o correo..."
+              placeholder="Buscar por empresa, contacto, teléfono o rubro..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -260,11 +267,14 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                   </th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Empresa Demo</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Propietario</th>
-                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Correo</th>
+                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Teléfono</th>
+                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Rubro</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Estado Efectivo</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Registro</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Vencimiento</th>
-                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500 text-right">Acción</th>
+                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500 text-right">
+                    Acción
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -303,10 +313,15 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-zinc-700 dark:text-zinc-300">
-                        {company.profiles?.[0]?.full_name || 'Sin dueño'}
+                        {company.demo_lead?.contact_name ||
+                          company.profiles?.[0]?.full_name ||
+                          'Sin contacto'}
                       </td>
-                      <td className="py-3.5 px-4 text-xs font-mono text-zinc-500">
-                        {company.owner_email || '-'}
+                      <td className="py-3.5 px-4 text-xs font-mono text-zinc-500 whitespace-nowrap">
+                        {formatPhone(company.demo_lead?.phone)}
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-zinc-600 dark:text-zinc-300">
+                        {company.demo_lead?.industry || '-'}
                       </td>
                       <td className="py-3.5 px-4">
                         {access.allowed ? (
@@ -404,11 +419,15 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
 
             <div className="p-4 rounded-xl bg-danger/5 border border-danger/15 space-y-2">
               <p className="text-xs font-semibold text-danger">
-                Se eliminarán permanentemente {selectedCompanies.length} cuentas demo y todos sus datos:
+                Se eliminarán permanentemente {selectedCompanies.length} cuentas demo y todos sus
+                datos:
               </p>
               <div className="max-h-36 overflow-y-auto space-y-1 text-xs text-zinc-700 dark:text-zinc-300 font-mono pr-2">
                 {selectedCompanies.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between py-1 border-b border-zinc-200/50 dark:border-zinc-800/50">
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between py-1 border-b border-zinc-200/50 dark:border-zinc-800/50"
+                  >
                     <span className="font-semibold">{c.name}</span>
                     <span className="text-xs text-zinc-400">{c.owner_email || 'sin correo'}</span>
                   </div>
@@ -417,7 +436,8 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
             </div>
 
             <p className="text-xs text-zinc-500">
-              Se desvincularán las instancias WhatsApp activas y se eliminarán los usuarios Auth asociados mediante Supabase Admin API. Los clientes reales no se verán afectados.
+              Se desvincularán las instancias WhatsApp activas y se eliminarán los usuarios Auth
+              asociados mediante Supabase Admin API. Los clientes reales no se verán afectados.
             </p>
 
             <div className="flex items-center justify-end gap-3 pt-2">
