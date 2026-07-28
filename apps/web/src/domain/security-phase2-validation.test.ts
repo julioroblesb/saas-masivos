@@ -88,12 +88,15 @@ describe('Phase 2 Security & Architecture Audits', () => {
     expect(content).toContain('secretsMatch(receivedSecret, env.INTERNAL_TOKEN)');
   });
 
-  it('verifies controlled admin endpoint exists for webhook reconfiguration', () => {
+  it('verifies controlled admin endpoint exists for webhook reconfiguration and rejects standard tenant owner/admin', () => {
     const routePath = join(rootDir, 'apps/web/src/app/api/admin/reconfigure-webhooks/route.ts');
     expect(existsSync(routePath)).toBe(true);
     const content = readFileSync(routePath, 'utf8');
 
     expect(content).toContain('reconfigureConnectedWebhooks');
     expect(content).toContain('INTERNAL_TOKEN');
+    expect(content).toContain("profile?.role === 'super_admin'");
+    expect(content).not.toContain("profile?.role === 'owner'");
+    expect(content).not.toContain("profile?.role === 'admin'");
   });
 });
