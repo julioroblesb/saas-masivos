@@ -1,13 +1,16 @@
-begin;
+-- Migration: Security Phase 1 Additive (corrected bridge version)
+-- Intended file path: supabase/migrations/20260728103000_security_phase1_additive.sql
+-- Prepared for manual execution in Supabase SQL Editor.
+-- IMPORTANT: Do not execute the older 20260728100000 migration.
+-- This migration is transactional and does not drop legacy columns/tables or revoke application DML.
 
+begin;
 -- ============================================================================
 -- FASE 1C: MIGRACIÓN ADITIVA SEGURA DE WA_SESSIONS & WA_WEBHOOK_SECRETS
 -- ============================================================================
-
 -- 1. Agregar columna evolution_instance_name a public.wa_sessions (SIN webhook_secret)
 alter table public.wa_sessions
   add column if not exists evolution_instance_name text;
-
 -- 2. Preservar sesiones Evolution válidas y resetear únicamente las legacy
 with expected as (
   select
@@ -18,6 +21,9 @@ with expected as (
 update public.wa_sessions ws
 set
   evolution_instance_name = e.expected_instance,
+  -- Puente temporal: el código de Fase 1 todavía lee bb_project_id.
+  -- Los CASE de abajo se evalúan contra el valor anterior de la fila.
+  bb_project_id = e.expected_instance,
   status = case
     when ws.bb_project_id = e.expected_instance
       then ws.status
@@ -36,7 +42,6 @@ set
 from expected e
 where e.company_id = ws.company_id
   and ws.evolution_instance_name is null;
-
 -- 3. Preflight: verificar que no existen duplicados antes de crear el índice único
 do $$
 declare
@@ -49,17 +54,14 @@ begin
     group by evolution_instance_name
     having count(*) > 1
   ) dups;
-
   if v_dup_count > 0 then
     raise exception 'Preflight failed: duplicate evolution_instance_name found';
   end if;
 end $$;
-
 -- 4. Crear índice único parcial sobre evolution_instance_name
 create unique index if not exists wa_sessions_evolution_instance_name_idx
   on public.wa_sessions (evolution_instance_name)
   where evolution_instance_name is not null;
-
 -- 5. Crear tabla separada y segura para secretos de webhook (inaccesible desde el navegador)
 create table if not exists public.wa_webhook_secrets (
   company_id uuid primary key references public.companies(id) on delete cascade,
@@ -69,23 +71,17 @@ create table if not exists public.wa_webhook_secrets (
   constraint wa_webhook_secrets_format_check
     check (char_length(secret) = 64 and secret ~ '^[0-9a-f]{64}$')
 );
-
 alter table public.wa_webhook_secrets enable row level security;
-
 revoke all on table public.wa_webhook_secrets from anon, authenticated;
 grant select, insert, update, delete on table public.wa_webhook_secrets to service_role;
-
 -- Backfill para empresas existentes en wa_sessions
 insert into public.wa_webhook_secrets (company_id, secret)
 select company_id, encode(extensions.gen_random_bytes(32), 'hex')
 from public.wa_sessions
 on conflict (company_id) do nothing;
-
-
 -- ============================================================================
 -- FASE 1D: CORREGIR SOBREPAGO EN RPC_COMPLETE_VISIT (CONSERVA FIRMA CANÓNICA)
 -- ============================================================================
-
 create or replace function public.rpc_complete_visit(
   p_visit_id uuid,
   p_payment_method text default null,
@@ -123,7 +119,6 @@ declare
   v_followup_enabled boolean;
 begin
   if v_actor_id is null then raise exception 'Not authenticated'; end if;
-
   select company_id into v_company_id
     from public.profiles
    where id = v_actor_id;
@@ -132,7 +127,6 @@ begin
   if p_initial_payment > 0 and nullif(trim(p_payment_method), '') is null then
     raise exception 'El método de pago es obligatorio';
   end if;
-
   select *
     into v_visit
     from public.spa_visits
@@ -143,26 +137,22 @@ begin
   if v_visit.status in ('cancelado', 'no_asistio') then
     raise exception 'No se puede completar una atención cancelada';
   end if;
-
   select * into v_contact
     from public.crm_marketing_contacts
    where id = v_visit.contact_id
      and company_id = v_company_id;
   if not found then raise exception 'Contacto no encontrado'; end if;
-
   select * into v_service
     from public.spa_services
    where id = v_visit.service_id
      and company_id = v_company_id;
   if not found then raise exception 'Servicio no encontrado'; end if;
-
   -- Calcular pagos acumulados actuales
   select coalesce(sum(amount), 0)
     into v_total_paid
     from public.spa_payments
    where visit_id = p_visit_id
      and company_id = v_company_id;
-
   -- Comprobar si ya se registró el pago de finalización de esta atención (idempotencia)
   select exists (
     select 1
@@ -170,18 +160,15 @@ begin
      where company_id = v_company_id
        and idempotency_key = 'visit:' || p_visit_id::text || ':completion'
   ) into v_completion_payment_exists;
-
   -- Determinar el abono adicional efectivo para la validación
   v_effective_add_payment := case
     when v_completion_payment_exists then 0
     else coalesce(p_initial_payment, 0)
   end;
-
   -- Validar que el pago acumulado total no excede el precio
   if v_total_paid + v_effective_add_payment > coalesce(v_visit.price_charged, 0) then
     raise exception 'El abono excede el precio de la atención';
   end if;
-
   if p_initial_payment > 0 then
     insert into public.spa_payments (
       company_id,
@@ -207,14 +194,12 @@ begin
       where idempotency_key is not null
     do nothing;
   end if;
-
   -- Recalcular total pagado exacto tras inserción idempotente
   select coalesce(sum(amount), 0)
     into v_total_paid
     from public.spa_payments
    where visit_id = p_visit_id
      and company_id = v_company_id;
-
   v_payment_status := case
     when v_total_paid >= coalesce(v_visit.price_charged, 0) then 'pagado'
     when v_total_paid > 0 then 'parcial'
@@ -227,7 +212,6 @@ begin
   if p_is_credit and v_payment_status <> 'pagado' and v_debt_due_date is null then
     raise exception 'La fecha de deuda es obligatoria';
   end if;
-
   update public.spa_visits
      set status = 'completado',
          completed_at = coalesce(completed_at, now()),
@@ -235,7 +219,6 @@ begin
          debt_due_date = v_debt_due_date,
          notes = coalesce(nullif(trim(p_notes), ''), notes)
    where id = p_visit_id;
-
   update public.crm_marketing_contacts contact
      set total_visits = metrics.total_visits,
          total_spent = metrics.total_spent,
@@ -252,9 +235,7 @@ begin
     ) metrics
    where contact.id = v_visit.contact_id
      and contact.company_id = v_company_id;
-
   perform public.rpc_recalculate_customer_segment(v_visit.contact_id);
-
   select settings into v_settings
     from public.companies
    where id = v_company_id;
@@ -264,7 +245,6 @@ begin
   v_followup_enabled := case lower(coalesce(v_auto->>'followUpEnabled', 'true'))
     when 'false' then false else true end;
   v_name := coalesce(nullif(trim(v_contact.name), ''), 'cliente');
-
   if v_contact.phone is not null and trim(v_contact.phone) <> '' then
     v_care_template := coalesce(
       nullif(v_auto->>'careTemplate', ''),
@@ -278,7 +258,6 @@ begin
       nullif(v_auto->>'followUpTemplate', ''),
       'Hola {{nombre}}, ¿cómo sigues después de tu servicio de {{servicio}} hace {{dias}} días?'
     );
-
     if v_care_enabled then
       v_message := replace(replace(v_care_template, '{{nombre}}', v_name), '{{servicio}}', v_service.name);
       insert into public.crm_wa_queue (
@@ -293,7 +272,6 @@ begin
       )
       on conflict (company_id, idempotency_key) do nothing;
       get diagnostics v_messages_queued = row_count;
-
       if nullif(trim(v_service.care_instructions), '') is not null
          or nullif(trim(v_service.care_image_url), '') is not null then
         v_message := replace(
@@ -320,7 +298,6 @@ begin
         v_messages_queued := v_messages_queued + case when found then 1 else 0 end;
       end if;
     end if;
-
     if v_followup_enabled and coalesce(v_service.duration_days, 0) > 0 then
       v_message := replace(
         replace(
@@ -345,7 +322,6 @@ begin
       v_messages_queued := v_messages_queued + case when found then 1 else 0 end;
     end if;
   end if;
-
   insert into public.spa_visit_events (
     company_id, visit_id, event_type, actor_id, payload
   )
@@ -361,7 +337,6 @@ begin
     )
   )
   on conflict (visit_id, event_type) do nothing;
-
   return jsonb_build_object(
     'success', true,
     'visit_id', p_visit_id,
@@ -371,12 +346,9 @@ begin
   );
 end;
 $$;
-
-
 -- ============================================================================
 -- FASE 1E: LÍMITES Y VALIDACIÓN PREVIA EN RPC_CREATE_CAMPAIGN (FIRMA CANÓNICA)
 -- ============================================================================
-
 create or replace function public.rpc_create_campaign(
   p_name text,
   p_target_contact_ids uuid[],
@@ -408,48 +380,37 @@ begin
     from public.profiles
    where id = (select auth.uid());
   if v_company_id is null then raise exception 'Not authorized'; end if;
-
   if not exists (
     select 1 from public.companies
      where id = v_company_id
        and status = 'activa'
        and subscription_end_at > now()
   ) then raise exception 'La empresa no tiene acceso activo'; end if;
-
   if nullif(trim(p_name), '') is null then raise exception 'Nombre obligatorio'; end if;
-
   if p_min_delay_sec is null or p_max_delay_sec is null then
     raise exception 'Los tiempos de espera no pueden ser nulos';
   end if;
-
   if p_min_delay_sec < 10 or p_max_delay_sec < p_min_delay_sec or p_max_delay_sec > 3600 then
     raise exception 'Rango de espera inválido';
   end if;
-
   if jsonb_typeof(p_sequence) <> 'array' or jsonb_array_length(p_sequence) = 0 then
     raise exception 'La secuencia está vacía';
   end if;
-
   v_step_count := jsonb_array_length(p_sequence);
   if v_step_count > 10 then
     raise exception 'La secuencia no puede tener más de 10 pasos';
   end if;
-
   if octet_length(p_sequence::text) > 100000 then
     raise exception 'El tamaño de la secuencia de mensajes excede el límite permitido';
   end if;
-
   v_recipient_count := coalesce(cardinality(p_target_contact_ids), 0)
                      + coalesce(cardinality(p_target_raw_phones), 0);
-
   if v_recipient_count > 500 then
     raise exception 'La campaña excede 500 destinatarios';
   end if;
-
   if v_recipient_count * v_step_count > 5000 then
     raise exception 'La campaña excede 5000 mensajes totales';
   end if;
-
   -- VALIDAR TODOS LOS PASOS ANTES DE CUALQUIER INSERCIÓN
   v_index := 0;
   for v_step in select * from jsonb_array_elements(p_sequence)
@@ -472,7 +433,6 @@ begin
       end if;
     end if;
   end loop;
-
   insert into public.crm_wa_campaigns (
     company_id, name, message_template, sequence,
     min_delay_sec, max_delay_sec, status, total_contacts, started_at
@@ -482,7 +442,6 @@ begin
     p_min_delay_sec, p_max_delay_sec, 'running', 0, now()
   )
   returning id into v_campaign_id;
-
   for v_contact in
     select id, regexp_replace(phone, '[^0-9]', '', 'g') as phone
       from public.crm_marketing_contacts
@@ -513,7 +472,6 @@ begin
       v_queued_items := v_queued_items + 1;
     end loop;
   end loop;
-
   for v_phone in
     select distinct regexp_replace(raw_phone, '[^0-9]', '', 'g')
       from unnest(coalesce(p_target_raw_phones, '{}'::text[])) raw_phone
@@ -542,15 +500,12 @@ begin
       v_queued_items := v_queued_items + 1;
     end loop;
   end loop;
-
   if v_queued_items = 0 then
     raise exception 'No hay destinatarios válidos';
   end if;
-
   update public.crm_wa_campaigns
      set total_contacts = v_queued_items
    where id = v_campaign_id;
-
   return jsonb_build_object(
     'success', true,
     'campaign_id', v_campaign_id,
@@ -558,12 +513,8 @@ begin
   );
 end;
 $$;
-
-
 -- ============================================================================
 -- FASE 1F: PRIVILEGIOS DE TRUNCATE (SIN REVOCAR DML TODAVÍA)
 -- ============================================================================
-
 revoke truncate on all tables in schema public from anon, authenticated;
-
 commit;
