@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('Phase 2 Security & Architecture Audits', () => {
-  const rootDir = process.cwd();
+  const rootDir = join(process.cwd(), '..', '..');
 
   it('verifies active code does not read or write bb_project_id', () => {
     const activeFiles = [
@@ -38,7 +38,10 @@ describe('Phase 2 Security & Architecture Audits', () => {
   });
 
   it('verifies phase 2 RPC migration file enforces all 13 PostgreSQL security rules', () => {
-    const migrationPath = join(rootDir, 'supabase/migrations/20260728110000_security_phase2_rpcs.sql');
+    const migrationPath = join(
+      rootDir,
+      'supabase/migrations/20260728110000_security_phase2_rpcs.sql',
+    );
     expect(existsSync(migrationPath)).toBe(true);
     const sql = readFileSync(migrationPath, 'utf8');
 

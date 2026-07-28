@@ -52,9 +52,11 @@ export default async function AdminPage() {
   // 3. Resolve Auth emails server-side with REAL PAGINATION (page by page beyond 1000 users)
   const emailMap = new Map<string, string>();
   try {
+    const maxAuthPages = 10_000;
+    const seenPageFingerprints = new Set<string>();
     let page = 1;
     let hasMore = true;
-    while (hasMore) {
+    while (hasMore && page <= maxAuthPages) {
       const {
         data: { users: authUsers },
         error: listErr,
@@ -63,6 +65,17 @@ export default async function AdminPage() {
       if (listErr || !authUsers || authUsers.length === 0) {
         hasMore = false;
       } else {
+        const pageFingerprint = `${authUsers.length}:${authUsers[0]?.id ?? ''}:${
+          authUsers.at(-1)?.id ?? ''
+        }`;
+        if (seenPageFingerprints.has(pageFingerprint)) {
+          console.error('Auth pagination returned a repeated page; stopping defensively.', {
+            page,
+          });
+          break;
+        }
+        seenPageFingerprints.add(pageFingerprint);
+
         authUsers.forEach((u) => {
           if (u.email) emailMap.set(u.id, u.email);
         });
@@ -72,6 +85,9 @@ export default async function AdminPage() {
           page += 1;
         }
       }
+    }
+    if (page > maxAuthPages) {
+      console.error('Auth pagination reached the defensive page limit.');
     }
   } catch (err) {
     console.error('Error paginating auth users for superadmin email resolution:', err);
@@ -86,8 +102,7 @@ export default async function AdminPage() {
 
   // 4. Map extended companies resolving the owner specifically by role = 'owner'
   const extendedCompanies: ExtendedCompany[] = (rawCompanies || []).map((c) => {
-    // Select specifically profile where role === 'owner', fallback to first if unassigned
-    const ownerProfile = c.profiles?.find((p) => p.role === 'owner') || c.profiles?.[0];
+    const ownerProfile = c.profiles?.find((p) => p.role === 'owner');
     const ownerId = ownerProfile?.id;
     const ownerName = ownerProfile?.full_name || 'Sin dueño';
     const ownerEmail = ownerId ? emailMap.get(ownerId) || null : null;

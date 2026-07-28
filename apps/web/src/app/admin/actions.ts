@@ -234,13 +234,212 @@ const purgeDemoSchema = z.object({
   companyIds: z.array(z.string().uuid()).min(1).max(100),
 });
 
+const STORAGE_BUCKET = 'spa-media';
+const STORAGE_PAGE_SIZE = 100;
+const STORAGE_REMOVE_BATCH_SIZE = 100;
+const MAX_STORAGE_DIRECTORIES = 10_000;
+const MAX_STORAGE_PAGES_PER_DIRECTORY = 10_000;
+
+type SupabaseAdminClient = ReturnType<typeof getSupabaseAdmin>;
+
+interface ValidatedPurgeResult {
+  companyIds: string[];
+  purgedCount: number;
+}
+
+function safeCleanupErrorMessage(error: unknown): string {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof error.message === 'string'
+        ? error.message
+        : String(error);
+  return message
+    .replace(
+      /(authorization|apikey|api[_-]?key|token|secret)(\s*[:=]\s*)[^\s,;]+/gi,
+      '$1$2[REDACTED]',
+    )
+    .replace(/\beyJ[A-Za-z0-9_-]{20,}(?:\.[A-Za-z0-9_-]+){0,2}\b/g, '[REDACTED_TOKEN]')
+    .slice(0, 500);
+}
+
+function validatePurgeRpcResult(
+  rpcResult: unknown,
+  requestedCompanyIds: string[],
+): ValidatedPurgeResult | null {
+  if (typeof rpcResult !== 'object' || rpcResult === null || Array.isArray(rpcResult)) {
+    return null;
+  }
+
+  const result = rpcResult as Record<string, unknown>;
+  if (
+    result.success !== true ||
+    result.purged_count !== requestedCompanyIds.length ||
+    !Array.isArray(result.company_ids) ||
+    !result.company_ids.every((id): id is string => typeof id === 'string')
+  ) {
+    return null;
+  }
+
+  const returnedCompanyIds = result.company_ids;
+  const requestedSet = new Set(requestedCompanyIds);
+  const returnedSet = new Set(returnedCompanyIds);
+  const setsMatch =
+    requestedSet.size === requestedCompanyIds.length &&
+    returnedSet.size === returnedCompanyIds.length &&
+    requestedSet.size === returnedSet.size &&
+    [...requestedSet].every((id) => returnedSet.has(id));
+
+  if (!setsMatch) {
+    return null;
+  }
+
+  return {
+    companyIds: returnedCompanyIds,
+    purgedCount: result.purged_count,
+  };
+}
+
+function safeStorageChildPath(
+  tenantPrefix: string,
+  directory: string,
+  itemName: string,
+): string | null {
+  if (
+    itemName.length === 0 ||
+    itemName === '.' ||
+    itemName === '..' ||
+    itemName.includes('/') ||
+    itemName.includes('\\')
+  ) {
+    return null;
+  }
+
+  const childPath = `${directory}/${itemName}`;
+  return childPath.startsWith(`${tenantPrefix}/`) ? childPath : null;
+}
+
+async function removeStoragePrefixRecursively(
+  supabaseAdmin: SupabaseAdminClient,
+  tenantPrefix: string,
+  storageCleanupErrors: string[],
+): Promise<void> {
+  const bucket = supabaseAdmin.storage.from(STORAGE_BUCKET);
+  const pendingDirectories = [tenantPrefix];
+  const visitedDirectories = new Set<string>();
+  const filesToRemove = new Set<string>();
+
+  while (pendingDirectories.length > 0) {
+    if (visitedDirectories.size >= MAX_STORAGE_DIRECTORIES) {
+      storageCleanupErrors.push(
+        `Storage ${tenantPrefix}: se alcanzó el límite defensivo de carpetas.`,
+      );
+      return;
+    }
+
+    const directory = pendingDirectories.shift();
+    if (!directory || visitedDirectories.has(directory)) {
+      continue;
+    }
+    visitedDirectories.add(directory);
+
+    const pageFingerprints = new Set<string>();
+    let offset = 0;
+    let finishedDirectory = false;
+
+    for (let page = 0; page < MAX_STORAGE_PAGES_PER_DIRECTORY; page += 1) {
+      let listResult: Awaited<ReturnType<typeof bucket.list>>;
+      try {
+        listResult = await bucket.list(directory, {
+          limit: STORAGE_PAGE_SIZE,
+          offset,
+          sortBy: { column: 'name', order: 'asc' },
+        });
+      } catch (error: unknown) {
+        storageCleanupErrors.push(
+          `Storage ${tenantPrefix}: excepción listando ${directory}: ${safeCleanupErrorMessage(error)}`,
+        );
+        return;
+      }
+
+      if (listResult.error) {
+        storageCleanupErrors.push(
+          `Storage ${tenantPrefix}: error listando ${directory}: ${safeCleanupErrorMessage(listResult.error)}`,
+        );
+        return;
+      }
+
+      const items = listResult.data;
+      const fingerprint = items.map((item) => `${item.name}:${item.id ?? 'folder'}`).join('|');
+      if (items.length > 0 && pageFingerprints.has(fingerprint)) {
+        storageCleanupErrors.push(
+          `Storage ${tenantPrefix}: la paginación repitió resultados en ${directory}.`,
+        );
+        return;
+      }
+      pageFingerprints.add(fingerprint);
+
+      for (const item of items) {
+        const childPath = safeStorageChildPath(tenantPrefix, directory, item.name);
+        if (!childPath) {
+          storageCleanupErrors.push(
+            `Storage ${tenantPrefix}: se rechazó una ruta fuera del prefijo permitido.`,
+          );
+          return;
+        }
+
+        if (item.id === null) {
+          if (!visitedDirectories.has(childPath)) {
+            pendingDirectories.push(childPath);
+          }
+        } else {
+          filesToRemove.add(childPath);
+        }
+      }
+
+      if (items.length < STORAGE_PAGE_SIZE) {
+        finishedDirectory = true;
+        break;
+      }
+      offset += items.length;
+    }
+
+    if (!finishedDirectory) {
+      storageCleanupErrors.push(
+        `Storage ${tenantPrefix}: se alcanzó el límite defensivo de páginas en ${directory}.`,
+      );
+      return;
+    }
+  }
+
+  const paths = [...filesToRemove];
+  for (let index = 0; index < paths.length; index += STORAGE_REMOVE_BATCH_SIZE) {
+    const batch = paths.slice(index, index + STORAGE_REMOVE_BATCH_SIZE);
+    try {
+      const { error } = await bucket.remove(batch);
+      if (error) {
+        storageCleanupErrors.push(
+          `Storage ${tenantPrefix}: error eliminando un lote: ${safeCleanupErrorMessage(error)}`,
+        );
+      }
+    } catch (error: unknown) {
+      storageCleanupErrors.push(
+        `Storage ${tenantPrefix}: excepción eliminando un lote: ${safeCleanupErrorMessage(error)}`,
+      );
+    }
+  }
+}
+
 /**
  * Transactional & Observable Demo Tenant Purge.
  * 1. Verifies super_admin role and validates input array.
  * 2. Captures metadata BEFORE purging database (Auth IDs, Evolution instances, Storage prefixes).
  * 3. Calls rpc_purge_demo_tenants for atomic database transaction.
  * 4. Post-commit: attempts cleanup of Evolution instances, Auth users, and Storage files.
- * 5. Returns structured observability detailing DB success and any external cleanup notices.
+ * 5. Returns structured observability detailing DB success and external cleanup notices.
  */
 export async function purgeDemoTenants(data: unknown) {
   try {
@@ -265,17 +464,31 @@ export async function purgeDemoTenants(data: unknown) {
     const supabaseAdmin = getSupabaseAdmin();
 
     // 1. CAPTURE METADATA BEFORE DB PURGE
-    const { data: linkedProfiles } = await supabaseAdmin
+    const { data: linkedProfiles, error: linkedProfilesError } = await supabaseAdmin
       .from('profiles')
       .select('id, company_id')
       .in('company_id', companyIds);
 
+    if (linkedProfilesError) {
+      console.error('purgeDemoTenants.profile_capture_failed', {
+        error: safeCleanupErrorMessage(linkedProfilesError),
+      });
+      return { error: 'No se pudo preparar la captura de usuarios para la purga.' };
+    }
+
     const authUserIds = (linkedProfiles ?? []).map((p) => p.id);
 
-    const { data: waSessions } = await supabaseAdmin
+    const { data: waSessions, error: waSessionsError } = await supabaseAdmin
       .from('wa_sessions')
       .select('company_id, evolution_instance_name, status')
       .in('company_id', companyIds);
+
+    if (waSessionsError) {
+      console.error('purgeDemoTenants.wa_session_capture_failed', {
+        error: safeCleanupErrorMessage(waSessionsError),
+      });
+      return { error: 'No se pudo preparar la captura de sesiones de WhatsApp para la purga.' };
+    }
 
     // 2. EXECUTE TRANSACTIONAL RPC FOR ATOMIC DB PURGE
     const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc('rpc_purge_demo_tenants', {
@@ -284,14 +497,50 @@ export async function purgeDemoTenants(data: unknown) {
     });
 
     if (rpcErr) {
-      return { error: `Error en purga de base de datos: ${rpcErr.message}` };
+      console.error('purgeDemoTenants.database_purge_failed', {
+        error: safeCleanupErrorMessage(rpcErr),
+      });
+      return { error: 'No se pudo completar la purga transaccional de la base de datos.' };
     }
 
-    const parsedRpcRes = rpcResult as {
-      success?: boolean;
-      purged_count?: number;
-      company_ids?: string[];
-    };
+    const validatedRpcResult = validatePurgeRpcResult(rpcResult, companyIds);
+    if (!validatedRpcResult) {
+      const returnedCount =
+        typeof rpcResult === 'object' &&
+        rpcResult !== null &&
+        !Array.isArray(rpcResult) &&
+        typeof (rpcResult as Record<string, unknown>).purged_count === 'number'
+          ? ((rpcResult as Record<string, unknown>).purged_count as number)
+          : null;
+
+      console.error('purgeDemoTenants.rpc_integrity_mismatch', {
+        requestedCount: companyIds.length,
+        returnedCount,
+      });
+      try {
+        await recordAuditEvent({
+          actorId: user.id,
+          companyId: null,
+          correlationId: crypto.randomUUID(),
+          entityId: null,
+          entityType: 'demo_tenants_batch',
+          eventType: 'superadmin.demo_tenant_purge_integrity_mismatch',
+          metadata: {
+            requestedCount: companyIds.length,
+            returnedCount,
+          },
+          outcome: 'failure',
+        });
+      } catch (auditError: unknown) {
+        console.error('purgeDemoTenants.integrity_audit_failed', {
+          error: safeCleanupErrorMessage(auditError),
+        });
+      }
+      return {
+        error:
+          'La base de datos devolvió un resultado inconsistente. Se detuvieron las limpiezas externas.',
+      };
+    }
 
     // 3. POST-COMMIT EXTERNAL CLEANUPS (Observable & Non-Destructive to committed DB state)
     const authCleanupErrors: string[] = [];
@@ -302,16 +551,21 @@ export async function purgeDemoTenants(data: unknown) {
     if (waSessions && waSessions.length > 0) {
       for (const session of waSessions) {
         if (session.evolution_instance_name) {
-          try {
-            if (session.status !== 'desconectado') {
+          const instanceName = session.evolution_instance_name;
+          if (session.status !== 'desconectado') {
+            try {
               await evolution.logoutInstance(session.evolution_instance_name);
+            } catch (evoErr: unknown) {
+              evolutionCleanupErrors.push(
+                `Logout de ${instanceName}: ${safeCleanupErrorMessage(evoErr)}`,
+              );
             }
-            await evolution.deleteInstance(session.evolution_instance_name);
+          }
+          try {
+            await evolution.deleteInstance(instanceName);
           } catch (evoErr: unknown) {
             evolutionCleanupErrors.push(
-              `Instancia ${session.evolution_instance_name}: ${
-                evoErr instanceof Error ? evoErr.message : String(evoErr)
-              }`,
+              `Delete de ${instanceName}: ${safeCleanupErrorMessage(evoErr)}`,
             );
           }
         }
@@ -320,34 +574,26 @@ export async function purgeDemoTenants(data: unknown) {
 
     // 3b. Supabase Auth users cleanup
     for (const authUserId of authUserIds) {
-      const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(authUserId);
-      if (authDelErr) {
-        authCleanupErrors.push(`Usuario Auth ${authUserId}: ${authDelErr.message}`);
+      try {
+        const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(authUserId);
+        if (authDelErr) {
+          authCleanupErrors.push(
+            `Usuario Auth ${authUserId}: ${safeCleanupErrorMessage(authDelErr)}`,
+          );
+        }
+      } catch (authError: unknown) {
+        authCleanupErrors.push(`Usuario Auth ${authUserId}: ${safeCleanupErrorMessage(authError)}`);
       }
     }
 
     // 3c. Storage files cleanup ('spa-media' bucket)
     for (const companyId of companyIds) {
-      try {
-        const rawPrefix = `${companyId}`;
-        const cleanPrefix = companyId.replaceAll('-', '');
-
-        const { data: rawFiles } = await supabaseAdmin.storage.from('spa-media').list(rawPrefix);
-        if (rawFiles && rawFiles.length > 0) {
-          const filePaths = rawFiles.map((f) => `${rawPrefix}/${f.name}`);
-          await supabaseAdmin.storage.from('spa-media').remove(filePaths);
-        }
-
-        const { data: cleanFiles } = await supabaseAdmin.storage.from('spa-media').list(cleanPrefix);
-        if (cleanFiles && cleanFiles.length > 0) {
-          const filePaths = cleanFiles.map((f) => `${cleanPrefix}/${f.name}`);
-          await supabaseAdmin.storage.from('spa-media').remove(filePaths);
-        }
-      } catch (stgErr: unknown) {
-        storageCleanupErrors.push(
-          `Storage ${companyId}: ${stgErr instanceof Error ? stgErr.message : String(stgErr)}`,
-        );
-      }
+      await removeStoragePrefixRecursively(supabaseAdmin, companyId, storageCleanupErrors);
+      await removeStoragePrefixRecursively(
+        supabaseAdmin,
+        companyId.replaceAll('-', ''),
+        storageCleanupErrors,
+      );
     }
 
     revalidatePath('/admin');
@@ -355,8 +601,8 @@ export async function purgeDemoTenants(data: unknown) {
     return {
       success: true,
       databasePurged: {
-        count: parsedRpcRes.purged_count ?? companyIds.length,
-        companyIds: parsedRpcRes.company_ids ?? companyIds,
+        count: validatedRpcResult.purgedCount,
+        companyIds: validatedRpcResult.companyIds,
       },
       authCleanupErrors,
       evolutionCleanupErrors,

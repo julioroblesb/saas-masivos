@@ -4,7 +4,10 @@ import path from 'path';
 
 describe('Security Phase 1 Additive Migration & Bridge Validation', () => {
   const migrationsDir = path.resolve(__dirname, '../../../../supabase/migrations');
-  const additiveMigrationPath = path.join(migrationsDir, '20260728103000_security_phase1_additive.sql');
+  const additiveMigrationPath = path.join(
+    migrationsDir,
+    '20260728103000_security_phase1_additive.sql',
+  );
 
   it('1. Synchronizes bb_project_id = e.expected_instance in update bridge', () => {
     expect(fs.existsSync(additiveMigrationPath)).toBe(true);
@@ -17,8 +20,8 @@ describe('Security Phase 1 Additive Migration & Bridge Validation', () => {
     const sql = fs.readFileSync(additiveMigrationPath, 'utf8');
 
     expect(sql).toContain('when ws.bb_project_id = e.expected_instance');
-    expect(sql).toContain("then ws.status\n    else 'desconectado'");
-    expect(sql).toContain("then ws.phone_number\n    else null");
+    expect(sql).toMatch(/then ws\.status\r?\n\s+else 'desconectado'/);
+    expect(sql).toMatch(/then ws\.phone_number\r?\n\s+else null/);
   });
 
   it('3. webhook_secret is NOT added to wa_sessions', () => {
@@ -32,8 +35,12 @@ describe('Security Phase 1 Additive Migration & Bridge Validation', () => {
 
     expect(sql).toContain('create table if not exists public.wa_webhook_secrets');
     expect(sql).toContain('alter table public.wa_webhook_secrets enable row level security;');
-    expect(sql).toContain('revoke all on table public.wa_webhook_secrets from anon, authenticated;');
-    expect(sql).toContain('grant select, insert, update, delete on table public.wa_webhook_secrets to service_role;');
+    expect(sql).toContain(
+      'revoke all on table public.wa_webhook_secrets from anon, authenticated;',
+    );
+    expect(sql).toContain(
+      'grant select, insert, update, delete on table public.wa_webhook_secrets to service_role;',
+    );
     expect(sql).toContain('extensions.gen_random_bytes(32)');
   });
 
@@ -58,8 +65,12 @@ describe('Security Phase 1 Additive Migration & Bridge Validation', () => {
   it('6. Preserves canonical 6-parameter signatures for rpc_complete_visit and rpc_create_campaign', () => {
     const sql = fs.readFileSync(additiveMigrationPath, 'utf8');
 
-    const completeVisitMatches = sql.match(/create or replace function public\.rpc_complete_visit/g);
-    const createCampaignMatches = sql.match(/create or replace function public\.rpc_create_campaign/g);
+    const completeVisitMatches = sql.match(
+      /create or replace function public\.rpc_complete_visit/g,
+    );
+    const createCampaignMatches = sql.match(
+      /create or replace function public\.rpc_create_campaign/g,
+    );
 
     expect(completeVisitMatches?.length).toBe(1);
     expect(createCampaignMatches?.length).toBe(1);
