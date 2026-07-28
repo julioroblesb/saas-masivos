@@ -325,24 +325,27 @@ export async function createVisitAction(data: {
       }
     }
 
-    const { data: insertedVisit, error } = await supabase
+    const { data: rpcRes, error: rpcError } = await supabase.rpc('rpc_create_visit', {
+      p_contact_id: finalContactId,
+      p_service_id: data.service_id,
+      p_staff_id: data.staff_id || undefined,
+      p_visit_date: data.visit_date,
+      p_price_charged: service.price,
+    });
+
+    if (rpcError || !rpcRes) {
+      return { error: rpcError?.message ?? 'No se pudo agendar la cita' };
+    }
+
+    const createdVisitId = (rpcRes as { visit_id: string }).visit_id;
+
+    const { data: insertedVisit, error: fetchInsertedErr } = await supabase
       .from('spa_visits')
-      .insert({
-        company_id: companyId,
-        contact_id: finalContactId,
-        service_id: data.service_id,
-        staff_id: data.staff_id,
-        visit_date: data.visit_date,
-        scheduled_date: data.visit_date,
-        duration_minutes: data.duration_minutes,
-        price_charged: service.price,
-        status: 'agendado',
-        payment_status: 'pendiente',
-      })
-      .select()
+      .select('*')
+      .eq('id', createdVisitId)
       .single();
 
-    if (error) throw error;
+    if (fetchInsertedErr || !insertedVisit) throw fetchInsertedErr ?? new Error('Visit not found');
 
     revalidatePath('/dashboard/agenda');
     revalidatePath('/dashboard/atenciones');

@@ -1,5 +1,6 @@
 import { z, type ZodType } from 'zod';
 import { getEnv } from '@/config/env';
+import { validatePublicMediaUrl } from '@/shared/utils/ssrf';
 import type {
   WhatsAppConnectionState,
   WhatsAppMessageReceipt,
@@ -128,28 +129,6 @@ export function extractEvolutionQr(payload: unknown): string | null {
   );
 }
 
-export function validatePublicMediaUrl(url: string): string {
-  const parsed = z.string().url().parse(url);
-  const u = new URL(parsed);
-  if (u.protocol !== 'https:') {
-    throw new EvolutionApiError('Las imágenes deben servirse a través de HTTPS', 'INVALID_INPUT', 400);
-  }
-  const host = u.hostname.toLowerCase();
-  if (
-    host === 'localhost' ||
-    host.endsWith('.local') ||
-    host === '127.0.0.1' ||
-    host === '0.0.0.0' ||
-    host === '::1' ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
-    /^169\.254\./.test(host)
-  ) {
-    throw new EvolutionApiError('URL de medio no permitida (SSRF)', 'INVALID_INPUT', 400);
-  }
-  return parsed;
-}
 
 export class EvolutionWhatsAppProvider implements WhatsAppProvider {
   private readonly fetcher: typeof fetch;
@@ -277,7 +256,14 @@ export class EvolutionWhatsAppProvider implements WhatsAppProvider {
     mediaUrl: string,
     caption: string,
   ): Promise<WhatsAppMessageReceipt> {
-    const safeMediaUrl = validatePublicMediaUrl(mediaUrl);
+    const tenantId = instanceName.startsWith('company_')
+      ? instanceName.slice('company_'.length)
+      : instanceName;
+
+    if (!validatePublicMediaUrl(mediaUrl, tenantId)) {
+      throw invalidInput('La URL del archivo multimedia no es válida o no pertenece a esta empresa');
+    }
+
     const payload = await this.request(
       `/message/sendMedia/${encodeURIComponent(parseInstanceName(instanceName))}`,
       {
@@ -286,7 +272,7 @@ export class EvolutionWhatsAppProvider implements WhatsAppProvider {
           body: JSON.stringify({
             number: phoneSchema.parse(number),
             mediatype: 'image',
-            media: safeMediaUrl,
+            media: mediaUrl,
             caption: z.string().max(65_536).parse(caption),
             delay: 2_000,
           }),

@@ -35,11 +35,11 @@ export async function POST() {
 
     const { data: session } = await supabase
       .from('wa_sessions')
-      .select('bb_project_id')
+      .select('evolution_instance_name')
       .eq('company_id', profile.company_id)
       .maybeSingle();
 
-    const instanceName = session?.bb_project_id;
+    const instanceName = session?.evolution_instance_name;
 
     if (instanceName) {
       try {
@@ -57,7 +57,7 @@ export async function POST() {
     await supabaseAdmin
       .from('wa_sessions')
       .update({
-        bb_project_id: null,
+        evolution_instance_name: null,
         status: 'desconectado',
         phone_number: null,
         connection_started_at: null,

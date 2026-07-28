@@ -13,7 +13,7 @@ import {
 
 const now = new Date('2026-07-26T15:00:00.000Z');
 const session: QueueSession = {
-  bb_project_id: 'company_123',
+  evolution_instance_name: 'company_123',
   company_id: '00000000-0000-4000-8000-000000000001',
   connection_started_at: '2026-07-20T15:00:00.000Z',
   daily_reset_at: '2026-07-26T10:00:00.000Z',

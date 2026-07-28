@@ -455,18 +455,14 @@ export async function editVisitAction(
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { error } = await supabase
-    .from('spa_visits')
-    .update({
-      service_id: payload.service_id,
-      staff_id: payload.staff_id || null,
-      scheduled_date: new Date(payload.scheduled_date).toISOString(),
-      visit_date: new Date(payload.scheduled_date).toISOString(),
-      price_charged: payload.price_charged,
-      status: payload.status,
-      notes: payload.notes,
-    })
-    .eq('id', visitId);
+  const { error } = await supabase.rpc('rpc_update_visit', {
+    p_visit_id: visitId,
+    p_service_id: payload.service_id,
+    p_staff_id: payload.staff_id || undefined,
+    p_visit_date: new Date(payload.scheduled_date).toISOString(),
+    p_price_charged: payload.price_charged,
+    p_notes: payload.notes,
+  });
 
   if (error) return { error: error.message };
 
@@ -482,46 +478,12 @@ export async function rescheduleVisitAction(visitId: string, newDate: string) {
     } = await supabase.auth.getUser();
     if (!user) return { error: 'No autorizado' };
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('company_id')
-      .eq('id', user.id)
-      .single();
-    if (!profile?.company_id) return { error: 'Empresa no encontrada' };
+    const { error } = await supabase.rpc('rpc_reschedule_visit', {
+      p_visit_id: visitId,
+      p_new_date: new Date(newDate).toISOString(),
+    });
 
-    const { data: oldVisit, error: fetchErr } = await supabase
-      .from('spa_visits')
-      .select('company_id, contact_id, service_id, staff_id, price_charged, notes')
-      .eq('id', visitId)
-      .single();
-
-    if (fetchErr || !oldVisit) return { error: 'Atención no encontrada' };
-
-    const { error: cancelErr } = await supabase
-      .from('spa_visits')
-      .update({
-        status: 'cancelado',
-        notes: `${oldVisit.notes || ''}\n[Reprogramada para el ${formatBusinessDateTime(newDate)}]`,
-      })
-      .eq('id', visitId);
-
-    if (cancelErr) return { error: cancelErr.message };
-
-    const newVisitData = {
-      company_id: oldVisit.company_id,
-      contact_id: oldVisit.contact_id,
-      service_id: oldVisit.service_id,
-      staff_id: oldVisit.staff_id,
-      price_charged: oldVisit.price_charged,
-      notes: oldVisit.notes,
-      visit_date: new Date(newDate).toISOString(),
-      scheduled_date: new Date(newDate).toISOString(),
-      status: 'agendado',
-    };
-
-    const { error: insertErr } = await supabase.from('spa_visits').insert([newVisitData]);
-
-    if (insertErr) return { error: insertErr.message };
+    if (error) return { error: error.message };
 
     revalidateAllAffectedPaths();
     return { success: true };

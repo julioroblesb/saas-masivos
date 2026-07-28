@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getEnv } from '@/config/env';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
+import { getTenantWebhookSecret } from '@/server/db/webhook-secrets';
 import { secretsMatch } from '@/server/security/secrets';
 import { evolutionWebhookSchema, extractEvolutionPhone } from '@/integrations/evolution/webhook';
 import { createLogger } from '@/server/observability/logger';
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
     const { data: session, error: sessionError } = await supabaseAdmin
       .from('wa_sessions')
       .select('company_id')
-      .eq('bb_project_id', instanceName)
+      .eq('evolution_instance_name', instanceName)
       .maybeSingle();
 
     if (sessionError) throw sessionError;
@@ -65,14 +66,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
-      return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
-    }
-
     const companyId = session.company_id;
-    const claimedCompanyId = request.headers.get('x-company-id');
-    if (claimedCompanyId && claimedCompanyId !== companyId) {
-      return NextResponse.json({ error: 'Webhook tenant mismatch' }, { status: 403 });
+    const expectedSecret = await getTenantWebhookSecret(companyId);
+
+    // Accept tenant secret or temporary transition fallback (INTERNAL_TOKEN)
+    const isValidSecret =
+      secretsMatch(receivedSecret, expectedSecret) ||
+      secretsMatch(receivedSecret, env.INTERNAL_TOKEN);
+
+    if (!isValidSecret) {
+      return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
     if (body.data?.key?.fromMe) {

@@ -7,6 +7,7 @@ import {
 } from '@/integrations/evolution/client';
 import { getEnv } from '@/config/env';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
+import { getTenantWebhookSecret } from '@/server/db/webhook-secrets';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
 type ProvisionStep =
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     const cleanCompanyId = resolvedCompanyId.replaceAll('-', '');
-    instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
+    instanceName = session?.evolution_instance_name || session?.bb_project_id || `company_${cleanCompanyId}`;
 
     const env = getEnv();
     if (process.env.NODE_ENV === 'production' && !env.APP_PUBLIC_URL) {
@@ -145,6 +146,7 @@ export async function POST(request: NextRequest) {
 
     const appPublicUrl = env.APP_PUBLIC_URL ?? request.nextUrl.origin;
     const webhookUrl = `${appPublicUrl.replace(/\/$/, '')}/api/wa/webhook`;
+    const tenantSecret = await getTenantWebhookSecret(resolvedCompanyId);
 
     // --- Step: Create or confirm instance ---
     currentStep = 'create_instance';
@@ -157,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     const { error: sessionError } = await supabaseAdmin.from('wa_sessions').upsert({
       company_id: resolvedCompanyId,
-      bb_project_id: instanceName,
+      evolution_instance_name: instanceName,
       status: initialStatus,
       connection_started_at: null,
       updated_at: new Date().toISOString(),
@@ -178,7 +180,7 @@ export async function POST(request: NextRequest) {
       await evolution.configureWebhook(
         instanceName,
         webhookUrl,
-        env.INTERNAL_TOKEN,
+        tenantSecret,
         resolvedCompanyId,
       );
     } catch (webhookErr: unknown) {

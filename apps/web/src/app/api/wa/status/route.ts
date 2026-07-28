@@ -36,11 +36,13 @@ export async function GET() {
 
     const { data: session } = await supabase
       .from('wa_sessions')
-      .select('bb_project_id, status, connection_started_at')
+      .select('evolution_instance_name, status, connection_started_at')
       .eq('company_id', profile.company_id)
       .maybeSingle();
 
-    if (!session || !session.bb_project_id) {
+    const instanceName = session?.evolution_instance_name;
+
+    if (!session || !instanceName) {
       return NextResponse.json({
         status: 'desconectado',
         evo_state: 'close',
@@ -48,8 +50,6 @@ export async function GET() {
         qr: null,
       });
     }
-
-    const instanceName = session.bb_project_id;
 
     let evoState = 'close';
     let qr: string | null = null;

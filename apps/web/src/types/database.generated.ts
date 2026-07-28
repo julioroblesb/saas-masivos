@@ -1150,6 +1150,7 @@ export type Database = {
           consecutive_errors: number | null;
           daily_reset_at: string | null;
           daily_sent_count: number | null;
+          evolution_instance_name: string | null;
           last_connected_at: string | null;
           last_disconnect_reason: string | null;
           last_message_sent_at: string | null;
@@ -1166,6 +1167,7 @@ export type Database = {
           consecutive_errors?: number | null;
           daily_reset_at?: string | null;
           daily_sent_count?: number | null;
+          evolution_instance_name?: string | null;
           last_connected_at?: string | null;
           last_disconnect_reason?: string | null;
           last_message_sent_at?: string | null;
@@ -1182,6 +1184,7 @@ export type Database = {
           consecutive_errors?: number | null;
           daily_reset_at?: string | null;
           daily_sent_count?: number | null;
+          evolution_instance_name?: string | null;
           last_connected_at?: string | null;
           last_disconnect_reason?: string | null;
           last_message_sent_at?: string | null;

@@ -7,7 +7,7 @@ import type { QueueRepositoryPort } from './queue-repository';
 import { createLogger } from '@/server/observability/logger';
 
 export interface QueueSession {
-  bb_project_id: string | null;
+  evolution_instance_name: string | null;
   company_id: string;
   connection_started_at: string | null;
   daily_reset_at: string | null;
@@ -45,7 +45,7 @@ export class QueueWorker {
       tenantId: session.company_id,
       operation: 'queue.process_company',
     });
-    if (!session.bb_project_id) {
+    if (!session.evolution_instance_name) {
       logger.warn('queue.company_deferred', { reason: 'missing_instance' });
       return { outcome: 'deferred', reason: 'missing_instance' };
     }
@@ -79,8 +79,8 @@ export class QueueWorker {
       nextAllowedSendAt = new Date(this.now().getTime() + delayMs);
       const message = resolveSpintax(item.message, context.settings);
       const receipt = item.media_url
-        ? await this.provider.sendMedia(session.bb_project_id, item.phone, item.media_url, message)
-        : await this.provider.sendText(session.bb_project_id, item.phone, message);
+        ? await this.provider.sendMedia(session.evolution_instance_name, item.phone, item.media_url, message)
+        : await this.provider.sendText(session.evolution_instance_name, item.phone, message);
 
       const completed = await this.repository.complete(
         item.id,

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const { data: sessions, error } = await database
       .from('wa_sessions')
       .select(
-        'company_id, bb_project_id, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, companies!inner(status, subscription_end_at)',
+        'company_id, evolution_instance_name, next_allowed_send_at, connection_started_at, daily_sent_count, daily_reset_at, companies!inner(status, subscription_end_at)',
       )
       .eq('status', 'conectado')
       .eq('companies.status', 'activa')
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     const queueSessions: QueueSession[] = (sessions ?? []).map((session) => ({
-      bb_project_id: session.bb_project_id,
+      evolution_instance_name: session.evolution_instance_name,
       company_id: session.company_id,
       connection_started_at: session.connection_started_at,
       daily_reset_at: session.daily_reset_at,
