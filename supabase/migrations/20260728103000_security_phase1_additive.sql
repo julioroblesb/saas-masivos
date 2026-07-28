@@ -1,43 +1,43 @@
 begin;
 
 -- ============================================================================
--- FASE 1C: MIGRACIÓN ADITIVA SEGURA DE WA_SESSIONS
+-- FASE 1C: MIGRACIÓN ADITIVA SEGURA DE WA_SESSIONS & WA_WEBHOOK_SECRETS
 -- ============================================================================
 
--- 1. Agregar columnas si no existen
+-- 1. Agregar columna evolution_instance_name a public.wa_sessions (SIN webhook_secret)
 alter table public.wa_sessions
-  add column if not exists evolution_instance_name text,
-  add column if not exists webhook_secret text;
+  add column if not exists evolution_instance_name text;
 
--- 2. Backfill determinista de evolution_instance_name por empresa
-update public.wa_sessions
-set evolution_instance_name = 'company_' || replace(company_id::text, '-', ''),
-    status = 'desconectado',
-    phone_number = null,
-    connection_started_at = null
-where evolution_instance_name is null;
+-- 2. Preservar sesiones Evolution válidas y resetear únicamente las legacy
+with expected as (
+  select
+    company_id,
+    'company_' || replace(company_id::text, '-', '') as expected_instance
+  from public.wa_sessions
+)
+update public.wa_sessions ws
+set
+  evolution_instance_name = e.expected_instance,
+  status = case
+    when ws.bb_project_id = e.expected_instance
+      then ws.status
+    else 'desconectado'
+  end,
+  phone_number = case
+    when ws.bb_project_id = e.expected_instance
+      then ws.phone_number
+    else null
+  end,
+  connection_started_at = case
+    when ws.bb_project_id = e.expected_instance
+      then ws.connection_started_at
+    else null
+  end
+from expected e
+where e.company_id = ws.company_id
+  and ws.evolution_instance_name is null;
 
--- 3. Generar secreto criptográfico de 64 caracteres hex (32 bytes) para filas existentes
-update public.wa_sessions
-set webhook_secret = encode(extensions.gen_random_bytes(32), 'hex')
-where webhook_secret is null;
-
--- 4. Asignar DEFAULT criptográfico para nuevas filas
-alter table public.wa_sessions
-  alter column webhook_secret set default encode(extensions.gen_random_bytes(32), 'hex');
-
--- 5. Exigir NOT NULL y restricción CHECK de 64 caracteres hex
-alter table public.wa_sessions
-  alter column webhook_secret set not null;
-
-alter table public.wa_sessions
-  drop constraint if exists wa_sessions_webhook_secret_format_check;
-
-alter table public.wa_sessions
-  add constraint wa_sessions_webhook_secret_format_check
-    check (char_length(webhook_secret) = 64 and webhook_secret ~ '^[0-9a-f]{64}$');
-
--- 6. Preflight: verificar que no existen duplicados antes de crear el índice único
+-- 3. Preflight: verificar que no existen duplicados antes de crear el índice único
 do $$
 declare
   v_dup_count integer;
@@ -55,10 +55,31 @@ begin
   end if;
 end $$;
 
--- 7. Crear índice único parcial sobre evolution_instance_name
+-- 4. Crear índice único parcial sobre evolution_instance_name
 create unique index if not exists wa_sessions_evolution_instance_name_idx
   on public.wa_sessions (evolution_instance_name)
   where evolution_instance_name is not null;
+
+-- 5. Crear tabla separada y segura para secretos de webhook (inaccesible desde el navegador)
+create table if not exists public.wa_webhook_secrets (
+  company_id uuid primary key references public.companies(id) on delete cascade,
+  secret text not null default encode(extensions.gen_random_bytes(32), 'hex'),
+  created_at timestamptz not null default now(),
+  rotated_at timestamptz not null default now(),
+  constraint wa_webhook_secrets_format_check
+    check (char_length(secret) = 64 and secret ~ '^[0-9a-f]{64}$')
+);
+
+alter table public.wa_webhook_secrets enable row level security;
+
+revoke all on table public.wa_webhook_secrets from anon, authenticated;
+grant select, insert, update, delete on table public.wa_webhook_secrets to service_role;
+
+-- Backfill para empresas existentes en wa_sessions
+insert into public.wa_webhook_secrets (company_id, secret)
+select company_id, encode(extensions.gen_random_bytes(32), 'hex')
+from public.wa_sessions
+on conflict (company_id) do nothing;
 
 
 -- ============================================================================
@@ -353,7 +374,7 @@ $$;
 
 
 -- ============================================================================
--- FASE 1E: LÍMITES DE CAMPAÑA EN RPC_CREATE_CAMPAIGN (CONSERVA FIRMA CANÓNICA)
+-- FASE 1E: LÍMITES Y VALIDACIÓN PREVIA EN RPC_CREATE_CAMPAIGN (FIRMA CANÓNICA)
 -- ============================================================================
 
 create or replace function public.rpc_create_campaign(
@@ -381,6 +402,7 @@ declare
   v_recipient_count integer;
   v_step_count integer;
   v_step_content text;
+  v_delay_val text;
 begin
   select company_id into v_company_id
     from public.profiles
@@ -395,6 +417,11 @@ begin
   ) then raise exception 'La empresa no tiene acceso activo'; end if;
 
   if nullif(trim(p_name), '') is null then raise exception 'Nombre obligatorio'; end if;
+
+  if p_min_delay_sec is null or p_max_delay_sec is null then
+    raise exception 'Los tiempos de espera no pueden ser nulos';
+  end if;
+
   if p_min_delay_sec < 10 or p_max_delay_sec < p_min_delay_sec or p_max_delay_sec > 3600 then
     raise exception 'Rango de espera inválido';
   end if;
@@ -423,6 +450,29 @@ begin
     raise exception 'La campaña excede 5000 mensajes totales';
   end if;
 
+  -- VALIDAR TODOS LOS PASOS ANTES DE CUALQUIER INSERCIÓN
+  v_index := 0;
+  for v_step in select * from jsonb_array_elements(p_sequence)
+  loop
+    v_index := v_index + 1;
+    v_step_content := coalesce(v_step->>'content', v_step->>'message', '');
+    if nullif(trim(v_step_content), '') is null then
+      raise exception 'Cada paso necesita contenido en el paso %', v_index;
+    end if;
+    if char_length(v_step_content) > 4096 then
+      raise exception 'El mensaje excede el límite de 4096 caracteres en el paso %', v_index;
+    end if;
+    if v_step ? 'delayAfterMs' and v_step->>'delayAfterMs' is not null then
+      v_delay_val := v_step->>'delayAfterMs';
+      if v_delay_val !~ '^[0-9]+$' then
+        raise exception 'El tiempo de espera delayAfterMs en el paso % debe ser un número entero', v_index;
+      end if;
+      if v_delay_val::bigint < 0 or v_delay_val::bigint > 86400000 then
+        raise exception 'El tiempo de espera delayAfterMs en el paso % debe estar entre 0 y 86400000 ms', v_index;
+      end if;
+    end if;
+  end loop;
+
   insert into public.crm_wa_campaigns (
     company_id, name, message_template, sequence,
     min_delay_sec, max_delay_sec, status, total_contacts, started_at
@@ -445,12 +495,6 @@ begin
     loop
       v_index := v_index + 1;
       v_step_content := coalesce(v_step->>'content', v_step->>'message', '');
-      if nullif(trim(v_step_content), '') is null then
-        raise exception 'Cada paso necesita contenido';
-      end if;
-      if char_length(v_step_content) > 4096 then
-        raise exception 'El mensaje excede el límite de 4096 caracteres';
-      end if;
       v_scheduled_at := now() + (v_index * interval '1 millisecond');
       insert into public.crm_wa_queue (
         company_id, campaign_id, contact_id, phone, message, media_url,
@@ -462,7 +506,7 @@ begin
         v_step_content, nullif(v_step->>'mediaUrl', ''),
         'queued', v_scheduled_at, v_scheduled_at,
         case when v_index = jsonb_array_length(p_sequence)
-          then null else greatest(0, least(86400000, coalesce((v_step->>'delayAfterMs')::integer, 0))) end,
+          then null else coalesce((v_step->>'delayAfterMs')::integer, 0) end,
         'campaign:' || v_campaign_id::text || ':contact:' || v_contact.id::text || ':step:' || v_index,
         'campaign', 100
       );
@@ -480,12 +524,6 @@ begin
     loop
       v_index := v_index + 1;
       v_step_content := coalesce(v_step->>'content', v_step->>'message', '');
-      if nullif(trim(v_step_content), '') is null then
-        raise exception 'Cada paso necesita contenido';
-      end if;
-      if char_length(v_step_content) > 4096 then
-        raise exception 'El mensaje excede el límite de 4096 caracteres';
-      end if;
       v_scheduled_at := now() + (v_index * interval '1 millisecond');
       insert into public.crm_wa_queue (
         company_id, campaign_id, phone, message, media_url,
@@ -497,7 +535,7 @@ begin
         v_step_content, nullif(v_step->>'mediaUrl', ''),
         'queued', v_scheduled_at, v_scheduled_at,
         case when v_index = jsonb_array_length(p_sequence)
-          then null else greatest(0, least(86400000, coalesce((v_step->>'delayAfterMs')::integer, 0))) end,
+          then null else coalesce((v_step->>'delayAfterMs')::integer, 0) end,
         'campaign:' || v_campaign_id::text || ':phone:' || md5(v_phone) || ':step:' || v_index,
         'campaign', 100
       );
