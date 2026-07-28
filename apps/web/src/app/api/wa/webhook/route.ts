@@ -51,20 +51,11 @@ export async function POST(request: Request) {
   let claimedEvent: ClaimedEvent | null = null;
 
   try {
-    let { data: session, error: sessionError } = await supabaseAdmin
+    const { data: session, error: sessionError } = await supabaseAdmin
       .from('wa_sessions')
-      .select('company_id, webhook_secret')
-      .eq('evolution_instance_name', instanceName)
+      .select('company_id')
+      .eq('bb_project_id', instanceName)
       .maybeSingle();
-
-    if (!session) {
-      const { data: legacySession } = await supabaseAdmin
-        .from('wa_sessions')
-        .select('company_id, webhook_secret')
-        .eq('bb_project_id', instanceName)
-        .maybeSingle();
-      session = legacySession;
-    }
 
     if (sessionError) throw sessionError;
     if (!session) {
@@ -74,8 +65,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const expectedSecret = session.webhook_secret || env.INTERNAL_TOKEN;
-    if (!secretsMatch(receivedSecret, expectedSecret) && !secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
+    if (!secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
       return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 

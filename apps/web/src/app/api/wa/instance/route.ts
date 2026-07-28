@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     const cleanCompanyId = resolvedCompanyId.replaceAll('-', '');
-    instanceName = session?.evolution_instance_name || session?.bb_project_id || `company_${cleanCompanyId}`;
+    instanceName = session?.bb_project_id || `company_${cleanCompanyId}`;
 
     const env = getEnv();
     if (process.env.NODE_ENV === 'production' && !env.APP_PUBLIC_URL) {
@@ -145,7 +145,6 @@ export async function POST(request: NextRequest) {
 
     const appPublicUrl = env.APP_PUBLIC_URL ?? request.nextUrl.origin;
     const webhookUrl = `${appPublicUrl.replace(/\/$/, '')}/api/wa/webhook`;
-    const webhookSecret = session?.webhook_secret || env.INTERNAL_TOKEN;
 
     // --- Step: Create or confirm instance ---
     currentStep = 'create_instance';
@@ -158,9 +157,7 @@ export async function POST(request: NextRequest) {
 
     const { error: sessionError } = await supabaseAdmin.from('wa_sessions').upsert({
       company_id: resolvedCompanyId,
-      evolution_instance_name: instanceName,
       bb_project_id: instanceName,
-      webhook_secret: webhookSecret,
       status: initialStatus,
       connection_started_at: null,
       updated_at: new Date().toISOString(),
@@ -181,7 +178,7 @@ export async function POST(request: NextRequest) {
       await evolution.configureWebhook(
         instanceName,
         webhookUrl,
-        webhookSecret,
+        env.INTERNAL_TOKEN,
         resolvedCompanyId,
       );
     } catch (webhookErr: unknown) {
