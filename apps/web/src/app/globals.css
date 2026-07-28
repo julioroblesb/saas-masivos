@@ -203,6 +203,7 @@
     body {
         @apply bg-bg text-ink font-sans antialiased;
         min-width: 20rem;
+        overflow-x: hidden;
         font-size: var(--text-base);
         line-height: var(--text-base--line-height);
         font-synthesis: none;
@@ -325,6 +326,24 @@
     }
 
     /* Sidebar */
+    .sidebar-scroll {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sidebar .sidebar-section-title {
+        font-size: var(--text-xs);
+        line-height: var(--text-xs--line-height);
+        font-weight: 600;
+        letter-spacing: 0.025em;
+        text-transform: none;
+        text-wrap: nowrap;
+    }
+
     .sidebar:hover .nav-item > a {
         @apply w-auto;
     }
@@ -481,8 +500,11 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     .collapsible-vertical .sidebar ul > h2 span {
         @apply hidden whitespace-nowrap;
     }
+    .collapsible-vertical .sidebar ul > h2 {
+        @apply justify-center px-4;
+    }
     .collapsible-vertical .sidebar ul > h2 svg {
-        @apply block;
+        @apply block text-black/20 dark:text-white/20;
     }
     .collapsible-vertical .sidebar:hover ul > h2 span,
     .collapsible-vertical.toggle-sidebar .sidebar ul > h2 span {

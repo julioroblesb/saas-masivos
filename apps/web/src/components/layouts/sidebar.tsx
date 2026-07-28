@@ -18,6 +18,9 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Coins } from 'lucide-react';
 
+const sectionTitleClass =
+  'sidebar-section-title -mx-4 mb-1 mt-4 flex items-center px-7 py-2 text-xs font-semibold leading-4 tracking-wide text-muted dark:text-white-dark';
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
@@ -99,11 +102,11 @@ const Sidebar = () => {
             </button>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
             <ul className="relative space-y-0.5 p-4 py-0 pb-8 font-semibold">
               {role === 'super_admin' && (
                 <>
-                  <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
+                  <h2 className={sectionTitleClass}>
                     <IconMinus className="hidden h-5 w-4 flex-none" />
                     <span>Administración</span>
                   </h2>
@@ -122,9 +125,9 @@ const Sidebar = () => {
 
               {(role === 'tenant' || role === 'owner' || role === 'employee') && (
                 <>
-                  <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
+                  <h2 className={sectionTitleClass}>
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>INICIO</span>
+                    <span>Inicio</span>
                   </h2>
 
                   <li className="nav-item">
@@ -138,9 +141,9 @@ const Sidebar = () => {
                     </Link>
                   </li>
 
-                  <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
+                  <h2 className={sectionTitleClass}>
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>GESTIÓN DE NEGOCIO</span>
+                    <span>Gestión del negocio</span>
                   </h2>
 
                   <li className="nav-item">
@@ -209,9 +212,9 @@ const Sidebar = () => {
                     </Link>
                   </li>
 
-                  <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
+                  <h2 className={sectionTitleClass}>
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>MARKETING</span>
+                    <span>Marketing</span>
                   </h2>
 
                   <li className="nav-item">
@@ -236,9 +239,9 @@ const Sidebar = () => {
                     </Link>
                   </li>
 
-                  <h2 className="-mx-4 mb-1 mt-4 flex items-center bg-black-light/5 px-7 py-3 font-extrabold uppercase dark:bg-dark-light/10">
+                  <h2 className={sectionTitleClass}>
                     <IconMinus className="hidden h-5 w-4 flex-none" />
-                    <span>AJUSTES</span>
+                    <span>Ajustes</span>
                   </h2>
 
                   <li className="nav-item">
