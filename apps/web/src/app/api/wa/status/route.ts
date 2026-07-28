@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { evolution } from '@/integrations/evolution/client';
+import { evolution, EvolutionApiError } from '@/integrations/evolution/client';
 import { TenantAccessService } from '@/server/access/tenant-access-service';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
@@ -42,7 +42,8 @@ export async function GET() {
 
     const instanceName = session?.evolution_instance_name;
 
-    if (!session || !instanceName) {
+    // RULE 2: Early return HTTP 200 for disconnected sessions without calling Evolution API
+    if (!session || !instanceName || session.status === 'desconectado') {
       return NextResponse.json({
         status: 'desconectado',
         evo_state: 'close',
@@ -57,11 +58,40 @@ export async function GET() {
     try {
       const statusData = await evolution.getConnectionState(instanceName);
       evoState = statusData.state;
-    } catch (err) {
+    } catch (err: unknown) {
+      const isNotFound =
+        err instanceof EvolutionApiError &&
+        (err.status === 404 || err.code === 'NOT_FOUND');
+
+      // RULE 3: Clean up session on 404 and return HTTP 200 disconnected
+      if (isNotFound) {
+        const supabaseAdmin = getSupabaseAdmin();
+        await supabaseAdmin
+          .from('wa_sessions')
+          .update({
+            status: 'desconectado',
+            evolution_instance_name: null,
+            phone_number: null,
+            connection_started_at: null,
+            last_disconnect_reason: 'Instancia no encontrada en Evolution',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('company_id', profile.company_id);
+
+        return NextResponse.json({
+          status: 'desconectado',
+          evo_state: 'close',
+          is_demo: access.state === 'demo',
+          qr: null,
+        });
+      }
+
+      // RULE 5: Return 502 only for transient network/timeout errors on active/connecting sessions
       console.error('Evolution connectionState fetch failed', {
         instanceName,
         message: err instanceof Error ? err.message : String(err),
       });
+
       return NextResponse.json(
         {
           status: 'error',
@@ -72,24 +102,16 @@ export async function GET() {
       );
     }
 
-    // Intentar obtener QR si no está completamente abierto
+    // RULE 6: Fetch QR only if connectionState succeeded and is not fully open
     if (evoState !== 'open') {
       try {
         const qrData = await evolution.getQrCode(instanceName);
         qr = qrData.qrCode;
-      } catch (err) {
-        console.error('Evolution QR fetch failed', {
+      } catch (err: unknown) {
+        console.warn('Evolution QR fetch failed (non-fatal)', {
           instanceName,
           message: err instanceof Error ? err.message : String(err),
         });
-        return NextResponse.json(
-          {
-            status: 'error',
-            code: 'QR_FETCH_FAILED',
-            qr: null,
-          },
-          { status: 502 },
-        );
       }
     }
 
