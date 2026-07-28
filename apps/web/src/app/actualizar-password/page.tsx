@@ -35,8 +35,8 @@ export default function ActualizarPasswordPage() {
       return;
     }
     
-    if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+    if (password.length < 12) {
+      toast.error('La contraseña debe tener al menos 12 caracteres');
       return;
     }
     

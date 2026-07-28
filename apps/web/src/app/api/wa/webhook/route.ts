@@ -19,10 +19,6 @@ export async function POST(request: Request) {
   const env = getEnv();
   const receivedSecret = request.headers.get('x-evolution-webhook-secret');
 
-  if (!secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
-    return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
-  }
-
   const contentLength = Number(request.headers.get('content-length') ?? 0);
   if (contentLength > MAX_WEBHOOK_BYTES) {
     return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
@@ -55,17 +51,32 @@ export async function POST(request: Request) {
   let claimedEvent: ClaimedEvent | null = null;
 
   try {
-    const { data: session, error: sessionError } = await supabaseAdmin
+    let { data: session, error: sessionError } = await supabaseAdmin
       .from('wa_sessions')
-      .select('company_id')
-      .eq('bb_project_id', instanceName)
+      .select('company_id, webhook_secret')
+      .eq('evolution_instance_name', instanceName)
       .maybeSingle();
+
+    if (!session) {
+      const { data: legacySession } = await supabaseAdmin
+        .from('wa_sessions')
+        .select('company_id, webhook_secret')
+        .eq('bb_project_id', instanceName)
+        .maybeSingle();
+      session = legacySession;
+    }
+
     if (sessionError) throw sessionError;
     if (!session) {
       return NextResponse.json(
         { error: 'Tenant not resolved for webhook instance' },
         { status: 400 },
       );
+    }
+
+    const expectedSecret = session.webhook_secret || env.INTERNAL_TOKEN;
+    if (!secretsMatch(receivedSecret, expectedSecret) && !secretsMatch(receivedSecret, env.INTERNAL_TOKEN)) {
+      return NextResponse.json({ error: 'Unauthorized webhook call' }, { status: 401 });
     }
 
     const companyId = session.company_id;
@@ -92,7 +103,9 @@ export async function POST(request: Request) {
       body.id ??
       payloadHash
     ).slice(0, 512);
+
     const eventType = (body.event ?? 'MESSAGES_UPSERT').slice(0, 128);
+
     const { data: claimed, error: claimError } = await supabaseAdmin.rpc(
       'rpc_claim_evolution_webhook',
       {
@@ -102,11 +115,14 @@ export async function POST(request: Request) {
         p_payload_sha256: payloadHash,
       },
     );
+
     if (claimError) throw claimError;
+
     if (!claimed) {
       logger.info('evolution.webhook_duplicate', { tenantId: companyId, eventType });
       return NextResponse.json({ success: true, duplicate: true });
     }
+
     claimedEvent = { companyId, eventId };
 
     const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1_000);
@@ -115,13 +131,16 @@ export async function POST(request: Request) {
       p_phone: phoneNumber,
       p_since: twoDaysAgo.toISOString(),
     });
+
     if (replyError) throw replyError;
 
     const { error: completeError } = await supabaseAdmin.rpc('rpc_complete_evolution_webhook', {
       p_company_id: companyId,
       p_event_id: eventId,
     });
+
     if (completeError) throw completeError;
+
     claimedEvent = null;
     logger.info('evolution.webhook_processed', { tenantId: companyId, eventType });
 
@@ -134,6 +153,7 @@ export async function POST(request: Request) {
         .eq('company_id', claimedEvent.companyId)
         .eq('event_id', claimedEvent.eventId)
         .is('processed_at', null);
+
       if (releaseError) {
         logger.error('evolution.webhook_claim_release_failed', {
           tenantId: claimedEvent.companyId,
@@ -147,6 +167,7 @@ export async function POST(request: Request) {
       instanceName,
       error,
     });
+
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }

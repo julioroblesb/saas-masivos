@@ -13,9 +13,12 @@ import IconLogout from '@/components/icon/icon-logout';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 const Header = () => {
     const dispatch = useDispatch();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [userEmail, setUserEmail] = useState<string>('');
     const [role, setRole] = useState<string>('');
@@ -42,6 +45,11 @@ const Header = () => {
 
     const handleLogout = async () => {
         const supabase = createClient();
+        try {
+            queryClient.clear();
+        } catch {
+            // ignore if query client not available
+        }
         await supabase.auth.signOut();
         router.push('/login');
     };
