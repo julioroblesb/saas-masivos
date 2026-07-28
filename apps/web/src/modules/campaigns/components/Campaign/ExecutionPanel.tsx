@@ -27,7 +27,7 @@ export function ExecutionPanel({
       <div className="flex flex-col gap-5 items-center justify-center text-center">
         {!isQueuing && !queued && (
           <>
-            <p className="text-[0.88rem] text-slate-500 dark:text-slate-400 max-w-[240px] leading-relaxed m-0">
+            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-[240px] leading-relaxed m-0">
               Configura el segmento, los mensajes y presiona Encolar.<br />
               El servidor se encargará de enviar los mensajes poco a poco.
             </p>
@@ -41,7 +41,7 @@ export function ExecutionPanel({
                 : <><Play size={18} /> Iniciar Campaña</>}
             </button>
             {targetContactsCount === 0 && (
-              <p className="text-[0.78rem] text-warning font-bold m-0 mt-2">
+              <p className="text-sm text-warning font-bold m-0 mt-2">
                 ⚠️ No hay contactos en el segmento seleccionado
               </p>
             )}
@@ -51,7 +51,7 @@ export function ExecutionPanel({
         {isQueuing && (
           <div className="text-center py-8">
             <Loader2 size={40} className="animate-spin text-primary mx-auto mb-4" />
-            <p className="text-[0.88rem] font-semibold text-slate-700 dark:text-slate-300 max-w-[260px] leading-relaxed">Generando variaciones y encolando mensajes...</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 max-w-[260px] leading-relaxed">Generando variaciones y encolando mensajes...</p>
           </div>
         )}
 
@@ -59,7 +59,7 @@ export function ExecutionPanel({
           <div className="text-center py-4">
             <CheckCircle size={48} className="text-success mx-auto mb-4" />
             <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-2">¡Campaña Encolada!</h4>
-            <p className="text-[0.88rem] text-slate-500 dark:text-slate-400 mb-6">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Los mensajes han sido programados. El servidor los enviará automáticamente en background. 
               <br/><strong className="text-slate-700 dark:text-slate-300">Ya puedes cerrar esta pestaña.</strong>
             </p>

@@ -58,7 +58,7 @@ export default function ActualizarPasswordPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-zinc-50 dark:bg-dark font-outfit">
+    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-zinc-50 dark:bg-dark font-sans">
       
       {/* Brand Side - Hidden on small screens */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary relative items-center justify-center p-12 overflow-hidden">
@@ -78,7 +78,7 @@ export default function ActualizarPasswordPage() {
                 Renova CRM
               </div>
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]" style={{ textWrap: 'balance' }}>
+            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6" style={{ textWrap: 'balance' }}>
               Protege tu cuenta.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
@@ -96,18 +96,18 @@ export default function ActualizarPasswordPage() {
             <div className="h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
               RC
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Nueva Contraseña</h2>
+            <h2 className="type-page-title mb-2 text-black dark:text-white">Nueva contraseña</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu nueva contraseña para acceder</p>
           </div>
 
           <div className="hidden md:block mb-10">
-            <h2 className="text-3xl font-bold text-black dark:text-white mb-2 tracking-tight">Nueva Contraseña</h2>
+            <h2 className="type-page-title mb-2 text-black dark:text-white">Nueva contraseña</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu nueva contraseña para acceder</p>
           </div>
 
           <form onSubmit={handleUpdate} className="space-y-6">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-black dark:text-white">Nueva Contraseña</label>
+              <label className="block text-sm font-semibold text-black dark:text-white">Nueva contraseña</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input

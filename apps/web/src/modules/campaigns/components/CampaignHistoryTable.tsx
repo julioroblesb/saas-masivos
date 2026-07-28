@@ -25,9 +25,9 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
           <tr>
             <th>Nombre y Fecha</th>
             <th>Segmento</th>
-            <th className="text-center">Progreso</th>
-            <th className="text-center">Éxito</th>
-            <th className="text-center">Conversión</th>
+            <th className="numeric-column">Progreso</th>
+            <th className="numeric-column">Éxito</th>
+            <th className="numeric-column">Conversión</th>
             <th className="text-center">Estado</th>
             <th className="text-right">Detalles</th>
           </tr>
@@ -53,19 +53,19 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
                       {c.targetTag || 'Todos'}
                     </span>
                   </td>
-                  <td className="text-center">
+                  <td className="numeric-column">
                     <div className="inline-flex items-center gap-3 text-sm">
                       <span className="text-success" title="Enviados">✅ {c.sent}</span>
                       <span className="text-danger" title="Fallidos">❌ {c.failed}</span>
                       <span className="text-white-dark" title="Total">/ {c.total}</span>
                     </div>
                   </td>
-                  <td className="text-center">
+                  <td className="numeric-column">
                     <span className={`font-bold ${successRate > 80 ? 'text-success' : 'text-warning'}`}>
                       {successRate}%
                     </span>
                   </td>
-                  <td className="text-center">
+                  <td className="numeric-column">
                     <span className={`font-bold text-primary`} title={`${c.repliedCount || 0} respuestas`}>
                       {conversionRate}%
                     </span>

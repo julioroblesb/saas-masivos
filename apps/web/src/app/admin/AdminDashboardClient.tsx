@@ -59,7 +59,7 @@ export function AdminDashboardClient({ companies, waSessions }: AdminDashboardCl
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <h1 className="type-page-title text-zinc-900 dark:text-zinc-100">
             Panel de Administración SuperAdmin
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
@@ -148,7 +148,7 @@ export function AdminDashboardClient({ companies, waSessions }: AdminDashboardCl
                 {connectedWaCount}
               </h4>
               {pendingWaCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200">
                   <Clock className="size-3" />
                   {pendingWaCount} pend.
                 </span>

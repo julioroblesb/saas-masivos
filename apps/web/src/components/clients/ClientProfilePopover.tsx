@@ -61,7 +61,7 @@ export function ClientProfileInteractiveName({
               </div>
               <div className="truncate">
                 <div className="font-bold text-sm text-black dark:text-white truncate">{nameText}</div>
-                <div className="text-[11px] text-zinc-500 flex items-center gap-1">
+                <div className="text-xs text-zinc-500 flex items-center gap-1">
                   <Phone className="w-3 h-3 text-primary shrink-0" /> +{client.phone || 'No registrado'}
                 </div>
               </div>
@@ -70,21 +70,21 @@ export function ClientProfileInteractiveName({
             <div className="space-y-2 text-xs">
               {/* Allergies Highlighted */}
               <div className="p-2 rounded-xl bg-danger/10 border border-danger/20 text-danger dark:text-red-400">
-                <div className="font-bold flex items-center gap-1 text-[10px] uppercase tracking-wider mb-0.5">
+                <div className="font-bold flex items-center gap-1 text-xs uppercase tracking-wider mb-0.5">
                   <AlertTriangle className="w-3 h-3" /> Alergias / Salud:
                 </div>
                 <div className="font-medium truncate">{allergies}</div>
               </div>
 
               <div className="text-zinc-600 dark:text-zinc-300">
-                <span className="font-semibold text-zinc-400 flex items-center gap-1 text-[10px] uppercase tracking-wider mb-0.5">
+                <span className="font-semibold text-zinc-400 flex items-center gap-1 text-xs uppercase tracking-wider mb-0.5">
                   <Heart className="w-3 h-3 text-primary" /> Preferencias:
                 </span>
                 <span className="line-clamp-2">{preferences}</span>
               </div>
 
               <div className="text-zinc-600 dark:text-zinc-300 pt-1">
-                <span className="font-semibold text-zinc-400 flex items-center gap-1 text-[10px] uppercase tracking-wider mb-0.5">
+                <span className="font-semibold text-zinc-400 flex items-center gap-1 text-xs uppercase tracking-wider mb-0.5">
                   <Clock className="w-3 h-3 text-primary" /> Última Visita:
                 </span>
                 <span>{lastVisit ? formatBusinessDateTime(lastVisit) : 'No registrado'}</span>
@@ -92,7 +92,7 @@ export function ClientProfileInteractiveName({
 
               {pendingBalance !== undefined && pendingBalance > 0 && (
                 <div className="pt-2 border-t border-black-light dark:border-dark-light flex justify-between items-center text-danger font-bold">
-                  <span className="flex items-center gap-1 text-[11px]">
+                  <span className="flex items-center gap-1 text-xs">
                     <Coins className="w-3.5 h-3.5" /> Saldo Pendiente:
                   </span>
                   <span>S/ {pendingBalance}</span>

@@ -78,7 +78,7 @@ export function ClientProfileModal({ isOpen, onClose, client }: ClientProfileMod
               <div className="text-xs text-zinc-500 flex items-center gap-2 mt-0.5 font-medium">
                 <span>+{client.phone || 'Sin teléfono'}</span>
                 {client.customer_segment && (
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold uppercase tracking-wider text-[10px]">
+                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold uppercase tracking-wider text-xs">
                     {client.customer_segment}
                   </span>
                 )}
@@ -111,19 +111,19 @@ export function ClientProfileModal({ isOpen, onClose, client }: ClientProfileMod
           {/* Quick Metrics Cards */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-black-light/50 dark:border-dark-light p-3 rounded-2xl flex flex-col items-center text-center">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Visitas</span>
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Visitas</span>
               <span className="text-xl font-extrabold text-black dark:text-white mt-1">
                 {client.total_visits ?? 0}
               </span>
             </div>
             <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-black-light/50 dark:border-dark-light p-3 rounded-2xl flex flex-col items-center text-center">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">LTV (Gastado)</span>
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">LTV (Gastado)</span>
               <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
                 S/ {client.total_spent ?? 0}
               </span>
             </div>
             <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-black-light/50 dark:border-dark-light p-3 rounded-2xl flex flex-col items-center text-center">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Segmento</span>
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Segmento</span>
               <span className="text-sm font-bold text-primary mt-1">
                 {displayVal(client.customer_segment)}
               </span>

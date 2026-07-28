@@ -292,17 +292,17 @@ export function WhatsappOversightView({ sessions, companies }: WhatsappOversight
                       <div className="font-semibold text-zinc-900 dark:text-zinc-100">
                         {session.company_name}
                       </div>
-                      <div className="text-[11px] font-mono text-zinc-400">
+                      <div className="text-xs font-mono text-zinc-400">
                         {session.owner_email || 'Sin correo'}
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       {session.is_demo ? (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                           DEMO
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
                           CLIENTE
                         </span>
                       )}

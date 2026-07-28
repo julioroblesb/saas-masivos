@@ -61,10 +61,10 @@ export default function DemoLandingPage() {
             </div>
             
             <div className="space-y-3">
-              <h1 className="text-3xl font-bold tracking-tight text-[#FAFAFA] text-balance leading-[1.15]">
+              <h1 className="text-3xl font-bold tracking-tight text-[#FAFAFA] text-balance">
                 Recupera clientes y multiplica las citas de tu Negocio
               </h1>
-              <p className="text-[15px] leading-relaxed text-[#A1A1AA] text-balance">
+              <p className="text-sm leading-relaxed text-[#A1A1AA] text-balance">
                 Experimenta un entorno de prueba interactivo. Deja que el sistema trabaje por ti: agenda citas fácilmente y descubre cómo automatizamos tu seguimiento por WhatsApp en piloto automático para que ningún cliente te olvide.
               </p>
             </div>
@@ -72,14 +72,14 @@ export default function DemoLandingPage() {
 
           {error && (
             <div className="w-full bg-[#F43F5E]/10 border border-[#F43F5E]/20 text-[#F43F5E] p-4 rounded-[8px] text-sm text-left flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-               <div className="mt-0.5 shrink-0 text-[16px]">⚠️</div>
+               <div className="mt-0.5 shrink-0 text-base">⚠️</div>
                <div className="font-medium">{error}</div>
             </div>
           )}
 
           <div className="w-full space-y-5 pt-2">
             <button 
-              className="w-full h-[52px] bg-[#E11D48] hover:bg-[#BE123C] active:scale-[0.98] text-[#FAFAFA] text-[15px] font-semibold rounded-[8px] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none shadow-[0_0_20px_rgba(225,29,72,0.15)] hover:shadow-[0_0_25px_rgba(225,29,72,0.25)]"
+              className="w-full h-[52px] bg-[#E11D48] hover:bg-[#BE123C] active:scale-[0.98] text-[#FAFAFA] text-sm font-semibold rounded-[8px] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none shadow-[0_0_20px_rgba(225,29,72,0.15)] hover:shadow-[0_0_25px_rgba(225,29,72,0.25)]"
               onClick={handleStartDemo}
               disabled={loading}
             >
@@ -93,7 +93,7 @@ export default function DemoLandingPage() {
               )}
             </button>
             
-            <div className="flex items-center justify-center gap-2 text-[13px] text-[#A1A1AA] font-medium">
+            <div className="flex items-center justify-center gap-2 text-sm text-[#A1A1AA] font-medium">
                <ShieldCheck className="w-4 h-4 text-[#27272A]" />
                <span>Entorno seguro. Se reinicia cada 24 horas.</span>
             </div>

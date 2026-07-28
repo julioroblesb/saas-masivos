@@ -170,7 +170,7 @@ export default function SpaServicesPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+          <h1 className="type-page-title flex items-center gap-3 text-black dark:text-white">
             <Scissors className="w-8 h-8 text-primary" /> Servicios del Negocio
           </h1>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
@@ -209,28 +209,28 @@ export default function SpaServicesPage() {
 
               {!service.is_active && (
                 <div className="mb-2">
-                  <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-[9px] font-bold uppercase tracking-widest inline-block">Inactivo</span>
+                  <span className="px-2 py-0.5 rounded-full border border-danger/30 text-danger text-xs font-bold uppercase tracking-widest inline-block">Inactivo</span>
                 </div>
               )}
               
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-3 font-medium leading-relaxed mb-4 flex-1">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-3 font-medium leading-relaxed mb-4 flex-1">
                 {service.description || 'Sin descripción detallada.'}
               </p>
               
               {/* Bottom Section: Price & Follow-up */}
               <div className="mt-auto flex flex-col gap-1 border-t border-black-light/20 dark:border-dark-light/30 pt-2">
                  <div className="flex items-baseline gap-1">
-                   <span className="text-[10px] font-semibold text-zinc-400">S/</span>
+                   <span className="text-xs font-semibold text-zinc-400">S/</span>
                    <span className="text-lg font-bold tracking-tight text-black dark:text-white">{service.price}</span>
                    {service.promo_price && (
-                      <span className="ml-auto text-[9px] font-bold text-success flex items-center gap-1">
+                      <span className="ml-auto text-xs font-bold text-success flex items-center gap-1">
                          <Tag className="w-2.5 h-2.5" /> Promo S/{service.promo_price}
                       </span>
                    )}
                  </div>
                  
                  {service.duration_days > 0 && (
-                    <div className="flex items-center gap-1 text-[9px] text-zinc-400 font-medium">
+                    <div className="flex items-center gap-1 text-xs text-zinc-400 font-medium">
                        <Clock className="w-2.5 h-2.5" /> Seg. a los {service.duration_days} días
                     </div>
                  )}
@@ -376,7 +376,7 @@ export default function SpaServicesPage() {
                         ) : (
                           <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-primary">
                             <ImageIcon className="w-6 h-6 mb-1" />
-                            <span className="text-[10px] font-medium uppercase tracking-wider">Subir</span>
+                            <span className="text-xs font-medium uppercase tracking-wider">Subir</span>
                             <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                           </label>
                         )}

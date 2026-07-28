@@ -106,7 +106,7 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
               <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">
                 Deuda Total
               </p>
-              <h2 className="text-4xl font-bold tracking-tight mt-2">S/ {totalDebt}</h2>
+              <h2 className="type-metric mt-2">S/ {totalDebt}</h2>
             </div>
             <div className="p-3 bg-white/20 rounded-xl">
               <Coins className="w-6 h-6 text-white" />
@@ -138,7 +138,7 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                 <tr>
                   <th className="py-4 px-4 pl-6">Paciente</th>
                   <th className="py-4 px-4">Servicio</th>
-                  <th className="py-4 px-4">Deuda</th>
+                  <th className="numeric-column py-4 px-4">Deuda</th>
                   <th className="py-4 px-4">Fecha Promesa</th>
                   <th className="py-4 px-4 text-center pr-6">Acciones</th>
                 </tr>
@@ -169,7 +169,7 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
                           {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}
                         </div>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="numeric-column py-4 px-4">
                         <div className="font-bold text-danger">S/ {pending}</div>
                         <div className="text-xs text-zinc-500">Total: S/ {debt.price_charged}</div>
                       </td>

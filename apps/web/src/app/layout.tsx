@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="font-outfit antialiased">
+      <body className="font-sans antialiased">
         <ProviderComponent>
           <Providers>{children}</Providers>
         </ProviderComponent>

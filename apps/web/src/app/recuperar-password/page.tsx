@@ -32,7 +32,7 @@ export default function RecuperarPasswordPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-zinc-50 dark:bg-dark font-outfit">
+    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-zinc-50 dark:bg-dark font-sans">
       
       {/* Brand Side - Hidden on small screens */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary relative items-center justify-center p-12 overflow-hidden">
@@ -52,7 +52,7 @@ export default function RecuperarPasswordPage() {
                 Renova CRM
               </div>
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]" style={{ textWrap: 'balance' }}>
+            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6" style={{ textWrap: 'balance' }}>
               Recupera tu acceso fácilmente.
             </h1>
             <p className="text-white/80 text-lg max-w-md leading-relaxed" style={{ textWrap: 'pretty' }}>
@@ -74,12 +74,12 @@ export default function RecuperarPasswordPage() {
             <div className="h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
               RC
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-2">Recuperar Contraseña</h2>
+            <h2 className="type-page-title mb-2 text-black dark:text-white">Recuperar contraseña</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu correo para recibir las instrucciones</p>
           </div>
 
           <div className="hidden md:block mb-10">
-            <h2 className="text-3xl font-bold text-black dark:text-white mb-2 tracking-tight">Recuperar Contraseña</h2>
+            <h2 className="type-page-title mb-2 text-black dark:text-white">Recuperar contraseña</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu correo para recibir las instrucciones</p>
           </div>
 

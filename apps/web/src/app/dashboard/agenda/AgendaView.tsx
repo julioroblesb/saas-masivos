@@ -290,7 +290,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                         {format(day, 'd')}
                       </span>
                       {dayVisits.length > 0 && (
-                        <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
+                        <span className="text-xs font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
                           {dayVisits.length} citas
                         </span>
                       )}
@@ -311,11 +311,11 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                             <div className="font-semibold truncate leading-tight">{contact?.name || 'Cliente'}</div>
                             
                             <div className="flex items-center justify-between gap-1 mt-0.5 border-t border-current/10 pt-1">
-                               <div className="flex items-center gap-1 opacity-90 text-[10px] truncate">
+                               <div className="flex items-center gap-1 opacity-90 text-xs truncate">
                                  <User className="w-3 h-3 shrink-0" />
                                  <span className="truncate">{staff?.name || 'Sin asignar'}</span>
                                </div>
-                               <div className="flex items-center gap-1 opacity-90 text-[10px] shrink-0 font-medium">
+                               <div className="flex items-center gap-1 opacity-90 text-xs shrink-0 font-medium">
                                  <Clock className="w-3 h-3 shrink-0" />
                                  {formatBusinessTime(visit.visit_date)}
                                </div>
@@ -324,7 +324,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                         );
                       })}
                       {dayVisits.length > 3 && (
-                        <div className="text-[10px] font-semibold text-zinc-500 text-center pt-1 pb-1 mt-1 border-t border-zinc-100 dark:border-zinc-800">
+                        <div className="text-xs font-semibold text-zinc-500 text-center pt-1 pb-1 mt-1 border-t border-zinc-100 dark:border-zinc-800">
                           + {dayVisits.length - 3} citas más
                         </div>
                       )}
@@ -370,7 +370,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                                    {contact?.name || 'Cliente'}
                                  </div>
                                  {visit.price_charged ? (
-                                   <div className="text-[10px] font-bold bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20 shrink-0">
+                                   <div className="text-xs font-bold bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20 shrink-0">
                                      S/ {visit.price_charged}
                                    </div>
                                  ) : null}

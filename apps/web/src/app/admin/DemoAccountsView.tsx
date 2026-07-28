@@ -296,7 +296,7 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                             <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                               {company.name}
                             </span>
-                            <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                            <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                               DEMO
                             </span>
                           </div>
@@ -410,7 +410,7 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                 {selectedCompanies.map((c) => (
                   <div key={c.id} className="flex items-center justify-between py-1 border-b border-zinc-200/50 dark:border-zinc-800/50">
                     <span className="font-semibold">{c.name}</span>
-                    <span className="text-[11px] text-zinc-400">{c.owner_email || 'sin correo'}</span>
+                    <span className="text-xs text-zinc-400">{c.owner_email || 'sin correo'}</span>
                   </div>
                 ))}
               </div>

@@ -545,10 +545,10 @@ export function AtencionesManager({
         <div className="rounded-3xl bg-primary text-white border border-primary shadow-sm p-6 relative overflow-hidden group">
           <div className="flex justify-between items-start relative z-10">
             <div className="flex flex-col space-y-1">
-              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-                Total Atenciones
+              <p className="text-sm font-semibold text-white/80">
+                Total de atenciones
               </p>
-              <h2 className="text-4xl font-bold tracking-tight mt-2">{visits.length}</h2>
+              <h2 className="type-metric mt-2">{visits.length}</h2>
             </div>
             <div className="p-3 bg-white/20 rounded-xl">
               <Activity className="w-6 h-6 text-white" />
@@ -559,10 +559,10 @@ export function AtencionesManager({
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
-              <p className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
-                En Curso
+              <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                En curso
               </p>
-              <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white mt-2">
+              <h2 className="type-metric mt-2 text-black dark:text-white">
                 {visits.filter((v) => v.status === 'en_curso').length}
               </h2>
             </div>
@@ -575,10 +575,10 @@ export function AtencionesManager({
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
-              <p className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
-                Próximas Citas
+              <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                Próximas citas
               </p>
-              <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white mt-2">
+              <h2 className="type-metric mt-2 text-black dark:text-white">
                 {visits.filter((v) => v.status === 'agendado').length}
               </h2>
             </div>
@@ -669,7 +669,7 @@ export function AtencionesManager({
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
-                            <span className="text-[10px] font-bold text-zinc-400 uppercase">
+                            <span className="text-xs font-bold text-zinc-400 uppercase">
                               Hora
                             </span>
                             <span className="text-lg font-extrabold text-black dark:text-white">
@@ -682,7 +682,7 @@ export function AtencionesManager({
                                 client={visit.crm_marketing_contacts}
                                 pendingBalance={pending}
                               />
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400">
                                 En Curso
                               </span>
                             </div>
@@ -760,7 +760,7 @@ export function AtencionesManager({
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl w-16 h-16 shrink-0 border border-black-light/50 dark:border-dark-light">
-                            <span className="text-[10px] font-bold text-zinc-400 uppercase">
+                            <span className="text-xs font-bold text-zinc-400 uppercase">
                               Hora
                             </span>
                             <span className="text-lg font-extrabold text-black dark:text-white">
@@ -773,7 +773,7 @@ export function AtencionesManager({
                                 client={visit.crm_marketing_contacts}
                                 pendingBalance={pending}
                               />
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-blue-500/10 text-blue-600 dark:text-blue-400">
                                 Agendada
                               </span>
                             </div>
@@ -845,7 +845,7 @@ export function AtencionesManager({
                       <th className="p-4">Cliente</th>
                       <th className="p-4">Servicio</th>
                       <th className="p-4">Especialista</th>
-                      <th className="p-4">Pagos & Saldo</th>
+                      <th className="numeric-column p-4">Pagos y saldo</th>
                       <th className="p-4">Estado</th>
                       <th className="p-4 text-right">Acciones</th>
                     </tr>
@@ -892,8 +892,8 @@ export function AtencionesManager({
                           </td>
 
                           {/* Problema 4: Total, Pagado, Saldo breakdown */}
-                          <td className="p-4">
-                            <div className="text-xs space-y-0.5">
+                          <td className="numeric-column p-4">
+                            <div className="space-y-0.5 text-sm">
                               <div className="font-bold text-black dark:text-white">
                                 Total: S/ {total}
                               </div>
@@ -901,7 +901,7 @@ export function AtencionesManager({
                                 Pagado: S/ {pagado}
                               </div>
                               {saldo <= 0 ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                   Pagado
                                 </span>
                               ) : (
@@ -981,7 +981,7 @@ export function AtencionesManager({
                           />
                         </div>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                             visit.status === 'completado'
                               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                               : visit.status === 'cancelado'
@@ -995,7 +995,7 @@ export function AtencionesManager({
 
                       <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-black-light/30 dark:border-dark-light">
                         <div>
-                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                          <span className="text-zinc-400 block text-xs uppercase font-semibold">
                             Servicio
                           </span>
                           <span className="font-semibold text-black dark:text-white">
@@ -1003,7 +1003,7 @@ export function AtencionesManager({
                           </span>
                         </div>
                         <div>
-                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                          <span className="text-zinc-400 block text-xs uppercase font-semibold">
                             Especialista
                           </span>
                           <span className="font-semibold text-black dark:text-white">
@@ -1013,7 +1013,7 @@ export function AtencionesManager({
                           </span>
                         </div>
                         <div>
-                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                          <span className="text-zinc-400 block text-xs uppercase font-semibold">
                             Total / Pagado
                           </span>
                           <span className="font-semibold text-black dark:text-white">
@@ -1021,7 +1021,7 @@ export function AtencionesManager({
                           </span>
                         </div>
                         <div>
-                          <span className="text-zinc-400 block text-[10px] uppercase font-semibold">
+                          <span className="text-zinc-400 block text-xs uppercase font-semibold">
                             Saldo
                           </span>
                           {saldo <= 0 ? (

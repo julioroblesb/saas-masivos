@@ -16,13 +16,13 @@ colors:
   white-dark: '#A1A1AA'
 typography:
   display:
-    fontFamily: 'Nunito, system-ui, sans-serif'
-    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)'
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+    fontSize: '2rem'
     fontWeight: 700
-    lineHeight: 1.2
+    lineHeight: 1.125
   body:
-    fontFamily: 'Nunito, system-ui, sans-serif'
-    fontSize: '14px'
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+    fontSize: '1rem'
     fontWeight: 400
     lineHeight: 1.5
 rounded:
@@ -46,9 +46,9 @@ components:
 
 ## 1. Overview
 
-**Creative North Star: "The Neon Tech Salon"**
+**Creative North Star: "Calm Enterprise Clarity"**
 
-A premium administrative workspace designed to serve busy beauty salons and spas. The system uses a sleek, high-efficiency dark tech theme with vibrant rose pop highlights to reflect cosmetic creativity and operational energy.
+A high-efficiency administrative workspace designed for busy beauty salons and spas. Typography and data scanning take priority over decoration: the interface must feel native, calm and predictable during long work sessions.
 
 This design avoids warm "cream" SaaS default styles, relying instead on off-black, crisp borders, and clean typography to keep information highly legible, reduced in cognitive load, and visually striking.
 
@@ -56,7 +56,7 @@ This design avoids warm "cream" SaaS default styles, relying instead on off-blac
 
 - Sleek dark tech background (`#0A0A0A`) with rose pink accent (`#E11D48`).
 - Rounded layout panels (`16px` border-radius) with subtle border frames (`#27272A`).
-- Nunito-driven modern sans-serif typography.
+- Zero-download native system typography.
 - Flat, high-contrast, state-reactive user interfaces.
 
 ## 2. Colors
@@ -83,15 +83,22 @@ The color palette is anchored by a vibrant rose pop accent representing cosmetic
 
 ## 3. Typography
 
-**Display Font:** Nunito
-**Body Font:** Nunito
+**Display Font:** native `system-ui` stack
+**Body Font:** native `system-ui` stack
 
 ### Hierarchy
 
-- **Display** (700, `clamp(1.5rem, 4vw, 2.5rem)`, 1.2): Used for primary headers and page title greetings.
-- **Headline** (600, `1.25rem`, 1.3): Used for section sub-headers and table grouping.
-- **Body** (400, `14px`, 1.5): Used for general content, lists, form descriptions, and table rows.
-- **Label** (500, `12px`, 0.05em, uppercase): Used for table headers, helper texts, and input title labels.
+- **Display / large metric** (700, `2rem`, `2.25rem`): Executive totals and exceptional display copy.
+- **Page title / H1** (650, `1.5rem`, `1.75rem`): Primary transactional view title.
+- **Section / H2** (650, `1.25rem`, `1.5rem`): Card and formal section grouping.
+- **Component / H3** (650, `1.125rem`, `1.5rem`): Dialog and contextual panel titles.
+- **Body** (400, `1rem`, `1.5rem`): Prose, notes and sustained reading.
+- **Compact UI** (400–600, `0.875rem`, `1.25rem`): Tables, menus, forms and dense controls.
+- **Microcopy** (500–650, `0.75rem`, `1rem`): Badges and truly tertiary metadata only.
+
+All quantitative values use `font-variant-numeric: tabular-nums lining-nums`. Quantitative table columns and their headers align right; descriptive data aligns left. Narrative lines are capped at `65ch`. Prose may never be smaller than `1rem`; compact transactional UI may never be smaller than `0.875rem`; nothing may render below `0.75rem`.
+
+Long text, table headers and form labels use sentence case. Uppercase is reserved for very short badges where it does not impair scanning. Spacing follows a 4/8-point rhythm, and normal text must meet WCAG AA contrast of at least 4.5:1.
 
 ## 4. Elevation
 

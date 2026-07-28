@@ -316,10 +316,10 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
                       Segmento
                     </th>
-                    <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
+                    <th className="numeric-column py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold">
                       Visitas
                     </th>
-                    <th className="text-center py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
+                    <th className="numeric-column py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold">
                       LTV
                     </th>
                     <th className="text-left py-4 px-4 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-widest">
@@ -352,7 +352,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="numeric-column py-4 px-4">
                         <div className="text-sm font-semibold text-black dark:text-white">
                           +{client.phone}
                         </div>
@@ -367,12 +367,12 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                           )}
                         </div>
                         {client.opt_in_source && (
-                          <div className="text-[10px] text-primary font-semibold mt-0.5">
+                          <div className="text-xs text-primary font-semibold mt-0.5">
                             {client.opt_in_source}
                           </div>
                         )}
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="numeric-column py-4 px-4">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                             client.customer_segment === 'VIP'
@@ -468,7 +468,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
 
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black-light/30 dark:border-dark-light text-xs">
                     <div>
-                      <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-semibold">
+                      <span className="text-zinc-400 block text-xs uppercase tracking-wider font-semibold">
                         Canal Origen
                       </span>
                       <span className="font-semibold text-primary">
@@ -477,7 +477,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     </div>
 
                     <div>
-                      <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-semibold">
+                      <span className="text-zinc-400 block text-xs uppercase tracking-wider font-semibold">
                         Segmento
                       </span>
                       <span className="font-semibold text-black dark:text-white">
@@ -486,7 +486,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     </div>
 
                     <div>
-                      <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-semibold">
+                      <span className="text-zinc-400 block text-xs uppercase tracking-wider font-semibold">
                         Visitas
                       </span>
                       <span className="font-semibold text-black dark:text-white">
@@ -495,7 +495,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                     </div>
 
                     <div>
-                      <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-semibold">
+                      <span className="text-zinc-400 block text-xs uppercase tracking-wider font-semibold">
                         Total Gastado
                       </span>
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">

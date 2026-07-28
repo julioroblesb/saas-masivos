@@ -103,7 +103,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
     chart: {
       height: 320,
       type: 'area',
-      fontFamily: 'Nunito, sans-serif',
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       toolbar: { show: false },
       background: 'transparent',
     },
@@ -180,64 +180,64 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
       >
         {/* Ingresos de Hoy */}
         <div className="flex flex-col space-y-1.5">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Ingresos de Hoy</span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="text-sm font-semibold text-white-dark">Ingresos de hoy</span>
+          <span className="type-metric text-black dark:text-white">
             {formatCurrency(metrics.revenue_today || 0)}
           </span>
-          <span className="text-[10px] text-white-dark flex items-center gap-1 font-medium">
+          <span className="text-xs text-white-dark flex items-center gap-1 font-medium">
             <Sparkles className="h-3 w-3 text-emerald-500" /> Tiempo real
           </span>
         </div>
 
         {/* Atenciones de Hoy */}
         <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Atenciones de Hoy</span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="text-sm font-semibold text-white-dark">Atenciones de hoy</span>
+          <span className="type-metric text-black dark:text-white">
             {metrics.clients_today || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Citas programadas</span>
+          <span className="text-xs text-white-dark font-medium">Citas programadas</span>
         </div>
 
         {/* Clientes Registrados */}
         <div className="flex flex-col space-y-1.5 sm:border-l sm:border-black-light/40 dark:sm:border-dark-light/40 sm:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider">Clientes (CRM)</span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="text-sm font-semibold text-white-dark">Clientes</span>
+          <span className="type-metric text-black dark:text-white">
             {metrics.total_clients || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Base de datos activa</span>
+          <span className="text-xs text-white-dark font-medium">Base de datos activa</span>
         </div>
 
         {/* Autocomunicaciones (7d) */}
         <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+          <span className="flex items-center gap-1 text-sm font-semibold text-white-dark">
             Mensajes automáticos enviados
           </span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="type-metric text-black dark:text-white">
             {metrics.auto_messages_7d || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Últimos 7 días</span>
+          <span className="text-xs text-white-dark font-medium">Últimos 7 días</span>
         </div>
 
         {/* Mensajes en Cola */}
         <div className="flex flex-col space-y-1.5 sm:border-l sm:border-black-light/40 dark:sm:border-dark-light/40 sm:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+          <span className="flex items-center gap-1 text-sm font-semibold text-white-dark">
             Mensajes pendientes
           </span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="type-metric text-black dark:text-white">
             {metrics.pending_messages || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Esperando envío</span>
+          <span className="text-xs text-white-dark font-medium">Esperando envío</span>
         </div>
 
         {/* Clientes Recuperados */}
         <div className="flex flex-col space-y-1.5 lg:border-l lg:border-black-light/40 dark:lg:border-dark-light/40 lg:pl-6">
-          <span className="text-white-dark text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+          <span className="flex items-center gap-1 text-sm font-semibold text-white-dark">
             Clientes que regresaron
           </span>
-          <span className="text-black dark:text-white text-3xl font-black tracking-tight">
+          <span className="type-metric text-black dark:text-white">
             {metrics.recovered_clients || 0}
           </span>
-          <span className="text-[10px] text-white-dark font-medium">Completaron una atención después de recibir un mensaje</span>
+          <span className="text-xs text-white-dark font-medium">Completaron una atención después de recibir un mensaje</span>
         </div>
       </motion.div>
 
@@ -292,7 +292,7 @@ export function SpaDashboard({ metrics, recentActivity = [], chartData = [] }: S
                         <td className="py-3.5 font-medium text-black dark:text-white">
                           <div className="flex flex-col">
                             <span>{visit.contact_name || 'Sin nombre'}</span>
-                            <span className="text-[10px] text-white-dark font-normal">{visit.contact_phone}</span>
+                            <span className="text-xs text-white-dark font-normal">{visit.contact_phone}</span>
                           </div>
                         </td>
                         <td className="py-3.5 text-xs">{visit.service_name}</td>

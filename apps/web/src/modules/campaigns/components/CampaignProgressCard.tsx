@@ -128,25 +128,25 @@ export function CampaignProgressCard({ campaign }: { campaign: WaCampaign }) {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 py-4 border-y border-black-light/50 dark:border-dark-dark-light">
         <div className="text-center p-3 bg-success-light dark:bg-success-dark-light rounded-lg">
-          <div className="text-2xl font-bold text-success">{campaign.sent}</div>
+          <div className="type-metric text-success">{campaign.sent}</div>
           <div className="text-xs font-medium text-success uppercase flex items-center justify-center gap-1 mt-1">
             <CheckCircle2 size={12} /> Enviados
           </div>
         </div>
         <div className="text-center p-3 bg-danger-light dark:bg-danger-dark-light rounded-lg">
-          <div className="text-2xl font-bold text-danger">{campaign.failed}</div>
+          <div className="type-metric text-danger">{campaign.failed}</div>
           <div className="text-xs font-medium text-danger uppercase flex items-center justify-center gap-1 mt-1">
             <XOctagon size={12} /> Fallidos
           </div>
         </div>
         <div className="text-center p-3 bg-warning-light dark:bg-warning-dark-light rounded-lg">
-          <div className="text-2xl font-bold text-warning">{pending}</div>
+          <div className="type-metric text-warning">{pending}</div>
           <div className="text-xs font-medium text-warning uppercase flex items-center justify-center gap-1 mt-1">
             <Hourglass size={12} /> Pendientes
           </div>
         </div>
         <div className="text-center p-3 bg-secondary-light dark:bg-secondary-dark-light rounded-lg">
-          <div className="text-2xl font-bold text-secondary">{campaign.total}</div>
+          <div className="type-metric text-secondary">{campaign.total}</div>
           <div className="text-xs font-medium text-secondary uppercase flex items-center justify-center gap-1 mt-1">
             Total
           </div>
@@ -199,7 +199,7 @@ export function CampaignProgressCard({ campaign }: { campaign: WaCampaign }) {
             </>
           ) : (
             <>
-              <Icon icon="heroicons-outline:x-circle" className="mr-2 text-[20px]" />
+              <Icon icon="heroicons-outline:x-circle" className="mr-2 text-xl" />
               Cancelar
             </>
           )}

@@ -166,7 +166,7 @@ export default function SpaProductsPageContent() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
+          <h1 className="type-page-title flex items-center gap-3 text-black dark:text-white">
             <Package className="w-8 h-8 text-primary" /> Inventario de Productos
           </h1>
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
@@ -211,7 +211,7 @@ export default function SpaProductsPageContent() {
                 </div>
 
                 {!product.is_active && (
-                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/80 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-widest rounded-full">
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/80 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest rounded-full">
                     Agotado / Inactivo
                   </div>
                 )}
@@ -223,18 +223,18 @@ export default function SpaProductsPageContent() {
                   <span className="text-sm font-bold tracking-tight text-black dark:text-white whitespace-nowrap">S/ {product.price}</span>
                 </div>
                 
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2 font-medium leading-relaxed">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2 font-medium leading-relaxed">
                   {product.description || 'Sin descripción detallada.'}
                 </p>
                 
                 <div className="mt-auto pt-1 flex items-center">
                    {product.stock > 0 ? (
-                      <span className={`text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 ${product.stock <= 5 ? 'text-warning' : 'text-zinc-400'}`}>
+                      <span className={`text-xs font-bold uppercase tracking-widest flex items-center gap-1 ${product.stock <= 5 ? 'text-warning' : 'text-zinc-400'}`}>
                          <span className={`w-1 h-1 rounded-full ${product.stock <= 5 ? 'bg-warning' : 'bg-zinc-300 dark:bg-zinc-600'}`}></span>
                          {product.stock} disp.
                       </span>
                    ) : (
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-danger flex items-center gap-1">
+                      <span className="text-xs font-bold uppercase tracking-widest text-danger flex items-center gap-1">
                          <span className="w-1 h-1 rounded-full bg-danger"></span>
                          Sin stock
                       </span>
@@ -282,7 +282,7 @@ export default function SpaProductsPageContent() {
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                           <label className="cursor-pointer text-white flex flex-col items-center gap-1">
                             {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-                            <span className="text-[10px] font-medium uppercase tracking-wider">Cambiar</span>
+                            <span className="text-xs font-medium uppercase tracking-wider">Cambiar</span>
                             <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                           </label>
                         </div>
@@ -290,7 +290,7 @@ export default function SpaProductsPageContent() {
                     ) : (
                       <label className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-zinc-400 hover:text-primary transition-colors">
                         {uploadingImage ? <Loader2 className="w-6 h-6 mb-2 animate-spin" /> : <ImageIcon className="w-8 h-8 mb-2" />}
-                        <span className="text-[11px] font-medium uppercase tracking-wider">Subir Foto</span>
+                        <span className="text-xs font-medium uppercase tracking-wider">Subir Foto</span>
                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                       </label>
                     )}

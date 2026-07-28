@@ -200,7 +200,7 @@ export function SegmentConfig({
                     <tr>
                       <th className="py-3 px-2 w-10 text-center"><input type="checkbox" checked={filteredClients.every(c => targetContactIds.includes(c.id))} onChange={(e) => e.target.checked ? selectAllFiltered() : clearSelection()} className="rounded border-slate-300 text-primary focus:ring-primary" /></th>
                       <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300">Cliente</th>
-                      <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300 text-right">Último Servicio</th>
+                      <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300">Último servicio</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -213,7 +213,7 @@ export function SegmentConfig({
                           <div className="font-medium text-black dark:text-white">{client.name || 'Sin nombre'}</div>
                           <div className="text-xs text-zinc-500">{client.phone}</div>
                         </td>
-                        <td className="p-2 text-right text-xs text-zinc-500">
+                        <td className="p-2 text-xs text-zinc-500">
                           {client.last_service_name || '-'}
                         </td>
                       </tr>

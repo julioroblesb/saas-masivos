@@ -28,7 +28,7 @@ export function TenantDashboard({ sentToday, failedToday, chartData, conversionR
     chart: {
       height: 300,
       type: 'area',
-      fontFamily: 'Nunito, sans-serif',
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       toolbar: { show: false },
       background: 'transparent',
     },
@@ -72,7 +72,7 @@ export function TenantDashboard({ sentToday, failedToday, chartData, conversionR
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
             <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Enviados (Hoy)</h6>
-            <span className="text-2xl font-bold">{sentToday}</span>
+            <span className="type-metric">{sentToday}</span>
             <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-success flex items-center gap-0.5"><CheckCircle size={12}/> Entregados</span>
             </div>
@@ -86,7 +86,7 @@ export function TenantDashboard({ sentToday, failedToday, chartData, conversionR
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
             <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Fallidos (Hoy)</h6>
-            <span className="text-2xl font-bold">{failedToday}</span>
+            <span className="type-metric">{failedToday}</span>
             <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-danger flex items-center gap-0.5"><XCircle size={12}/> Errores</span>
             </div>
@@ -100,7 +100,7 @@ export function TenantDashboard({ sentToday, failedToday, chartData, conversionR
         <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 flex items-center justify-between">
           <div>
             <h6 className="text-zinc-500 dark:text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2">Conversión Respuestas</h6>
-            <span className="text-2xl font-bold">{conversionRate}%</span>
+            <span className="type-metric">{conversionRate}%</span>
             <div className="mt-3 text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
               <span className="text-info flex items-center gap-0.5"><MessageSquare size={12}/> {totalReplies} respuestas</span>
             </div>

@@ -85,7 +85,7 @@ const Sidebar = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition duration-300 ease-out">
                 {initials}
               </div>
-              <span className="align-middle text-[1.15rem] font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition duration-300 ease-out truncate w-[160px]">
+              <span className="align-middle text-lg font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition duration-300 ease-out truncate w-[160px]">
                 {companyName}
               </span>
             </Link>

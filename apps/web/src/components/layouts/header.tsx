@@ -135,7 +135,7 @@ const Header = () => {
                                     </li>
                                     <li className="border-t border-black-light dark:border-dark-light">
                                         <button type="button" onClick={handleLogout} className="!py-3 text-danger w-full text-left flex items-center px-4 hover:bg-danger/10">
-                                            <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
+                                            <IconLogout className="size-5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Cerrar Sesión
                                         </button>
                                     </li>

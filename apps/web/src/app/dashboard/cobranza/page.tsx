@@ -90,7 +90,7 @@ export default async function CobranzaPage() {
     <div className="flex flex-col h-full animate-in fade-in duration-500">
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-black dark:text-white">
+          <h1 className="type-page-title text-black dark:text-white">
             Cobranza
           </h1>
           <p className="text-zinc-500 mt-1 font-medium">Gestión de deudas y saldos pendientes.</p>

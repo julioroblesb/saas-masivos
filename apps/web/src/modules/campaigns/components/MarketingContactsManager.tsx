@@ -120,7 +120,7 @@ export function MarketingContactsManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border-b border-[#e0e6ed] dark:border-[#1b2e4b]">
         <div className="flex items-center gap-2">
           <Users size={18} className="text-primary" />
-          <h3 className="m-0 text-[1.05rem] font-bold text-dark dark:text-white-light flex items-center gap-2">
+          <h3 className="m-0 text-lg font-bold text-dark dark:text-white-light flex items-center gap-2">
             Base de Contactos
             <span className="badge badge-outline-primary rounded-full">{contacts.length}</span>
           </h3>

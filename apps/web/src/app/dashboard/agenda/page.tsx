@@ -30,7 +30,7 @@ export default async function AgendaPage({
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">Agenda & Citas</h1>
+          <h1 className="type-page-title text-zinc-900 dark:text-white">Agenda y citas</h1>
           <p className="text-sm font-medium text-zinc-500 mt-2">
             Gestiona la disponibilidad, organiza reservas y visualiza la carga de trabajo de tu equipo.
           </p>

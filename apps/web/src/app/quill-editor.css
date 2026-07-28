@@ -28,7 +28,7 @@
   border-width: 1px;
   border-color: #e0e6ed !important;
   padding: 8px;
-  font-family: Nunito, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .dark .ql-toolbar.ql-snow,

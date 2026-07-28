@@ -5,6 +5,32 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
+  /* Enterprise typography: native, zero-download and optimized for dense UI. */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.5rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.75rem;
+  --text-3xl: 1.75rem;
+  --text-3xl--line-height: 2rem;
+  --text-4xl: 2rem;
+  --text-4xl--line-height: 2.25rem;
+  --text-5xl: 2rem;
+  --text-5xl--line-height: 2.25rem;
+  --text-6xl: 2rem;
+  --text-6xl--line-height: 2.25rem;
+  --text-7xl: 2rem;
+  --text-7xl--line-height: 2.25rem;
+
   /* Brand Palette (OKLCH) */
   --color-bg: oklch(1.000 0.000 0); /* Pure white */
   --color-surface: oklch(0.980 0.005 18); /* Very slightly warm */
@@ -50,9 +76,7 @@
   --color-white-light: oklch(0.980 0.005 18);
   --color-white-dark: oklch(0.700 0.010 18);
   
-  --font-outfit: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   
-  --spacing-4_5: 18px;
   --shadow-3xl: 0 2px 2px rgb(0 0 0 / 4%), 1px 6px 7px rgb(0 0 0 / 4%);
   
   /* Custom Animation Curves */
@@ -61,6 +85,57 @@
 }
 
 @utility rotate-y-180 { transform: rotateY(180deg); }
+@utility type-display {
+  font-size: var(--text-4xl);
+  line-height: var(--text-4xl--line-height);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+@utility type-page-title {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+@utility type-section-title {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+@utility type-body {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+}
+@utility type-compact {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+@utility type-micro {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+@utility type-metric {
+  font-size: var(--text-4xl);
+  line-height: var(--text-4xl--line-height);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.015em;
+}
+@utility type-numeric {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+@utility numeric-column {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+@utility narrative {
+  max-width: 65ch;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+}
 
 
 /* Animate css */
@@ -110,17 +185,121 @@
 
 
 
-@layer components {
+@layer base {
+    :root {
+        --color-zinc-400: oklch(0.46 0.012 286);
+        --color-zinc-500: oklch(0.40 0.014 286);
+        --color-slate-400: oklch(0.46 0.018 255);
+        --color-slate-500: oklch(0.40 0.020 255);
+    }
+
     html {
         @apply scroll-smooth;
+        font-size: 100%;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
     }
 
     body {
-        @apply bg-bg text-ink font-outfit;
+        @apply bg-bg text-ink font-sans antialiased;
+        min-width: 20rem;
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
     }
 
     body.dark {
         @apply bg-dark text-white-light;
+        --color-zinc-400: oklch(0.76 0.012 286);
+        --color-zinc-500: oklch(0.70 0.014 286);
+        --color-slate-400: oklch(0.76 0.018 255);
+        --color-slate-500: oklch(0.70 0.020 255);
+        letter-spacing: 0.005em;
+    }
+
+    h1 {
+        font-size: var(--text-2xl);
+        line-height: var(--text-2xl--line-height);
+        font-weight: 650;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    h2 {
+        font-size: var(--text-xl);
+        line-height: var(--text-xl--line-height);
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+    }
+
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-size: var(--text-lg);
+        line-height: var(--text-lg--line-height);
+        font-weight: 650;
+    }
+
+    p,
+    li,
+    dd {
+        line-height: var(--text-base--line-height);
+    }
+
+    main p,
+    main dd {
+        max-width: 65ch;
+    }
+
+    small {
+        font-size: var(--text-xs);
+        line-height: var(--text-xs--line-height);
+    }
+
+    :where(p, li, dd, h1, h2, h3, h4, h5, h6).uppercase {
+        text-transform: none !important;
+        letter-spacing: normal !important;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+        font: inherit;
+    }
+
+    input[type='number'],
+    input[type='date'],
+    input[type='datetime-local'],
+    input[type='time'],
+    input[type='tel'],
+    time,
+    output,
+    meter,
+    progress {
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    :where(.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-7xl, .font-mono) {
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    ::selection {
+        background: color-mix(in oklab, var(--color-primary) 28%, transparent);
+    }
+}
+
+@layer components {
+    .dark :where(p, li, label, td, th, input, select, textarea, button) {
+        letter-spacing: 0.01em;
     }
 
     /* Panel */
@@ -153,6 +332,8 @@
     .sidebar .nav-item > button,
     .sidebar .nav-item > a {
         @apply mb-1 flex w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#506690] hover:bg-[#000]/[0.08] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark;
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
     }
     .sidebar .nav-item > button.active,
     .sidebar .nav-item > a.active {
@@ -168,6 +349,8 @@
     .sidebar ul.sub-menu li a {
         @apply flex w-full items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 hover:bg-gray-100
 hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary;
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
     }
     .sidebar ul.sub-menu li button.active,
     .sidebar ul.sub-menu li a.active {
@@ -332,7 +515,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply px-7 py-2.5 text-base;
     }
     .btn-sm {
-        @apply px-2.5 py-1.5 text-xs;
+        @apply px-3 py-1.5 text-sm;
     }
     .btn[disabled] {
         @apply cursor-not-allowed opacity-60;
@@ -439,10 +622,10 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     .form-textarea-sm,
     .form-select-sm,
     .form-multiselect-sm {
-        @apply py-1.5 text-xs;
+        @apply py-1.5 text-sm;
     }
     label {
-        @apply mb-1.5 block font-semibold;
+        @apply mb-1.5 block text-sm font-semibold leading-5;
     }
     [dir='rtl'] select {
         background-position: left 0.5rem center;
@@ -574,7 +757,13 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply overflow-auto;
     }
     table {
-        @apply w-full !border-collapse;
+        @apply w-full !border-collapse text-sm;
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+    table th,
+    table td {
+        font-size: var(--text-sm) !important;
+        line-height: var(--text-sm--line-height) !important;
     }
     table thead tr,
     table tfoot tr {
@@ -587,7 +776,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
     table thead tr th,
     table tfoot tr th {
-        @apply font-semibold;
+        @apply font-semibold normal-case tracking-normal;
     }
     table tbody tr {
         @apply border-b !border-white-light/40 dark:!border-[#191e3a];

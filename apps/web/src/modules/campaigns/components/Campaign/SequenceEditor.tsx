@@ -34,7 +34,7 @@ export function SequenceEditor({
       </div>
       <div className="flex flex-col gap-12 pl-4 border-l border-slate-200 dark:border-slate-800 ml-3">
         {sequence.map((msg, idx) => (
-          <div key={msg.id} className="relative -ml-[21px] flex gap-6 group">
+          <div key={msg.id} className="group relative -ml-5 flex gap-6">
             {/* Timeline Dot */}
             <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 mt-2 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
             
@@ -74,7 +74,7 @@ export function SequenceEditor({
                     rows={4}
                   />
                   <small className="text-zinc-500 dark:text-zinc-400 text-xs mt-1 leading-relaxed">
-                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">{`{{saludo}}`}</code> y <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">{`{{despedida}}`}</code> para rotar variaciones automáticamente. 
+                    💡 <strong>Tip Anti-Spam:</strong> Usa <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs">{`{{saludo}}`}</code> y <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs">{`{{despedida}}`}</code> para rotar variaciones automáticamente.
                     Además, inyectamos una <strong>huella invisible única</strong> por mensaje.
                   </small>
                 </div>
@@ -93,7 +93,7 @@ export function SequenceEditor({
                 <span>Espera después:</span>
                 <input
                   type="number"
-                  className="w-[65px] border-b border-slate-300 dark:border-slate-700 bg-transparent text-center focus:outline-none focus:border-primary text-sm pb-0.5"
+                  className="w-16 border-b border-slate-300 bg-transparent pb-0.5 text-center text-sm focus:border-primary focus:outline-none dark:border-slate-700"
                   min={0}
                   step={500}
                   value={msg.delayAfterMs}
@@ -105,7 +105,7 @@ export function SequenceEditor({
           </div>
         ))}
         
-        <div className="relative -ml-[21px] flex gap-6">
+        <div className="relative -ml-5 flex gap-6">
           <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 flex-shrink-0 mt-2.5 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
           <button type="button" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors py-1.5 flex items-center gap-1" onClick={addMessage}>
             <Plus size={16} /> Agregar Mensaje
