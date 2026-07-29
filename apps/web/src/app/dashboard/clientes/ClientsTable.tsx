@@ -19,6 +19,7 @@ import {
   Inbox,
   Archive,
   Share2,
+  Tag,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { upsertContactAction, deleteContactAction } from './actions';
@@ -65,6 +66,15 @@ const OPT_IN_SOURCE_OPTIONS = [
   { value: 'Otro', label: 'Otro (Especificar)' },
 ];
 
+const CUSTOMER_SEGMENT_OPTIONS = [
+  { value: 'Nuevo', label: 'Nuevo' },
+  { value: 'Ocasional', label: 'Ocasional' },
+  { value: 'Frecuente', label: 'Frecuente' },
+  { value: 'VIP', label: 'VIP' },
+  { value: 'En Riesgo', label: 'En riesgo' },
+  { value: 'Perdido', label: 'Perdido' },
+];
+
 export function ClientsTable({ initialClients }: { initialClients: ClientMetric[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -92,6 +102,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
     allergiesAndConditions: '',
     preferences: '',
     internalNotes: '',
+    customerSegment: 'Nuevo',
   });
 
   // Formatting dates
@@ -133,6 +144,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         allergiesAndConditions: client.allergies_and_conditions || '',
         preferences: client.preferences || '',
         internalNotes: client.internal_notes || '',
+        customerSegment: client.customer_segment || 'Ocasional',
       });
       setCustomOptInSource(isKnown ? '' : sourceVal);
     } else {
@@ -147,6 +159,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
         allergiesAndConditions: '',
         preferences: '',
         internalNotes: '',
+        customerSegment: 'Nuevo',
       });
       setCustomOptInSource('');
     }
@@ -197,6 +210,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
       allergiesAndConditions: form.allergiesAndConditions,
       preferences: form.preferences,
       internalNotes: form.internalNotes,
+      customerSegment: form.customerSegment,
     });
 
     if (res.error) {
@@ -223,6 +237,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
             allergies_and_conditions: form.allergiesAndConditions,
             preferences: form.preferences,
             internal_notes: form.internalNotes,
+            customer_segment: form.customerSegment as ClientMetric['customer_segment'],
           };
           return updated;
         }
@@ -237,6 +252,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
           allergies_and_conditions: form.allergiesAndConditions,
           preferences: form.preferences,
           internal_notes: form.internalNotes,
+          customer_segment: form.customerSegment as ClientMetric['customer_segment'],
           is_archived: false,
           created_at: new Date().toISOString(),
         };
@@ -663,6 +679,32 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       onChange={(e) => setCustomOptInSource(e.target.value)}
                     />
                   )}
+                </div>
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-primary" aria-hidden="true" />
+                    Categoría del cliente
+                  </label>
+                  <CustomSelect
+                    inputId="customer-segment"
+                    options={CUSTOMER_SEGMENT_OPTIONS}
+                    value={
+                      CUSTOMER_SEGMENT_OPTIONS.find(
+                        (option) => option.value === form.customerSegment,
+                      ) || CUSTOMER_SEGMENT_OPTIONS[1]
+                    }
+                    onChange={(selected) =>
+                      setForm((previous) => ({
+                        ...previous,
+                        customerSegment: selected?.value || 'Ocasional',
+                      }))
+                    }
+                    aria-label="Categoría del cliente"
+                  />
+                  <p className="text-sm leading-5 text-zinc-500 dark:text-zinc-400">
+                    La categoría que elijas quedará fija hasta que vuelvas a cambiarla.
+                  </p>
                 </div>
 
                 <div className="space-y-4 md:col-span-2">

@@ -55,4 +55,18 @@ describe('complete client profiles across operational screens', () => {
     expect(migration).toContain('visit_metrics.total_visits');
     expect(migration).toContain('visit_metrics.total_spent');
   });
+
+  it('lets staff choose a segment without a later visit overwriting it', () => {
+    const clientsTable = read('apps/web/src/app/dashboard/clientes/ClientsTable.tsx');
+    const clientActions = read('apps/web/src/app/dashboard/clientes/actions.ts');
+    const migration = read(
+      'supabase/migrations/20260729151515_make_client_segments_editable.sql',
+    );
+
+    expect(clientsTable).toContain('CUSTOMER_SEGMENT_OPTIONS');
+    expect(clientsTable).toContain('Categoría del cliente');
+    expect(clientActions).toContain('p_customer_segment_manual');
+    expect(migration).toContain('customer_segment_manual boolean not null default false');
+    expect(migration).toContain('if v_contact.customer_segment_manual then');
+  });
 });

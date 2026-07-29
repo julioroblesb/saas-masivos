@@ -64,6 +64,7 @@ export async function upsertContactAction(payload: {
   preferences?: string;
   internalNotes?: string;
   documentNumber?: string;
+  customerSegment?: string;
 }) {
   const phone = normalizePeruPhone(payload.phone);
   if (!phone) {
@@ -82,6 +83,8 @@ export async function upsertContactAction(payload: {
     p_preferences: payload.preferences || null,
     p_internal_notes: payload.internalNotes || null,
     p_document_number: payload.documentNumber || null,
+    p_customer_segment: payload.customerSegment || null,
+    p_customer_segment_manual: Boolean(payload.customerSegment),
   });
 
   if (error) {

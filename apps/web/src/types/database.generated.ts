@@ -219,6 +219,7 @@ export type Database = {
           company_id: string;
           created_at: string;
           customer_segment: string | null;
+          customer_segment_manual: boolean;
           document_number: string | null;
           email: string | null;
           id: string;
@@ -242,6 +243,7 @@ export type Database = {
           company_id: string;
           created_at?: string;
           customer_segment?: string | null;
+          customer_segment_manual?: boolean;
           document_number?: string | null;
           email?: string | null;
           id?: string;
@@ -265,6 +267,7 @@ export type Database = {
           company_id?: string;
           created_at?: string;
           customer_segment?: string | null;
+          customer_segment_manual?: boolean;
           document_number?: string | null;
           email?: string | null;
           id?: string;
@@ -1674,6 +1677,8 @@ export type Database = {
           p_opt_in_source?: string | null;
           p_phone: string;
           p_preferences?: string | null;
+          p_customer_segment?: string | null;
+          p_customer_segment_manual?: boolean;
           p_tags: string[];
         };
         Returns: Json;
