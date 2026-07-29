@@ -6,10 +6,45 @@ export const dynamic = 'force-dynamic';
 export default async function AtencionesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ startDate?: string; endDate?: string }>;
+  searchParams: Promise<{
+    startDate?: string;
+    endDate?: string;
+    historyPage?: string;
+    historyPageSize?: string;
+    view?: string;
+  }>;
 }) {
-  const { startDate, endDate } = await searchParams;
-  const { services, visits, contacts, staff, paymentMethods, error } = await getAtencionesData(startDate, endDate);
+  const { startDate, endDate, historyPage, historyPageSize, view } = await searchParams;
+  const parsedHistoryPage = Math.max(1, Number.parseInt(historyPage || '1', 10) || 1);
+  const requestedPageSize = Number.parseInt(historyPageSize || '10', 10) || 10;
+  const parsedHistoryPageSize = [10, 25, 50].includes(requestedPageSize)
+    ? requestedPageSize
+    : 10;
+  const {
+    services,
+    visits,
+    contacts,
+    staff,
+    paymentMethods,
+    historyTotal,
+    visitCounts,
+    error,
+  } = await getAtencionesData(
+    startDate,
+    endDate,
+    parsedHistoryPage,
+    parsedHistoryPageSize,
+  );
+  const managerDataVersion = [
+    parsedHistoryPage,
+    parsedHistoryPageSize,
+    contacts.length,
+    services.length,
+    ...visits.map(
+      (visit) =>
+        `${visit.id}:${visit.status}:${visit.payment_status}:${visit.amount_paid ?? 0}`,
+    ),
+  ].join('|');
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -28,7 +63,8 @@ export default async function AtencionesPage({
         </div>
       )}
 
-      <AtencionesManager 
+      <AtencionesManager
+        key={managerDataVersion}
         initialVisits={visits} 
         services={services} 
         contacts={contacts} 
@@ -36,6 +72,11 @@ export default async function AtencionesPage({
         paymentMethods={paymentMethods}
         currentStartDate={startDate || ''}
         currentEndDate={endDate || ''}
+        historyTotal={historyTotal}
+        initialHistoryPage={parsedHistoryPage}
+        initialHistoryPageSize={parsedHistoryPageSize}
+        initialTab={view === 'historial' ? 'historial' : 'activas'}
+        visitCounts={visitCounts}
       />
     </div>
   );

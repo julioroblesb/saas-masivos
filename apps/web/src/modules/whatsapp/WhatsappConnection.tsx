@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -78,7 +78,7 @@ async function postInstance(): Promise<InstanceResponse> {
 
 export function WhatsappConnection({ companyId }: WhatsappConnectionProps) {
   const queryClient = useQueryClient();
-  const queryKey = ['whatsapp-session', companyId] as const;
+  const queryKey = useMemo(() => ['whatsapp-session', companyId] as const, [companyId]);
   const recoveryTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopRecovery = useCallback(() => {

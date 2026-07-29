@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { Coins, Phone, Search, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -38,8 +38,6 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const [paymentVisit, setPaymentVisit] = useState<DebtVisit | null>(null);
   const [paymentDraft, setPaymentDraft] = useState<PaymentDraft>(() => createPaymentDraft(0));
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => setLocalDebts(debts), [debts]);
 
   const query = search.trim().toLowerCase();
   const filteredDebts = query

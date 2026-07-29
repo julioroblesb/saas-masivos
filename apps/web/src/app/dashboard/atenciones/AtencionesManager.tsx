@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useTransition } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar as CalendarIcon,
@@ -59,6 +59,15 @@ interface AtencionesManagerProps {
   paymentMethods: string[];
   currentStartDate?: string;
   currentEndDate?: string;
+  historyTotal: number;
+  initialHistoryPage: number;
+  initialHistoryPageSize: number;
+  initialTab: 'activas' | 'historial';
+  visitCounts: {
+    active: number;
+    total: number;
+    upcoming: number;
+  };
 }
 
 export function AtencionesManager({
@@ -67,29 +76,37 @@ export function AtencionesManager({
   contacts: propContacts,
   staffList,
   paymentMethods,
+  currentStartDate,
+  currentEndDate,
+  historyTotal,
+  initialHistoryPage,
+  initialHistoryPageSize,
+  initialTab,
+  visitCounts,
 }: AtencionesManagerProps) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
+  const [isNavigating, startTransition] = useTransition();
 
   const [visits, setVisits] = useState<AtencionVisit[]>(initialVisits);
-  const [services, setServices] = useState<AtencionService[]>(propServices);
-  const [contacts, setContacts] = useState<AtencionContact[]>(propContacts);
+  const [services] = useState<AtencionService[]>(propServices);
+  const [contacts] = useState<AtencionContact[]>(propContacts);
 
-  // Sync state from server props after a router.refresh()
-  useEffect(() => {
-    setVisits(initialVisits);
-  }, [initialVisits]);
-  useEffect(() => {
-    setServices(propServices);
-  }, [propServices]);
-  useEffect(() => {
-    setContacts(propContacts);
-  }, [propContacts]);
-
-  const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>('activas');
+  const [activeTab, setActiveTab] = useState<'activas' | 'proximas' | 'historial'>(
+    initialTab,
+  );
   const [search, setSearch] = useState('');
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = initialHistoryPageSize;
+  const currentPage = initialHistoryPage;
+
+  const navigateHistoryPage = (page: number, size = pageSize) => {
+    const params = new URLSearchParams();
+    if (currentStartDate) params.set('startDate', currentStartDate);
+    if (currentEndDate) params.set('endDate', currentEndDate);
+    params.set('view', 'historial');
+    params.set('historyPage', String(Math.max(1, page)));
+    params.set('historyPageSize', String(size));
+    startTransition(() => router.replace(`/dashboard/atenciones?${params.toString()}`));
+  };
 
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -600,11 +617,8 @@ export function AtencionesManager({
     (v) => v.status === 'completado' || v.status === 'cancelado' || v.status === 'no_asistio',
   );
 
-  const totalPages = Math.ceil(historyVisits.length / pageSize) || 1;
-  const paginatedHistory = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return historyVisits.slice(start, start + pageSize);
-  }, [historyVisits, currentPage, pageSize]);
+  const totalPages = Math.ceil(historyTotal / pageSize) || 1;
+  const paginatedHistory = historyVisits;
 
   const selectedContact = contacts.find((c) => c.id === form.contact_id);
   const selectedService = services.find((s) => s.id === form.service_id);
@@ -618,7 +632,7 @@ export function AtencionesManager({
           <div className="flex justify-between items-start relative z-10">
             <div className="flex flex-col space-y-1">
               <p className="truncate text-xs font-semibold text-white/80">Total</p>
-              <h2 className="mt-1 text-2xl font-bold tabular-nums">{visits.length}</h2>
+              <h2 className="mt-1 text-2xl font-bold tabular-nums">{visitCounts.total}</h2>
             </div>
             <div className="hidden rounded-lg bg-white/20 p-2 sm:block">
               <Activity className="h-5 w-5 text-white" />
@@ -631,7 +645,7 @@ export function AtencionesManager({
             <div className="flex flex-col space-y-1">
               <p className="truncate text-xs font-semibold text-zinc-500 dark:text-zinc-400">En curso</p>
               <h2 className="mt-1 text-2xl font-bold tabular-nums text-black dark:text-white">
-                {visits.filter((v) => v.status === 'en_curso').length}
+                {visitCounts.active}
               </h2>
             </div>
             <div className="hidden rounded-lg bg-white-light p-2 dark:bg-zinc-900 sm:block">
@@ -647,7 +661,7 @@ export function AtencionesManager({
                 Próximas citas
               </p>
               <h2 className="mt-1 text-2xl font-bold tabular-nums text-black dark:text-white">
-                {visits.filter((v) => v.status === 'agendado').length}
+                {visitCounts.upcoming}
               </h2>
             </div>
             <div className="hidden rounded-lg bg-white-light p-2 dark:bg-zinc-900 sm:block">
@@ -678,7 +692,7 @@ export function AtencionesManager({
                 : 'text-zinc-500 hover:text-black dark:hover:text-white'
             }`}
           >
-            Próximas ({visits.filter((v) => v.status === 'agendado').length})
+            Próximas ({visitCounts.upcoming})
           </button>
           <button
             onClick={() => setActiveTab('historial')}
@@ -688,7 +702,7 @@ export function AtencionesManager({
                 : 'text-zinc-500 hover:text-black dark:hover:text-white'
             }`}
           >
-            Historial ({historyVisits.length})
+            Historial ({historyTotal})
           </button>
         </div>
 
@@ -697,7 +711,11 @@ export function AtencionesManager({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="Buscar por cliente o servicio..."
+              placeholder={
+                activeTab === 'historial'
+                  ? 'Buscar en esta página...'
+                  : 'Buscar por cliente o servicio...'
+              }
               className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-zinc-50 dark:bg-zinc-900"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -1150,9 +1168,9 @@ export function AtencionesManager({
                 <select
                   className="form-select text-xs rounded-lg border-black-light dark:border-dark-light bg-white dark:bg-dark py-1 pl-2 pr-8"
                   value={pageSize}
+                  disabled={isNavigating}
                   onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(1);
+                    navigateHistoryPage(1, Number(e.target.value));
                   }}
                 >
                   <option value={10}>10 por página</option>
@@ -1164,18 +1182,18 @@ export function AtencionesManager({
               <div className="flex items-center gap-2">
                 <button
                   className="btn btn-sm btn-outline-secondary rounded-lg px-3 py-1 text-xs"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => navigateHistoryPage(currentPage - 1)}
+                  disabled={currentPage === 1 || isNavigating}
                 >
                   Anterior
                 </button>
                 <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                  Página {currentPage} de {totalPages}
+                  {isNavigating ? 'Cargando…' : `Página ${currentPage} de ${totalPages}`}
                 </span>
                 <button
                   className="btn btn-sm btn-outline-secondary rounded-lg px-3 py-1 text-xs"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => navigateHistoryPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages || isNavigating}
                 >
                   Siguiente
                 </button>

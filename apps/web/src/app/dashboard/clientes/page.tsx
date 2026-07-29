@@ -1,10 +1,16 @@
 import { getClientsMetrics } from './actions';
-import { ClientsTable } from './ClientsTable';
+import { ClientsTable, type ClientMetric } from './ClientsTable';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ClientesPage() {
   const { data: clients, error } = await getClientsMetrics();
+  const clientsDataVersion = (clients || [])
+    .map(
+      (client: ClientMetric) =>
+        `${client.id}:${client.total_visits ?? 0}:${client.total_spent ?? 0}:${client.is_archived}`,
+    )
+    .join('|');
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -23,7 +29,7 @@ export default async function ClientesPage() {
             {error}
           </div>
         ) : (
-          <ClientsTable initialClients={clients || []} />
+          <ClientsTable key={clientsDataVersion} initialClients={clients || []} />
         )}
       </div>
     </div>

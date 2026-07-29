@@ -64,7 +64,12 @@ function revalidateAllAffectedPaths() {
   revalidatePath('/dashboard');
 }
 
-export async function getAtencionesData(startDate?: string, endDate?: string) {
+export async function getAtencionesData(
+  startDate?: string,
+  endDate?: string,
+  historyPage = 1,
+  historyPageSize = 10,
+) {
   const supabase = await createClient();
 
   let paymentMethods = ['efectivo', 'yape', 'plin', 'tarjeta', 'transferencia'];
@@ -84,10 +89,7 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     }
   }
 
-  let visitsQuery = supabase
-    .from('spa_visits')
-    .select(
-      `
+  const visitSelect = `
       id,
       company_id,
       contact_id,
@@ -112,23 +114,38 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
         phone
       ),
       spa_services ( id, name, price )
-    `,
-    )
+    `;
+  const safeHistoryPage = Math.max(1, Math.floor(historyPage));
+  const safeHistoryPageSize = [10, 25, 50].includes(historyPageSize) ? historyPageSize : 10;
+  const historyOffset = (safeHistoryPage - 1) * safeHistoryPageSize;
+
+  let operationalVisitsQuery = supabase
+    .from('spa_visits')
+    .select(visitSelect, { count: 'exact' })
+    .in('status', ['agendado', 'en_curso'])
+    .order('visit_date', { ascending: false })
+    .limit(200);
+
+  let historyVisitsQuery = supabase
+    .from('spa_visits')
+    .select(visitSelect, { count: 'exact' })
+    .in('status', ['completado', 'cancelado', 'no_asistio'])
     .order('visit_date', { ascending: false });
 
   if (startDate) {
     const startBoundary = startDate.includes('T') ? startDate : `${startDate}T00:00:00-05:00`;
-    visitsQuery = visitsQuery.gte('visit_date', startBoundary);
+    operationalVisitsQuery = operationalVisitsQuery.gte('visit_date', startBoundary);
+    historyVisitsQuery = historyVisitsQuery.gte('visit_date', startBoundary);
   }
   if (endDate) {
     const endBoundary = endDate.includes('T') ? endDate : `${endDate}T23:59:59.999-05:00`;
-    visitsQuery = visitsQuery.lte('visit_date', endBoundary);
-  } else if (!startDate && !endDate) {
-    // The UI paginates this result locally. Keep the complete tenant history
-    // available at the current launch scale so completed visits with an
-    // outstanding balance never disappear while Cobranza still lists them.
-    visitsQuery = visitsQuery.limit(1000);
+    operationalVisitsQuery = operationalVisitsQuery.lte('visit_date', endBoundary);
+    historyVisitsQuery = historyVisitsQuery.lte('visit_date', endBoundary);
   }
+  historyVisitsQuery = historyVisitsQuery.range(
+    historyOffset,
+    historyOffset + safeHistoryPageSize - 1,
+  );
 
   const companySettingsPromise = companyId
     ? supabase.from('companies').select('settings').eq('id', companyId).single()
@@ -137,7 +154,12 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   // Execute independent queries in PARALLEL batch
   const [
     { data: services, error: sErr },
-    { data: visits, error: vErr },
+    {
+      data: operationalVisits,
+      error: operationalVisitsError,
+      count: operationalVisitsCount,
+    },
+    { data: historyVisits, error: historyVisitsError, count: historyTotal },
     { data: contacts, error: cErr },
     { data: staff, error: staffErr },
     { data: staffServices },
@@ -150,12 +172,11 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       )
       .eq('is_active', true)
       .order('name'),
-    visitsQuery,
+    operationalVisitsQuery,
+    historyVisitsQuery,
     supabase
       .from('crm_marketing_contacts')
-      .select(
-        'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
-      )
+      .select('id, name, phone')
       .order('name'),
     supabase
       .from('spa_staff')
@@ -166,6 +187,8 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     companySettingsPromise,
   ]);
 
+  const visits = [...(operationalVisits || []), ...(historyVisits || [])];
+
   if (
     companyRes?.data?.settings?.payment_methods &&
     companyRes.data.settings.payment_methods.length > 0
@@ -173,32 +196,51 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     paymentMethods = companyRes.data.settings.payment_methods;
   }
 
-  const visitIds = visits?.map((v) => v.id) || [];
+  const visitIds = visits.map((visit) => visit.id);
+  const visitContactIds = [
+    ...new Set(visits.map((visit) => visit.contact_id).filter((id): id is string => Boolean(id))),
+  ];
   const paymentsByVisit: Record<string, import('./types').AtencionPayment[]> = {};
   let pErr: string | undefined = undefined;
+  let contactDetails: import('./types').AtencionContact[] = [];
 
-  if (visitIds.length > 0) {
-    const { data: payments, error: paymentsError } = await supabase
-      .from('spa_payments')
-      .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
-      .in('visit_id', visitIds)
-      .order('payment_date', { ascending: false });
+  const [paymentsResult, contactDetailsResult] = await Promise.all([
+    visitIds.length > 0
+      ? supabase
+          .from('spa_payments')
+          .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
+          .in('visit_id', visitIds)
+          .order('payment_date', { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+    visitContactIds.length > 0
+      ? supabase
+          .from('crm_marketing_contacts')
+          .select(
+            'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
+          )
+          .in('id', visitContactIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
-    if (paymentsError) {
-      pErr = paymentsError.message;
-    } else if (payments) {
-      for (const p of payments) {
-        if (p.visit_id) {
-          (paymentsByVisit[p.visit_id] ||= []).push({
-            id: p.id,
-            amount: p.amount,
-            payment_method: p.payment_method,
-            payment_date: p.payment_date,
-            operation_reference: p.operation_reference,
-          });
-        }
+  if (paymentsResult.error) {
+    pErr = paymentsResult.error.message;
+  } else {
+    for (const p of paymentsResult.data || []) {
+      if (p.visit_id) {
+        (paymentsByVisit[p.visit_id] ||= []).push({
+          id: p.id,
+          amount: p.amount,
+          payment_method: p.payment_method,
+          payment_date: p.payment_date,
+          operation_reference: p.operation_reference,
+        });
       }
     }
+  }
+  if (contactDetailsResult.error) {
+    pErr ||= contactDetailsResult.error.message;
+  } else {
+    contactDetails = contactDetailsResult.data || [];
   }
 
   const staffWithServices =
@@ -210,11 +252,11 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       services:
         staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
-  const contactsById = new Map((contacts || []).map((contact) => [contact.id, contact]));
+  const contactsById = new Map(contactDetails.map((contact) => [contact.id, contact]));
 
   return {
     services: services || [],
-    visits: (visits?.map((v) => {
+    visits: visits.map((v) => {
       const embeddedContact = Array.isArray(v.crm_marketing_contacts)
         ? v.crm_marketing_contacts[0]
         : v.crm_marketing_contacts;
@@ -233,11 +275,23 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
         crm_marketing_contacts: contactObj ?? null,
         spa_services: serviceObj ?? null,
       };
-    }) || []) as import('./types').AtencionVisit[],
+    }) as import('./types').AtencionVisit[],
+    historyTotal: historyTotal || 0,
+    visitCounts: {
+      total: (operationalVisitsCount || 0) + (historyTotal || 0),
+      active: (operationalVisits || []).filter((visit) => visit.status === 'en_curso').length,
+      upcoming: (operationalVisits || []).filter((visit) => visit.status === 'agendado').length,
+    },
     contacts: contacts || [],
     staff: staffWithServices,
     paymentMethods,
-    error: sErr?.message || vErr?.message || pErr || cErr?.message || staffErr?.message,
+    error:
+      sErr?.message ||
+      operationalVisitsError?.message ||
+      historyVisitsError?.message ||
+      pErr ||
+      cErr?.message ||
+      staffErr?.message,
   };
 }
 

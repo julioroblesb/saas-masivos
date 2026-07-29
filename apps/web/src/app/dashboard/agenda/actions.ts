@@ -60,9 +60,7 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
       .order('name'),
     supabase
       .from('crm_marketing_contacts')
-      .select(
-        'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
-      )
+      .select('id, name, phone')
       .order('name'),
     supabase
       .from('spa_staff')
@@ -119,6 +117,20 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
   }
 
   const { data: visits, error: vErr } = await visitsQuery;
+  const visibleContactIds = [
+    ...new Set(
+      (visits || []).map((visit) => visit.contact_id).filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const { data: visibleContactProfiles, error: profileErr } =
+    visibleContactIds.length > 0
+      ? await supabase
+          .from('crm_marketing_contacts')
+          .select(
+            'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
+          )
+          .in('id', visibleContactIds)
+      : { data: [], error: null };
 
   const staffWithServices =
     staff?.map((s) => ({
@@ -129,7 +141,9 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
       services:
         staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
-  const contactsById = new Map((contacts || []).map((contact) => [contact.id, contact]));
+  const contactsById = new Map(
+    (visibleContactProfiles || []).map((contact) => [contact.id, contact]),
+  );
 
   return {
     services: services || [],
@@ -150,7 +164,12 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
     }) || []) as import('../atenciones/types').AgendaVisit[],
     contacts: contacts || [],
     staff: staffWithServices,
-    error: sErr?.message || vErr?.message || cErr?.message || staffErr?.message,
+    error:
+      sErr?.message ||
+      vErr?.message ||
+      profileErr?.message ||
+      cErr?.message ||
+      staffErr?.message,
   };
 }
 

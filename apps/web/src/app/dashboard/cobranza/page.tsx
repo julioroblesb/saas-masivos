@@ -44,12 +44,20 @@ export default async function CobranzaPage() {
     console.error('Error fetching cobranza visits:', visitsErr);
   }
 
-  // Fetch payments to calculate remaining debts
-  const { data: payments, error: paymentsErr } = await supabase
-    .from('spa_payments')
-    .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
-    .eq('company_id', profile.company_id)
-    .order('payment_date', { ascending: false });
+  // Fetch only payments belonging to the debt rows rendered on this page.
+  // RLS still enforces the tenant boundary; the ID batch avoids loading the
+  // tenant's complete payment ledger on every Cobranza visit.
+  const debtVisitIds = (rawVisits || []).map((visit) => visit.id);
+  const paymentResult =
+    debtVisitIds.length > 0
+      ? await supabase
+          .from('spa_payments')
+          .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
+          .eq('company_id', profile.company_id)
+          .in('visit_id', debtVisitIds)
+          .order('payment_date', { ascending: false })
+      : { data: [], error: null };
+  const { data: payments, error: paymentsErr } = paymentResult;
 
   if (paymentsErr) {
     console.error('Error fetching cobranza payments:', paymentsErr);
@@ -90,6 +98,9 @@ export default async function CobranzaPage() {
       };
     })
     .filter((d): d is NonNullable<typeof d> => d !== null);
+  const debtsDataVersion = debts
+    .map((debt) => `${debt.id}:${debt.amount_paid}:${debt.payment_status}`)
+    .join('|');
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
@@ -101,7 +112,7 @@ export default async function CobranzaPage() {
           <p className="text-zinc-500 mt-1 font-medium">Gestión de deudas y saldos pendientes.</p>
         </div>
       </div>
-      <CobranzaManager debts={debts} />
+      <CobranzaManager key={debtsDataVersion} debts={debts} />
     </div>
   );
 }
