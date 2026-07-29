@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 
 export default function TerminosPage() {
   return (
@@ -14,7 +15,7 @@ export default function TerminosPage() {
         </Link>
 
         <header className="mb-8 flex items-start gap-4 border-b border-black-light pb-6 dark:border-dark-light">
-          <ShieldCheck size={30} className="mt-1 shrink-0 text-primary" aria-hidden="true" />
+          <BrandMark size={42} priority />
           <div>
             <h1 className="type-page-title mb-1 text-dark dark:text-white-light">Términos y condiciones</h1>
             <p className="text-sm text-zinc-500 dark:text-gray-400">Última actualización: 28 de julio de 2026</p>

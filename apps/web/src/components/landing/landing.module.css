@@ -65,17 +65,8 @@
   text-decoration: none;
 }
 
-.brand span {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 11px;
-  color: white;
-  background: var(--landing-brand);
-  box-shadow: 0 8px 20px rgb(229 26 84 / 28%);
-  font-size: 14px;
-  font-weight: 800;
+.brandMark {
+  filter: drop-shadow(0 8px 12px rgb(0 0 0 / 24%));
 }
 
 .brand strong {
@@ -377,15 +368,8 @@
   color: white;
 }
 
-.workspaceBrand span {
-  display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border-radius: 9px;
-  color: white;
-  background: var(--landing-brand);
-  font-size: 12px;
+.workspaceBrandMark {
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 24%));
 }
 
 .workspaceBusiness {
@@ -1088,14 +1072,29 @@
   font-size: 13px;
 }
 
-.priceBlock > strong {
+.regularPrice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 20px;
+  color: #c8bac3;
+  font-size: 14px;
+}
+
+.regularPrice span {
+  color: #f1e7ed;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.launchPrice {
   display: block;
   margin-top: 8px;
   font-size: 44px;
   letter-spacing: -0.05em;
 }
 
-.priceBlock > strong span {
+.launchPrice span {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
@@ -1358,9 +1357,8 @@
     min-height: 72px;
   }
 
-  .brand span {
-    width: 32px;
-    height: 32px;
+  .brandMark {
+    transform: scale(0.9);
   }
 
   .loginLink {

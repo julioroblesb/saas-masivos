@@ -1,5 +1,7 @@
 'use client';
 
+import { BrandMark } from '@/components/brand/BrandMark';
+
 export default function GlobalError({
   error,
   unstable_retry,
@@ -15,9 +17,10 @@ export default function GlobalError({
             className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-8 text-center shadow-sm"
             aria-labelledby="global-error-title"
           >
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Renova CRM
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <BrandMark size={42} priority />
+              <p className="text-sm font-semibold text-primary">Renova CRM</p>
+            </div>
             <h1 id="global-error-title" className="mt-3 text-2xl font-semibold text-zinc-950">
               No pudimos cargar la aplicación
             </h1>

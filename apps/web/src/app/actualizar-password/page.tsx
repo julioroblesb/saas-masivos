@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Lock, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { BrandMark } from '@/components/brand/BrandMark';
 
 export default function ActualizarPasswordPage() {
   const [password, setPassword] = useState('');
@@ -71,9 +72,9 @@ export default function ActualizarPasswordPage() {
         <div className="relative z-10 w-full max-w-lg text-white">
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
-              <div className="h-16 w-16 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-bold text-2xl shadow-2xl">
-                RC
-              </div>
+              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/95">
+                <BrandMark size={54} priority />
+              </span>
               <div className="text-white font-extrabold text-2xl tracking-widest uppercase">
                 Renova CRM
               </div>
@@ -93,9 +94,7 @@ export default function ActualizarPasswordPage() {
         <div className="w-full max-w-[400px]">
           
           <div className="mb-10 text-center flex flex-col items-center md:hidden">
-            <div className="h-12 w-12 mb-4 flex items-center justify-center bg-black rounded-xl text-white font-bold text-xl shadow-lg">
-              RC
-            </div>
+            <BrandMark className="mb-4" size={52} priority />
             <h2 className="type-page-title mb-2 text-black dark:text-white">Nueva contraseña</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm">Ingresa tu nueva contraseña para acceder</p>
           </div>

@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, Loader2, MessageCircle, ShieldCheck, Sparkles, User } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 import { normalizePeruPhone } from '@/shared/utils/phone';
 import { createClient } from '@/utils/supabase/client';
 
@@ -11,7 +12,6 @@ interface DemoForm {
   contactName: string;
   phone: string;
   industry: string;
-  whatsappConsent: boolean;
 }
 
 const EMPTY_FORM: DemoForm = {
@@ -19,7 +19,6 @@ const EMPTY_FORM: DemoForm = {
   contactName: '',
   phone: '',
   industry: '',
-  whatsappConsent: false,
 };
 
 export default function DemoLandingPage() {
@@ -42,11 +41,6 @@ export default function DemoLandingPage() {
       setError('Ingresa un celular peruano de 9 dígitos, por ejemplo 996 552 871.');
       return;
     }
-    if (!form.whatsappConsent) {
-      setError('Autoriza el mensaje de demostración para continuar.');
-      return;
-    }
-
     setLoading(true);
     try {
       const {
@@ -71,6 +65,7 @@ export default function DemoLandingPage() {
         body: JSON.stringify({
           ...form,
           phone: normalizedPhone,
+          whatsappConsent: true,
         }),
       });
       const payload = await response.json();
@@ -94,6 +89,10 @@ export default function DemoLandingPage() {
     <main className="min-h-screen bg-zinc-950 px-4 py-10 text-zinc-100 sm:px-6">
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <BrandMark size={48} priority />
+            <span className="text-lg font-bold tracking-tight text-white">Renova CRM</span>
+          </div>
           <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/25 bg-rose-500/10 px-3 py-1.5 text-sm font-semibold text-rose-300">
             <Sparkles className="size-4" />
             Demo personalizada
@@ -103,18 +102,21 @@ export default function DemoLandingPage() {
               Conoce Renova CRM con los datos de tu negocio
             </h1>
             <p className="max-w-[60ch] text-base leading-6 text-zinc-400">
-              Completa tus datos para crear un entorno privado de demostración. Podrás recorrer
-              todas las secciones en modo de solo lectura durante 24 horas.
+              Completa tus datos y entra a una versión personalizada de Renova durante 24 horas.
+              Explora cómo se organizan la agenda, los clientes y el seguimiento de tu negocio.
             </p>
           </div>
           <div className="grid gap-3 text-sm text-zinc-300 sm:grid-cols-2 lg:grid-cols-1">
             <div className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-400" />
-              <span>No podrás modificar, eliminar ni enviar campañas desde la demo.</span>
+              <span>Prueba la interfaz y recorre el flujo diario de un centro de belleza.</span>
             </div>
             <div className="flex items-start gap-3">
               <MessageCircle className="mt-0.5 size-5 shrink-0 text-rose-400" />
-              <span>Recibirás un WhatsApp de prueba personalizado al ingresar.</span>
+              <span>
+                Al ingresar enviaremos una sola demostración a tu WhatsApp, como si fueras un
+                cliente que acaba de visitar tu centro de belleza.
+              </span>
             </div>
           </div>
         </section>
@@ -178,6 +180,10 @@ export default function DemoLandingPage() {
                 <span className="block text-xs font-normal text-zinc-500">
                   Puedes escribirlo con espacios o guiones. Agregaremos +51 automáticamente.
                 </span>
+                <span className="block text-xs font-normal leading-5 text-zinc-400">
+                  Usaremos este número una sola vez para mostrarte cómo recibe un cliente el
+                  seguimiento automático.
+                </span>
               </label>
 
               <label className="space-y-2 text-sm font-medium text-zinc-200">
@@ -194,20 +200,6 @@ export default function DemoLandingPage() {
               </label>
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-800 bg-zinc-950/70 p-4">
-              <input
-                required
-                type="checkbox"
-                checked={form.whatsappConsent}
-                onChange={(event) => updateField('whatsappConsent', event.target.checked)}
-                className="mt-0.5 rounded border-zinc-600 bg-zinc-900 text-rose-600 focus:ring-rose-500/30"
-              />
-              <span className="text-sm leading-5 text-zinc-300">
-                Autorizo recibir un único mensaje de WhatsApp para comprobar la automatización
-                durante esta demo.
-              </span>
-            </label>
-
             {error && (
               <div
                 role="alert"
@@ -220,7 +212,7 @@ export default function DemoLandingPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-rose-500 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
             >
               {loading ? (
                 <>

@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { BrandMark } from '@/components/brand/BrandMark';
 
 const Header = () => {
     const dispatch = useDispatch();
@@ -69,7 +70,8 @@ const Header = () => {
                         >
                             <IconMenu className="h-5 w-5" />
                         </button>
-                        <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center overflow-hidden">
+                        <Link href={role === 'super_admin' ? '/admin' : '/dashboard'} className="main-logo flex shrink-0 items-center gap-2 overflow-hidden">
+                            <BrandMark size={32} priority />
                             <span className="align-middle text-lg sm:text-2xl font-semibold transition duration-300 ease-out dark:text-white-light truncate">{companyName}</span>
                         </Link>
                     </div>

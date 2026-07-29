@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   },
   description: 'Gestión de clientes, agenda y automatización para spas y salones.',
   applicationName: 'Renova CRM',
+  icons: {
+    icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
+    shortcut: '/favicon.ico',
+  },
   robots: {
     index: false,
     follow: false,

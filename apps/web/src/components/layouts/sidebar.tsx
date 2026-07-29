@@ -17,6 +17,7 @@ import IconInfoCircle from '@/components/icon/icon-info-circle';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Coins } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 
 const sectionTitleClass =
   'sidebar-section-title -mx-4 mb-1 mt-4 flex items-center px-7 py-2 text-xs font-semibold leading-4 tracking-wide text-muted dark:text-white-dark';
@@ -25,8 +26,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
   const [role, setRole] = useState<string>('');
-  const [companyName, setCompanyName] = useState<string>('NAVIER');
-  const [initials, setInitials] = useState<string>('NV');
+  const [companyName, setCompanyName] = useState<string>('Renova CRM');
   const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
 
   useEffect(() => {
@@ -51,9 +51,6 @@ const Sidebar = () => {
               .single();
             if (company && company.name) {
               setCompanyName(company.name);
-              const words = company.name.trim().split(' ');
-              const inits = words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0, 2);
-              setInitials(inits.toUpperCase());
             }
           }
         }
@@ -85,9 +82,7 @@ const Sidebar = () => {
               href={role === 'super_admin' ? '/admin' : '/dashboard'}
               className="main-logo flex shrink-0 items-center"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold flex-none transition duration-300 ease-out">
-                {initials}
-              </div>
+              <BrandMark size={34} priority />
               <span className="align-middle text-lg font-bold ltr:ml-2.5 rtl:mr-2.5 dark:text-white-light lg:inline transition duration-300 ease-out truncate w-[160px]">
                 {companyName}
               </span>

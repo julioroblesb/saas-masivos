@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const parsedBody = requestSchema.safeParse(await request.json());
     if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Completa todos los campos y autoriza el mensaje de demostración.' },
+        { error: 'Completa todos los campos para preparar la demostración.' },
         { status: 400 },
       );
     }

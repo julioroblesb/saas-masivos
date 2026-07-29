@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 import styles from './landing.module.css';
 
 export function LandingHeader() {
@@ -8,7 +9,7 @@ export function LandingHeader() {
       <div className={styles.shell}>
         <div className={styles.headerInner}>
           <Link className={styles.brand} href="/" aria-label="Renova CRM, inicio">
-            <span aria-hidden="true">R</span>
+            <BrandMark className={styles.brandMark} size={36} priority />
             <strong>Renova</strong>
           </Link>
 

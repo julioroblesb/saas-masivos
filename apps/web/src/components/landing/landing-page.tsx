@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 import { LandingHeader } from './landing-header';
 import { ProductWorkspace } from './product-workspace';
 import styles from './landing.module.css';
@@ -70,7 +71,7 @@ const questions = [
   {
     question: '¿Puedo probarlo sin arriesgar información real?',
     answer:
-      'Sí. La demo crea un espacio temporal con el nombre y rubro de tu negocio y se mantiene en modo lectura. Puedes entender el flujo completo sin modificar datos ni ejecutar campañas.',
+      'Sí. La demo crea un espacio temporal con el nombre y rubro de tu negocio para que recorras la interfaz y entiendas el flujo completo sin afectar cuentas ni información real.',
   },
 ] as const;
 
@@ -212,7 +213,7 @@ export function LandingPage() {
                 </div>
                 <p className={styles.assurance}>
                   <ShieldCheck aria-hidden="true" />
-                  Demo gratuita de solo lectura. No requiere tarjeta.
+                  Demo gratuita interactiva. Pruébala con tu negocio.
                 </p>
                 <ul className={styles.heroProof} aria-label="Ventajas de la demo">
                   <li>
@@ -376,9 +377,12 @@ export function LandingPage() {
                 </p>
               </div>
               <div className={styles.priceBlock}>
-                <p>Plan mensual</p>
-                <strong>
-                  S/ 75 <span>/ mes</span>
+                <p>Precio de lanzamiento · primeros 10 negocios</p>
+                <div className={styles.regularPrice}>
+                  Precio regular <span>S/ 259 al mes</span>
+                </div>
+                <strong className={styles.launchPrice}>
+                  S/ 99 <span>/ mes</span>
                 </strong>
                 <ul>
                   <li>
@@ -392,10 +396,10 @@ export function LandingPage() {
                   </li>
                 </ul>
                 <Link className={styles.lightAction} href="/demo">
-                  Crear mi demo
+                  Probar Renova gratis
                   <ArrowRight aria-hidden="true" />
                 </Link>
-                <small>La demo dura 24 horas y no realiza cambios.</small>
+                <small>Promoción de lanzamiento disponible para los primeros 10 usuarios.</small>
               </div>
             </div>
           </div>
@@ -425,7 +429,7 @@ export function LandingPage() {
           <div className={styles.footerGrid}>
             <div>
               <Link className={styles.brand} href="/" aria-label="Renova CRM, inicio">
-                <span aria-hidden="true">R</span>
+                <BrandMark className={styles.brandMark} size={36} />
                 <strong>Renova</strong>
               </Link>
               <p>Operación y seguimiento para centros de belleza.</p>

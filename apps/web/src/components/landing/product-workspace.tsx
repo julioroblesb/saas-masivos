@@ -1,4 +1,5 @@
 import { CalendarDays, ChevronLeft, ChevronRight, UsersRound } from 'lucide-react';
+import { BrandMark } from '@/components/brand/BrandMark';
 import styles from './landing.module.css';
 
 const days = [
@@ -25,7 +26,7 @@ export function ProductWorkspace() {
 
         <div className={styles.workspaceTopbar}>
           <div className={styles.workspaceBrand}>
-            <span aria-hidden="true">R</span>
+            <BrandMark className={styles.workspaceBrandMark} size={28} />
             <strong>Renova</strong>
           </div>
           <span className={styles.workspaceBusiness}>Studio Valentina</span>
