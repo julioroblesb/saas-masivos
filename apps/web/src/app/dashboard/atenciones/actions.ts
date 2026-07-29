@@ -1,7 +1,6 @@
 'use server';
 
 import { randomUUID } from 'node:crypto';
-import { formatBusinessDateTime } from '@/lib/business-date';
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -183,13 +182,15 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
       services:
         staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
+  const contactsById = new Map((contacts || []).map((contact) => [contact.id, contact]));
 
   return {
     services: services || [],
     visits: (visits?.map((v) => {
-      const contactObj = Array.isArray(v.crm_marketing_contacts)
+      const embeddedContact = Array.isArray(v.crm_marketing_contacts)
         ? v.crm_marketing_contacts[0]
         : v.crm_marketing_contacts;
+      const contactObj = contactsById.get(v.contact_id) ?? embeddedContact;
       const serviceObj = Array.isArray(v.spa_services) ? v.spa_services[0] : v.spa_services;
       return {
         ...v,

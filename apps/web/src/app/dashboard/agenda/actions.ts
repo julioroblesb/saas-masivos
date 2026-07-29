@@ -60,7 +60,9 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
       .order('name'),
     supabase
       .from('crm_marketing_contacts')
-      .select('id, name, phone, document_number')
+      .select(
+        'id, name, phone, email, document_number, birthday, allergies_and_conditions, preferences, internal_notes, created_at, opt_in_source, customer_segment, total_visits, total_spent, last_visit_date',
+      )
       .order('name'),
     supabase
       .from('spa_staff')
@@ -127,13 +129,15 @@ export async function getAgendaData(startDate?: string, endDate?: string) {
       services:
         staffServices?.filter((ss) => ss.staff_id === s.id).map((ss) => ss.service_id) || [],
     })) || [];
+  const contactsById = new Map((contacts || []).map((contact) => [contact.id, contact]));
 
   return {
     services: services || [],
     visits: (visits?.map((v) => {
-      const contactObj = Array.isArray(v.crm_marketing_contacts)
+      const embeddedContact = Array.isArray(v.crm_marketing_contacts)
         ? v.crm_marketing_contacts[0]
         : v.crm_marketing_contacts;
+      const contactObj = contactsById.get(v.contact_id) ?? embeddedContact;
       const serviceObj = Array.isArray(v.spa_services) ? v.spa_services[0] : v.spa_services;
       return {
         ...v,
@@ -181,7 +185,23 @@ export async function getAgendaVisitsRange(
       care_sent,
       follow_up_date,
       follow_up_sent,
-      crm_marketing_contacts!spa_visits_contact_tenant_fkey ( id, name, phone ),
+      crm_marketing_contacts!spa_visits_contact_tenant_fkey (
+        id,
+        name,
+        phone,
+        email,
+        document_number,
+        birthday,
+        allergies_and_conditions,
+        preferences,
+        internal_notes,
+        created_at,
+        opt_in_source,
+        customer_segment,
+        total_visits,
+        total_spent,
+        last_visit_date
+      ),
       spa_services ( id, name, price )
     `,
     )
