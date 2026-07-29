@@ -427,21 +427,24 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                         )}
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2" role="group" aria-label={`Acciones de ${client.name || client.phone}`}>
                           <button
+                            type="button"
                             onClick={() => handleOpenModal(client)}
                             className="p-2 text-zinc-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                             title="Editar"
+                            aria-label={`Editar a ${client.name || client.phone}`}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4" aria-hidden="true" />
                           </button>
                           <button
+                            type="button"
                             onClick={(e) => handleDelete(client, e)}
                             className="p-2 text-zinc-500 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                             title="Archivar cliente"
                             aria-label={`Archivar a ${client.name || client.phone}`}
                           >
-                            <Archive className="w-4 h-4" />
+                            <Archive className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -458,7 +461,7 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                   key={client.id}
                   className="bg-white dark:bg-dark border border-black-light/50 dark:border-dark-light rounded-2xl p-4 flex flex-col gap-3 shadow-sm"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
                         {client.name?.charAt(0) || <User className="w-5 h-5" />}
@@ -469,12 +472,26 @@ export function ClientsTable({ initialClients }: { initialClients: ClientMetric[
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleOpenModal(client)}
-                      className="p-2 text-primary bg-primary/10 rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0" role="group" aria-label={`Acciones de ${client.name || client.phone}`}>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenModal(client)}
+                        className="min-h-[44px] min-w-[44px] rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        aria-label={`Editar a ${client.name || client.phone}`}
+                        title="Editar cliente"
+                      >
+                        <Edit className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(event) => handleDelete(client, event)}
+                        className="min-h-[44px] min-w-[44px] rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500"
+                        aria-label={`Archivar a ${client.name || client.phone}`}
+                        title="Archivar cliente"
+                      >
+                        <Archive className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black-light/30 dark:border-dark-light text-xs">

@@ -164,7 +164,7 @@ export default function SpaProductsPageContent() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
+      <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
           <h1 className="type-page-title flex items-center gap-3 text-black dark:text-white">
             <Package className="w-8 h-8 text-primary" /> Inventario de Productos
@@ -173,7 +173,7 @@ export default function SpaProductsPageContent() {
             Administra tu inventario, precios y existencias de productos de cabina o retail.
           </p>
         </div>
-        <button onClick={openNew} className="btn btn-primary gap-2">
+        <button onClick={openNew} className="btn btn-primary gap-2 w-full sm:w-auto min-h-[44px]">
           <Plus className="w-4 h-4" /> Nuevo Producto
         </button>
       </div>
@@ -201,12 +201,24 @@ export default function SpaProductsPageContent() {
                 )}
                 
                 <div className="absolute inset-0 bg-black/5 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-2 group-hover:translate-x-0">
-                  <button onClick={() => openEdit(product)} className="p-1.5 bg-white/90 backdrop-blur-sm text-black rounded-full shadow hover:scale-110 hover:bg-white transition-all pointer-events-auto">
-                    <Edit2 className="w-3 h-3" />
+                <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(product)}
+                    className="min-h-[44px] min-w-[44px] bg-white/95 text-black rounded-xl shadow-sm border border-black/5 flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary pointer-events-auto"
+                    aria-label={`Editar ${product.name}`}
+                    title="Editar producto"
+                  >
+                    <Edit2 className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <button onClick={() => handleDelete(product.id)} className="p-1.5 bg-white/90 backdrop-blur-sm text-danger rounded-full shadow hover:scale-110 hover:bg-white transition-all pointer-events-auto">
-                    <Archive className="w-3 h-3" />
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(product.id)}
+                    className="min-h-[44px] min-w-[44px] bg-white/95 text-danger rounded-xl shadow-sm border border-black/5 flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger pointer-events-auto"
+                    aria-label={`Archivar ${product.name}`}
+                    title="Archivar producto"
+                  >
+                    <Archive className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
 
@@ -259,7 +271,7 @@ export default function SpaProductsPageContent() {
               <button 
                 type="button"
                 aria-label="Cerrar formulario de producto"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
+                className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center"
                 onClick={() => setIsModalOpen(false)}
               >
                 <XCircle className="w-5 h-5" />
@@ -279,10 +291,10 @@ export default function SpaProductsPageContent() {
                           sizes="128px"
                           className="object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                          <label className="cursor-pointer text-white flex flex-col items-center gap-1">
+                        <div className="absolute inset-x-0 bottom-0 min-h-[44px] bg-black/65 flex items-center justify-center backdrop-blur-sm">
+                          <label className="min-h-[44px] w-full cursor-pointer text-white flex items-center justify-center gap-2">
                             {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-                            <span className="text-xs font-medium uppercase tracking-wider">Cambiar</span>
+                            <span className="text-xs font-semibold">Cambiar foto</span>
                             <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                           </label>
                         </div>

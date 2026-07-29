@@ -168,7 +168,7 @@ export default function SpaServicesPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
+      <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-black-light dark:border-dark-light">
         <div>
           <h1 className="type-page-title flex items-center gap-3 text-black dark:text-white">
             <Scissors className="w-8 h-8 text-primary" /> Servicios del Negocio
@@ -177,12 +177,12 @@ export default function SpaServicesPage() {
             Administra tu catálogo de servicios, precios e instrucciones de cuidado post-servicio.
           </p>
         </div>
-        <button onClick={openNew} className="btn btn-primary gap-2">
+        <button onClick={openNew} className="btn btn-primary gap-2 w-full sm:w-auto min-h-[44px]">
           <Plus className="w-4 h-4" /> Nuevo Servicio
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6">
         {services.length === 0 ? (
           <div className="col-span-full rounded-3xl bg-white/50 dark:bg-dark/50 text-center py-20">
             <Scissors className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-6 opacity-50" />
@@ -196,13 +196,24 @@ export default function SpaServicesPage() {
               <div className="flex justify-between items-start gap-2 mb-2">
                 <h3 className="text-sm font-bold tracking-tight text-black dark:text-white leading-tight group-hover:text-primary transition-colors flex-1">{service.name}</h3>
                 
-                {/* Actions overlayed cleanly on hover */}
-                <div className="flex flex-row gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0">
-                  <button onClick={() => openEdit(service)} className="p-1 bg-white/90 backdrop-blur-sm text-black rounded-md shadow hover:bg-white transition-all pointer-events-auto">
-                    <Edit2 className="w-3 h-3" />
+                <div className="flex flex-row gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(service)}
+                    className="min-h-[44px] min-w-[44px] bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 rounded-xl flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary pointer-events-auto"
+                    aria-label={`Editar ${service.name}`}
+                    title="Editar servicio"
+                  >
+                    <Edit2 className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <button onClick={() => handleDelete(service.id)} className="p-1 bg-white/90 backdrop-blur-sm text-danger rounded-md shadow hover:bg-white transition-all pointer-events-auto">
-                    <Archive className="w-3 h-3" />
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(service.id)}
+                    className="min-h-[44px] min-w-[44px] bg-danger/10 text-danger rounded-xl flex items-center justify-center transition-transform duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger pointer-events-auto"
+                    aria-label={`Archivar ${service.name}`}
+                    title="Archivar servicio"
+                  >
+                    <Archive className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -255,7 +266,7 @@ export default function SpaServicesPage() {
               <button 
                 type="button"
                 aria-label="Cerrar formulario de servicio"
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 p-2 rounded-full" 
+                className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center"
                 onClick={() => setIsModalOpen(false)}
               >
                 <XCircle className="w-5 h-5" />
