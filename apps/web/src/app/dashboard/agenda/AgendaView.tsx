@@ -280,7 +280,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
               {WEEKDAYS.map((day) => (
                 <div
                   key={day.full}
-                  className="py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-zinc-500 sm:px-2 sm:py-3 sm:text-xs sm:tracking-wider"
+                  className="py-2 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 sm:px-2 sm:py-3 sm:tracking-wider"
                   aria-label={day.full}
                 >
                   <span className="sm:hidden" aria-hidden="true">{day.short}</span>
@@ -308,7 +308,7 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                       </span>
                       {dayVisits.length > 0 && (
                         <>
-                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-[10px] font-bold text-primary sm:hidden">
+                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-xs font-bold text-primary sm:hidden">
                             {dayVisits.length}
                           </span>
                           <span className="hidden rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs font-bold text-zinc-400 dark:bg-zinc-800 sm:inline">

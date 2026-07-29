@@ -43,7 +43,7 @@ export default function CampaignsView() {
         >
           <Activity size={17} aria-hidden="true" /> Activas
           {activeCampaigns.length > 0 && (
-            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] text-white">
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-xs text-white">
               {activeCampaigns.length}
             </span>
           )}
