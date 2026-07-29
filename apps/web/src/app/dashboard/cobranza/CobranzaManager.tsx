@@ -123,34 +123,45 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
 
   return (
     <div className="space-y-5">
-      <section
-        aria-label="Resumen de cobranza"
-        className="flex items-center justify-between border-y border-black-light py-4 dark:border-dark-light sm:rounded-2xl sm:border sm:px-5"
-      >
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Saldo por cobrar</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-danger">{money(totalDebt)}</p>
-        </div>
-        <Coins aria-hidden="true" className="h-6 w-6 text-danger" />
-      </section>
+      <div className="grid gap-4 md:grid-cols-[minmax(280px,360px)_minmax(320px,480px)] md:items-center">
+        <section
+          aria-label="Resumen de cobranza"
+          className="flex items-center justify-between border-y border-black-light py-4 dark:border-dark-light sm:rounded-2xl sm:border sm:px-5"
+        >
+          <div>
+            <p className="text-sm font-medium text-zinc-500">Saldo por cobrar</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-danger">
+              {money(totalDebt)}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              {filteredDebts.length}{' '}
+              {filteredDebts.length === 1 ? 'atención pendiente' : 'atenciones pendientes'}
+            </p>
+          </div>
+          <Coins aria-hidden="true" className="h-6 w-6 text-danger" />
+        </section>
 
-      <label className="relative block w-full sm:max-w-sm">
-        <span className="sr-only">Buscar deuda</span>
-        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-        <input
-          type="search"
-          placeholder="Buscar cliente, teléfono o servicio"
-          className="form-input min-h-11 w-full rounded-xl border-black-light bg-white pl-10 dark:border-dark-light dark:bg-dark"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </label>
+        <label className="relative block w-full">
+          <span className="sr-only">Buscar deuda</span>
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+          />
+          <input
+            type="search"
+            placeholder="Buscar cliente, teléfono o servicio"
+            className="form-input min-h-11 w-full rounded-xl border-black-light bg-white pl-10 dark:border-dark-light dark:bg-dark"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+      </div>
 
       {filteredDebts.length === 0 ? (
         <p className="py-12 text-center text-zinc-500">No hay saldos pendientes.</p>
       ) : (
         <>
-          <div className="space-y-3 md:hidden">
+          <div className="space-y-3 lg:hidden">
             {filteredDebts.map((debt) => {
               const pending = Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid);
               return (
@@ -180,20 +191,62 @@ export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
             })}
           </div>
 
-          <div className="hidden overflow-hidden rounded-2xl border border-black-light dark:border-dark-light md:block">
-            <table className="w-full text-left">
-              <thead className="border-b border-black-light bg-zinc-50 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:border-dark-light dark:bg-zinc-900/50">
-                <tr><th className="px-5 py-3">Cliente y servicio</th><th className="px-5 py-3">Pagos</th><th className="px-5 py-3 text-right">Saldo</th><th className="px-5 py-3 text-right">Acción</th></tr>
+          <div className="hidden overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 lg:block">
+            <table className="w-full table-fixed text-left">
+              <colgroup>
+                <col className="w-[32%]" />
+                <col className="w-[36%]" />
+                <col className="w-[17%]" />
+                <col className="w-[15%]" />
+              </colgroup>
+              <thead className="border-b border-zinc-300 bg-zinc-50 text-sm font-semibold text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                <tr>
+                  <th className="px-5 py-3.5">Cliente y atención</th>
+                  <th className="px-5 py-3.5">Pago registrado</th>
+                  <th className="px-5 py-3.5 text-right">Por cobrar</th>
+                  <th className="px-5 py-3.5 text-right">Acción</th>
+                </tr>
               </thead>
-              <tbody className="divide-y divide-black-light dark:divide-dark-light">
+              <tbody>
                 {filteredDebts.map((debt) => {
                   const pending = Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid);
                   return (
-                    <tr key={debt.id}>
-                      <td className="px-5 py-4"><p className="font-semibold">{debt.contact_name || 'Sin nombre'}</p><p className="text-sm text-zinc-500">{debt.service_name} · {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}</p></td>
-                      <td className="px-5 py-4"><PaymentHistory payments={debt.payments} /></td>
-                      <td className="px-5 py-4 text-right"><p className="font-bold tabular-nums text-danger">{money(pending)}</p><p className="text-xs text-zinc-500">de {money(debt.price_charged ?? 0)}</p></td>
-                      <td className="px-5 py-4 text-right"><button type="button" onClick={() => openPayment(debt)} className="btn btn-primary min-h-11 rounded-xl px-4">Registrar pago</button></td>
+                    <tr
+                      key={debt.id}
+                      className="border-b border-zinc-200 last:border-b-0 dark:border-zinc-800"
+                    >
+                      <td className="px-5 py-5 align-middle">
+                        <p className="font-semibold text-black dark:text-white">
+                          {debt.contact_name || 'Sin nombre'}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                          {debt.service_name}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          Atención:{' '}
+                          {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}
+                        </p>
+                      </td>
+                      <td className="px-5 py-5 align-middle">
+                        <div className="max-w-sm">
+                          <PaymentHistory payments={debt.payments} variant="compact" />
+                        </div>
+                      </td>
+                      <td className="px-5 py-5 text-right align-middle">
+                        <p className="font-bold tabular-nums text-danger">{money(pending)}</p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          Total: {money(debt.price_charged ?? 0)}
+                        </p>
+                      </td>
+                      <td className="px-5 py-5 text-right align-middle">
+                        <button
+                          type="button"
+                          onClick={() => openPayment(debt)}
+                          className="btn btn-primary min-h-11 whitespace-nowrap rounded-lg px-3 text-sm active:scale-[0.97]"
+                        >
+                          Registrar pago
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}

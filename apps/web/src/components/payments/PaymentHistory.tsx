@@ -20,7 +20,39 @@ function paymentMethodLabel(method: string): string {
   return labels[method.toLowerCase()] || method;
 }
 
-function PaymentRow({ payment }: { payment: PaymentHistoryItem }) {
+function PaymentRow({
+  payment,
+  compact = false,
+}: {
+  payment: PaymentHistoryItem;
+  compact?: boolean;
+}) {
+  if (compact) {
+    return (
+      <li className="py-1.5 text-sm">
+        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="font-semibold text-black dark:text-white">
+            {paymentMethodLabel(payment.payment_method)}
+          </span>
+          <strong className="tabular-nums text-emerald-600 dark:text-emerald-400">
+            S/ {Number(payment.amount).toFixed(2)}
+          </strong>
+        </p>
+        <p className="mt-1 text-zinc-500">
+          {payment.payment_date
+            ? formatBusinessDateTime(payment.payment_date)
+            : 'Fecha no registrada'}
+        </p>
+        {payment.operation_reference && (
+          <p className="mt-1 flex items-center gap-1 text-zinc-500">
+            <Hash aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Operación {payment.operation_reference}</span>
+          </p>
+        )}
+      </li>
+    );
+  }
+
   return (
     <li className="flex items-start justify-between gap-3 py-2 text-xs">
       <div className="min-w-0">
@@ -44,7 +76,13 @@ function PaymentRow({ payment }: { payment: PaymentHistoryItem }) {
   );
 }
 
-export function PaymentHistory({ payments }: { payments?: PaymentHistoryItem[] | null }) {
+export function PaymentHistory({
+  payments,
+  variant = 'default',
+}: {
+  payments?: PaymentHistoryItem[] | null;
+  variant?: 'compact' | 'default';
+}) {
   const ordered = [...(payments || [])].sort(
     (left, right) =>
       new Date(right.payment_date || 0).getTime() - new Date(left.payment_date || 0).getTime(),
@@ -57,7 +95,7 @@ export function PaymentHistory({ payments }: { payments?: PaymentHistoryItem[] |
   if (ordered.length === 1) {
     return (
       <ul aria-label="Pago registrado">
-        <PaymentRow payment={ordered[0]} />
+        <PaymentRow compact={variant === 'compact'} payment={ordered[0]} />
       </ul>
     );
   }
@@ -70,7 +108,7 @@ export function PaymentHistory({ payments }: { payments?: PaymentHistoryItem[] |
       </summary>
       <ul className="divide-y divide-black-light/40 dark:divide-dark-light">
         {ordered.map((payment) => (
-          <PaymentRow key={payment.id} payment={payment} />
+          <PaymentRow compact={variant === 'compact'} key={payment.id} payment={payment} />
         ))}
       </ul>
     </details>
