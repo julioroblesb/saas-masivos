@@ -124,7 +124,10 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
     const endBoundary = endDate.includes('T') ? endDate : `${endDate}T23:59:59.999-05:00`;
     visitsQuery = visitsQuery.lte('visit_date', endBoundary);
   } else if (!startDate && !endDate) {
-    visitsQuery = visitsQuery.limit(50);
+    // The UI paginates this result locally. Keep the complete tenant history
+    // available at the current launch scale so completed visits with an
+    // outstanding balance never disappear while Cobranza still lists them.
+    visitsQuery = visitsQuery.limit(1000);
   }
 
   const companySettingsPromise = companyId

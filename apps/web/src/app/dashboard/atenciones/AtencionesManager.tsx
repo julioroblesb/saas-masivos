@@ -981,14 +981,18 @@ export function AtencionesManager({
                           <td className="p-4">
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                                visit.status === 'completado'
+                                isCompletado && saldo > 0
+                                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                                  : visit.status === 'completado'
                                   ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                                   : visit.status === 'cancelado'
                                     ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                                     : 'bg-zinc-500/10 text-zinc-500'
                               }`}
                             >
-                              {visit.status.replace('_', ' ')}
+                              {isCompletado && saldo > 0
+                                ? 'Pendiente de cobro'
+                                : visit.status.replace('_', ' ')}
                             </span>
                           </td>
 
@@ -1048,14 +1052,18 @@ export function AtencionesManager({
                         </div>
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                            visit.status === 'completado'
+                            isCompletado && saldo > 0
+                              ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                              : visit.status === 'completado'
                               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                               : visit.status === 'cancelado'
                                 ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                                 : 'bg-zinc-500/10 text-zinc-500'
                           }`}
                         >
-                          {visit.status.replace('_', ' ')}
+                          {isCompletado && saldo > 0
+                            ? 'Pendiente de cobro'
+                            : visit.status.replace('_', ' ')}
                         </span>
                       </div>
 
