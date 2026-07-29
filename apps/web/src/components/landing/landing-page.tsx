@@ -14,19 +14,16 @@ import styles from './landing.module.css';
 
 const outcomes = [
   {
-    number: '01',
     title: 'Una agenda que todos entienden',
     description:
       'Consulta disponibilidad, asigna especialistas y detecta cruces antes de que afecten al cliente.',
   },
   {
-    number: '02',
     title: 'El historial acompaña cada atención',
     description:
       'Preferencias, servicios, pagos y notas permanecen vinculados a cada persona, no dispersos en chats.',
   },
   {
-    number: '03',
     title: 'El seguimiento deja de depender de tu memoria',
     description:
       'Renova prepara mensajes y recordatorios para que puedas recuperar clientes sin revisar listas manuales.',
@@ -69,18 +66,15 @@ const questions = [
 
 function SectionHeading({
   id,
-  eyebrow,
   title,
   description,
 }: {
   id: string;
-  eyebrow: string;
   title: string;
   description: string;
 }) {
   return (
     <div className={styles.sectionHeading}>
-      <p className={styles.eyebrow}>{eyebrow}</p>
       <h2 id={id}>{title}</h2>
       <p>{description}</p>
     </div>
@@ -186,8 +180,13 @@ export function LandingPage() {
           <div className={styles.shell}>
             <div className={styles.heroGrid}>
               <div className={styles.heroCopy}>
-                <p className={styles.eyebrow}>CRM para centros de belleza en Perú</p>
-                <h1 id="hero-title">Menos horas administrando. Más clientes que sí regresan.</h1>
+                <p className={styles.heroContext}>
+                  <span aria-hidden="true" />
+                  CRM para centros de belleza en Perú
+                </p>
+                <h1 id="hero-title">
+                  Menos horas administrando. Más clientes que <em>sí regresan.</em>
+                </h1>
                 <p className={styles.heroLead}>
                   Renova reúne agenda, atenciones, clientes y seguimiento por WhatsApp en un sistema
                   pensado para el trabajo diario de tu negocio.
@@ -205,6 +204,16 @@ export function LandingPage() {
                   <ShieldCheck aria-hidden="true" />
                   Demo gratuita de solo lectura. No requiere tarjeta.
                 </p>
+                <ul className={styles.heroProof} aria-label="Ventajas de la demo">
+                  <li>
+                    <Check aria-hidden="true" />
+                    Con los datos de tu negocio
+                  </li>
+                  <li>
+                    <Check aria-hidden="true" />
+                    Acceso desde celular y computadora
+                  </li>
+                </ul>
               </div>
 
               <ProductWorkspace />
@@ -232,22 +241,18 @@ export function LandingPage() {
             <div className={styles.outcomesGrid}>
               <SectionHeading
                 id="outcomes-title"
-                eyebrow="El problema no es trabajar poco"
                 title="Tu operación está repartida en demasiados lugares."
                 description="Cuando la agenda vive en un cuaderno, los clientes en WhatsApp y los pagos en otra hoja, cada decisión tarda más y depende de recordar demasiado."
               />
 
-              <ol className={styles.outcomeList}>
+              <ul className={styles.outcomeList}>
                 {outcomes.map((outcome) => (
-                  <li key={outcome.number}>
-                    <span>{outcome.number}</span>
-                    <div>
-                      <h3>{outcome.title}</h3>
-                      <p>{outcome.description}</p>
-                    </div>
+                  <li key={outcome.title}>
+                    <h3>{outcome.title}</h3>
+                    <p>{outcome.description}</p>
                   </li>
                 ))}
-              </ol>
+              </ul>
             </div>
           </div>
         </section>
@@ -256,7 +261,6 @@ export function LandingPage() {
           <div className={styles.shell}>
             <SectionHeading
               id="capabilities-title"
-              eyebrow="Un solo sistema"
               title="La información aparece donde se necesita."
               description="Renova no agrega otra tarea a tu día. Ordena el recorrido que tu equipo ya realiza, desde la reserva hasta el próximo contacto."
             />
@@ -266,7 +270,6 @@ export function LandingPage() {
                   <span className={styles.capabilityIcon}>
                     <CalendarDays aria-hidden="true" />
                   </span>
-                  <p className={styles.kicker}>Agenda y equipo</p>
                   <h3>Ve la carga real antes de confirmar una cita.</h3>
                   <p>
                     Organiza horarios por especialista, evita cruces y encuentra espacios libres sin
@@ -289,7 +292,6 @@ export function LandingPage() {
                   <span className={styles.capabilityIcon}>
                     <MessageCircle aria-hidden="true" />
                   </span>
-                  <p className={styles.kicker}>Seguimiento por WhatsApp</p>
                   <h3>Contacta al cliente cuando todavía es relevante.</h3>
                   <p>
                     Prepara recordatorios y mensajes posteriores a la atención usando el contexto
@@ -312,7 +314,6 @@ export function LandingPage() {
                   <span className={styles.capabilityIcon}>
                     <UsersRound aria-hidden="true" />
                   </span>
-                  <p className={styles.kicker}>Clientes y atenciones</p>
                   <h3>Deja de tratar cada visita como si fuera la primera.</h3>
                   <p>
                     Consulta servicios anteriores, preferencias, notas y próximas citas desde una
@@ -336,8 +337,11 @@ export function LandingPage() {
         <section className={styles.workflowSection} id="flujo" aria-labelledby="workflow-title">
           <div className={styles.shell}>
             <div className={styles.workflowIntro}>
-              <p className={styles.eyebrow}>Un flujo continuo</p>
               <h2 id="workflow-title">De la reserva al regreso del cliente.</h2>
+              <p>
+                Cada acción deja el contexto listo para la siguiente. Tu equipo avanza sin volver a
+                copiar información.
+              </p>
             </div>
             <ol className={styles.workflowList}>
               {workflow.map((step, index) => (
@@ -355,7 +359,6 @@ export function LandingPage() {
           <div className={styles.shell}>
             <div className={styles.pricingGrid}>
               <div>
-                <p className={styles.eyebrow}>Acceso de lanzamiento</p>
                 <h2 id="pricing-title">Empieza pequeño. Ordena bien desde el inicio.</h2>
                 <p>
                   Conoce el sistema usando el contexto de tu propio negocio. Si decides continuar,
@@ -392,7 +395,6 @@ export function LandingPage() {
           <div className={styles.shell}>
             <div className={styles.faqGrid}>
               <div>
-                <p className={styles.eyebrow}>Antes de empezar</p>
                 <h2 id="faq-title">Preguntas frecuentes</h2>
               </div>
               <div className={styles.faqList}>
