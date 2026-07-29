@@ -16,45 +16,55 @@ export default function CampaignsView() {
   const historyCampaigns = campaigns.filter(c => ['completed', 'cancelled'].includes(c.status));
 
   return (
-    <div className="space-y-6">
-      {/* Vristo style tabs */}
-      <div className="mb-5 flex flex-wrap border-b border-black-light/50 dark:border-dark-light">
+    <section className="overflow-hidden rounded-2xl border border-black-light bg-white dark:border-dark-light dark:bg-dark">
+      <div className="grid grid-cols-3 border-b border-black-light/50 dark:border-dark-light" role="tablist" aria-label="Secciones de campañas">
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'new'}
+          className={`flex min-h-11 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-sm font-semibold transition-[color,border-color,background-color] duration-200 sm:gap-2 sm:px-4 ${
             activeTab === 'new' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('new')}
         >
-          <Megaphone size={18} /> Nueva Campaña
+          <Megaphone size={17} aria-hidden="true" />
+          <span className="sm:hidden">Nueva</span>
+          <span className="hidden sm:inline">Nueva campaña</span>
         </button>
 
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'active'}
+          className={`flex min-h-11 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-sm font-semibold transition-[color,border-color,background-color] duration-200 sm:gap-2 sm:px-4 ${
             activeTab === 'active' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('active')}
         >
-          <Activity size={18} /> Activas 
+          <Activity size={17} aria-hidden="true" /> Activas
           {activeCampaigns.length > 0 && (
-            <span className="badge bg-primary rounded-full ml-1 px-2 py-0.5 text-white">
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] text-white">
               {activeCampaigns.length}
             </span>
           )}
         </button>
 
         <button
-          className={`flex items-center gap-2 p-4 py-3 hover:text-primary transition-colors border-b-2 ${
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'history'}
+          className={`flex min-h-11 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-sm font-semibold transition-[color,border-color,background-color] duration-200 sm:gap-2 sm:px-4 ${
             activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-muted hover:border-black-light dark:hover:border-dark-light'
           }`}
           onClick={() => setActiveTab('history')}
         >
-          <History size={18} /> Historial
+          <History size={17} aria-hidden="true" /> Historial
         </button>
 
       </div>
 
       {/* Tab Contents */}
-      <div className="mt-0">
+      <div className="p-4 sm:p-6 lg:p-8">
         {activeTab === 'new' && (
           <CampaignSender />
         )}
@@ -62,8 +72,8 @@ export default function CampaignsView() {
         {activeTab === 'active' && (
           <div className="flex flex-col gap-6">
             {activeCampaigns.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-12 panel">
-                <Activity size={48} className="text-muted mb-4" />
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Activity size={40} className="mb-4 text-muted" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-ink dark:text-white-light mb-2">No hay campañas activas</h3>
                 <p className="text-muted mb-6 text-center">Las campañas en proceso de envío aparecerán aquí.</p>
                 <button 
@@ -82,11 +92,11 @@ export default function CampaignsView() {
         )}
 
         {activeTab === 'history' && (
-          <div className="panel p-0 overflow-hidden">
+          <div className="overflow-hidden">
             <CampaignHistoryTable campaigns={historyCampaigns} />
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

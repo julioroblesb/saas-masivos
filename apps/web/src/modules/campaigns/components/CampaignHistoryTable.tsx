@@ -19,7 +19,61 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
   };
 
   return (
-    <div className="table-responsive">
+    <>
+      <div className="space-y-3 md:hidden">
+        {campaigns.map((campaign) => {
+          const successRate = campaign.total > 0 ? Math.round((campaign.sent / campaign.total) * 100) : 0;
+          const conversionRate = campaign.sent > 0 ? Math.round(((campaign.repliedCount || 0) / campaign.sent) * 100) : 0;
+          const isExpanded = expandedId === campaign.id;
+
+          return (
+            <article key={campaign.id} className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800/40">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-semibold text-dark dark:text-white-light">{campaign.name}</h3>
+                  <p className="mt-1 text-xs text-white-dark">{format(new Date(campaign.createdAt), 'dd/MM/yyyy HH:mm')}</p>
+                </div>
+                <span className={`badge shrink-0 rounded-full px-2.5 py-1 ${campaign.status === 'completed' ? 'badge-outline-success' : 'badge-outline-danger'}`}>
+                  {campaign.status === 'completed' ? 'Completada' : 'Cancelada'}
+                </span>
+              </div>
+
+              <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
+                <div><dt className="text-xs text-muted">Enviados</dt><dd className="mt-1 font-bold text-success">{campaign.sent}/{campaign.total}</dd></div>
+                <div><dt className="text-xs text-muted">Éxito</dt><dd className="mt-1 font-bold text-dark dark:text-white">{successRate}%</dd></div>
+                <div><dt className="text-xs text-muted">Respuesta</dt><dd className="mt-1 font-bold text-primary">{conversionRate}%</dd></div>
+              </dl>
+
+              {campaign.sequence && campaign.sequence.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(campaign.id)}
+                    className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 border-t border-black-light/50 pt-3 text-sm font-semibold text-primary transition-colors dark:border-dark-light"
+                    aria-expanded={isExpanded}
+                  >
+                    <MessageSquare size={15} aria-hidden="true" />
+                    {isExpanded ? 'Ocultar mensajes' : 'Ver mensajes'}
+                    {isExpanded ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
+                  </button>
+                  {isExpanded && (
+                    <div className="space-y-3 pt-2">
+                      {campaign.sequence.map((message, index) => (
+                        <div key={message.id} className="rounded-lg bg-white p-3 text-sm dark:bg-dark">
+                          <p className="mb-2 text-xs font-semibold text-muted">Mensaje {index + 1}</p>
+                          <p className="whitespace-pre-wrap text-dark dark:text-white-light">{message.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="hidden md:block">
       <table className="table-hover">
         <thead>
           <tr>
@@ -120,6 +174,7 @@ export function CampaignHistoryTable({ campaigns }: { campaigns: WaCampaign[] })
           })}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

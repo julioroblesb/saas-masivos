@@ -35,7 +35,7 @@ export function DeliveryRules({
         <h3 className="m-0 text-xl font-bold dark:text-white-light">Cadencia de Envío</h3>
       </div>
 
-      <div className="pl-11 flex flex-col gap-5">
+      <div className="flex flex-col gap-5 sm:pl-11">
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           Para evitar ser detectado como SPAM, el sistema espera un tiempo aleatorio entre cada mensaje enviado. Configura los rangos de espera aquí.
         </p>
@@ -52,7 +52,7 @@ export function DeliveryRules({
                 value={minDelaySec} 
                 onChange={e => setMinDelaySec(Number(e.target.value))} 
                 onBlur={() => setMinDelaySec(Math.max(30, minDelaySec))}
-                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-base bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
+                className="w-full rounded-xl border border-slate-200 bg-transparent py-3 pl-9 pr-4 text-base text-slate-900 outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-1 focus:ring-primary/50 dark:border-slate-800 dark:text-white"
               />
             </div>
           </div>
@@ -67,13 +67,13 @@ export function DeliveryRules({
                 value={maxDelaySec} 
                 onChange={e => setMaxDelaySec(Number(e.target.value))} 
                 onBlur={() => setMaxDelaySec(Math.max(30, Math.max(minDelaySec, maxDelaySec)))}
-                className="w-full pl-9 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-base bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
+                className="w-full rounded-xl border border-slate-200 bg-transparent py-3 pl-9 pr-4 text-base text-slate-900 outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-1 focus:ring-primary/50 dark:border-slate-800 dark:text-white"
               />
             </div>
           </div>
         </div>
 
-        <div className="border-l-2 border-primary pl-4 py-1 flex flex-col gap-1 mt-4">
+        <div className="mt-3 flex flex-col gap-1 rounded-xl bg-primary/5 p-4">
           <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
             <Clock size={16} /> Tiempo Estimado de Ejecución
           </h4>

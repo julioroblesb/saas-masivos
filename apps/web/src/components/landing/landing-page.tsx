@@ -48,19 +48,29 @@ const workflow = [
 
 const questions = [
   {
-    question: '¿Necesito instalar algo?',
+    question: 'Hoy manejo las citas por WhatsApp o en un cuaderno. ¿Qué cambiaría?',
     answer:
-      'No. Renova funciona desde el navegador y puedes abrirlo desde una computadora, tablet o celular.',
+      'Dejas de reconstruir tu día entre chats, notas y memoria. Renova reúne horarios, cliente, servicio y especialista en una agenda compartida para reducir cruces y responder con información clara.',
   },
   {
-    question: '¿Puedo probarlo con los datos de mi negocio?',
+    question: '¿Cómo me ayuda a conseguir que un cliente vuelva?',
     answer:
-      'Sí. La demo crea un espacio temporal con el nombre y rubro de tu negocio para que recorras el sistema durante 24 horas.',
+      'Cada atención alimenta un historial útil: qué servicio tomó, cuándo vino y qué seguimiento corresponde. Así puedes contactar en el momento adecuado sin revisar listas manualmente ni depender de recordar a cada persona.',
   },
   {
-    question: '¿La demo puede modificar o enviar campañas?',
+    question: '¿Mi equipo podrá usarlo sin ser experto en tecnología?',
     answer:
-      'No. La demo es de solo lectura. Puedes conocer el flujo completo sin riesgo de alterar información o ejecutar campañas.',
+      'Sí. El trabajo diario sigue un flujo directo: revisar la agenda, abrir al cliente y registrar la atención. Funciona desde el navegador en computadora, tablet o celular, sin instalar programas.',
+  },
+  {
+    question: '¿Tengo que dejar de atender por WhatsApp?',
+    answer:
+      'No. WhatsApp puede seguir siendo tu canal de conversación; Renova evita que la información importante quede atrapada allí. La agenda, el historial y el seguimiento permanecen ordenados en el CRM.',
+  },
+  {
+    question: '¿Puedo probarlo sin arriesgar información real?',
+    answer:
+      'Sí. La demo crea un espacio temporal con el nombre y rubro de tu negocio y se mantiene en modo lectura. Puedes entender el flujo completo sin modificar datos ni ejecutar campañas.',
   },
 ] as const;
 

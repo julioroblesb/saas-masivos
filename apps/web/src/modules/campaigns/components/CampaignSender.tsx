@@ -112,27 +112,29 @@ export function CampaignSender() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* HEADER WITH ANTI BAN INFO AND TITLE */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-2 mt-4">
-        <div className="flex-1 w-full max-w-3xl">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="w-full max-w-3xl">
+          <label htmlFor="campaign-name" className="mb-2 block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            Nombre de la campaña
+          </label>
           <input 
+            id="campaign-name"
             type="text" 
-            placeholder="Nombra tu campaña (Ej. Promoción Mayo 2026)" 
+            placeholder="Ej. Promoción de invierno"
             value={campaignName} 
             onChange={e => setCampaignName(e.target.value)}
             maxLength={100}
-            className="w-full text-3xl font-black bg-transparent text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-700 focus:outline-none focus:border-b-2 border-transparent focus:border-primary transition-colors pb-2"
+            className="min-h-11 w-full rounded-xl border border-slate-200 bg-transparent px-4 py-2.5 text-base font-medium text-slate-900 outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-600"
           />
         </div>
-        <button type="button" onClick={showAntiBanInfo} className="btn btn-outline-warning flex items-center gap-2 whitespace-nowrap">
+        <button type="button" onClick={showAntiBanInfo} className="btn btn-outline-warning min-h-11 justify-center gap-2 whitespace-nowrap">
           <Info size={18} />
           Información Anti-Ban
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-12 xl:gap-8">
-        {/* LEFT: Config & Sequence & Delays (2/3 width) */}
-        <div className="xl:col-span-2 space-y-24">
+      <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8">
+        <div className="space-y-12">
           <div>
             <SegmentConfig
               targetContactIds={targetContactIds}
@@ -167,10 +169,8 @@ export function CampaignSender() {
           </div>
         </div>
 
-        {/* RIGHT: Progress Bar & Execution Panel (1/3 width) */}
         <div className="relative">
-          {/* Sticky Unified Sidebar */}
-          <div className="sticky top-24 flex flex-col gap-8 p-6 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+          <aside className="sticky top-24 flex flex-col gap-5 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/30" aria-label="Resumen de campaña">
             <div>
               <h5 className="flex items-center gap-2 text-lg font-bold dark:text-white-light">
                 <Send className="text-primary" size={20} aria-hidden="true" />
@@ -182,8 +182,6 @@ export function CampaignSender() {
               </p>
             </div>
 
-            <hr className="border-slate-200 dark:border-slate-800" />
-
             <div>
               <ExecutionPanel
                 isQueuing={isQueuing}
@@ -194,7 +192,7 @@ export function CampaignSender() {
                 resetForm={resetForm}
               />
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>

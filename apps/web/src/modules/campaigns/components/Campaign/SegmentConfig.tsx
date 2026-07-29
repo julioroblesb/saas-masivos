@@ -126,33 +126,33 @@ export function SegmentConfig({
         </div>
         <h3 className="m-0 text-xl font-bold dark:text-white-light">Destinatarios</h3>
       </div>
-      <div className="pl-11 flex flex-col gap-5">
+      <div className="flex flex-col gap-5 sm:pl-11">
         <div className="flex flex-col gap-3">
           <label className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
             ¿A quién quieres enviar esta campaña?
           </label>
-          <div className="flex gap-6 border-b border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-2 border-b border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setAudienceMode('clientes')}
-              className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 -mb-[1px] ${
+              className={`flex min-h-11 items-center justify-center gap-2 border-b-2 px-2 pb-3 text-sm font-semibold transition-colors -mb-[1px] ${
                 audienceMode === 'clientes'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              <Users size={16} /> A mis Clientes
+              <Users size={16} aria-hidden="true" /> <span className="sm:hidden">Mis clientes</span><span className="hidden sm:inline">A mis clientes</span>
             </button>
             <button
               type="button"
               onClick={() => setAudienceMode('base')}
-              className={`pb-3 text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 -mb-[1px] ${
+              className={`flex min-h-11 items-center justify-center gap-2 border-b-2 px-2 pb-3 text-sm font-semibold transition-colors -mb-[1px] ${
                 audienceMode === 'base'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              <PhoneForwarded size={16} /> A una Base Nueva
+              <PhoneForwarded size={16} aria-hidden="true" /> <span className="sm:hidden">Base nueva</span><span className="hidden sm:inline">A una base nueva</span>
             </button>
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -227,7 +227,7 @@ export function SegmentConfig({
                           onChange={(e) =>
                             e.target.checked ? selectAllFiltered() : clearSelection()
                           }
-                          className="rounded border-slate-300 text-primary focus:ring-primary"
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-primary text-primary focus:ring-primary"
                         />
                       </th>
                       <th className="py-3 px-2 font-semibold text-zinc-600 dark:text-zinc-300">
@@ -250,7 +250,7 @@ export function SegmentConfig({
                             type="checkbox"
                             checked={targetContactIds.includes(client.id)}
                             readOnly
-                            className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                            className="h-4 w-4 cursor-pointer rounded accent-primary text-primary focus:ring-primary"
                           />
                         </td>
                         <td className="p-2">
@@ -279,11 +279,11 @@ export function SegmentConfig({
               <textarea
                 rows={6}
                 placeholder="Pega aquí los números separados por comas o saltos de línea...&#10;Ej: 987 654 321, 999-888-777"
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-transparent text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y"
+                className="w-full resize-y rounded-xl border border-slate-200 bg-transparent px-4 py-3 text-sm text-slate-900 outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-1 focus:ring-primary/50 dark:border-slate-800 dark:text-white"
                 value={rawText}
                 onChange={handleRawTextChange}
               />
-              <div className="flex justify-between items-start gap-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   Escribe los 9 dígitos con o sin espacios. El código 51 se agrega automáticamente.
                 </p>

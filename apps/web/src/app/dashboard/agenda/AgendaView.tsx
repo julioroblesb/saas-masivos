@@ -48,6 +48,16 @@ interface AgendaViewProps {
   initialMonth: string; // 'YYYY-MM'
 }
 
+const WEEKDAYS = [
+  { full: 'Lunes', short: 'L' },
+  { full: 'Martes', short: 'M' },
+  { full: 'Miércoles', short: 'M' },
+  { full: 'Jueves', short: 'J' },
+  { full: 'Viernes', short: 'V' },
+  { full: 'Sábado', short: 'S' },
+  { full: 'Domingo', short: 'D' },
+];
+
 export function AgendaView({ initialVisits, services, contacts, staffList, initialMonth }: AgendaViewProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -55,6 +65,8 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
 
   // Sync when server re-fetches (preserves local inserts until server data arrives)
   useEffect(() => {
+    // This state intentionally mirrors refreshed server data after URL navigation.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisits(initialVisits);
   }, [initialVisits]);
 
@@ -265,9 +277,14 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
           <div className="flex flex-col h-full bg-white dark:bg-dark rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
             {/* Days of week header */}
             <div className="grid grid-cols-7 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
-              {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(day => (
-                <div key={day} className="py-3 px-2 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                  {day}
+              {WEEKDAYS.map((day) => (
+                <div
+                  key={day.full}
+                  className="py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-zinc-500 sm:px-2 sm:py-3 sm:text-xs sm:tracking-wider"
+                  aria-label={day.full}
+                >
+                  <span className="sm:hidden" aria-hidden="true">{day.short}</span>
+                  <span className="hidden sm:inline">{day.full}</span>
                 </div>
               ))}
             </div>
@@ -280,24 +297,29 @@ export function AgendaView({ initialVisits, services, contacts, staffList, initi
                   <div 
                     key={day.toString()} 
                     onClick={() => setSelectedDay(day)}
-                    className={`min-h-[120px] p-2 border-r border-b border-zinc-100 dark:border-zinc-800/60 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/20 group cursor-pointer
+                    className={`min-h-[76px] p-1.5 sm:min-h-[120px] sm:p-2 border-r border-b border-zinc-100 dark:border-zinc-800/60 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/20 group cursor-pointer
                       ${!isSameMonth(day, monthStart) ? 'bg-zinc-50/50 dark:bg-zinc-900/20 text-zinc-400' : 'bg-white dark:bg-dark text-zinc-900 dark:text-zinc-100'}
                       ${isToday(day) ? 'bg-primary/5 dark:bg-primary/5' : ''}
                     `}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${isToday(day) ? 'bg-primary text-white shadow-sm shadow-primary/30' : 'group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors'}`}>
+                    <div className="flex items-center justify-between gap-1 sm:mb-2">
+                      <span className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${isToday(day) ? 'bg-primary text-white shadow-sm shadow-primary/30' : 'group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors'}`}>
                         {format(day, 'd')}
                       </span>
                       {dayVisits.length > 0 && (
-                        <span className="text-xs font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
-                          {dayVisits.length} citas
-                        </span>
+                        <>
+                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-[10px] font-bold text-primary sm:hidden">
+                            {dayVisits.length}
+                          </span>
+                          <span className="hidden rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs font-bold text-zinc-400 dark:bg-zinc-800 sm:inline">
+                            {dayVisits.length} citas
+                          </span>
+                        </>
                       )}
                     </div>
                     
                     {/* Visits List for Day */}
-                    <div className="space-y-1.5 h-[calc(100%-40px)] overflow-y-auto pr-1 custom-scrollbar relative">
+                    <div className="relative hidden h-[calc(100%-40px)] space-y-1.5 overflow-y-auto pr-1 custom-scrollbar sm:block">
                       {dayVisits.slice(0, 3).map(visit => {
                         const contact = visit.crm_marketing_contacts;
                         const staff = staffList.find(s => s.id === visit.staff_id);

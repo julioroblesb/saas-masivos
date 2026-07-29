@@ -22,12 +22,13 @@ export default async function MensajeriaPage() {
 
   return (
     <div className="animate-in fade-in duration-500">
-      <div className="mb-5 flex items-center justify-between">
-        <h5 className="text-lg font-semibold dark:text-white-light">Historial y Mensajes en Cola</h5>
+      <div className="mb-6 border-b border-black-light/50 pb-6 dark:border-dark-light">
+        <h1 className="type-page-title text-dark dark:text-white-light">Mensajería</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
+          Revisa los mensajes programados, su entrega y los envíos que todavía puedes modificar.
+        </p>
       </div>
-      <div className="panel p-0 border-0">
-        <MensajeriaView />
-      </div>
+      <MensajeriaView />
     </div>
   );
 }

@@ -1,105 +1,113 @@
-import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function TerminosPage() {
   return (
-    <main className="min-h-[100dvh] bg-zinc-50 p-6 font-sans text-black dark:bg-dark dark:text-white md:p-12">
-      <article className="mx-auto max-w-[73ch] rounded-3xl border border-black-light bg-white p-8 shadow-sm dark:border-dark-light dark:bg-zinc-900 md:p-10">
-        
-        <Link href="/login" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-primary dark:hover:text-primary transition-colors mb-8">
-          <ArrowLeft size={16} className="mr-2" />
+    <main className="min-h-[100dvh] bg-zinc-50 px-4 py-8 font-sans text-black dark:bg-dark dark:text-white sm:px-6 md:py-12">
+      <article className="mx-auto max-w-[73ch] rounded-2xl border border-black-light bg-white p-6 dark:border-dark-light dark:bg-zinc-900 sm:p-8 md:p-10">
+        <Link
+          href="/login"
+          className="mb-8 inline-flex min-h-11 items-center text-sm font-medium text-zinc-500 transition-colors hover:text-primary dark:hover:text-primary"
+        >
+          <ArrowLeft size={16} className="mr-2" aria-hidden="true" />
           Volver
         </Link>
 
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-black-light dark:border-dark-light">
-          <div className="text-primary">
-            <ShieldAlert size={32} />
-          </div>
+        <header className="mb-8 flex items-start gap-4 border-b border-black-light pb-6 dark:border-dark-light">
+          <ShieldCheck size={30} className="mt-1 shrink-0 text-primary" aria-hidden="true" />
           <div>
             <h1 className="type-page-title mb-1 text-dark dark:text-white-light">Términos y condiciones</h1>
-            <p className="text-sm text-zinc-500 dark:text-gray-400">Última actualización: 19 de junio de 2026</p>
+            <p className="text-sm text-zinc-500 dark:text-gray-400">Última actualización: 28 de julio de 2026</p>
           </div>
-        </div>
+        </header>
 
         <div className="type-body space-y-8 text-zinc-600 dark:text-zinc-400">
-          
           <section>
-            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">1. Definiciones</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li><strong>Servicio:</strong> Se refiere a la plataforma SaaS proveída en este sitio web, incluyendo todas sus funcionalidades de envío masivo y gestión de contactos.</li>
-              <li><strong>Usuario:</strong> Se refiere a cualquier persona o empresa que registre una cuenta para utilizar el Servicio.</li>
-              <li><strong>Plataforma Externa:</strong> Hace referencia a WhatsApp, propiedad de Meta Platforms, Inc.</li>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">1. Alcance del servicio</h2>
+            <p>
+              Renova CRM es una plataforma de gestión para negocios de servicios. Su función principal
+              es centralizar agenda y citas, clientes, atenciones, servicios, equipo, seguimiento y
+              cobranza. Las automatizaciones y la mensajería son herramientas complementarias para
+              apoyar esa operación.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">2. Cuenta y acceso</h2>
+            <ul className="list-disc space-y-2 pl-5">
+              <li>El usuario debe proporcionar información correcta y mantener sus credenciales protegidas.</li>
+              <li>Cada cuenta debe utilizarse únicamente para el negocio y las personas autorizadas por su titular.</li>
+              <li>El usuario es responsable de las acciones realizadas desde su cuenta y de informar accesos no autorizados.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">2. Descripción del servicio y método de conexión</h2>
-            <p className="mb-3">Nuestro Servicio es una herramienta de automatización y gestión de mensajería. Usted reconoce expresamente y acepta que:</p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>El Servicio utiliza una conexión a través de automatización web (emulación multidispositivo) para vincularse con su cuenta de WhatsApp.</li>
-              <li><strong>Este método no es una API oficial de WhatsApp (Meta).</strong></li>
-              <li>El Servicio no está afiliado, asociado, autorizado, respaldado por, ni de ninguna manera conectado oficialmente con WhatsApp, Meta Platforms, Inc., o cualquiera de sus subsidiarias o afiliados.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="type-section-title mb-3 flex items-center gap-2 text-danger">
-              <ShieldAlert size={18} />
-              3. Riesgos del servicio y responsabilidad exclusiva
-            </h2>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">3. Datos del negocio y de sus clientes</h2>
             <p className="mb-3">
-              Debido a la naturaleza no oficial de la conexión, el uso de este Servicio conlleva riesgos inherentes de los cuales <strong>usted es el único responsable</strong>.
+              El usuario conserva la responsabilidad sobre la exactitud, legitimidad y uso de la
+              información que registra. Solo debe incorporar datos que pueda tratar legalmente y debe
+              respetar las normas de privacidad aplicables.
             </p>
-            
-            <h3 className="mb-2 mt-5 font-bold text-dark dark:text-white-light">Políticas de spam y bloqueos</h3>
-            <p className="mb-3">WhatsApp cuenta con sistemas automatizados para detectar comportamientos inusuales, envío de spam o abuso de sus plataformas. Al utilizar este Servicio para enviar mensajes masivos:</p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Usted asume el riesgo del 100% de que su cuenta, número telefónico o dispositivo pueda ser temporal o permanentemente bloqueado, suspendido o baneado por WhatsApp.</li>
-              <li>Nosotros proporcionamos herramientas de &quot;calentamiento&quot; (warm-up) y retrasos automáticos (delays) orientadas a reducir el riesgo, pero <strong>no garantizamos de ninguna manera la inmunidad contra baneos</strong>.</li>
-            </ul>
-
-            <h3 className="mb-2 mt-5 font-bold text-dark dark:text-white-light">Exención de responsabilidad</h3>
-            <p className="mb-3">Bajo ninguna circunstancia, ni la empresa creadora de este Servicio, ni sus desarrolladores, ni sus representantes serán responsables por:</p>
-            <ul className="list-decimal pl-5 space-y-2">
-              <li>El bloqueo, pérdida o suspensión temporal o definitiva de su número de WhatsApp.</li>
-              <li>La pérdida de chats, contactos, clientes o ventas derivadas de una suspensión de su número.</li>
-              <li>Cualquier daño económico, lucro cesante o consecuencia legal resultante del bloqueo de su línea de comunicación.</li>
-            </ul>
-            <p className="mt-5 border-t border-black-light pt-4 text-center font-semibold dark:border-dark-light">
-              Si usted no puede permitirse perder el número de teléfono con el que planea hacer envíos masivos, le recomendamos encarecidamente no utilizar este Servicio con dicho número.
+            <p>
+              La plataforma no debe utilizarse para almacenar información ilícita, engañosa o ajena a
+              la operación autorizada del negocio.
             </p>
           </section>
 
           <section>
-            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">4. Obligaciones legales y privacidad</h2>
-            <p className="mb-3">El Usuario es el único responsable del origen de la base de datos de contactos a la que envía mensajes. Usted declara y garantiza que:</p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Posee el consentimiento explícito (opt-in) de cada destinatario para enviarles comunicaciones comerciales a través de WhatsApp.</li>
-              <li>No enviará mensajes no solicitados, acosadores, amenazantes, fraudulentos o ilegales.</li>
-              <li>Cumplirá con todas las leyes de privacidad y protección de datos vigentes en su país o región.</li>
-            </ul>
-            <p className="mt-3">El Servicio actúa únicamente como un conducto tecnológico. Nos reservamos el derecho de suspender o eliminar permanentemente cualquier cuenta de nuestro Servicio si recibimos denuncias de spam extremo o actividades ilícitas, sin derecho a reembolso.</p>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">4. Disponibilidad y mantenimiento</h2>
+            <p>
+              Trabajamos para mantener el servicio disponible y seguro, pero pueden existir
+              interrupciones por mantenimiento, fallos de proveedores o causas fuera de nuestro
+              control. Cuando corresponda, podremos actualizar funciones para corregir errores,
+              proteger la plataforma o mejorar su funcionamiento.
+            </p>
           </section>
 
           <section>
-            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">5. Cambios en la plataforma externa (WhatsApp)</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Una actualización de WhatsApp puede causar que el Servicio deje de funcionar de forma temporal o permanente.</li>
-              <li>No nos hacemos responsables de las interrupciones prolongadas del Servicio derivadas de actualizaciones de seguridad por parte de Meta Platforms, Inc.</li>
-            </ul>
-          </section>
-
-          <section className="pt-6 border-t border-black-light dark:border-dark-light">
-            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">6. Renuncia de garantías y aceptación</h2>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">5. WhatsApp y mensajería opcional</h2>
             <p className="mb-3">
-              El servicio se proporciona &quot;tal cual&quot; (as-is) y &quot;según disponibilidad&quot;. No ofrecemos garantías de ningún tipo, expresas o implícitas, sobre la estabilidad, continuidad o seguridad contra bloqueos en la plataforma externa.
+              La conexión con WhatsApp es una función adicional y no constituye el núcleo de Renova
+              CRM. Cuando el usuario decide activarla, reconoce que:
             </p>
-            <p className="font-medium">
-              Al registrar una cuenta y escanear el código QR para vincular su dispositivo, usted acepta incondicionalmente estos Términos y Condiciones y libera de toda responsabilidad legal, comercial o moral a nuestra plataforma.
+            <ul className="list-disc space-y-2 pl-5">
+              <li>La conexión actual no es una API oficial de WhatsApp ni implica afiliación con Meta Platforms, Inc.</li>
+              <li>Los cambios o restricciones de WhatsApp pueden interrumpir temporal o definitivamente esta función.</li>
+              <li>Solo puede enviar comunicaciones a destinatarios con una base legal o consentimiento válido.</li>
+              <li>No debe enviar spam, contenido fraudulento, acosador, amenazante o ilegal.</li>
+              <li>Las pausas y límites reducen riesgos, pero no garantizan que una cuenta no sea restringida o suspendida.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">6. Uso aceptable</h2>
+            <p className="mb-3">No está permitido utilizar el servicio para:</p>
+            <ul className="list-disc space-y-2 pl-5">
+              <li>Acceder, interferir o intentar vulnerar cuentas, datos o infraestructura ajenos.</li>
+              <li>Suplantar identidades o registrar información falsa con fines abusivos.</li>
+              <li>Automatizar actividades contrarias a la ley o a los derechos de terceros.</li>
+              <li>Evitar deliberadamente límites técnicos o medidas de seguridad de la plataforma.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">7. Suspensión y terminación</h2>
+            <p>
+              Podemos limitar o suspender una cuenta cuando exista un riesgo de seguridad, uso
+              ilícito, abuso grave, incumplimiento de estos términos o afectación a terceros. El
+              usuario puede dejar de usar el servicio cuando lo decida, sujeto a las condiciones del
+              plan contratado.
             </p>
           </section>
 
+          <section className="border-t border-black-light pt-6 dark:border-dark-light">
+            <h2 className="type-section-title mb-3 text-dark dark:text-white-light">8. Aceptación</h2>
+            <p>
+              Al crear una cuenta o continuar utilizando Renova CRM, el usuario confirma que ha leído
+              y acepta estos términos. Las condiciones específicas del plan mostradas durante la
+              contratación también forman parte del acuerdo de uso.
+            </p>
+          </section>
         </div>
       </article>
     </main>

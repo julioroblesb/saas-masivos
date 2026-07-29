@@ -32,18 +32,18 @@ export function SequenceEditor({
         </div>
         <h3 className="m-0 text-xl font-bold dark:text-white-light">Mensajes</h3>
       </div>
-      <div className="flex flex-col gap-12 pl-4 border-l border-slate-200 dark:border-slate-800 ml-3">
+      <div className="ml-3 flex flex-col gap-8 border-l border-slate-200 pl-4 dark:border-slate-800">
         {sequence.map((msg, idx) => (
-          <div key={msg.id} className="group relative -ml-5 flex gap-6">
+          <div key={msg.id} className="group relative -ml-5 flex gap-3 sm:gap-6">
             {/* Timeline Dot */}
             <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 mt-2 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
             
             <div className="flex-1 flex flex-col gap-4">
               {/* Header */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Mensaje {idx + 1}</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-48">
+                  <div className="min-w-0 flex-1 sm:w-48 sm:flex-none">
                     <CustomSelect
                       isSearchable={false}
                       options={Object.entries(typeLabel).map(([v, l]) => ({ value: v, label: l }))}
@@ -51,7 +51,7 @@ export function SequenceEditor({
                       onChange={(option: CustomSelectOption | null) => option && handleTypeChange(msg.id, option.value as SequenceItem['type'])}
                     />
                   </div>
-                  <button type="button" className="text-zinc-400 hover:text-danger transition-colors p-1.5" onClick={() => removeMessage(msg.id)}>
+                  <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-danger/10 hover:text-danger" onClick={() => removeMessage(msg.id)} aria-label={`Eliminar mensaje ${idx + 1}`}>
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -107,7 +107,7 @@ export function SequenceEditor({
         
         <div className="relative -ml-5 flex gap-6">
           <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 flex-shrink-0 mt-2.5 shadow-[0_0_0_4px_white] dark:shadow-[0_0_0_4px_var(--color-dark)]"></div>
-          <button type="button" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors py-1.5 flex items-center gap-1" onClick={addMessage}>
+          <button type="button" className="flex min-h-11 items-center gap-1 py-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary/80" onClick={addMessage}>
             <Plus size={16} /> Agregar Mensaje
           </button>
         </div>

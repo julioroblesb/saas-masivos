@@ -23,13 +23,16 @@ export default async function CampanasPage() {
 
   return (
     <div className="animate-in fade-in duration-500">
-      <div className="mb-5 flex items-center justify-between">
-        <h5 className="text-lg font-semibold dark:text-white-light">Panel de Campañas</h5>
+      <div className="mb-6 flex flex-col gap-4 border-b border-black-light/50 pb-6 dark:border-dark-light lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="type-page-title text-dark dark:text-white-light">Campañas</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted">
+            Segmenta tus contactos, prepara el mensaje y controla cada envío desde un solo lugar.
+          </p>
+        </div>
         <WhatsappConnection companyId={profile?.company_id} />
       </div>
-      <div className="panel p-0 border-0">
-        <CampaignsView />
-      </div>
+      <CampaignsView />
     </div>
   );
 }
