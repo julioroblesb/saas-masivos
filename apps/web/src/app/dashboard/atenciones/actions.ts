@@ -17,7 +17,9 @@ const emptyToUndefinedDate = z.preprocess((val) => {
 
 const completeVisitSchema = z
   .object({
-    payment_method: z.string().trim().min(1).max(80).optional(),
+    payment_method: z.enum(['efectivo', 'yape', 'plin', 'transferencia', 'tarjeta']).optional(),
+    payment_date: z.string().datetime({ offset: true }).optional(),
+    operation_reference: z.string().trim().max(120).optional(),
     is_credit: z.boolean(),
     initial_payment: z.number().finite().min(0),
     debt_due_date: emptyToUndefinedDate,
@@ -27,16 +29,32 @@ const completeVisitSchema = z
     message: 'Selecciona un método de pago',
     path: ['payment_method'],
   })
+  .refine(
+    (payload) =>
+      payload.initial_payment === 0 ||
+      payload.payment_method === 'efectivo' ||
+      Boolean(payload.operation_reference && payload.operation_reference.length >= 3),
+    { message: 'Ingresa el número de operación', path: ['operation_reference'] },
+  )
   .refine((payload) => !payload.is_credit || payload.debt_due_date !== undefined, {
     message: 'Selecciona la fecha de pago de la deuda',
     path: ['debt_due_date'],
   });
 
-const addPaymentSchema = z.object({
-  amount: z.number().finite().positive(),
-  paymentMethod: z.string().trim().min(1).max(80),
-  visitId: z.string().uuid(),
-});
+const addPaymentSchema = z
+  .object({
+    amount: z.number().finite().positive(),
+    payment_method: z.enum(['efectivo', 'yape', 'plin', 'transferencia', 'tarjeta']),
+    payment_date: z.string().datetime({ offset: true }),
+    operation_reference: z.string().trim().max(120).optional(),
+    visitId: z.string().uuid(),
+  })
+  .refine(
+    (payload) =>
+      payload.payment_method === 'efectivo' ||
+      Boolean(payload.operation_reference && payload.operation_reference.length >= 3),
+    { message: 'Ingresa el número de operación', path: ['operation_reference'] },
+  );
 
 function revalidateAllAffectedPaths() {
   revalidatePath('/dashboard/atenciones');
@@ -153,21 +171,28 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
   }
 
   const visitIds = visits?.map((v) => v.id) || [];
-  const paymentsByVisit: Record<string, number> = {};
+  const paymentsByVisit: Record<string, import('./types').AtencionPayment[]> = {};
   let pErr: string | undefined = undefined;
 
   if (visitIds.length > 0) {
     const { data: payments, error: paymentsError } = await supabase
       .from('spa_payments')
-      .select('visit_id, amount')
-      .in('visit_id', visitIds);
+      .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
+      .in('visit_id', visitIds)
+      .order('payment_date', { ascending: false });
 
     if (paymentsError) {
       pErr = paymentsError.message;
     } else if (payments) {
       for (const p of payments) {
         if (p.visit_id) {
-          paymentsByVisit[p.visit_id] = (paymentsByVisit[p.visit_id] || 0) + (p.amount || 0);
+          (paymentsByVisit[p.visit_id] ||= []).push({
+            id: p.id,
+            amount: p.amount,
+            payment_method: p.payment_method,
+            payment_date: p.payment_date,
+            operation_reference: p.operation_reference,
+          });
         }
       }
     }
@@ -197,7 +222,11 @@ export async function getAtencionesData(startDate?: string, endDate?: string) {
         contact_name: contactObj?.name || '',
         contact_phone: contactObj?.phone || '',
         service_name: serviceObj?.name || '',
-        amount_paid: paymentsByVisit[v.id] || 0,
+        amount_paid: (paymentsByVisit[v.id] || []).reduce(
+          (sum, payment) => sum + Number(payment.amount),
+          0,
+        ),
+        payments: paymentsByVisit[v.id] || [],
         crm_marketing_contacts: contactObj ?? null,
         spa_services: serviceObj ?? null,
       };
@@ -359,8 +388,16 @@ export async function updateVisitStatusAction(
   return { success: true };
 }
 
-export async function addPaymentAction(visitId: string, amount: number, paymentMethod: string) {
-  const parsed = addPaymentSchema.safeParse({ amount, paymentMethod, visitId });
+export async function addPaymentAction(
+  visitId: string,
+  payload: {
+    amount: number;
+    payment_method: 'efectivo' | 'yape' | 'plin' | 'transferencia' | 'tarjeta';
+    payment_date: string;
+    operation_reference?: string;
+  },
+) {
+  const parsed = addPaymentSchema.safeParse({ ...payload, visitId });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Datos de abono inválidos' };
   }
@@ -374,7 +411,9 @@ export async function addPaymentAction(visitId: string, amount: number, paymentM
   const { data, error } = await supabase.rpc('rpc_add_visit_payment', {
     p_amount: parsed.data.amount,
     p_idempotency_key: randomUUID(),
-    p_payment_method: parsed.data.paymentMethod,
+    p_operation_reference: parsed.data.operation_reference,
+    p_payment_date: parsed.data.payment_date,
+    p_payment_method: parsed.data.payment_method,
     p_visit_id: parsed.data.visitId,
   });
   if (error) return { error: error.message };
@@ -387,6 +426,8 @@ export async function completeAndPayVisitAction(
   visitId: string,
   payload: {
     payment_method?: string;
+    payment_date?: string;
+    operation_reference?: string;
     is_credit: boolean;
     initial_payment: number;
     debt_due_date?: string;
@@ -407,11 +448,14 @@ export async function completeAndPayVisitAction(
   } = await supabase.auth.getUser();
   if (!user) return { error: 'No autorizado' };
 
-  const { data, error } = await supabase.rpc('rpc_complete_visit', {
+  const { data, error } = await supabase.rpc('rpc_complete_visit_with_payment', {
     p_debt_due_date: parsed.data.debt_due_date,
+    p_idempotency_key: parsed.data.initial_payment > 0 ? randomUUID() : undefined,
     p_initial_payment: parsed.data.initial_payment,
     p_is_credit: parsed.data.is_credit,
     p_notes: parsed.data.notes,
+    p_operation_reference: parsed.data.operation_reference,
+    p_payment_date: parsed.data.payment_date,
     p_payment_method: parsed.data.payment_method,
     p_visit_id: visitId,
   });

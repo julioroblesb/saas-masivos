@@ -691,6 +691,7 @@ export type Database = {
           id: string;
           idempotency_key: string | null;
           notes: string | null;
+          operation_reference: string | null;
           payment_date: string | null;
           payment_method: string;
           source: string;
@@ -703,6 +704,7 @@ export type Database = {
           id?: string;
           idempotency_key?: string | null;
           notes?: string | null;
+          operation_reference?: string | null;
           payment_date?: string | null;
           payment_method: string;
           source?: string;
@@ -715,6 +717,7 @@ export type Database = {
           id?: string;
           idempotency_key?: string | null;
           notes?: string | null;
+          operation_reference?: string | null;
           payment_date?: string | null;
           payment_method?: string;
           source?: string;
@@ -1416,7 +1419,24 @@ export type Database = {
         Args: {
           p_amount: number;
           p_idempotency_key: string;
+          p_notes?: string;
+          p_operation_reference?: string;
+          p_payment_date?: string;
           p_payment_method: string;
+          p_visit_id: string;
+        };
+        Returns: Json;
+      };
+      rpc_complete_visit_with_payment: {
+        Args: {
+          p_debt_due_date?: string;
+          p_idempotency_key?: string;
+          p_initial_payment?: number;
+          p_is_credit?: boolean;
+          p_notes?: string;
+          p_operation_reference?: string;
+          p_payment_date?: string;
+          p_payment_method?: string;
           p_visit_id: string;
         };
         Returns: Json;

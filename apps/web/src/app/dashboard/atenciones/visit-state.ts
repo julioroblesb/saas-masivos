@@ -1,4 +1,4 @@
-import type { AtencionVisit, AgendaVisit } from './types';
+import type { AtencionVisit } from './types';
 
 export function insertVisitInState<T extends { id: string }>(
   visits: T[],
@@ -19,6 +19,7 @@ export function completeVisitInState(
   totalPaid: number,
   paymentStatus: string,
   completedAt?: string,
+  payment?: NonNullable<AtencionVisit['payments']>[number] | null,
 ): AtencionVisit[] {
   return visits.map((v) => {
     if (v.id !== visitId) return v;
@@ -28,6 +29,7 @@ export function completeVisitInState(
       payment_status: paymentStatus,
       amount_paid: totalPaid,
       completed_at: completedAt || new Date().toISOString(),
+      payments: payment ? [payment, ...(v.payments || [])] : v.payments,
     };
   });
 }
@@ -45,6 +47,7 @@ export function applyPaymentToVisitState(
   visitId: string,
   totalPaid: number,
   paymentStatus: string,
+  payment?: NonNullable<AtencionVisit['payments']>[number] | null,
 ): AtencionVisit[] {
   return visits.map((v) => {
     if (v.id !== visitId) return v;
@@ -52,6 +55,7 @@ export function applyPaymentToVisitState(
       ...v,
       amount_paid: totalPaid,
       payment_status: paymentStatus,
+      payments: payment ? [payment, ...(v.payments || [])] : v.payments,
     };
   });
 }

@@ -1,6 +1,10 @@
 import type { Tables } from '@/types/database.generated';
 
 export type AtencionService = Tables<'spa_services'>;
+export type AtencionPayment = Pick<
+  Tables<'spa_payments'>,
+  'amount' | 'id' | 'operation_reference' | 'payment_date' | 'payment_method'
+>;
 
 export type FullClientProfileData = Partial<Tables<'crm_marketing_contacts'>> & {
   id?: string;
@@ -37,6 +41,7 @@ export type AtencionVisit = Tables<'spa_visits'> & {
   contact_phone?: string | null;
   service_name?: string | null;
   crm_marketing_contacts?: FullClientProfileData | null;
+  payments?: AtencionPayment[];
 };
 
 export type AgendaVisit = AtencionVisit & {

@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { Coins, XCircle, Search, Phone } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { Coins, Phone, Search, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { addPaymentAction } from '../atenciones/actions';
-import { CustomSelect } from '@/components/ui/CustomSelect';
-import { formatDateOnly, formatBusinessDateTime } from '@/lib/business-date';
+import {
+  createPaymentDraft,
+  PaymentCaptureFields,
+  type PaymentDraft,
+  requiresOperationReference,
+} from '@/components/payments/PaymentCaptureFields';
+import { PaymentHistory, type PaymentHistoryItem } from '@/components/payments/PaymentHistory';
+import { formatBusinessDateTime, formatDateOnly } from '@/lib/business-date';
 
 interface DebtVisit {
   amount_paid: number;
@@ -15,283 +21,205 @@ interface DebtVisit {
   debt_due_date?: string | null;
   id: string;
   payment_status?: string | null;
+  payments: PaymentHistoryItem[];
   price_charged?: number | null;
   scheduled_date?: string | null;
   service_name?: string | null;
   visit_date?: string | null;
 }
 
+const money = (value: number) => `S/ ${Number(value).toFixed(2)}`;
+
 export default function CobranzaManager({ debts }: { debts: DebtVisit[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
-
-  const [localDebts, setLocalDebts] = useState<DebtVisit[]>(debts);
-
-  // Sync state from server props after a router.refresh()
-  useEffect(() => { setLocalDebts(debts); }, [debts]);
-
+  const [localDebts, setLocalDebts] = useState(debts);
   const [search, setSearch] = useState('');
-
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentVisit, setPaymentVisit] = useState<DebtVisit | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('efectivo');
+  const [paymentDraft, setPaymentDraft] = useState<PaymentDraft>(() => createPaymentDraft(0));
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => setLocalDebts(debts), [debts]);
 
   const query = search.trim().toLowerCase();
   const filteredDebts = query
-    ? localDebts.filter((d) =>
-        (d.contact_name || '').toLowerCase().includes(query) ||
-        (d.service_name || '').toLowerCase().includes(query) ||
-        (d.contact_phone || '').includes(query),
+    ? localDebts.filter(
+        (debt) =>
+          (debt.contact_name || '').toLowerCase().includes(query) ||
+          (debt.service_name || '').toLowerCase().includes(query) ||
+          (debt.contact_phone || '').includes(query),
       )
     : localDebts;
+  const totalDebt = filteredDebts.reduce(
+    (sum, debt) => sum + Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid),
+    0,
+  );
+
+  const openPayment = (debt: DebtVisit) => {
+    const remaining = Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid);
+    setPaymentVisit(debt);
+    setPaymentDraft(createPaymentDraft(remaining));
+  };
 
   const handleAddPayment = async () => {
-    if (!paymentVisit || paymentAmount <= 0) return;
-
+    if (!paymentVisit) return;
     const total = paymentVisit.price_charged ?? 0;
-    const alreadyPaid = paymentVisit.amount_paid ?? 0;
-    const remaining = Math.max(0, total - alreadyPaid);
-
-    if (paymentAmount > remaining) {
-      toast.error(`El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`);
+    const remaining = Math.max(0, total - paymentVisit.amount_paid);
+    if (paymentDraft.amount <= 0 || paymentDraft.amount > remaining) {
+      toast.error(`El pago debe ser mayor que cero y no superar ${money(remaining)}.`);
+      return;
+    }
+    if (paymentDraft.mode === 'partial' && paymentDraft.amount >= remaining) {
+      toast.error('Para pagar todo el saldo, selecciona “Pago completo”.');
+      return;
+    }
+    if (
+      requiresOperationReference(paymentDraft.method) &&
+      paymentDraft.operationReference.trim().length < 3
+    ) {
+      toast.error('Ingresa el número de operación.');
       return;
     }
 
     setIsSubmitting(true);
-    const res = await addPaymentAction(paymentVisit.id, paymentAmount, paymentMethod);
+    const res = await addPaymentAction(paymentVisit.id, {
+      amount: paymentDraft.amount,
+      payment_method: paymentDraft.method as
+        | 'efectivo'
+        | 'yape'
+        | 'plin'
+        | 'transferencia'
+        | 'tarjeta',
+      payment_date: new Date(paymentDraft.paidAt).toISOString(),
+      operation_reference: paymentDraft.operationReference || undefined,
+    });
     if (res.error) {
       toast.error(res.error);
-    } else {
-      toast.success('Abono registrado exitosamente');
-      const serverTotalPaid = res.data?.total_paid ?? (alreadyPaid + paymentAmount);
-      const newRemaining = Math.max(0, total - serverTotalPaid);
-
-      setLocalDebts((prev) => {
-        if (newRemaining <= 0) {
-          return prev.filter((d) => d.id !== paymentVisit.id);
-        }
-        return prev.map((d) =>
-          d.id === paymentVisit.id
-            ? {
-                ...d,
-                amount_paid: serverTotalPaid,
-                payment_status: res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial'),
-              }
-            : d,
-        );
-      });
-
-      setIsPaymentModalOpen(false);
-      setPaymentVisit(null);
-      startTransition(() => {
-        router.refresh();
-      });
+      setIsSubmitting(false);
+      return;
     }
+
+    const serverTotalPaid = Number(res.data?.total_paid ?? paymentVisit.amount_paid + paymentDraft.amount);
+    const newRemaining = Math.max(0, total - serverTotalPaid);
+    setLocalDebts((current) =>
+      newRemaining <= 0
+        ? current.filter((debt) => debt.id !== paymentVisit.id)
+        : current.map((debt) =>
+            debt.id === paymentVisit.id
+              ? {
+                  ...debt,
+                  amount_paid: serverTotalPaid,
+                  payment_status: String(res.data?.payment_status || 'parcial'),
+                  payments: res.data?.payment
+                    ? [res.data.payment as PaymentHistoryItem, ...debt.payments]
+                    : debt.payments,
+                }
+              : debt,
+          ),
+    );
+    toast.success(newRemaining <= 0 ? 'Saldo pagado por completo' : 'Abono parcial registrado');
+    setPaymentVisit(null);
     setIsSubmitting(false);
+    startTransition(() => router.refresh());
   };
 
-  const totalDebt = filteredDebts.reduce(
-    (sum, debt) => sum + ((debt.price_charged ?? 0) - debt.amount_paid),
-    0,
-  );
-
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="rounded-3xl bg-danger text-white border border-danger shadow-sm p-6 relative overflow-hidden group">
-          <div className="flex justify-between items-start relative z-10">
-            <div className="flex flex-col space-y-1">
-              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-                Deuda Total
-              </p>
-              <h2 className="type-metric mt-2">S/ {totalDebt}</h2>
-            </div>
-            <div className="p-3 bg-white/20 rounded-xl">
-              <Coins className="w-6 h-6 text-white" />
-            </div>
+    <div className="space-y-5">
+      <section
+        aria-label="Resumen de cobranza"
+        className="flex items-center justify-between border-y border-black-light py-4 dark:border-dark-light sm:rounded-2xl sm:border sm:px-5"
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Saldo por cobrar</p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-danger">{money(totalDebt)}</p>
+        </div>
+        <Coins aria-hidden="true" className="h-6 w-6 text-danger" />
+      </section>
+
+      <label className="relative block w-full sm:max-w-sm">
+        <span className="sr-only">Buscar deuda</span>
+        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+        <input
+          type="search"
+          placeholder="Buscar cliente, teléfono o servicio"
+          className="form-input min-h-11 w-full rounded-xl border-black-light bg-white pl-10 dark:border-dark-light dark:bg-dark"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      </label>
+
+      {filteredDebts.length === 0 ? (
+        <p className="py-12 text-center text-zinc-500">No hay saldos pendientes.</p>
+      ) : (
+        <>
+          <div className="space-y-3 md:hidden">
+            {filteredDebts.map((debt) => {
+              const pending = Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid);
+              return (
+                <article key={debt.id} className="rounded-2xl border border-black-light p-4 dark:border-dark-light">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h2 className="truncate font-bold text-black dark:text-white">{debt.contact_name || 'Sin nombre'}</h2>
+                      <p className="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-300">{debt.service_name}</p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+                        <Phone aria-hidden="true" className="h-3 w-3" /> +{debt.contact_phone}
+                      </p>
+                    </div>
+                    <strong className="shrink-0 tabular-nums text-danger">{money(pending)}</strong>
+                  </div>
+                  <dl className="mt-4 grid grid-cols-2 gap-3 border-y border-black-light py-3 text-xs dark:border-dark-light">
+                    <div><dt className="text-zinc-500">Atención</dt><dd className="mt-1 font-semibold">{formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}</dd></div>
+                    <div><dt className="text-zinc-500">Fecha acordada</dt><dd className="mt-1 font-semibold">{debt.debt_due_date ? formatDateOnly(debt.debt_due_date) : 'Sin fecha'}</dd></div>
+                    <div><dt className="text-zinc-500">Total</dt><dd className="mt-1 font-semibold tabular-nums">{money(debt.price_charged ?? 0)}</dd></div>
+                    <div><dt className="text-zinc-500">Pagado</dt><dd className="mt-1 font-semibold tabular-nums text-emerald-600">{money(debt.amount_paid)}</dd></div>
+                  </dl>
+                  <div className="mt-2"><PaymentHistory payments={debt.payments} /></div>
+                  <button type="button" onClick={() => openPayment(debt)} className="btn btn-primary mt-3 min-h-11 w-full rounded-xl">
+                    Registrar pago
+                  </button>
+                </article>
+              );
+            })}
           </div>
-        </div>
-      </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-4">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Buscar por paciente o teléfono..."
-            className="form-input pl-10 rounded-xl border-black-light dark:border-dark-light focus:ring-primary focus:border-primary transition-shadow w-full bg-white dark:bg-dark"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm overflow-hidden">
-        <div className="overflow-x-auto -mx-6 px-6">
-          {filteredDebts.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500">No hay deudas pendientes.</div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 border-b border-black-light dark:border-dark-light">
-                <tr>
-                  <th className="py-4 px-4 pl-6">Paciente</th>
-                  <th className="py-4 px-4">Servicio</th>
-                  <th className="numeric-column py-4 px-4">Deuda</th>
-                  <th className="py-4 px-4">Fecha Promesa</th>
-                  <th className="py-4 px-4 text-center pr-6">Acciones</th>
-                </tr>
+          <div className="hidden overflow-hidden rounded-2xl border border-black-light dark:border-dark-light md:block">
+            <table className="w-full text-left">
+              <thead className="border-b border-black-light bg-zinc-50 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:border-dark-light dark:bg-zinc-900/50">
+                <tr><th className="px-5 py-3">Cliente y servicio</th><th className="px-5 py-3">Pagos</th><th className="px-5 py-3 text-right">Saldo</th><th className="px-5 py-3 text-right">Acción</th></tr>
               </thead>
               <tbody className="divide-y divide-black-light dark:divide-dark-light">
                 {filteredDebts.map((debt) => {
-                  const pending = (debt.price_charged ?? 0) - debt.amount_paid;
-                  const isExpired =
-                    debt.debt_due_date &&
-                    new Date(debt.debt_due_date).getTime() < new Date().getTime();
+                  const pending = Math.max(0, (debt.price_charged ?? 0) - debt.amount_paid);
                   return (
-                    <tr
-                      key={debt.id}
-                      className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                    >
-                      <td className="py-4 px-4 pl-6">
-                        <div className="font-semibold text-black dark:text-white">
-                          {debt.contact_name || 'Sin Nombre'}
-                        </div>
-                        <div className="text-xs text-zinc-500 flex items-center gap-1">
-                          <Phone size={12} /> +{debt.contact_phone}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-zinc-600 dark:text-zinc-300">
-                        {debt.service_name}
-                        <div className="text-xs text-zinc-400">
-                          Atendido el:{' '}
-                          {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}
-                        </div>
-                      </td>
-                      <td className="numeric-column py-4 px-4">
-                        <div className="font-bold text-danger">S/ {pending}</div>
-                        <div className="text-xs text-zinc-500">Total: S/ {debt.price_charged}</div>
-                      </td>
-                      <td className="py-4 px-4">
-                        {debt.debt_due_date ? (
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                              isExpired
-                                ? 'bg-danger/10 text-danger border-danger/20'
-                                : 'bg-warning/10 text-warning border-warning/20'
-                            }`}
-                          >
-                            {formatDateOnly(debt.debt_due_date)} {isExpired && '(Vencido)'}
-                          </span>
-                        ) : (
-                          <span className="text-zinc-400 text-sm">-</span>
-                        )}
-                      </td>
-                      <td className="py-4 px-4 text-center pr-6">
-                        <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => {
-                              setPaymentVisit(debt);
-                              setPaymentAmount(pending);
-                              setIsPaymentModalOpen(true);
-                            }}
-                            className="btn btn-sm btn-primary rounded-xl px-4"
-                          >
-                            Cobrar
-                          </button>
-                        </div>
-                      </td>
+                    <tr key={debt.id}>
+                      <td className="px-5 py-4"><p className="font-semibold">{debt.contact_name || 'Sin nombre'}</p><p className="text-sm text-zinc-500">{debt.service_name} · {formatBusinessDateTime(debt.scheduled_date || debt.visit_date)}</p></td>
+                      <td className="px-5 py-4"><PaymentHistory payments={debt.payments} /></td>
+                      <td className="px-5 py-4 text-right"><p className="font-bold tabular-nums text-danger">{money(pending)}</p><p className="text-xs text-zinc-500">de {money(debt.price_charged ?? 0)}</p></td>
+                      <td className="px-5 py-4 text-right"><button type="button" onClick={() => openPayment(debt)} className="btn btn-primary min-h-11 rounded-xl px-4">Registrar pago</button></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          )}
-        </div>
-      </div>
-
-      {/* Modal - Registrar Abono */}
-      {isPaymentModalOpen && paymentVisit && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-md shadow-2xl overflow-visible animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center justify-between p-6 border-b border-black-light dark:border-dark-light bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-900/50 dark:to-dark rounded-t-3xl">
-              <h3 className="text-xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
-                <Coins className="w-5 h-5 text-primary" />
-                Registrar Abono
-              </h3>
-              <button
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors bg-white-light dark:bg-zinc-800 p-2 rounded-full"
-                onClick={() => setIsPaymentModalOpen(false)}
-              >
-                <XCircle className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-                <div className="text-sm text-zinc-500 mb-1">Saldo pendiente</div>
-                <div className="text-2xl font-bold text-primary">
-                  S/ {(paymentVisit.price_charged ?? 0) - paymentVisit.amount_paid}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-primary" /> Monto a abonar
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">
-                    S/
-                  </span>
-                  <input
-                    type="number"
-                    className="form-input pl-8 w-full rounded-xl border-black-light dark:border-dark-light focus:border-primary focus:ring-primary shadow-sm bg-white dark:bg-dark"
-                    value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-primary" /> Método de Pago
-                </label>
-                <CustomSelect
-                  options={[
-                    { value: 'efectivo', label: 'Efectivo' },
-                    { value: 'yape', label: 'Yape' },
-                    { value: 'plin', label: 'Plin' },
-                    { value: 'transferencia', label: 'Transferencia' },
-                    { value: 'tarjeta', label: 'Tarjeta' },
-                  ]}
-                  value={{
-                    value: paymentMethod,
-                    label: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1),
-                  }}
-                  onChange={(selected) =>
-                    setPaymentMethod(selected ? selected.value : 'efectivo')
-                  }
-                />
-              </div>
-
-              <div className="pt-4 border-t border-black-light dark:border-dark-light flex justify-end gap-3">
-                <button
-                  className="btn btn-outline-secondary rounded-xl px-6"
-                  onClick={() => setIsPaymentModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="btn btn-primary rounded-xl px-8"
-                  onClick={handleAddPayment}
-                  disabled={isSubmitting || paymentAmount <= 0}
-                >
-                  {isSubmitting ? 'Guardando...' : 'Guardar Abono'}
-                </button>
-              </div>
-            </div>
           </div>
+        </>
+      )}
+
+      {paymentVisit && (
+        <div className="fixed inset-0 z-[999] flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4" role="presentation">
+          <section role="dialog" aria-modal="true" aria-labelledby="payment-title" className="max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-2xl dark:bg-dark sm:max-w-md sm:rounded-3xl">
+            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-black-light bg-white px-5 py-4 dark:border-dark-light dark:bg-dark">
+              <div><h2 id="payment-title" className="text-xl font-bold">Registrar pago</h2><p className="mt-1 text-sm text-zinc-500">Saldo: {money((paymentVisit.price_charged ?? 0) - paymentVisit.amount_paid)}</p></div>
+              <button type="button" aria-label="Cerrar" onClick={() => setPaymentVisit(null)} className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-zinc-100 active:scale-95 dark:hover:bg-zinc-800"><X aria-hidden="true" className="h-5 w-5" /></button>
+            </header>
+            <div className="space-y-5 p-5">
+              <PaymentCaptureFields draft={paymentDraft} onChange={setPaymentDraft} remaining={(paymentVisit.price_charged ?? 0) - paymentVisit.amount_paid} />
+              <div className="flex gap-3 border-t border-black-light pt-4 dark:border-dark-light">
+                <button type="button" onClick={() => setPaymentVisit(null)} className="btn btn-outline-secondary min-h-11 flex-1 rounded-xl">Cancelar</button>
+                <button type="button" onClick={handleAddPayment} disabled={isSubmitting} className="btn btn-primary min-h-11 flex-1 rounded-xl">{isSubmitting ? 'Guardando…' : 'Guardar pago'}</button>
+              </div>
+            </div>
+          </section>
         </div>
       )}
     </div>

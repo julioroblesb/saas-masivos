@@ -41,6 +41,13 @@ import {
   formatBusinessDateTime,
 } from '@/lib/business-date';
 import { ClientProfileInteractiveName } from '@/components/clients/ClientProfilePopover';
+import {
+  createPaymentDraft,
+  PaymentCaptureFields,
+  type PaymentDraft,
+  requiresOperationReference,
+} from '@/components/payments/PaymentCaptureFields';
+import { PaymentHistory } from '@/components/payments/PaymentHistory';
 
 const MySwal = withReactContent(Swal);
 
@@ -108,16 +115,12 @@ export function AtencionesManager({
   const [isPastOutcomeModalOpen, setIsPastOutcomeModalOpen] = useState(false);
   const [pastOutcome, setPastOutcome] = useState<{
     status: 'completado' | 'cancelado' | 'no_asistio';
-    paymentMethod: string;
-    initialPayment: number;
-    isCredit: boolean;
+    payment: PaymentDraft;
     debtDueDate: string;
     notes: string;
   }>({
     status: 'completado',
-    paymentMethod: paymentMethods[0] || 'efectivo',
-    initialPayment: 0,
-    isCredit: false,
+    payment: createPaymentDraft(0, 'none'),
     debtDueDate: '',
     notes: '',
   });
@@ -126,9 +129,7 @@ export function AtencionesManager({
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<AtencionVisit | null>(null);
   const [completeForm, setCompleteForm] = useState({
-    payment_method: paymentMethods[0] || 'efectivo',
-    is_credit: false,
-    initial_payment: 0,
+    payment: createPaymentDraft(0),
     debt_due_date: '',
     notes: '',
   });
@@ -136,8 +137,7 @@ export function AtencionesManager({
   // Payment (Abono) Modal
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentVisit, setPaymentVisit] = useState<AtencionVisit | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<string>(paymentMethods[0] || 'efectivo');
+  const [paymentDraft, setPaymentDraft] = useState<PaymentDraft>(() => createPaymentDraft(0));
 
   // Edit Modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -214,9 +214,7 @@ export function AtencionesManager({
         if (result.isConfirmed) {
           setPastOutcome({
             status: 'completado',
-            paymentMethod: paymentMethods[0] || 'efectivo',
-            initialPayment: form.price_charged,
-            isCredit: false,
+            payment: createPaymentDraft(form.price_charged, 'full', new Date(form.scheduled_date)),
             debtDueDate: '',
             notes: form.notes,
           });
@@ -296,16 +294,21 @@ export function AtencionesManager({
     let addedAmount = 0;
     if (pastOutcome.status === 'completado') {
       const compRes = await completeAndPayVisitAction(res.data.id, {
-        payment_method: pastOutcome.paymentMethod,
-        is_credit: pastOutcome.isCredit,
-        initial_payment: pastOutcome.initialPayment,
+        payment_method: pastOutcome.payment.mode === 'none' ? undefined : pastOutcome.payment.method,
+        payment_date:
+          pastOutcome.payment.mode === 'none'
+            ? undefined
+            : new Date(pastOutcome.payment.paidAt).toISOString(),
+        operation_reference: pastOutcome.payment.operationReference || undefined,
+        is_credit: pastOutcome.payment.mode === 'partial',
+        initial_payment: pastOutcome.payment.mode === 'none' ? 0 : pastOutcome.payment.amount,
         debt_due_date: pastOutcome.debtDueDate || undefined,
         notes: pastOutcome.notes,
       });
       if (compRes.error) {
         toast.error('Visita creada pero hubo error al registrar pago: ' + compRes.error);
       } else {
-        addedAmount = pastOutcome.initialPayment || 0;
+        addedAmount = Number(compRes.data?.total_paid ?? pastOutcome.payment.amount ?? 0);
         toast.success('Atención histórica registrada y completada en el historial');
       }
     } else {
@@ -352,9 +355,7 @@ export function AtencionesManager({
         const remaining = Math.max(0, total - alreadyPaid);
 
         setCompleteForm({
-          payment_method: paymentMethods[0] || 'efectivo',
-          is_credit: false,
-          initial_payment: remaining,
+          payment: createPaymentDraft(remaining),
           debt_due_date: '',
           notes: v.notes || '',
         });
@@ -385,16 +386,38 @@ export function AtencionesManager({
     const alreadyPaid = selectedVisit.amount_paid ?? 0;
     const remaining = Math.max(0, total - alreadyPaid);
 
-    if (completeForm.initial_payment > remaining) {
+    const draft = completeForm.payment;
+    if (draft.amount > remaining) {
       toast.error(
-        `El monto a cobrar (S/${completeForm.initial_payment}) no puede superar el saldo restante (S/${remaining}).`,
+        `El monto a cobrar (S/${draft.amount}) no puede superar el saldo restante (S/${remaining}).`,
       );
+      return;
+    }
+
+    if (
+      draft.mode !== 'none' &&
+      requiresOperationReference(draft.method) &&
+      draft.operationReference.trim().length < 3
+    ) {
+      toast.error('Ingresa el número de operación.');
+      return;
+    }
+    if (draft.mode === 'partial' && (!completeForm.debt_due_date || draft.amount <= 0 || draft.amount >= remaining)) {
+      toast.error('Para un abono parcial, ingresa un monto menor al saldo y una fecha límite.');
       return;
     }
 
     setIsSubmitting(true);
 
-    const res = await completeAndPayVisitAction(selectedVisit.id, completeForm);
+    const res = await completeAndPayVisitAction(selectedVisit.id, {
+      initial_payment: draft.mode === 'none' ? 0 : draft.amount,
+      payment_method: draft.mode === 'none' ? undefined : draft.method,
+      payment_date: draft.mode === 'none' ? undefined : new Date(draft.paidAt).toISOString(),
+      operation_reference: draft.operationReference || undefined,
+      is_credit: draft.mode === 'partial',
+      debt_due_date: draft.mode === 'partial' ? completeForm.debt_due_date : undefined,
+      notes: completeForm.notes,
+    });
     if (res.error) {
       toast.error(res.error);
     } else {
@@ -402,12 +425,19 @@ export function AtencionesManager({
       setIsCompleteModalOpen(false);
 
       const serverTotalPaid =
-        res.data?.total_paid ?? alreadyPaid + (completeForm.initial_payment || 0);
+        Number(res.data?.total_paid ?? alreadyPaid + (draft.mode === 'none' ? 0 : draft.amount));
       const serverPaymentStatus =
         res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
 
       setVisits((prev) =>
-        completeVisitInState(prev, selectedVisit.id, serverTotalPaid, serverPaymentStatus),
+        completeVisitInState(
+          prev,
+          selectedVisit.id,
+          serverTotalPaid,
+          serverPaymentStatus,
+          undefined,
+          res.data?.payment || null,
+        ),
       );
       setSelectedVisit(null);
       startTransition(() => {
@@ -419,7 +449,7 @@ export function AtencionesManager({
 
   // Submit Payment Abono (Problema 4)
   const handleAddPaymentSubmit = async () => {
-    if (!paymentVisit || paymentAmount <= 0) {
+    if (!paymentVisit || paymentDraft.amount <= 0) {
       toast.error('Ingresa un monto válido para el abono.');
       return;
     }
@@ -428,27 +458,51 @@ export function AtencionesManager({
     const alreadyPaid = paymentVisit.amount_paid ?? 0;
     const remaining = Math.max(0, total - alreadyPaid);
 
-    if (paymentAmount > remaining) {
+    if (paymentDraft.amount > remaining) {
       toast.error(
-        `El abono (S/${paymentAmount}) no puede superar el saldo restante (S/${remaining}).`,
+        `El abono (S/${paymentDraft.amount}) no puede superar el saldo restante (S/${remaining}).`,
       );
       return;
     }
 
+    if (
+      requiresOperationReference(paymentDraft.method) &&
+      paymentDraft.operationReference.trim().length < 3
+    ) {
+      toast.error('Ingresa el número de operación.');
+      return;
+    }
+
     setIsSubmitting(true);
-    const res = await addPaymentAction(paymentVisit.id, paymentAmount, paymentMethod);
+    const res = await addPaymentAction(paymentVisit.id, {
+      amount: paymentDraft.amount,
+      payment_method: paymentDraft.method as
+        | 'efectivo'
+        | 'yape'
+        | 'plin'
+        | 'transferencia'
+        | 'tarjeta',
+      payment_date: new Date(paymentDraft.paidAt).toISOString(),
+      operation_reference: paymentDraft.operationReference || undefined,
+    });
     if (res.error) {
       toast.error(res.error);
     } else {
       toast.success('Abono registrado exitosamente');
       setIsPaymentModalOpen(false);
 
-      const serverTotalPaid = res.data?.total_paid ?? alreadyPaid + paymentAmount;
+      const serverTotalPaid = Number(res.data?.total_paid ?? alreadyPaid + paymentDraft.amount);
       const serverPaymentStatus =
         res.data?.payment_status || (serverTotalPaid >= total ? 'pagado' : 'parcial');
 
       setVisits((prev) =>
-        applyPaymentToVisitState(prev, paymentVisit.id, serverTotalPaid, serverPaymentStatus),
+        applyPaymentToVisitState(
+          prev,
+          paymentVisit.id,
+          serverTotalPaid,
+          serverPaymentStatus,
+          res.data?.payment || null,
+        ),
       );
       setPaymentVisit(null);
       startTransition(() => {
@@ -557,47 +611,47 @@ export function AtencionesManager({
   const selectedEditService = services.find((s) => s.id === editForm.service_id);
 
   return (
-    <div className="flex flex-col h-full space-y-6">
+    <div className="flex h-full flex-col space-y-4 sm:space-y-6">
       {/* Header Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="rounded-3xl bg-primary text-white border border-primary shadow-sm p-6 relative overflow-hidden group">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="relative overflow-hidden rounded-2xl border border-primary bg-primary p-3 text-white sm:p-4">
           <div className="flex justify-between items-start relative z-10">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold text-white/80">Total de atenciones</p>
-              <h2 className="type-metric mt-2">{visits.length}</h2>
+              <p className="truncate text-xs font-semibold text-white/80">Total</p>
+              <h2 className="mt-1 text-2xl font-bold tabular-nums">{visits.length}</h2>
             </div>
-            <div className="p-3 bg-white/20 rounded-xl">
-              <Activity className="w-6 h-6 text-white" />
+            <div className="hidden rounded-lg bg-white/20 p-2 sm:block">
+              <Activity className="h-5 w-5 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 group">
+        <div className="rounded-2xl border border-black-light bg-white p-3 dark:border-dark-light dark:bg-dark sm:p-4">
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">En curso</p>
-              <h2 className="type-metric mt-2 text-black dark:text-white">
+              <p className="truncate text-xs font-semibold text-zinc-500 dark:text-zinc-400">En curso</p>
+              <h2 className="mt-1 text-2xl font-bold tabular-nums text-black dark:text-white">
                 {visits.filter((v) => v.status === 'en_curso').length}
               </h2>
             </div>
-            <div className="p-3 bg-white-light dark:bg-zinc-900 rounded-xl">
-              <Clock className="w-6 h-6 text-amber-500" />
+            <div className="hidden rounded-lg bg-white-light p-2 dark:bg-zinc-900 sm:block">
+              <Clock className="h-5 w-5 text-amber-500" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white dark:bg-dark border border-black-light dark:border-dark-light shadow-sm p-6 group">
+        <div className="rounded-2xl border border-black-light bg-white p-3 dark:border-dark-light dark:bg-dark sm:p-4">
           <div className="flex justify-between items-start">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                 Próximas citas
               </p>
-              <h2 className="type-metric mt-2 text-black dark:text-white">
+              <h2 className="mt-1 text-2xl font-bold tabular-nums text-black dark:text-white">
                 {visits.filter((v) => v.status === 'agendado').length}
               </h2>
             </div>
-            <div className="p-3 bg-white-light dark:bg-zinc-900 rounded-xl">
-              <CalendarIcon className="w-6 h-6 text-blue-500" />
+            <div className="hidden rounded-lg bg-white-light p-2 dark:bg-zinc-900 sm:block">
+              <CalendarIcon className="h-5 w-5 text-blue-500" />
             </div>
           </div>
         </div>
@@ -919,6 +973,9 @@ export function AtencionesManager({
                                 <div className="font-bold text-danger">Saldo: S/ {saldo}</div>
                               )}
                             </div>
+                            <div className="mt-2 border-t border-black-light/40 pt-1 dark:border-dark-light">
+                              <PaymentHistory payments={visit.payments} />
+                            </div>
                           </td>
 
                           <td className="p-4">
@@ -942,7 +999,7 @@ export function AtencionesManager({
                                 <button
                                   onClick={() => {
                                     setPaymentVisit(visit);
-                                    setPaymentAmount(saldo);
+                                    setPaymentDraft(createPaymentDraft(saldo));
                                     setIsPaymentModalOpen(true);
                                   }}
                                   className="btn btn-sm btn-primary rounded-xl px-3 text-xs font-bold min-h-[44px] flex items-center gap-1 shadow-sm"
@@ -1043,12 +1100,19 @@ export function AtencionesManager({
                         </div>
                       </div>
 
+                      <div className="border-t border-black-light/30 pt-2 dark:border-dark-light">
+                        <p className="mb-1 text-xs font-semibold uppercase text-zinc-400">
+                          Pagos registrados
+                        </p>
+                        <PaymentHistory payments={visit.payments} />
+                      </div>
+
                       <div className="flex justify-end gap-2 pt-2 border-t border-black-light/30 dark:border-dark-light">
                         {isCompletado && saldo > 0 && (
                           <button
                             onClick={() => {
                               setPaymentVisit(visit);
-                              setPaymentAmount(saldo);
+                              setPaymentDraft(createPaymentDraft(saldo));
                               setIsPaymentModalOpen(true);
                             }}
                             className="btn btn-sm btn-primary rounded-xl px-4 text-xs font-bold min-h-[44px] flex items-center gap-1 shadow-sm"
@@ -1377,9 +1441,17 @@ export function AtencionesManager({
                     </label>
                     <select
                       className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full bg-white dark:bg-dark capitalize"
-                      value={pastOutcome.paymentMethod}
+                      value={pastOutcome.payment.method}
                       onChange={(e) =>
-                        setPastOutcome((prev) => ({ ...prev, paymentMethod: e.target.value }))
+                        setPastOutcome((prev) => ({
+                          ...prev,
+                          payment: {
+                            ...prev.payment,
+                            method: e.target.value,
+                            operationReference:
+                              e.target.value === 'efectivo' ? '' : prev.payment.operationReference,
+                          },
+                        }))
                       }
                     >
                       {paymentMethods.map((m) => (
@@ -1390,6 +1462,65 @@ export function AtencionesManager({
                     </select>
                   </div>
 
+                  <label className="flex min-h-11 items-center gap-2 text-sm font-semibold">
+                    <input
+                      type="checkbox"
+                      checked={pastOutcome.payment.mode === 'none'}
+                      onChange={(event) =>
+                        setPastOutcome((current) => ({
+                          ...current,
+                          payment: event.target.checked
+                            ? { ...current.payment, mode: 'none', amount: 0 }
+                            : createPaymentDraft(form.price_charged, 'full', new Date(form.scheduled_date)),
+                        }))
+                      }
+                      className="form-checkbox rounded text-primary"
+                    />
+                    Completar sin cobrar; enviar el saldo a Cobranza
+                  </label>
+
+                  {pastOutcome.payment.mode !== 'none' &&
+                    requiresOperationReference(pastOutcome.payment.method) && (
+                      <div>
+                        <label className="mb-1 block text-xs font-bold uppercase text-zinc-400">
+                          Número de operación
+                        </label>
+                        <input
+                          type="text"
+                          className="form-input min-h-11 w-full rounded-xl"
+                          value={pastOutcome.payment.operationReference}
+                          onChange={(event) =>
+                            setPastOutcome((current) => ({
+                              ...current,
+                              payment: {
+                                ...current.payment,
+                                operationReference: event.target.value,
+                              },
+                            }))
+                          }
+                        />
+                      </div>
+                    )}
+
+                  {pastOutcome.payment.mode !== 'none' && (
+                    <div>
+                      <label className="mb-1 block text-xs font-bold uppercase text-zinc-400">
+                        Fecha y hora del pago
+                      </label>
+                      <input
+                        type="datetime-local"
+                        className="form-input min-h-11 w-full rounded-xl"
+                        value={pastOutcome.payment.paidAt}
+                        onChange={(event) =>
+                          setPastOutcome((current) => ({
+                            ...current,
+                            payment: { ...current.payment, paidAt: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+
                   <div>
                     <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                       Monto Pagado Inicial (S/)
@@ -1398,11 +1529,11 @@ export function AtencionesManager({
                       type="number"
                       min={0}
                       className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full"
-                      value={pastOutcome.initialPayment}
+                      value={pastOutcome.payment.amount}
                       onChange={(e) =>
                         setPastOutcome((prev) => ({
                           ...prev,
-                          initialPayment: Number(e.target.value),
+                          payment: { ...prev.payment, amount: Number(e.target.value) },
                         }))
                       }
                     />
@@ -1413,9 +1544,16 @@ export function AtencionesManager({
                       type="checkbox"
                       id="pastIsCredit"
                       className="form-checkbox rounded text-primary"
-                      checked={pastOutcome.isCredit}
+                      checked={pastOutcome.payment.mode === 'partial'}
                       onChange={(e) =>
-                        setPastOutcome((prev) => ({ ...prev, isCredit: e.target.checked }))
+                        setPastOutcome((prev) => ({
+                          ...prev,
+                          payment: {
+                            ...prev.payment,
+                            mode: e.target.checked ? 'partial' : 'full',
+                            amount: e.target.checked ? 0 : form.price_charged,
+                          },
+                        }))
                       }
                     />
                     <label
@@ -1426,7 +1564,7 @@ export function AtencionesManager({
                     </label>
                   </div>
 
-                  {pastOutcome.isCredit && (
+                  {pastOutcome.payment.mode === 'partial' && (
                     <div>
                       <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                         Fecha Máxima de Pago
@@ -1500,7 +1638,15 @@ export function AtencionesManager({
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <PaymentCaptureFields
+              draft={paymentDraft}
+              onChange={setPaymentDraft}
+              remaining={Math.max(
+                0,
+                (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0),
+              )}
+            />
+            <div className="hidden">
               <div>
                 <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                   Monto del Abono (S/) *
@@ -1513,8 +1659,10 @@ export function AtencionesManager({
                     (paymentVisit.price_charged || 0) - (paymentVisit.amount_paid || 0),
                   )}
                   className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full font-bold"
-                  value={paymentAmount}
-                  onChange={(e) => setPaymentAmount(Number(e.target.value))}
+                  value={paymentDraft.amount}
+                  onChange={(e) =>
+                    setPaymentDraft((current) => ({ ...current, amount: Number(e.target.value) }))
+                  }
                 />
               </div>
 
@@ -1524,8 +1672,10 @@ export function AtencionesManager({
                 </label>
                 <select
                   className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full capitalize"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  value={paymentDraft.method}
+                  onChange={(e) =>
+                    setPaymentDraft((current) => ({ ...current, method: e.target.value }))
+                  }
                 >
                   {paymentMethods.map((m) => (
                     <option key={m} value={m}>
@@ -1563,7 +1713,7 @@ export function AtencionesManager({
           <div className="bg-white dark:bg-dark border border-black-light dark:border-dark-light rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-black-light dark:border-dark-light pb-3">
               <h3 className="text-lg font-bold text-black dark:text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-500" /> Finalizar y Cobrar Atención
+                <CheckCircle className="w-5 h-5 text-emerald-500" /> Finalizar atención
               </h3>
               <button
                 onClick={() => setIsCompleteModalOpen(false)}
@@ -1589,15 +1739,27 @@ export function AtencionesManager({
             </div>
 
             <div className="space-y-3 pt-2">
-              <div>
+              <PaymentCaptureFields
+                allowNoPayment
+                draft={completeForm.payment}
+                onChange={(payment) => setCompleteForm((current) => ({ ...current, payment }))}
+                remaining={Math.max(
+                  0,
+                  (selectedVisit.price_charged || 0) - (selectedVisit.amount_paid || 0),
+                )}
+              />
+              <div className="hidden">
                 <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                   Método de Pago
                 </label>
                 <select
                   className="form-select rounded-xl border-black-light dark:border-dark-light text-sm w-full capitalize"
-                  value={completeForm.payment_method}
+                  value={completeForm.payment.method}
                   onChange={(e) =>
-                    setCompleteForm((prev) => ({ ...prev, payment_method: e.target.value }))
+                    setCompleteForm((prev) => ({
+                      ...prev,
+                      payment: { ...prev.payment, method: e.target.value },
+                    }))
                   }
                 >
                   {paymentMethods.map((m) => (
@@ -1608,7 +1770,7 @@ export function AtencionesManager({
                 </select>
               </div>
 
-              <div>
+              <div className="hidden">
                 <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                   Monto Recibido Hoy (S/)
                 </label>
@@ -1616,24 +1778,27 @@ export function AtencionesManager({
                   type="number"
                   min={0}
                   className="form-input rounded-xl border-black-light dark:border-dark-light text-sm w-full"
-                  value={completeForm.initial_payment}
+                  value={completeForm.payment.amount}
                   onChange={(e) =>
                     setCompleteForm((prev) => ({
                       ...prev,
-                      initial_payment: Number(e.target.value),
+                      payment: { ...prev.payment, amount: Number(e.target.value) },
                     }))
                   }
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
+              <div className="hidden">
                 <input
                   type="checkbox"
                   id="isCredit"
                   className="form-checkbox rounded text-primary"
-                  checked={completeForm.is_credit}
+                  checked={completeForm.payment.mode === 'partial'}
                   onChange={(e) =>
-                    setCompleteForm((prev) => ({ ...prev, is_credit: e.target.checked }))
+                    setCompleteForm((prev) => ({
+                      ...prev,
+                      payment: { ...prev.payment, mode: e.target.checked ? 'partial' : 'full' },
+                    }))
                   }
                 />
                 <label
@@ -1644,7 +1809,7 @@ export function AtencionesManager({
                 </label>
               </div>
 
-              {completeForm.is_credit && (
+              {completeForm.payment.mode === 'partial' && (
                 <div>
                   <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
                     Fecha Límite de Pago

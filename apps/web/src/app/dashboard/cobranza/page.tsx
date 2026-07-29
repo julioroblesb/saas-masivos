@@ -47,8 +47,9 @@ export default async function CobranzaPage() {
   // Fetch payments to calculate remaining debts
   const { data: payments, error: paymentsErr } = await supabase
     .from('spa_payments')
-    .select('visit_id, amount')
-    .eq('company_id', profile.company_id);
+    .select('id, visit_id, amount, payment_method, payment_date, operation_reference')
+    .eq('company_id', profile.company_id)
+    .order('payment_date', { ascending: false });
 
   if (paymentsErr) {
     console.error('Error fetching cobranza payments:', paymentsErr);
@@ -80,6 +81,10 @@ export default async function CobranzaPage() {
         scheduled_date: visit.scheduled_date,
         price_charged,
         amount_paid,
+        payments: visitPayments.map((payment) => ({
+          ...payment,
+          payment_date: payment.payment_date || visit.visit_date || visit.scheduled_date || new Date().toISOString(),
+        })),
         debt_due_date: visit.debt_due_date,
         payment_status: visit.payment_status,
       };
