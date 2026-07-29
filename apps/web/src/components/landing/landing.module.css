@@ -1072,29 +1072,14 @@
   font-size: 13px;
 }
 
-.regularPrice {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 20px;
-  color: #c8bac3;
-  font-size: 14px;
-}
-
-.regularPrice span {
-  color: #f1e7ed;
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
-}
-
-.launchPrice {
+.planPrice {
   display: block;
-  margin-top: 8px;
+  margin-top: 20px;
   font-size: 44px;
   letter-spacing: -0.05em;
 }
 
-.launchPrice span {
+.planPrice span {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;

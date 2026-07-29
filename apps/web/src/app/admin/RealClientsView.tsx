@@ -20,6 +20,8 @@ export type ExtendedCompany = Tables<'companies'> & {
     contact_name: string;
     phone: string;
     industry: string;
+    lead_status: string;
+    converted_at: string | null;
     whatsapp_consent: boolean;
     created_at: string;
   } | null;

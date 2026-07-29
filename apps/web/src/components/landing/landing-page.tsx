@@ -113,7 +113,7 @@ function AgendaDetail() {
         <li className={styles.currentAppointment}>
           <time>11:00</time>
           <span>
-            <strong>Laciado brasilero</strong>
+            <strong>Laceado brasileño</strong>
             <small>Camila · 120 min</small>
           </span>
         </li>
@@ -377,12 +377,9 @@ export function LandingPage() {
                 </p>
               </div>
               <div className={styles.priceBlock}>
-                <p>Precio de lanzamiento · primeros 10 negocios</p>
-                <div className={styles.regularPrice}>
-                  Precio regular <span>S/ 259 al mes</span>
-                </div>
-                <strong className={styles.launchPrice}>
-                  S/ 99 <span>/ mes</span>
+                <p>Plan Renova</p>
+                <strong className={styles.planPrice}>
+                  S/ 159 <span>/ mes</span>
                 </strong>
                 <ul>
                   <li>
@@ -399,7 +396,7 @@ export function LandingPage() {
                   Probar Renova gratis
                   <ArrowRight aria-hidden="true" />
                 </Link>
-                <small>Promoción de lanzamiento disponible para los primeros 10 usuarios.</small>
+                <small>Sin permanencia. Puedes cancelar cuando lo necesites.</small>
               </div>
             </div>
           </div>

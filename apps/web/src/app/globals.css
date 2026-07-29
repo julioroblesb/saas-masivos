@@ -344,12 +344,6 @@
     text-wrap: nowrap;
   }
 
-  .demo-read-only-content {
-    position: relative;
-    pointer-events: none;
-    user-select: text;
-  }
-
   .sidebar:hover .nav-item > a {
     @apply w-auto;
   }

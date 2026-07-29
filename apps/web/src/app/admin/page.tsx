@@ -5,6 +5,7 @@ import { AdminDashboardClient } from './AdminDashboardClient';
 import type { ExtendedCompany } from './RealClientsView';
 import type { ExtendedWaSession } from './WhatsappOversightView';
 import type { Tables } from '@/types/database.generated';
+import type { DemoMessageTemplate } from './DemoMessageTemplatesEditor';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,10 +52,21 @@ export default async function AdminPage() {
 
   const { data: demoLeads, error: demoLeadsError } = await supabaseAdmin
     .from('demo_leads')
-    .select('company_id, contact_name, phone, industry, whatsapp_consent, created_at');
+    .select(
+      'company_id, contact_name, phone, industry, lead_status, converted_at, whatsapp_consent, created_at',
+    );
 
   if (demoLeadsError) {
     console.error('Error fetching demo leads for superadmin:', demoLeadsError);
+  }
+
+  const { data: rawDemoMessageTemplates, error: demoTemplatesError } = await supabaseAdmin
+    .from('demo_message_templates')
+    .select('template_key, message_template, delay_seconds, enabled, updated_at')
+    .order('delay_seconds', { ascending: true });
+
+  if (demoTemplatesError) {
+    console.error('Error fetching demo message templates for superadmin:', demoTemplatesError);
   }
 
   // 3. Resolve Auth emails server-side with REAL PAGINATION (page by page beyond 1000 users)
@@ -127,6 +139,8 @@ export default async function AdminPage() {
             contact_name: demoLead.contact_name,
             phone: demoLead.phone,
             industry: demoLead.industry,
+            lead_status: demoLead.lead_status,
+            converted_at: demoLead.converted_at,
             whatsapp_consent: demoLead.whatsapp_consent,
             created_at: demoLead.created_at,
           }
@@ -145,5 +159,11 @@ export default async function AdminPage() {
     ...s,
   }));
 
-  return <AdminDashboardClient companies={extendedCompanies} waSessions={extendedSessions} />;
+  return (
+    <AdminDashboardClient
+      companies={extendedCompanies}
+      waSessions={extendedSessions}
+      demoMessageTemplates={(rawDemoMessageTemplates || []) as DemoMessageTemplate[]}
+    />
+  );
 }

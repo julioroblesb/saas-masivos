@@ -98,15 +98,43 @@ export type Database = {
         };
         Relationships: [];
       };
+      demo_message_templates: {
+        Row: {
+          delay_seconds: number;
+          enabled: boolean;
+          message_template: string;
+          template_key: string;
+          updated_at: string;
+        };
+        Insert: {
+          delay_seconds: number;
+          enabled?: boolean;
+          message_template: string;
+          template_key: string;
+          updated_at?: string;
+        };
+        Update: {
+          delay_seconds?: number;
+          enabled?: boolean;
+          message_template?: string;
+          template_key?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       demo_leads: {
         Row: {
           auth_user_id: string;
           business_name: string;
           company_id: string;
           contact_name: string;
+          converted_at: string | null;
           created_at: string;
+          follow_up_queue_id: string | null;
           id: string;
+          info_queue_id: string | null;
           industry: string;
+          lead_status: string;
           phone: string;
           welcome_queue_id: string | null;
           whatsapp_consent: boolean;
@@ -117,9 +145,13 @@ export type Database = {
           business_name: string;
           company_id: string;
           contact_name: string;
+          converted_at?: string | null;
           created_at?: string;
+          follow_up_queue_id?: string | null;
           id?: string;
+          info_queue_id?: string | null;
           industry: string;
+          lead_status?: string;
           phone: string;
           welcome_queue_id?: string | null;
           whatsapp_consent?: boolean;
@@ -130,9 +162,13 @@ export type Database = {
           business_name?: string;
           company_id?: string;
           contact_name?: string;
+          converted_at?: string | null;
           created_at?: string;
+          follow_up_queue_id?: string | null;
           id?: string;
+          info_queue_id?: string | null;
           industry?: string;
+          lead_status?: string;
           phone?: string;
           welcome_queue_id?: string | null;
           whatsapp_consent?: boolean;
@@ -151,6 +187,20 @@ export type Database = {
             columns: ['company_id'];
             isOneToOne: true;
             referencedRelation: 'companies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'demo_leads_follow_up_queue_id_fkey';
+            columns: ['follow_up_queue_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_wa_queue';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'demo_leads_info_queue_id_fkey';
+            columns: ['info_queue_id'];
+            isOneToOne: false;
+            referencedRelation: 'crm_wa_queue';
             referencedColumns: ['id'];
           },
           {
@@ -1599,6 +1649,13 @@ export type Database = {
           p_plan_type: string;
           p_status: string;
           p_subscription_end_at: string;
+        };
+        Returns: Json;
+      };
+      rpc_set_demo_lead_status: {
+        Args: {
+          p_company_id: string;
+          p_status: string;
         };
         Returns: Json;
       };

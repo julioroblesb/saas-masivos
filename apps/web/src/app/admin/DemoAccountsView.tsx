@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { purgeDemoTenants } from './actions';
+import { purgeDemoTenants, updateDemoLeadStatus } from './actions';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import {
   Trash2,
   Building,
@@ -15,21 +16,28 @@ import {
 } from 'lucide-react';
 import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
 import type { ExtendedCompany } from './RealClientsView';
+import {
+  DemoMessageTemplatesEditor,
+  type DemoMessageTemplate,
+} from './DemoMessageTemplatesEditor';
 
 interface DemoAccountsViewProps {
   companies: ExtendedCompany[];
+  messageTemplates: DemoMessageTemplate[];
 }
 
 type FilterState = 'todas' | 'activas' | 'vencidas';
 const PAGE_SIZE = 25;
 
-export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
+export function DemoAccountsView({ companies, messageTemplates }: DemoAccountsViewProps) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterState>('todas');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
 
   const demoCompanies = useMemo(() => companies.filter((c) => c.is_demo === true), [companies]);
 
@@ -140,8 +148,37 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
     }
   };
 
+  const handleLeadStatusChange = async (
+    companyId: string,
+    status: 'demo' | 'client' | 'declined',
+  ) => {
+    setUpdatingLeadId(companyId);
+    try {
+      const result = await updateDemoLeadStatus(companyId, status);
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(
+        status === 'client'
+          ? 'Lead marcado como cliente. El mensaje del quinto día fue cancelado.'
+          : status === 'declined'
+            ? 'Lead descartado. El seguimiento automático fue cancelado.'
+            : 'Lead devuelto a estado demo.',
+      );
+      router.refresh();
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo actualizar el estado');
+    } finally {
+      setUpdatingLeadId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <DemoMessageTemplatesEditor templates={messageTemplates} />
+
       {/* Search, Filter Pills & Counter */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
@@ -269,6 +306,9 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Propietario</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Teléfono</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Rubro</th>
+                  <th className="py-3 px-4 font-semibold text-xs text-zinc-500">
+                    Estado comercial
+                  </th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Estado Efectivo</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Registro</th>
                   <th className="py-3 px-4 font-semibold text-xs text-zinc-500">Vencimiento</th>
@@ -322,6 +362,24 @@ export function DemoAccountsView({ companies }: DemoAccountsViewProps) {
                       </td>
                       <td className="py-3.5 px-4 text-xs text-zinc-600 dark:text-zinc-300">
                         {company.demo_lead?.industry || '-'}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={company.demo_lead?.lead_status ?? 'demo'}
+                          disabled={updatingLeadId === company.id}
+                          onChange={(event) =>
+                            handleLeadStatusChange(
+                              company.id,
+                              event.target.value as 'demo' | 'client' | 'declined',
+                            )
+                          }
+                          aria-label={`Estado comercial de ${company.name}`}
+                          className="min-h-10 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-semibold text-zinc-700 outline-none transition-colors focus:border-primary disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+                        >
+                          <option value="demo">Demo</option>
+                          <option value="client">Cliente</option>
+                          <option value="declined">Descartado</option>
+                        </select>
                       </td>
                       <td className="py-3.5 px-4">
                         {access.allowed ? (

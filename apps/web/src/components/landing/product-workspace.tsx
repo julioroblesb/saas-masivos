@@ -74,7 +74,7 @@ export function ProductWorkspace() {
               </div>
               <span className={styles.scheduleTime}>11:00</span>
               <div className={`${styles.appointment} ${styles.appointmentAccent}`}>
-                <strong>Laciado brasilero</strong>
+                <strong>Laceado brasileño</strong>
                 <span>Camila Rojas · Mariela</span>
               </div>
               <span className={styles.scheduleTime}>13:30</span>

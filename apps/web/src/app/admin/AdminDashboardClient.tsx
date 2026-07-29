@@ -15,15 +15,21 @@ import {
   Clock,
 } from 'lucide-react';
 import { evaluateTenantAccess } from '@/domain/subscriptions/evaluate-tenant-access';
+import type { DemoMessageTemplate } from './DemoMessageTemplatesEditor';
 
 interface AdminDashboardClientProps {
   companies: ExtendedCompany[];
   waSessions: ExtendedWaSession[];
+  demoMessageTemplates: DemoMessageTemplate[];
 }
 
 type ActiveTab = 'real_clients' | 'demo_accounts' | 'whatsapp';
 
-export function AdminDashboardClient({ companies, waSessions }: AdminDashboardClientProps) {
+export function AdminDashboardClient({
+  companies,
+  waSessions,
+  demoMessageTemplates,
+}: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>('real_clients');
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -208,7 +214,9 @@ export function AdminDashboardClient({ companies, waSessions }: AdminDashboardCl
       {/* Active Tab View */}
       <div className="pt-2">
         {activeTab === 'real_clients' && <RealClientsView companies={companies} />}
-        {activeTab === 'demo_accounts' && <DemoAccountsView companies={companies} />}
+        {activeTab === 'demo_accounts' && (
+          <DemoAccountsView companies={companies} messageTemplates={demoMessageTemplates} />
+        )}
         {activeTab === 'whatsapp' && (
           <WhatsappOversightView sessions={waSessions} companies={companies} />
         )}

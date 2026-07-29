@@ -43,10 +43,7 @@ export default function DefaultLayout({
             {/* END TOP NAVBAR */}
 
             {/* BEGIN CONTENT AREA */}
-            <div
-              className={isDemo ? 'demo-read-only-content' : undefined}
-              aria-disabled={isDemo || undefined}
-            >
+            <div>
               <ContentAnimation>{children}</ContentAnimation>
             </div>
             {/* END CONTENT AREA */}

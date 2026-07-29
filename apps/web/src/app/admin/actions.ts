@@ -184,6 +184,114 @@ export async function updateTenantSubscription(companyId: string, data: unknown)
   }
 }
 
+const demoLeadStatusSchema = z.enum(['demo', 'client', 'declined']);
+const demoMessageTemplateSchema = z.object({
+  templateKey: z.enum(['immediate_info', 'day_five_follow_up']),
+  messageTemplate: z.string().trim().min(20).max(1200),
+  enabled: z.boolean(),
+});
+
+export async function updateDemoMessageTemplate(input: unknown) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'No autorizado' };
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'super_admin') {
+      return { error: 'No autorizado' };
+    }
+
+    const parsed = demoMessageTemplateSchema.parse(input);
+    const supabaseAdmin = getSupabaseAdmin();
+    const { error } = await supabaseAdmin
+      .from('demo_message_templates')
+      .update({
+        message_template: parsed.messageTemplate,
+        enabled: parsed.enabled,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('template_key', parsed.templateKey);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    await recordAuditEvent({
+      actorId: user.id,
+      companyId: null,
+      correlationId: crypto.randomUUID(),
+      entityId: null,
+      entityType: 'demo_message_template',
+      eventType: 'superadmin.demo_message_template_updated',
+      metadata: {
+        templateKey: parsed.templateKey,
+        enabled: parsed.enabled,
+      },
+    });
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error: unknown) {
+    return { error: errorMessage(error) };
+  }
+}
+
+export async function updateDemoLeadStatus(companyId: string, status: unknown) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'No autorizado' };
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'super_admin') {
+      return { error: 'No autorizado' };
+    }
+
+    const parsedStatus = demoLeadStatusSchema.parse(status);
+    const supabaseAdmin = getSupabaseAdmin();
+    const { error } = await supabaseAdmin.rpc('rpc_set_demo_lead_status', {
+      p_company_id: companyId,
+      p_status: parsedStatus,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    await recordAuditEvent({
+      actorId: user.id,
+      companyId,
+      correlationId: crypto.randomUUID(),
+      entityId: companyId,
+      entityType: 'demo_lead',
+      eventType: 'superadmin.demo_lead_status_updated',
+      metadata: { status: parsedStatus },
+    });
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error: unknown) {
+    return { error: errorMessage(error) };
+  }
+}
+
 export async function deleteTenant(companyId: string) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
